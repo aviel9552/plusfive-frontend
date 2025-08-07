@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { StatChartCard } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminTranslations } from '../../../utils/translations';
 
 const timeOptions = [
   { value: 'monthly', label: 'Monthly' },
@@ -13,8 +12,7 @@ const timeOptions = [
 function AdminMonthlyPerformance() {
   const [timeFrame, setTimeFrame] = useState('monthly');
   const { language } = useLanguage();
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.admin;
+  const t = getAdminTranslations(language);
 
   return (
     <div className="w-full">

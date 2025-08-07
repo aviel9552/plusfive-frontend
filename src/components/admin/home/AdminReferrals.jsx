@@ -3,8 +3,7 @@ import { HiDotsHorizontal } from 'react-icons/hi';
 import { CommonTable } from '../../index';
 import referralData from '../../../jsonData/ReferralData.json';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminTranslations } from '../../../utils/translations';
 
 const statusColors = {
     Active: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400',
@@ -23,8 +22,7 @@ function AdminReferrals() {
     const [isDark, setIsDark] = useState(false);
 
     const { language } = useLanguage();
-    const translations = language === 'he' ? heTranslations : enTranslations;
-    const t = translations.admin;
+    const t = getAdminTranslations(language);
 
     const statusOptions = ['All', 'Active', 'Pending', 'Inactive'];
 

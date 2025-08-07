@@ -6,15 +6,13 @@ import CommonAdminTable from '../../../components/commonComponent/CommonAdminTab
 import CommonPagination from '../../../components/commonComponent/CommonPagination';
 import CommonButton from '../../../components/commonComponent/CommonButton';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminQRTranslations } from '../../../utils/translations';
 
 function AdminQRManagementListing() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.adminQR;
+  const t = getAdminQRTranslations(language);
   
   const qrState = useSelector((state) => state.qr);
   

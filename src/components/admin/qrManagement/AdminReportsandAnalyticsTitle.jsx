@@ -4,8 +4,7 @@ import { BiQr } from 'react-icons/bi'
 import { FiMousePointer } from 'react-icons/fi'
 import { IoStatsChart } from 'react-icons/io5'
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminQRTranslations } from '../../../utils/translations';
 
 const timeOptions = [
     { value: 'monthly', label: 'Monthly' },
@@ -15,8 +14,7 @@ const timeOptions = [
 
 function AdminReportsandAnalyticsTitle() {
     const { language } = useLanguage();
-    const translations = language === 'he' ? heTranslations : enTranslations;
-    const t = translations.adminQR;
+    const t = getAdminQRTranslations(language);
     const [timeFrame, setTimeFrame] = useState('monthly')
 
     return (
