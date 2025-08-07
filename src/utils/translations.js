@@ -1,0 +1,50 @@
+import enTranslations from '../i18/en.json';
+import heTranslations from '../i18/he.json';
+
+// Centralized translation utility
+export const getTranslations = (language) => {
+  return language === 'he' ? heTranslations : enTranslations;
+};
+
+// Helper function to get specific sections
+export const getTranslationSection = (language, section) => {
+  const translations = getTranslations(language);
+  return translations[section] || {};
+};
+
+// Common translation patterns
+export const getAuthTranslations = (language) => {
+  return getTranslationSection(language, 'auth');
+};
+
+export const getValidationTranslations = (language) => {
+  return getTranslationSection(language, 'validation');
+};
+
+export const getLayoutTranslations = (language) => {
+  return getTranslationSection(language, 'layout');
+};
+
+export const getAdminTranslations = (language) => {
+  return getTranslationSection(language, 'admin');
+};
+
+export const getAdminUserTranslations = (language) => {
+  return getTranslationSection(language, 'adminUser');
+};
+
+export const getAdminAnalyticsTranslations = (language) => {
+  return getTranslationSection(language, 'adminAnalytics');
+};
+
+export const getAccountSettingTranslations = (language) => {
+  return getTranslationSection(language, 'accountSetting');
+};
+
+export const getAdminQRTranslations = (language) => {
+  return getTranslationSection(language, 'adminQR');
+}; 
+
+export const getUserSupportTranslations = (language) => {
+  return getTranslationSection(language, 'userSupport');
+}; 

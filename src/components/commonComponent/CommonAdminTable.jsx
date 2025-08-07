@@ -1,0 +1,520 @@
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import CommonPagination from './CommonPagination';
+import CommonButton from './CommonButton';
+import { createPortal } from 'react-dom';
+import { HiDotsHorizontal } from 'react-icons/hi';
+import { FiEye, FiEdit, FiTrash2, FiSearch, FiCalendar, FiDownload, FiPlus } from 'react-icons/fi';
+import { useLanguage } from '../../context/LanguageContext';
+import { getAdminUserTranslations } from '../../utils/translations';
+
+const PAGE_SIZES = [7, 10, 20, 30, 50];
+
+// Search component
+const SearchInput = React.memo(({ value, onChange, onFocus, onBlur, placeholder }) => (
+  <div className="relative flex-1">
+    <input
+      type="text"
+      placeholder={placeholder}
+      value={value || ''}
+      onChange={e => onChange(e.target.value)}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      className="w-full pl-10 pr-4 py-2.5 bg-transparent border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+      aria-label="Search table"
+    />
+    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
+      <FiSearch className="w-5 h-5" />
+    </span>
+  </div>
+));
+
+SearchInput.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  placeholder: PropTypes.string
+};
+
+// Filter component
+const FilterDropdown = React.memo(({ value, options, onChange, icon, label }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const filterRef = useRef(null);
+
+  React.useEffect(() => {
+    const handleClick = (e) => {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClick);
+    }
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [isOpen]);
+
+  return (
+    <div className="relative min-w-[140px]" ref={filterRef}>
+      <button
+        type="button"
+        className="w-full flex items-center justify-between bg-transparent text-white px-4 py-2.5 rounded-lg text-sm border border-gray-700 hover:border-blue-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+        onClick={() => setIsOpen(o => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center gap-2">
+          {icon && <span className="text-gray-400">{icon}</span>}
+          <span>{value || label}</span>
+        </div>
+        <svg className={`ml-2 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+      </button>
+      {isOpen && (
+        <div
+          className="absolute right-0 mt-2 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20 animate-fadeIn overflow-hidden"
+          role="listbox"
+        >
+          {options.map(option => (
+            <button
+              key={option}
+              className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-700 transition-colors duration-150
+                ${value === option ? 'bg-blue-500/20 text-blue-400' : 'text-white'}`}
+              onClick={() => {
+                onChange(option);
+                setIsOpen(false);
+              }}
+              role="option"
+              aria-selected={value === option}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+FilterDropdown.propTypes = {
+  value: PropTypes.string,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onChange: PropTypes.func.isRequired,
+  icon: PropTypes.node,
+  label: PropTypes.string
+};
+
+function DropdownPortal({ anchorRef, open, children }) {
+  const [style, setStyle] = useState({});
+  const dropdownRef = useRef();
+
+  useEffect(() => {
+    if (open && anchorRef.current) {
+      const rect = anchorRef.current.getBoundingClientRect();
+      const dropdownWidth = 180;
+      let left = rect.left;
+      if (left + dropdownWidth > window.innerWidth - 8) {
+        left = window.innerWidth - dropdownWidth - 8;
+      }
+      if (left < 8) left = 8;
+
+      // Calculate dropdown height
+      let dropdownHeight = 0;
+      if (dropdownRef.current) {
+        dropdownHeight = dropdownRef.current.offsetHeight;
+      } else {
+        dropdownHeight = 60; // fallback
+      }
+
+      // Direction logic
+      let top = rect.bottom;
+      if (window.innerHeight - rect.bottom < dropdownHeight + 8) {
+        // Not enough space below, open upward
+        top = rect.top - dropdownHeight;
+        if (top < 8) top = 8; // clamp to top
+      }
+      setStyle({
+        position: 'fixed',
+        left,
+        top,
+        zIndex: 99999,
+        width: dropdownWidth,
+        minWidth: 140,
+        maxWidth: '95vw',
+        maxHeight: '60vh',
+        overflowY: 'auto',
+      });
+    }
+  }, [open, anchorRef, children]);
+
+  // Close on scroll/resize
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setStyle(s => ({ ...s }));
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [open]);
+
+  if (!open) return null;
+  return createPortal(
+    <div ref={dropdownRef} style={style} className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 z-[99999] backdrop-blur-sm">
+      {children}
+    </div>,
+    document.body
+  );
+}
+
+const CommonAdminTable = ({
+  columns,
+  data,
+  total,
+  searchValue = '',
+  onSearchChange,
+  onSearchFocus,
+  onSearchBlur,
+  filterValue = '',
+  filterOptions,
+  onFilterChange,
+  roleValue = '',
+  roleOptions = [],
+  onRoleChange,
+  statusValue = '',
+  statusOptions = [],
+  onStatusChange,
+  planValue = '',
+  planOptions = [],
+  onPlanChange,
+  dateRange = { startDate: null, endDate: null },
+  onDateRangeChange,
+  loading = false,
+  renderActions,
+  onSort,
+  loadingComponent,
+  noDataComponent,
+  className = '',
+  onPageChange,
+  onPageSizeChange,
+  currentPage = 1,
+  pageSize = PAGE_SIZES[0],
+  showPagination = true,
+  paginationProps = {},
+  onEdit,
+  onView,
+  onDelete,
+  onAddUser,
+  showFilterBar = true
+}) => {
+  const { language } = useLanguage();
+  const t = getAdminUserTranslations(language);
+
+  const [sortConfig, setSortConfig] = useState(null);
+  const actionBtnRefs = useRef([]);
+  const [openAction, setOpenAction] = useState(null);
+  const [openUpward, setOpenUpward] = useState(false);
+
+  const handleSort = useCallback((key) => {
+    if (!onSort) return;
+
+    const direction = sortConfig?.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    setSortConfig({ key, direction });
+    onSort(key, direction);
+  }, [sortConfig, onSort]);
+
+  const handleActionClick = (idx) => {
+    if (openAction === idx) {
+      setOpenAction(null);
+      setOpenUpward(false);
+      return;
+    }
+    const btnRect = actionBtnRefs.current[idx]?.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - (btnRect?.bottom || 0);
+    setOpenUpward(spaceBelow < 180);
+    setOpenAction(idx);
+  };
+
+  return (
+    <div className={`transition-colors duration-200 font-ttcommons ${className}`}>
+      {/* Filter Bar - Only show if showFilterBar is true */}
+      {showFilterBar && (
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-transparent justify-between mb-6">
+          {/* Left side - Search and Filters (4 elements) */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full lg:w-auto">
+            {/* Search */}
+            <div className="w-full sm:w-auto">
+              <SearchInput 
+                value={searchValue} 
+                onChange={onSearchChange} 
+                onFocus={onSearchFocus} 
+                onBlur={onSearchBlur} 
+                placeholder={t.search}
+              />
+            </div>
+            
+            {/* Role Filter */}
+            <div className="w-full sm:w-auto">
+              <FilterDropdown 
+                value={roleValue} 
+                options={roleOptions} 
+                onChange={onRoleChange}
+                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+                label={t.roleFilter}
+              />
+            </div>
+            
+            {/* Status Filter */}
+            <div className="w-full sm:w-auto">
+              <FilterDropdown 
+                value={statusValue} 
+                options={statusOptions} 
+                onChange={onStatusChange}
+                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>}
+                label={t.statusFilter}
+              />
+            </div>
+            
+            {/* Date Filter */}
+            <div className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-white hover:border-blue-500 transition">
+                <FiCalendar className="mr-2 text-lg" />
+                {t.date}
+                <span className="ml-2">&#9662;</span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Right side - Action Buttons (2 elements) */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full lg:w-auto">
+            {/* Export Button */}
+            <div className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-white hover:border-blue-500 transition">
+                <FiDownload className="mr-2 text-lg" />
+                {t.export}
+              </button>
+            </div>
+            
+            {/* Add User Button */}
+            <div className="w-full sm:w-auto">
+              <CommonButton
+                text={t.addUser}
+                onClick={onAddUser}
+                className="w-full sm:w-auto px-4 pt-2.5 pb-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200"
+                icon={<FiPlus className="w-4 h-4" />}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Search Bar Only - Show when showFilterBar is false but search is needed */}
+      {!showFilterBar && onSearchChange && (
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-transparent justify-between mb-6">
+          <div className="w-full lg:w-auto">
+            <SearchInput 
+              value={searchValue} 
+              onChange={onSearchChange} 
+              onFocus={onSearchFocus} 
+              onBlur={onSearchBlur} 
+              placeholder={t.search}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm table-auto" role="grid">
+          <thead>
+            <tr className="border-b border-gray-700">
+              {columns.map(col => (
+                <th
+                  key={col.key}
+                  className={`py-3 px-4 text-left font-semibold text-gray-300 ${col.className || ''} ${col.sortable ? 'cursor-pointer select-none' : ''}`}
+                  onClick={() => col.sortable && handleSort(col.key)}
+                  aria-sort={sortConfig?.key === col.key ? sortConfig.direction : undefined}
+                >
+                  <div className="flex items-center gap-1">
+                    {col.label}
+                    {col.sortable && (
+                      <svg
+                        className={`w-4 h-4 transition-transform ${sortConfig?.key === col.key
+                            ? sortConfig.direction === 'asc'
+                              ? 'transform rotate-180'
+                              : ''
+                            : ''
+                          }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 15l4 4 4-4M8 9l4-4 4 4" />
+                      </svg>
+                    )}
+                  </div>
+                </th>
+              ))}
+              {renderActions && <th className="py-3 px-4 text-left font-semibold text-gray-300">{t.actions}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={columns.length + (renderActions ? 1 : 0)} className="text-center py-8">
+                  {loadingComponent || t.loading}
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length + (renderActions ? 1 : 0)} className="text-center py-8">
+                  {noDataComponent || t.noDataFound}
+                </td>
+              </tr>
+            ) : (
+              data.map((row, idx) => (
+                <tr
+                  key={idx}
+                  className="text-white border-b border-gray-700 hover:bg-gray-800 transition-colors"
+                  role="row"
+                >
+                  {columns.map(col => (
+                    <td
+                      key={col.key}
+                      className={`py-3 px-4 ${col.className || ''}`}
+                      role="gridcell"
+                    >
+                      {col.render ? (() => {
+                        try {
+                          // Safety check for undefined row
+                          if (!row) {
+                            return 'N/A';
+                          }
+                          return col.render(row, idx);
+                        } catch (error) {
+                          return 'Error';
+                        }
+                      })() : (row?.[col.key] || 'N/A')}
+                    </td>
+                  ))}
+                  {renderActions && (
+                    <td className="py-3 px-4" role="gridcell">
+                      <div className="text-center relative action-dropdown">
+                        <button
+                          ref={el => actionBtnRefs.current[idx] = el}
+                          className="p-2 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-200 hover:scale-105"
+                          onClick={() => handleActionClick(idx)}
+                        >
+                          <HiDotsHorizontal className="w-5 h-5" />
+                        </button>
+                        <DropdownPortal anchorRef={{ current: actionBtnRefs.current[idx] }} open={openAction === idx} upward={openUpward}>
+                          <button
+                            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition-colors flex items-center gap-2"
+                            onClick={() => { 
+                              setOpenAction(null); 
+                              if (onView) onView(row);
+                              else alert('View Details clicked!');
+                            }}
+                          >
+                            <FiEye className="w-4 h-4" />
+                            {t.viewDetails}
+                          </button>
+                          <button
+                            className="w-full text-left px-4 py-2 text-sm text-blue-400 hover:bg-blue-900/20 transition-colors flex items-center gap-2"
+                            onClick={() => { 
+                              setOpenAction(null); 
+                              if (onEdit) onEdit(row);
+                              else alert('Edit clicked!');
+                            }}
+                          >
+                            <FiEdit className="w-4 h-4" />
+                            {t.edit}
+                          </button>
+                          <button
+                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 transition-colors flex items-center gap-2"
+                            onClick={() => { 
+                              setOpenAction(null); 
+                              if (onDelete) onDelete(row);
+                              else alert('Delete clicked!');
+                            }}
+                          >
+                            <FiTrash2 className="w-4 h-4" />
+                            {t.delete}
+                          </button>
+                        </DropdownPortal>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {showPagination && onPageChange && (
+        <div className="mt-6">
+          <CommonPagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            {...paginationProps}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+CommonAdminTable.propTypes = {
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      render: PropTypes.func,
+      className: PropTypes.string,
+      sortable: PropTypes.bool
+    })
+  ).isRequired,
+  data: PropTypes.array.isRequired,
+  total: PropTypes.number,
+  searchValue: PropTypes.string,
+  onSearchChange: PropTypes.func,
+  onSearchFocus: PropTypes.func,
+  onSearchBlur: PropTypes.func,
+  filterValue: PropTypes.string,
+  filterOptions: PropTypes.arrayOf(PropTypes.string),
+  onFilterChange: PropTypes.func,
+  roleValue: PropTypes.string,
+  roleOptions: PropTypes.arrayOf(PropTypes.string),
+  onRoleChange: PropTypes.func,
+  statusValue: PropTypes.string,
+  statusOptions: PropTypes.arrayOf(PropTypes.string),
+  onStatusChange: PropTypes.func,
+  dateRange: PropTypes.shape({
+    startDate: PropTypes.instanceOf(Date),
+    endDate: PropTypes.instanceOf(Date)
+  }),
+  onDateRangeChange: PropTypes.func,
+  loading: PropTypes.bool,
+  renderActions: PropTypes.func,
+  onSort: PropTypes.func,
+  loadingComponent: PropTypes.node,
+  noDataComponent: PropTypes.node,
+  className: PropTypes.string,
+  onPageChange: PropTypes.func,
+  onPageSizeChange: PropTypes.func,
+  currentPage: PropTypes.number,
+  pageSize: PropTypes.number,
+  showPagination: PropTypes.bool,
+  paginationProps: PropTypes.object,
+  onEdit: PropTypes.func,
+  onView: PropTypes.func,
+  onDelete: PropTypes.func,
+  onAddUser: PropTypes.func,
+  showFilterBar: PropTypes.bool
+};
+
+export default CommonAdminTable; 
