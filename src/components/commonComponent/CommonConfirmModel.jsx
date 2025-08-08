@@ -40,8 +40,8 @@ const CommonConfirmModel = ({
       {/* Modal */}
       <div className="relative bg-white/90 dark:bg-customBlack/90 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden backdrop-blur-md border border-customGray2 dark:border-customGray flex flex-col animate-fadeIn">
         {/* Header with Icon */}
-        <div className={`px-8 pt-6 pb-4 flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <div className={`flex items-center ${isRTL ? 'space-x-reverse' : 'space-x-3'} ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`px-8 pt-6 pb-4 flex items-center justify-between `}>
+          <div className={`flex items-center ${isRTL ? 'gap-3' : 'gap-3'}`}>
             <div className="flex-shrink-0 w-11 h-11 bg-gradient-to-br from-customRed to-orange-400 dark:from-customRed dark:to-orange-500 rounded-full flex items-center justify-center shadow-md">
               <MdWarning className="text-white" size={24} />
             </div>

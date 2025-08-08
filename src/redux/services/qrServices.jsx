@@ -16,6 +16,23 @@ export const getAllQRCodes = async () => {
   }
 };
 
+// Get my QR codes
+export const getMyQRCodes = async () => {
+  try {
+    const response = await apiClient.get('/qr/my-qr-codes');
+    // Return the full response to handle the structure in action
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to fetch my QR codes');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
 // Get QR code by ID
 export const getQRCodeById = async (qrId) => {
   try {

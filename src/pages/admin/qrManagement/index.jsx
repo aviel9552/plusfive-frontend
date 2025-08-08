@@ -6,6 +6,7 @@ import { MdQrCode2 } from 'react-icons/md';
 import { LuDownload } from 'react-icons/lu';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminQRTranslations } from '../../../utils/translations';
+import { toast } from 'react-toastify';
 
 function AdminQRManagement() {
   const { language } = useLanguage();
@@ -18,12 +19,6 @@ function AdminQRManagement() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generatedQR, setGeneratedQR] = useState(null);
-  const [toast, setToast] = useState({ show: false, message: '', type: '' });
-
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -148,12 +143,12 @@ function AdminQRManagement() {
         });
         setErrors({});
         // Show success toast with API message
-        showToast(response.message || t.qrCodeGeneratedSuccessfully, 'success');
+        toast.success(response.message || t.qrCodeGeneratedSuccessfully);
       } else {
-        showToast(t.failedToGenerateQRCode, 'error');
+        toast.error(t.failedToGenerateQRCode);
       }
     } catch (error) {
-      showToast(t.errorGeneratingQRCode, 'error');
+      toast.error(t.errorGeneratingQRCode);
     } finally {
       setLoading(false);
     }
@@ -162,7 +157,7 @@ function AdminQRManagement() {
   // Download QR Code functionality
   const handleDownloadQR = () => {
     if (!generatedQR || !generatedQR.qrCodeImage) {
-      showToast(t.noQRCodeToDownload, 'error');
+      toast.error(t.noQRCodeToDownload);
       return;
     }
 
@@ -174,16 +169,16 @@ function AdminQRManagement() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast(t.qrCodeDownloadedSuccessfully, 'success');
+      toast.success(t.qrCodeDownloadedSuccessfully);
     } catch (error) {
-      showToast(t.failedToDownloadQRCode, 'error');
+      toast.error(t.failedToDownloadQRCode);
     }
   };
 
   // Share QR Code on WhatsApp functionality
   const handleShareWhatsApp = () => {
     if (!generatedQR) {
-      showToast(t.noQRCodeToShare, 'error');
+      toast.error(t.noQRCodeToShare);
       return;
     }
 
@@ -194,25 +189,14 @@ function AdminQRManagement() {
       
       // Open WhatsApp in new tab
       window.open(whatsappURL, '_blank');
-      showToast(t.qrCodeSharedSuccessfully, 'success');
+      toast.success(t.qrCodeSharedSuccessfully);
     } catch (error) {
-      showToast(t.failedToShareQRCode, 'error');
+      toast.error(t.failedToShareQRCode);
     }
   };
 
   return (
     <div className="">
-      {/* Toast Notification */}
-      {toast.show && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
-          toast.type === 'success' 
-            ? 'bg-green-500 text-white' 
-            : 'bg-red-500 text-white'
-        }`}>
-          {toast.message}
-        </div>
-      )}
-
       {/* Main content boxes */}
       <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-gray-800 border-gray-200 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">

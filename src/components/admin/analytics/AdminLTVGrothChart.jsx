@@ -2,8 +2,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminAnalyticsTranslations } from '../../../utils/translations';
 
 const ltvData = [
     { month: 'Jan', ltv: 5.8, tooltipLTV: '5.8' },
@@ -23,8 +22,7 @@ const ltvData = [
 function AdminLTVGrothChart() {
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
-    const translations = language === 'he' ? heTranslations : enTranslations;
-    const t = translations.adminAnalytics;
+    const t = getAdminAnalyticsTranslations(language);
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {

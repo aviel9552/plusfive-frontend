@@ -1,13 +1,11 @@
 import React from 'react'
 import { AdminAnalyticsMonthlyPerformance, AdminAnalyticsRevenueAndCustomerStatus, AdminAnalyticsSecontChart, AdminLTVGrothChart } from '../../../components';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminAnalyticsTranslations } from '../../../utils/translations';
 
 function Analytics() {
   const { language } = useLanguage();
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.adminAnalytics;
+  const t = getAdminAnalyticsTranslations(language);
 
   return (
     <div>

@@ -1,9 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { CommonAdminTable, CommonDateRange } from '../../index';
-import adminData from '../../../jsonData/AdminUserData.json';
 import { format } from 'date-fns';
-import { FiSearch, FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
-import { FiCalendar } from "react-icons/fi";
+import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminUserTranslations } from '../../../utils/translations';

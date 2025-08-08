@@ -9,6 +9,7 @@ import AccountSettings from '../pages/accountSettings';
 import AdminQRManagementListing from '../pages/admin/qrManagementListing';
 import EditUserModel from '../components/admin/customerManagement/EditUserModel';
 import CreateUserModel from '../components/admin/customerManagement/CreateUserModel';
+import MyQRCodes from '../pages/admin/myQRCodes';
 
 function AdminRoutes() {
   return (
@@ -20,6 +21,7 @@ function AdminRoutes() {
       <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />
       <Route path="/qr-management/listing" element={<AdminQRManagementListing />} />
+      <Route path="/qr-management/my-codes" element={<MyQRCodes />} />
       <Route path="/referral-management" element={<AdminReferralManagement />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/account-settings" element={<AccountSettings />} />

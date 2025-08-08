@@ -1,13 +1,11 @@
 import React from 'react';
 import { StatChartCard } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminAnalyticsTranslations } from '../../../utils/translations';
 
 function AdminAnalyticsMonthlyPerformance() {
   const { language } = useLanguage();
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.adminAnalytics;
+  const t = getAdminAnalyticsTranslations(language);
 
   return (
     <div className="w-full">

@@ -12,6 +12,7 @@ import UpdatePaymentPage from '../pages/updatePayment'
 import AddCard from '../pages/addCard'
 import Notifications from '../pages/notifications'
 import AdminQRManagement from '../pages/admin/qrManagement'
+import AdminQRManagementListing from '../pages/admin/qrManagementListing'
 
 function UserRoutes() {
   return (
@@ -19,6 +20,7 @@ function UserRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/dashboard" element={<Home />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />
+      <Route path="/qr-management/listing" element={<AdminQRManagementListing />} />
       <Route path="/referral" element={<ReferralManagement />} />
       <Route path="/customers" element={<CustomerManagement />} />
       <Route path="/analytics" element={<Analytics />} />

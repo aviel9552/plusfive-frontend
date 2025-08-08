@@ -3,14 +3,12 @@ import { CommonTable } from '../index'
 import reportData from '../../jsonData/ReportData.json'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { useLanguage } from '../../context/LanguageContext';
-import enTranslations from '../../i18/en.json';
-import heTranslations from '../../i18/he.json';
+import { getAdminReferralTranslations } from '../../utils/translations';
 
 function ReferralsTable() {
   const { language } = useLanguage();
   const isRTL = language === 'he';
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.adminReferral;
+  const t = getAdminReferralTranslations(language);
   
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
@@ -136,7 +134,7 @@ function ReferralsTable() {
             <HiDotsHorizontal className="w-5 h-5" />
           </button>
           {openAction === idx && (
-            <div className="absolute right-10 -top-10 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1">
+            <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1`}>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => { setOpenAction(null); alert('View clicked!'); }}

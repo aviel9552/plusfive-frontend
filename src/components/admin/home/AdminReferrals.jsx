@@ -20,8 +20,8 @@ function AdminReferrals() {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [isDark, setIsDark] = useState(false);
-
     const { language } = useLanguage();
+    const isRTL = language === 'he';
     const t = getAdminTranslations(language);
 
     const statusOptions = ['All', 'Active', 'Pending', 'Inactive'];
@@ -177,7 +177,7 @@ function AdminReferrals() {
     };
 
     return (
-        <div className={`bg-white dark:bg-customBrown rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-gray-800 shadow-sm transition-all duration-200 font-ttcommons dark:hover:bg-customBlack shadow-md hover:shadow-sm ${isDark ? 'dark' : ''}`}>
+        <div className={`bg-white dark:bg-customBrown rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-gray-800 transition-all duration-200 font-ttcommons dark:hover:bg-customBlack shadow-md hover:shadow-sm ${isDark ? 'dark' : ''}`}>
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
@@ -216,7 +216,7 @@ function AdminReferrals() {
                                         <HiDotsHorizontal className="w-5 h-5" />
                                     </button>
                                     {openAction === idx && (
-                                        <div className="absolute right-10 -top-10 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1">
+                                        <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1`}>
                                             <button
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                 onClick={() => { setOpenAction(null); alert('View clicked!'); }}

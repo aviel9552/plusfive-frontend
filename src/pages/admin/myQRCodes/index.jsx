@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchQRCodes, createQRCodeAction, deleteQRCode } from '../../../redux/actions/qrActions';
+import { fetchMyQRCodes, createQRCodeAction, deleteQRCode } from '../../../redux/actions/qrActions';
 import CommonAdminTable from '../../../components/commonComponent/CommonAdminTable';
 import CommonPagination from '../../../components/commonComponent/CommonPagination';
 import CommonButton from '../../../components/commonComponent/CommonButton';
@@ -10,7 +10,7 @@ import { getAdminQRTranslations } from '../../../utils/translations';
 import { getQRCodeById } from '../../../redux/services/qrServices';
 import { toast } from 'react-toastify';
 
-function AdminQRManagementListing() {
+function myQRCodes() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector(state => state.auth.user);
@@ -19,8 +19,8 @@ function AdminQRManagementListing() {
 
   const qrState = useSelector((state) => state.qr);
 
-  // Correctly access the nested qrCodes structure
-  const qrCodes = qrState.qrCodes?.qrCodes || qrState.qrCodes || [];
+  // Use myQRCodes array from reducer
+  const qrCodes = qrState.myQRCodes || [];
   const pagination = qrState.qrCodes?.pagination || qrState.pagination;
   const { loading, error } = qrState;
 
@@ -72,23 +72,21 @@ function AdminQRManagementListing() {
   const paginatedQRCodes = filteredQRCodes.slice(startIndex, endIndex);
 
   useEffect(() => {
-    // Fetch all QR codes when component mounts
-    const loadQRCodes = async () => {
-
-      const result = await dispatch(fetchQRCodes());
-
+    // Fetch my QR codes when component mounts
+    const loadMyQRCodes = async () => {
+      const result = await dispatch(fetchMyQRCodes());
     };
 
-    loadQRCodes();
-  }, [dispatch]);
+    loadMyQRCodes();
+  }, [dispatch, user?.id]);
 
   // Handle create QR code - redirect to qr-management page
   const handleCreateQR = () => {
     navigate('/admin/qr-management');
   };
   // Handle create QR code - redirect to qr-management page
-  const handleMyQRCodes = () => {
-    navigate('/admin/qr-management/my-codes');
+  const handleAllQRCodes = () => {
+    navigate('/admin/qr-management/listing');
   };
 
   // Handle delete QR code
@@ -126,7 +124,7 @@ function AdminQRManagementListing() {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     // Here you can add API call to fetch data for specific page
-    // dispatch(fetchQRCodes({ page: newPage, limit: pageSize }));
+    // dispatch(fetchMyQRCodes({ page: newPage, limit: pageSize }));
   };
 
   // Handle page size change
@@ -134,7 +132,7 @@ function AdminQRManagementListing() {
     setPageSize(newPageSize);
     setCurrentPage(1); // Reset to first page when page size changes
     // Here you can add API call to fetch data with new page size
-    // dispatch(fetchQRCodes({ page: 1, limit: newPageSize }));
+    // dispatch(fetchMyQRCodes({ page: 1, limit: newPageSize }));
   };
 
   // Handle modal close
@@ -343,8 +341,8 @@ function AdminQRManagementListing() {
           />
           {user.role === 'admin' && (
             <CommonButton
-              text={t.showMyCodes}
-              onClick={handleMyQRCodes}
+              text={t.showAllCodes}
+              onClick={handleAllQRCodes}
               className="pt-3 pb-2 px-6 rounded-xl"
             />
           )}
@@ -404,4 +402,4 @@ function AdminQRManagementListing() {
   );
 }
 
-export default AdminQRManagementListing;
+export default myQRCodes;

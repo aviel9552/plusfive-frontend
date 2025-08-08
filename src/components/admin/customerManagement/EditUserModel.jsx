@@ -16,7 +16,7 @@ function EditUserModel() {
   const { language } = useLanguage();
   const t = getAdminUserTranslations(language);
   const v = getValidationTranslations(language);
-  
+
   // Get user data from navigation state or use fallback
   const userDataProp = location.state?.userData || {
     id: userId,
@@ -32,7 +32,7 @@ function EditUserModel() {
     address: '',
     whatsappNumber: ''
   };
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -90,7 +90,7 @@ function EditUserModel() {
     if (userDataProp && typeof userDataProp === 'object') {
       const safeGetValue = (obj, key) => {
         if (!obj || typeof obj !== 'object') return '';
-        
+
         const value = obj[key];
         if (value === null || value === undefined) return '';
         if (typeof value === 'string') return value;
@@ -118,14 +118,14 @@ function EditUserModel() {
         address: safeGetValue(userDataProp, 'address'),
         whatsappNumber: safeGetValue(userDataProp, 'whatsappNumber')
       };
-      
+
       setFormData(newFormData);
     }
   }, [userDataProp]);
 
   const validate = () => {
     const newErrors = {};
-    
+
     // First Name validation (only letters and spaces)
     if (!formData.firstName) {
       newErrors.firstName = v.firstNameRequired;
@@ -136,7 +136,7 @@ function EditUserModel() {
     } else if (formData.firstName.length > 50) {
       newErrors.firstName = v.firstNameTooLong;
     }
-    
+
     // Last Name validation (only letters and spaces)
     if (!formData.lastName) {
       newErrors.lastName = v.lastNameRequired;
@@ -147,13 +147,13 @@ function EditUserModel() {
     } else if (formData.lastName.length > 50) {
       newErrors.lastName = v.lastNameTooLong;
     }
-    
+
     // Email validation
     const emailError = validateEmail(formData.email);
     if (emailError) {
       newErrors.email = emailError;
     }
-    
+
     // Phone validation (exactly 10 digits)
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = v.phoneRequired;
@@ -162,7 +162,7 @@ function EditUserModel() {
     } else if (formData.phoneNumber.length !== 10) {
       newErrors.phoneNumber = v.phoneExactDigits;
     }
-    
+
     // WhatsApp Number validation (exactly 10 digits)
     if (!formData.whatsappNumber) {
       newErrors.whatsappNumber = v.whatsappRequired;
@@ -171,7 +171,7 @@ function EditUserModel() {
     } else if (formData.whatsappNumber.length !== 10) {
       newErrors.whatsappNumber = v.whatsappExactDigits;
     }
-    
+
     // Business Name validation (only letters and spaces)
     if (!formData.businessName) {
       newErrors.businessName = v.businessNameRequired;
@@ -182,17 +182,17 @@ function EditUserModel() {
     } else if (formData.businessName.length > 100) {
       newErrors.businessName = v.businessNameTooLong;
     }
-    
+
     // Role validation
     if (!formData.role) {
       newErrors.role = v.roleRequired;
     }
-    
+
     // Account Status validation
     if (!formData.accountStatus) {
       newErrors.accountStatus = v.statusRequired;
     }
-    
+
     // Address validation
     if (!formData.address) {
       newErrors.address = v.addressRequired;
@@ -201,7 +201,7 @@ function EditUserModel() {
     } else if (formData.address.length > 200) {
       newErrors.address = v.addressTooLong;
     }
-    
+
     return newErrors;
   };
 
@@ -217,7 +217,7 @@ function EditUserModel() {
       const emailError = validateEmail(value);
       setErrors(prev => ({ ...prev, email: emailError }));
     }
-    
+
     // Real-time validation for first name
     else if (name === 'firstName') {
       if (!value) {
@@ -232,7 +232,7 @@ function EditUserModel() {
         setErrors(prev => ({ ...prev, firstName: "" }));
       }
     }
-    
+
     // Real-time validation for last name
     else if (name === 'lastName') {
       if (!value) {
@@ -247,10 +247,10 @@ function EditUserModel() {
         setErrors(prev => ({ ...prev, lastName: "" }));
       }
     }
-    
+
     // Real-time validation for phone
     else if (name === 'phoneNumber') {
-        if (!value) {
+      if (!value) {
         setErrors(prev => ({ ...prev, phoneNumber: "" }));
       } else if (!/^[0-9]+$/.test(value)) {
         setErrors(prev => ({ ...prev, phoneNumber: v.phoneNumbersOnly }));
@@ -260,10 +260,10 @@ function EditUserModel() {
         setErrors(prev => ({ ...prev, phoneNumber: "" }));
       }
     }
-    
+
     // Real-time validation for WhatsApp number
     else if (name === 'whatsappNumber') {
-        if (!value) {
+      if (!value) {
         setErrors(prev => ({ ...prev, whatsappNumber: "" }));
       } else if (!/^[0-9]+$/.test(value)) {
         setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappNumbersOnly }));
@@ -273,7 +273,7 @@ function EditUserModel() {
         setErrors(prev => ({ ...prev, whatsappNumber: "" }));
       }
     }
-    
+
     // Real-time validation for business name
     else if (name === 'businessName') {
       if (!value) {
@@ -288,7 +288,7 @@ function EditUserModel() {
         setErrors(prev => ({ ...prev, businessName: "" }));
       }
     }
-    
+
     // Real-time validation for address
     else if (name === 'address') {
       if (!value) {
@@ -301,11 +301,11 @@ function EditUserModel() {
         setErrors(prev => ({ ...prev, address: "" }));
       }
     }
-    
+
     // Clear other field errors
     else if (errors[name]) {
       setErrors(prev => ({
-      ...prev,
+        ...prev,
         [name]: null,
       }));
     }
@@ -415,31 +415,31 @@ function EditUserModel() {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length === 0) {
-    setIsLoading(true);
-    
-    try {
-      // Use Redux action instead of direct API call
+      setIsLoading(true);
+
+      try {
+        // Use Redux action instead of direct API call
         const result = await dispatch(updateUser(userDataProp.id, formData));
-      
-      if (result.success) {
-        // Show API response message in toast
-        if (result.data && result.data.message) {
-          toast.success(result.data.message);
-        } else {
-          toast.success(t.userUpdatedSuccess);
-        }
+
+        if (result.success) {
+          // Show API response message in toast
+          if (result.data && result.data.message) {
+            toast.success(result.data.message);
+          } else {
+            toast.success(t.userUpdatedSuccess);
+          }
           navigate('/admin/user-management');
-      } else {
-        console.error('Update failed:', result.error);
-        toast.error(result.error || t.failedToUpdateUser);
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      toast.error(t.unexpectedErrorUpdate);
-    } finally {
-      setIsLoading(false);
+        } else {
+          console.error('Update failed:', result.error);
+          toast.error(result.error || t.failedToUpdateUser);
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        toast.error(t.unexpectedErrorUpdate);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -454,196 +454,196 @@ function EditUserModel() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-          <button
+            <button
               onClick={handleBack}
               className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
-          >
+            >
               <FiArrowLeft className="w-5 h-5" />
               <span>{t.backToUserManagement}</span>
-          </button>
+            </button>
           </div>
         </div>
 
         {/* Form */}
         <div className="bg-white dark:bg-customBlack rounded-xl shadow-lg border border-gray-200 dark:border-customBorderColor">
           <form onSubmit={handleSubmit} className="p-8 space-y-8" autoComplete="off">
-          {/* Personal Information */}
-          <div>
+            {/* Personal Information */}
+            <div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
-              {t.personalInformation}
-            </h3>
+                {t.personalInformation}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <CommonInput
-                label={t.firstName}
+                <CommonInput
+                  label={t.firstName}
                   name="firstName"
-                value={formData.firstName}
+                  value={formData.firstName}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterFirstName}
+                  placeholder={t.enterFirstName}
                   error={errors.firstName}
-              />
-              <CommonInput
-                label={t.lastName}
+                />
+                <CommonInput
+                  label={t.lastName}
                   name="lastName"
-                value={formData.lastName}
+                  value={formData.lastName}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterLastName}
+                  placeholder={t.enterLastName}
                   error={errors.lastName}
-              />
-              <CommonInput
-                label={t.email}
-                type="email"
+                />
+                <CommonInput
+                  label={t.email}
+                  type="email"
                   name="email"
-                value={formData.email}
+                  value={formData.email}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterEmail}
+                  placeholder={t.enterEmail}
                   error={errors.email}
-              />
-              <CommonInput
-                label={t.phoneNumber}
+                />
+                <CommonInput
+                  label={t.phoneNumber}
                   name="phoneNumber"
-                value={formData.phoneNumber}
+                  value={formData.phoneNumber}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterPhoneNumber}
+                  placeholder={t.enterPhoneNumber}
                   error={errors.phoneNumber}
-              />
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Business Information */}
-          <div>
+            {/* Business Information */}
+            <div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
-              {t.businessInformation}
-            </h3>
+                {t.businessInformation}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <CommonInput
-                label={t.businessName}
+                <CommonInput
+                  label={t.businessName}
                   name="businessName"
-                value={formData.businessName}
+                  value={formData.businessName}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterBusinessName}
+                  placeholder={t.enterBusinessName}
                   error={errors.businessName}
-              />
-              <CommonInput
-                label={t.businessType}
+                />
+                <CommonInput
+                  label={t.businessType}
                   name="businessType"
-                value={formData.businessType}
+                  value={formData.businessType}
                   onChange={handleChange}
-                placeholder={t.enterBusinessType}
+                  placeholder={t.enterBusinessType}
                   error={errors.businessType}
-              />
-              <CommonInput
-                label={t.address}
+                />
+                <CommonInput
+                  label={t.address}
                   name="address"
-                value={formData.address}
+                  value={formData.address}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterAddress}
+                  placeholder={t.enterAddress}
                   error={errors.address}
-              />
-              <CommonInput
-                label={t.whatsappNumber}
+                />
+                <CommonInput
+                  label={t.whatsappNumber}
                   name="whatsappNumber"
-                value={formData.whatsappNumber}
+                  value={formData.whatsappNumber}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                   showErrorOnFocus={true}
-                placeholder={t.enterWhatsappNumber}
+                  placeholder={t.enterWhatsappNumber}
                   error={errors.whatsappNumber}
-              />
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Account Settings */}
-          <div>
+            {/* Account Settings */}
+            <div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
-              {t.accountSettings}
-            </h3>
+                {t.accountSettings}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t.role}
-                </label>
-                <CommonNormalDropDown
-                  options={roleOptions}
-                  value={formData.role}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t.role}
+                  </label>
+                  <CommonNormalDropDown
+                    options={roleOptions}
+                    value={formData.role}
                     onChange={(value) => handleDropDownChange('role', value)}
-                  placeholder={t.selectRole}
-                  className="w-full"
-                  showIcon={false}
-                  inputWidth="w-full"
-                  anchor="right"
-                />
+                    placeholder={t.selectRole}
+                    className="w-full"
+                    showIcon={false}
+                    inputWidth="w-full"
+                    anchor="right"
+                  />
                   {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t.status}
-                </label>
-                <CommonNormalDropDown
-                  options={statusOptions}
-                  value={formData.accountStatus}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t.status}
+                  </label>
+                  <CommonNormalDropDown
+                    options={statusOptions}
+                    value={formData.accountStatus}
                     onChange={(value) => handleDropDownChange('accountStatus', value)}
-                  placeholder={t.selectStatus}
-                  className="w-full"
-                  showIcon={false}
-                  inputWidth="w-full"
-                  anchor="right"
-                />
+                    placeholder={t.selectStatus}
+                    className="w-full"
+                    showIcon={false}
+                    inputWidth="w-full"
+                    anchor="right"
+                  />
                   {errors.accountStatus && <p className="text-red-500 text-sm mt-1">{errors.accountStatus}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t.subscriptionPlan}
-                </label>
-                <CommonNormalDropDown
-                  options={planOptions}
-                  value={formData.subscriptionPlan}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t.subscriptionPlan}
+                  </label>
+                  <CommonNormalDropDown
+                    options={planOptions}
+                    value={formData.subscriptionPlan}
                     onChange={(value) => handleDropDownChange('subscriptionPlan', value)}
-                  placeholder={t.selectPlan}
-                  className="w-full"
-                  showIcon={false}
-                  inputWidth="w-full"
-                  anchor="right"
-                />
+                    placeholder={t.selectPlan}
+                    className="w-full"
+                    showIcon={false}
+                    inputWidth="w-full"
+                    anchor="right"
+                  />
                   {errors.subscriptionPlan && <p className="text-red-500 text-sm mt-1">{errors.subscriptionPlan}</p>}
                 </div>
+              </div>
             </div>
-          </div>
 
-          {/* Action Buttons */}
-            <div className="flex justify-end space-x-4 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <CommonButton
-              text={t.cancel}
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <CommonButton
+                text={t.cancel}
                 onClick={handleBack}
                 className="px-8 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg"
-            />
-            <CommonButton
-              text={isLoading ? t.updating : t.updateUser}
-              type="submit"
-              onClick={handleSubmit}
+              />
+              <CommonButton
+                text={isLoading ? t.updating : t.updateUser}
+                type="submit"
+                onClick={handleSubmit}
                 className="px-8 py-3 rounded-lg"
                 disabled={isLoading}
-            />
-          </div>
-        </form>
+              />
+            </div>
+          </form>
         </div>
       </div>
     </div>

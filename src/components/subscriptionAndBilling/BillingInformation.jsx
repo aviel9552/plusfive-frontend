@@ -1,4 +1,6 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
+import { getUserCardTranslations } from '../../utils/translations';
 
 const BillingInfoItem = ({ label, value, valueClassName = '' }) => (
     <div>
@@ -8,6 +10,9 @@ const BillingInfoItem = ({ label, value, valueClassName = '' }) => (
 );
 
 function BillingInformation() {
+    const { language } = useLanguage();
+    const t = getUserCardTranslations(language);
+    
     const billingData = {
         cycle: 'May 15 - June 15, 2025',
         nextDate: 'June 15, 2025',
@@ -17,12 +22,12 @@ function BillingInformation() {
 
     return (
         <div className="dark:text-white dark:bg-customBrown bg-white p-8 rounded-2xl border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-2xl font-bold mb-8">Billing Information</h2>
+            <h2 className="text-2xl font-bold mb-8">{t.billingInformation}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <BillingInfoItem label="Current Billing Cycle" value={billingData.cycle} />
-                <BillingInfoItem label="Next Billing Date" value={billingData.nextDate} />
-                <BillingInfoItem label="Amount to be Charged" value={billingData.amount} valueClassName="font-semibold text-customRed" />
-                <BillingInfoItem label="Payment Method" value={billingData.method} />
+                <BillingInfoItem label={t.currentBillingCycle} value={billingData.cycle} />
+                <BillingInfoItem label={t.nextBillingDate} value={billingData.nextDate} />
+                <BillingInfoItem label={t.amountToBeCharged} value={billingData.amount} valueClassName="font-semibold text-customRed" />
+                <BillingInfoItem label={t.paymentMethod} value={billingData.method} />
             </div>
         </div>
     );

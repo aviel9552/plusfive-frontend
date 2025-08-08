@@ -19,8 +19,8 @@ function ContactAndSubmitTicket() {
 
     const validate = () => {
         const newErrors = {};
-        if (!ticketData.subject) newErrors.subject = t.subjectRequired || 'Subject is required';
-        if (!ticketData.description) newErrors.description = t.descriptionRequired || 'Description is required';
+        if (!ticketData.subject) newErrors.subject = t.subjectRequired;
+        if (!ticketData.description) newErrors.description = t.descriptionRequired;
         return newErrors;
     };
 
@@ -45,18 +45,18 @@ function ContactAndSubmitTicket() {
     const contactMethods = [
         {
             icon: <LuMessageSquare className="md:text-3xl text-2xl text-pink-500" />,
-            title: t.liveChat || 'Live Chat',
-            detail: t.availableMondayToFriday || 'Available Monday to Friday 9:00-18:00',
-            action: <CommonButton text={t.startChat || "Start Chat"} className="!text-white rounded-lg md:px-6 md:py-2 md:text-xl text-sm px-4 py-2" />,
+            title: t.liveChat,
+            detail: t.availableMondayToFriday,
+            action: <CommonButton text={t.startChat} className="!text-white rounded-lg md:px-6 md:py-2 md:text-xl text-sm px-4 py-2" />,
         },
         {
             icon: <FiPhone className="md:text-3xl text-2xl text-pink-500" />,
-            title: t.phone || 'Phone',
+            title: t.phone,
             detail: '+103-1234567',
         },
         {
             icon: <FiMail className="md:text-3xl text-2xl text-pink-500" />,
-            title: t.email || 'Email',
+            title: t.email,
             detail: 'support@plusfive.io',
         },
     ];
@@ -65,12 +65,12 @@ function ContactAndSubmitTicket() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Section */}
             <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-                <h2 className="text-3xl font-bold mb-8">{t.contact || 'Contact'}</h2>
+                <h2 className="text-3xl font-bold mb-8">{t.contact}</h2>
                 <div className="space-y-6">
                     {contactMethods.map((method, index) => (
                         <div key={index} className="dark:bg-customBrown bg-customBody border border-gray-200 dark:border-customBorderColor p-6 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between">
-                            <div className="flex flex-row items-start flex-1 min-w-0 mr-0 sm:mr-4">
-                                <div className="mr-4 md:text-2xl border border-gray-200 dark:border-customBorderColor rounded-lg md:p-3 p-2 bg-white dark:bg-customBrown flex-shrink-0">{method.icon}</div>
+                            <div className="flex flex-row items-start flex-1 min-w-0 gap-4">
+                                <div className="md:text-2xl border border-gray-200 dark:border-customBorderColor rounded-lg md:p-3 p-2 bg-white dark:bg-customBrown flex-shrink-0">{method.icon}</div>
                                 <div className="flex flex-col">
                                     <h3 className="font-bold md:text-xl leading-tight">{method.title}</h3>
                                     <p className="text-gray-500 dark:text-white md:text-lg leading-tight">{method.detail}</p>
@@ -88,32 +88,32 @@ function ContactAndSubmitTicket() {
 
             {/* Submit Ticket Section */}
             <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-                <h2 className="text-3xl font-bold mb-8">{t.submitTicket || 'Submit Ticket'}</h2>
+                <h2 className="text-3xl font-bold mb-8">{t.submitTicket}</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <CommonInput
-                        label={t.ticketSubject || "Ticket Subject"}
+                        label={t.ticketSubject}
                         id="subject"
                         name="subject"
                         value={ticketData.subject}
                         onChange={handleChange}
                         error={errors.subject}
-                        placeholder={t.enterIssuesSubject || "Enter issues subject name..."}
+                        placeholder={t.enterIssuesSubject}
                     />
 
                     <CommonInput
                         as="textarea"
-                        label={t.ticketSubject || "Ticket Subject"}
+                        label={t.ticketSubject}
                         id="description"
                         name="description"
                         value={ticketData.description}
                         onChange={handleChange}
                         error={errors.description}
-                        placeholder={t.describeIssues || "Describe the issues..."}
+                        placeholder={t.describeIssues}
                     />
 
                     <div>
                         <CommonButton
-                            text={t.submitTicketButton || "Submit Ticket"}
+                            text={t.submitTicketButton}
                             type="submit"
                             className="w-full !text-white rounded-lg py-3 text-xl"
                         />

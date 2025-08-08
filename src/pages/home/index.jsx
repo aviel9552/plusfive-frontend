@@ -1,11 +1,14 @@
-import { MonthlyPerformance, RevenueImpactCustomerStatus, Referrals, Users } from "../../components";
+import { MonthlyPerformance, RevenueImpactCustomerStatus, Referrals, Users, AdminMonthlyPerformance, AdminRevenueImpactCustomerStatus, AdminReferrals } from "../../components";
 
 const Home = () => {
   return (
     <div className="space-y-4">
-      <MonthlyPerformance />
+      {/* <MonthlyPerformance />
       <RevenueImpactCustomerStatus />
-      <Referrals />
+      <Referrals /> */}
+      <AdminMonthlyPerformance />
+      <AdminRevenueImpactCustomerStatus />
+      <AdminReferrals />
       {/* <Users /> */}
     </div>
   );

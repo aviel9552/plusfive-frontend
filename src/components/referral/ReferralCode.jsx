@@ -2,13 +2,11 @@ import React from 'react'
 import { IoCopy } from 'react-icons/io5'
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext';
-import enTranslations from '../../i18/en.json';
-import heTranslations from '../../i18/he.json';
+import { getAdminReferralTranslations } from '../../utils/translations';
 
 function ReferralCode() {
   const { language } = useLanguage();
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.adminReferral;
+  const t = getAdminReferralTranslations(language);
 
   const handleCopy = async (text) => {
     try {

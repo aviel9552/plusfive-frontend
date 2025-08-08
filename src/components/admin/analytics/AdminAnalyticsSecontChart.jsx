@@ -3,8 +3,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Too
 import { CommonDropDown } from '../../index';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminAnalyticsTranslations } from '../../../utils/translations';
 
 const monthlyQrCodeData = [
     { label: 'July', thisYear: 55, lastYear: 30 }, { label: 'Aug', thisYear: 40, lastYear: 25 }, { label: 'Sep', thisYear: 82, lastYear: 52 },
@@ -35,8 +34,7 @@ function AdminAnalyticsSecontChart() {
     const [hoveredBar, setHoveredBar] = useState(null);
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
-    const translations = language === 'he' ? heTranslations : enTranslations;
-    const t = translations.adminAnalytics;
+    const t = getAdminAnalyticsTranslations(language);
 
     const qrCodeDataMap = { 
         'Monthly': monthlyQrCodeData, 
@@ -83,7 +81,7 @@ function AdminAnalyticsSecontChart() {
             <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.qrCode}</h2>
-                    <CommonDropDown options={FILTER_OPTIONS} value={filter} onChange={setFilter} />
+                    <CommonDropDown options={FILTER_OPTIONS} value={filter} onChange={setFilter} className="w-[130px] h-auto p-1" />
                 </div>
                 <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">

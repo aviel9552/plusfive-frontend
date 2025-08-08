@@ -47,7 +47,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             options={filters}
             value={selectedFilter}
             onChange={setSelectedFilter}
-            className="w-[10rem] h-auto p-1"
+            className="w-[130px] h-auto p-1"
           />
         )}
       </div>

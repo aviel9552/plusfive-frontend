@@ -48,3 +48,11 @@ export const getAdminQRTranslations = (language) => {
 export const getUserSupportTranslations = (language) => {
   return getTranslationSection(language, 'userSupport');
 }; 
+
+export const getAdminReferralTranslations = (language) => {
+  return getTranslationSection(language, 'adminReferral');
+}; 
+
+export const getUserCardTranslations = (language) => {
+  return getTranslationSection(language, 'userCard');
+}; 

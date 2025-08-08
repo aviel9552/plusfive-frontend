@@ -1,9 +1,13 @@
-import { getAllQRCodes, getQRCodeById, createQRCode, deleteQRCodeById, createQRCodeWithUserInfo } from '../services/qrServices';
+import { getAllQRCodes, getQRCodeById, createQRCode, deleteQRCodeById, createQRCodeWithUserInfo, getMyQRCodes } from '../services/qrServices';
 
 // Action Types
 export const FETCH_QRS_REQUEST = 'FETCH_QRS_REQUEST';
 export const FETCH_QRS_SUCCESS = 'FETCH_QRS_SUCCESS';
 export const FETCH_QRS_FAILURE = 'FETCH_QRS_FAILURE';
+
+export const FETCH_MY_QRS_REQUEST = 'FETCH_MY_QRS_REQUEST';
+export const FETCH_MY_QRS_SUCCESS = 'FETCH_MY_QRS_SUCCESS';
+export const FETCH_MY_QRS_FAILURE = 'FETCH_MY_QRS_FAILURE';
 
 export const FETCH_QR_REQUEST = 'FETCH_QR_REQUEST';
 export const FETCH_QR_SUCCESS = 'FETCH_QR_SUCCESS';
@@ -37,6 +41,27 @@ export const fetchQRCodes = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: FETCH_QRS_FAILURE,
+      payload: error.message
+    });
+    return { success: false, error: error.message };
+  }
+};
+
+// Fetch my QR codes
+export const fetchMyQRCodes = () => async (dispatch) => {
+  dispatch({ type: FETCH_MY_QRS_REQUEST });
+  try {
+    const response = await getMyQRCodes();
+    // Handle the response structure: { success: true, message: "...", data: { qrCodes: [...] } }
+    const qrData = response.data?.qrCodes || response.qrCodes || [];
+    dispatch({
+      type: FETCH_MY_QRS_SUCCESS,
+      payload: qrData
+    });
+    return { success: true, data: qrData };
+  } catch (error) {
+    dispatch({
+      type: FETCH_MY_QRS_FAILURE,
       payload: error.message
     });
     return { success: false, error: error.message };

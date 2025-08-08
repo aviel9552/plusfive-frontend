@@ -90,7 +90,7 @@ const HistoryTable = ({
                 ) : (
                     data.map((item, index) => (
                         <div key={index} className="flex flex-col sm:flex-row items-center justify-between bg-gray-100 dark:bg-customGray p-4 rounded-xl">
-                            <div className="flex items-center space-x-4 mb-4 sm:mb-0 flex-1">
+                            <div className="flex items-center gap-4 mb-4 sm:mb-0 flex-1">
                                 <div className={`shrink-0 p-3 rounded-lg ${item.iconBgColor || 'bg-[#5965F9]'}`}>{item.icon}</div>
                                 <div>
                                     <p className="font-semibold text-base text-gray-900 dark:text-white">{item.title}</p>

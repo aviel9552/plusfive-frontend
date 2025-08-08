@@ -23,7 +23,7 @@ function CommonDropDown({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          w-auto px-3 py-1 whitespace-nowrap
+           px-3 py-1 whitespace-nowrap
           flex items-center justify-between
           rounded-full
           ${isDarkMode ? 'text-white' : 'text-black'}

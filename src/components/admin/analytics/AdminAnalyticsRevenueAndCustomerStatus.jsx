@@ -1,8 +1,7 @@
 import React from 'react';
 import { StatSingleBarChart, StatPieChart } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
-import enTranslations from '../../../i18/en.json';
-import heTranslations from '../../../i18/he.json';
+import { getAdminAnalyticsTranslations } from '../../../utils/translations';
 
 const monthlyData = [
   { month: 'Jan', value: 32 },
@@ -37,8 +36,7 @@ const thisMonthData = [
 
 function AdminAnalyticsRevenueAndCustomerStatus() {
   const { language } = useLanguage();
-  const translations = language === 'he' ? heTranslations : enTranslations;
-  const t = translations.adminAnalytics;
+  const t = getAdminAnalyticsTranslations(language);
 
   const FILTERS = [
     { label: t.monthly, value: 'monthly' },

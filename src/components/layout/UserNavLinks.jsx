@@ -12,7 +12,7 @@ import {
     
     return [
       { to: '/app/dashboard', icon: IoHomeOutline, label: t.dashboard, specialPaths: ['/','/app'] },
-      { to: '/app/qr-management', icon: MdQrCode2, label: t.qrManagement },
+      { to: '/admin/qr-management/my-codes', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/admin/qr-management'] },
       { to: '/app/referral', icon: MdShare, label: t.referralProgram },
       { to: '/app/customers', icon: MdPeople, label: t.userManagement },
       { to: '/app/analytics', icon: MdAnalytics, label: t.analytics },
@@ -27,6 +27,7 @@ import {
     const t = getLayoutTranslations(language);
     
     return {
+      '/admin/qr-management': t.qrManagement,
       '/app/update-payment': t.updatePayment,
       '/app/add-card': t.addNewCard
     };
