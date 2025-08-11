@@ -337,6 +337,9 @@
     "addNewCard": "הוסף כרטיס חדש",
     "createUser": "צור משתמש",
     "editUser": "ערוך משתמש",
+    "customerManagement": "ניהול לקוחות",
+    "createCustomer": "צור לקוח",
+    "editCustomer": "ערוך לקוח",
     "newFeature": "תכונה חדשה",
     "settings": "הגדרות"
   },
@@ -923,5 +926,14 @@
     "paid": "שולם",
     "decline": "נדחה",
     "pending": "ממתין"
+  },
+  "referralPage": {
+    "loading": "טוען...",
+    "invalidReferral": "קוד הפניה לא תקין",
+    "goHome": "עבור לדף הבית",
+    "welcomeMessage": "ברוכים הבאים ל-PlusFive!",
+    "youveBeenInvited": "הוזמנת להצטרף לפלטפורמה שלנו",
+    "getStarted": "התחל",
+    "termsAndConditions": "בהמשך, אתה מסכים לתנאים וההגבלות שלנו"
   }
 }

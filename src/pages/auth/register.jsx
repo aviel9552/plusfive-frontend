@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CommonInput, CommonButton, SquaresAnim, CommonNormalDropDown } from '../../components/index';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginBG from '../../assets/LoginBG.png';
 import FB from '../../assets/fb.svg';
 import Google from '../../assets/google.svg';
 import { emailService } from '../../services/emailService';
-import { registerUser, resendVerificationEmail } from '../../redux/services/authService';
+import { registerUser, resendVerificationEmail, createReferral } from '../../redux/services/authService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
 
@@ -28,6 +28,18 @@ function Register() {
   const t = getAuthTranslations(language);
   const v = getValidationTranslations(language);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check for ref parameter in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      // console.log('Referral Code found:', refCode);
+      setForm(prev => ({ ...prev, referralCode: refCode }));
+    }
+  }, [location]);
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -37,6 +49,7 @@ function Register() {
     confirmPassword: '',
     businessName: '',
     businessType: '',
+    referralCode: '',
   });
   const [error, setError] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -305,11 +318,30 @@ function Register() {
         lastName: form.lastName,
         businessName: form.businessName,
         businessType: form.businessType,
-        phoneNumber: form.phoneNumber
+        phoneNumber: form.phoneNumber,
+        referralCode: form.referralCode
       };
 
       // Call register API
-      await registerUser(userData);
+      const registeredUser = await registerUser(userData);
+
+      // Check if referral code exists and create referral
+      const urlParams = new URLSearchParams(location.search);
+      const refCode = urlParams.get('ref');
+      
+      if (refCode && registeredUser.data?.user?.id) {
+        try {
+          const referralResponse = await createReferral({
+            referrerCode: refCode,
+            referredUserId: registeredUser.data.user.id
+          });
+        } catch (referralError) {
+          console.error('Referral creation failed:', referralError);
+          // Don't fail registration if referral fails
+        }
+      } else {
+        console.log('Referral not created. Ref code:', refCode, 'User ID:', registeredUser.data?.user?.id);
+      }
 
       // Success message
       toast.success(t.registrationSuccessful);

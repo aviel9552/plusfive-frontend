@@ -3,8 +3,11 @@ import { IoCopy } from 'react-icons/io5'
 import { toast } from 'react-toastify';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAdminReferralTranslations } from '../../utils/translations';
+import { useSelector } from 'react-redux';
 
 function ReferralCode() {
+  const { user } = useSelector((state) => state.auth)
+  const referralCode = user?.referralCode || 'PLUSFIVE2025'
   const { language } = useLanguage();
   const t = getAdminReferralTranslations(language);
 
@@ -24,10 +27,10 @@ function ReferralCode() {
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
+
         const successful = document.execCommand('copy');
         document.body.removeChild(textArea);
-        
+
         if (successful) {
           toast.success(t.copiedToClipboard);
         } else {
@@ -55,10 +58,10 @@ function ReferralCode() {
             </p>
             <div className="flex items-center gap-2 ">
               <div className="border dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium">
-                PLUSFIVE2025
+                {referralCode}
               </div>
-              <button 
-                onClick={() => handleCopy('PLUSFIVE2025')}
+              <button
+                onClick={() => handleCopy(referralCode)}
                 className="
                   p-3 bg-gray-50 dark:bg-[#1C1C1C] text-gray-700 dark:text-white rounded-lg
                   hover:bg-gray-100 dark:hover:bg-[#2C2C2C] transition-colors duration-200
@@ -79,10 +82,10 @@ function ReferralCode() {
             </p>
             <div className="flex items-center gap-2">
               <div className="border dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium overflow-hidden text-ellipsis whitespace-nowrap">
-                https://plusfive.io/ref/plusfive2025
+                {import.meta.env.VITE_APP_URL}/ref/{referralCode}
               </div>
-              <button 
-                onClick={() => handleCopy('https://plusfive.io/ref/plusfive2025')}
+              <button
+                onClick={() => handleCopy(`${import.meta.env.VITE_APP_URL}/ref/${referralCode}`)}
                 className="
                   p-3 bg-gray-50 dark:bg-[#1C1C1C] text-gray-700 dark:text-white rounded-lg
                   hover:bg-gray-100 dark:hover:bg-[#2C2C2C] transition-colors duration-200

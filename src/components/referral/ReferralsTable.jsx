@@ -1,15 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { CommonTable } from '../index'
 import reportData from '../../jsonData/ReportData.json'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { useLanguage } from '../../context/LanguageContext';
 import { getAdminReferralTranslations } from '../../utils/translations';
+import { useDispatch } from 'react-redux';
+import { fetchUserReferrals } from '../../redux/actions/referralActions';
+import { useSelector } from 'react-redux';
 
 function ReferralsTable() {
   const { language } = useLanguage();
   const isRTL = language === 'he';
   const t = getAdminReferralTranslations(language);
+  const dispatch = useDispatch();
   
+  // Get referrals from Redux state
+  const { userReferrals, loading } = useSelector(state => state.referral);
+  // console.log('userReferrals', userReferrals);
+    
+  // Fetch referrals on component mount
+  useEffect(() => {
+    dispatch(fetchUserReferrals());
+  }, [dispatch]);
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
   const [sortBy, setSortBy] = useState('id');
@@ -17,15 +30,19 @@ function ReferralsTable() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [openAction, setOpenAction] = useState(null);
+  const [selectedReferral, setSelectedReferral] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Filter and sort data
   const filteredAndSortedData = React.useMemo(() => {
-    return reportData.referrals
+    if (!userReferrals || userReferrals.length === 0) return [];
+    
+    return userReferrals
       .filter(row => {
         const matchesSearch =
-          row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          row.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          row.id.includes(searchTerm);
+          row.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          row.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          row.id?.includes(searchTerm);
 
         const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
 
@@ -36,7 +53,7 @@ function ReferralsTable() {
         if (a[sortBy] > b[sortBy]) return sortDir === 'asc' ? 1 : -1;
         return 0;
       });
-  }, [searchTerm, statusFilter, sortBy, sortDir]);
+  }, [userReferrals, searchTerm, statusFilter, sortBy, sortDir]);
 
   // Calculate pagination
   const startIndex = (page - 1) * pageSize;
@@ -71,9 +88,11 @@ function ReferralsTable() {
       render: (row) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-            {row.name.charAt(0)}
+            {row.firstName?.charAt(0)}
           </div>
-          <span className="font-medium text-gray-900 dark:text-white">{row.name}</span>
+          <span className="font-medium text-gray-900 dark:text-white">
+            {row.firstName} {row.lastName}
+          </span>
         </div>
       )
     },
@@ -137,7 +156,11 @@ function ReferralsTable() {
             <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1`}>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                onClick={() => { setOpenAction(null); alert('View clicked!'); }}
+                onClick={() => { 
+                  setOpenAction(null); 
+                  setSelectedReferral(row);
+                  setShowModal(true);
+                }}
               >
                 {t.viewDetails}
               </button>
@@ -187,6 +210,79 @@ function ReferralsTable() {
           />
         </div>
       </div>
+
+      {/* Referral Details Modal */}
+      {showModal && selectedReferral && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-customBrown border border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-white">Referral Details</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-purple-400 hover:text-white transition-colors"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* User Information Section */}
+              <div className="bg-customBlack p-6 rounded-lg">
+                <h4 className="text-white text-lg font-semibold mb-4">User Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">First Name</p>
+                    <p className="text-white">{selectedReferral.firstName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Last Name</p>
+                    <p className="text-white">{selectedReferral.lastName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Email</p>
+                    <p className="text-white">{selectedReferral.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">User ID</p>
+                    <p className="text-white">{selectedReferral.id}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Referral Details Section */}
+              <div className="bg-customBlack p-6 rounded-lg">
+                <h4 className="text-white text-lg font-semibold mb-4">Referral Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">Referral ID</p>
+                    <p className="text-white">{selectedReferral.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Status</p>
+                    <span className={`px-3 py-1 rounded-full text-sm ${
+                      selectedReferral.status === 'Active' 
+                        ? 'text-green-400'
+                        : 'text-orange-400'
+                    }`}>
+                      {selectedReferral.status}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Commission</p>
+                    <p className="text-white">${selectedReferral.commission}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Date</p>
+                    <p className="text-white">
+                      {new Date(selectedReferral.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

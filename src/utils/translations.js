@@ -55,4 +55,8 @@ export const getAdminReferralTranslations = (language) => {
 
 export const getUserCardTranslations = (language) => {
   return getTranslationSection(language, 'userCard');
+};
+
+export const getReferralPageTranslations = (language) => {
+  return getTranslationSection(language, 'referralPage');
 }; 

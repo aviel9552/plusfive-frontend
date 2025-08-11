@@ -337,6 +337,9 @@
     "addNewCard": "Add New Card",
     "createUser": "Create User",
     "editUser": "Edit User",
+    "customerManagement": "Customer Management",
+    "createCustomer": "Create Customer",
+    "editCustomer": "Edit Customer",
     "newFeature": "New Feature",
     "settings": "Settings"
   },
@@ -923,6 +926,15 @@
     "paid": "Paid",
     "decline": "Decline",
     "pending": "Pending"
+  },
+  "referralPage": {
+    "loading": "Loading...",
+    "invalidReferral": "Invalid Referral Code",
+    "goHome": "Go Home",
+    "welcomeMessage": "Welcome to PlusFive!",
+    "youveBeenInvited": "You've been invited to join our platform",
+    "getStarted": "Get Started",
+    "termsAndConditions": "By continuing, you agree to our Terms & Conditions"
   }
 }
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { AdminCustomerTable } from '../../../components'
+import { AdminUserTable } from '../../../components'
 import { fetchUsers } from '../../../redux/actions/userActions'
 
 function UserManagement() {
@@ -13,7 +13,7 @@ function UserManagement() {
 
   return (
     <div>
-      <AdminCustomerTable 
+      <AdminUserTable 
         users={users} 
         loading={loading} 
         error={error}

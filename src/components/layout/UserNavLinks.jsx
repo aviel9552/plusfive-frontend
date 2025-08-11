@@ -12,9 +12,9 @@ import {
     
     return [
       { to: '/app/dashboard', icon: IoHomeOutline, label: t.dashboard, specialPaths: ['/','/app'] },
-      { to: '/admin/qr-management/my-codes', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/admin/qr-management'] },
+      { to: '/app/qr-management/my-codes', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/app/qr-management'] },
       { to: '/app/referral', icon: MdShare, label: t.referralProgram },
-      { to: '/app/customers', icon: MdPeople, label: t.userManagement },
+      { to: '/app/customers', icon: MdPeople, label: t.customerManagement },
       { to: '/app/analytics', icon: MdAnalytics, label: t.analytics },
       { to: '/app/subscription-and-billing', icon: MdCreditCard, label: <>{t.subscriptionAndBilling}</>, specialPaths: ['/app/update-payment', '/app/add-card'] },
       { to: '/app/account-settings', icon: MdSettings, label: t.accountSettings },
@@ -27,7 +27,7 @@ import {
     const t = getLayoutTranslations(language);
     
     return {
-      '/admin/qr-management': t.qrManagement,
+      '/app/qr-management': t.qrManagement,
       '/app/update-payment': t.updatePayment,
       '/app/add-card': t.addNewCard
     };

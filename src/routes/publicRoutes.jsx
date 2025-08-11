@@ -11,6 +11,7 @@ import ResetPassword from '../pages/auth/resetPassword';
 import LandingPage from '../pages/landingpage';
 import NotFound from '../pages/404';
 import ContactSales from '../pages/contactSales';
+import ReferralPage from '../pages/referral';
 
 function PublicRouteGuard({ children }) {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -51,6 +52,7 @@ function PublicRoutes() {
         <Route path="verify-email/:token" element={<EmailVerify />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="reset-password/:token" element={<ResetPassword />} />
+        <Route path="ref/:referralCode" element={<ReferralPage />} />
         {/* Add more public routes here in the future */}
         <Route path="*" element={<NotFound />} />
       </Routes>

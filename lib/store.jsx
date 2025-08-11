@@ -1,16 +1,19 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // Defaults to localStorage
-import { combineReducers } from "redux";
-import authReducer from "../src/redux/reducers/authReducer";
-import userReducer from "../src/redux/reducers/userReducer";
-import qrReducer from "../src/redux/reducers/qrReducer";
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import authReducer from '../src/redux/reducers/authReducer';
+import qrReducer from '../src/redux/reducers/qrReducer';
+import userReducer from '../src/redux/reducers/userReducer';
+import referralReducer from '../src/redux/reducers/referralReducer';
+import customerReducer from '../src/redux/reducers/customerReducer';
 
 // Root Reducer
 const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
   qr: qrReducer,
+  referral: referralReducer,
+  customer: customerReducer,
 });
 
 // Persist Config

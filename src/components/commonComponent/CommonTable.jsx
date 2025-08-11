@@ -282,23 +282,7 @@ const CommonTable = ({
                   ))}
                   {renderActions && (
                     <td className="py-3 px-4" role="gridcell">
-                      <div className="text-center relative action-dropdown">
-                        <button
-                          ref={el => actionBtnRefs.current[idx] = el}
-                          className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                          onClick={() => handleActionClick(idx)}
-                        >
-                          <HiDotsHorizontal className="w-5 h-5" />
-                        </button>
-                        <DropdownPortal anchorRef={{ current: actionBtnRefs.current[idx] }} open={openAction === idx} upward={openUpward}>
-                          <button
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                            onClick={() => { setOpenAction(null); alert('View clicked!'); }}
-                          >
-                            View Details
-                          </button>
-                        </DropdownPortal>
-                      </div>
+                      {renderActions(row, idx)}
                     </td>
                   )}
                 </tr>

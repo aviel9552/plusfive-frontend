@@ -1,9 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { CommonTable } from '../../index'
-import reportData from '../../../jsonData/ReportData.json'
 import { HiDotsHorizontal } from 'react-icons/hi'
+import { useLanguage } from '../../../context/LanguageContext';
+import { getAdminReferralTranslations } from '../../../utils/translations';
+import { useDispatch } from 'react-redux';
+import { fetchAllReferrals } from '../../../redux/actions/referralActions';
+import { useSelector } from 'react-redux';
 
 function AdminReferralsTable() {
+  const { language } = useLanguage();
+  const isRTL = language === 'he';
+  const t = getAdminReferralTranslations(language);
+  const dispatch = useDispatch();
+
+  // Get referrals from Redux state
+  const { allReferrals, loading } = useSelector(state => state.referral);
+  // console.log('allReferrals', allReferrals);
+
+  // Fetch referrals on component mount
+  useEffect(() => {
+    dispatch(fetchAllReferrals());
+  }, [dispatch]);
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
   const [sortBy, setSortBy] = useState('id');
@@ -11,15 +29,19 @@ function AdminReferralsTable() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [openAction, setOpenAction] = useState(null);
+  const [selectedReferral, setSelectedReferral] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Filter and sort data
   const filteredAndSortedData = React.useMemo(() => {
-    return reportData.referrals
+    if (!allReferrals || allReferrals.length === 0) return [];
+
+    return allReferrals
       .filter(row => {
         const matchesSearch =
-          row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          row.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          row.id.includes(searchTerm);
+          row.referredFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          row.referredEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          row.id?.includes(searchTerm);
 
         const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
 
@@ -30,7 +52,7 @@ function AdminReferralsTable() {
         if (a[sortBy] > b[sortBy]) return sortDir === 'asc' ? 1 : -1;
         return 0;
       });
-  }, [searchTerm, statusFilter, sortBy, sortDir]);
+  }, [allReferrals, searchTerm, statusFilter, sortBy, sortDir]);
 
   // Calculate pagination
   const startIndex = (page - 1) * pageSize;
@@ -55,36 +77,38 @@ function AdminReferralsTable() {
   const columns = [
     {
       key: 'id',
-      label: 'No.',
-      className: 'text-left font-medium w-16 dark:text-white'
+      label: t.no,
+      className: `${isRTL ? 'text-right' : 'text-left'} font-medium w-16 dark:text-white`
     },
     {
       key: 'name',
-      label: 'Name',
+      label: t.name,
       className: 'text-left min-w-[200px]',
       render: (row) => (
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-            {row.name.charAt(0)}
+            {row.referredFirstName?.charAt(0)}
           </div>
-          <span className="font-medium text-gray-900 dark:text-white">{row.name}</span>
+          <span className="font-medium text-gray-900 dark:text-white">
+            {row.referredFirstName} {row.referredLastName}
+          </span>
         </div>
       )
     },
     {
       key: 'email',
-      label: 'Email',
-      className: 'text-left min-w-[200px]',
+      label: t.email,
+      className: `${isRTL ? 'text-right' : 'text-left'} min-w-[200px]`,
       render: (row) => (
-        <a href={`mailto:${row.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
-          {row.email}
+        <a href={`mailto:${row.referredEmail}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+          {row.referredEmail}
         </a>
       )
     },
     {
       key: 'date',
-      label: 'Date',
-      className: 'text-left min-w-[100px]',
+      label: t.date,
+      className: `${isRTL ? 'text-right' : 'text-left'} min-w-[100px]`,
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400">
           {row.date}
@@ -93,21 +117,20 @@ function AdminReferralsTable() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t.status,
       className: 'min-w-[120px]',
       render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-sm ${
-          row.status === 'Active' 
+        <span className={`px-3 py-1 rounded-full text-sm ${row.status === 'Active'
             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
             : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
-        }`}>
+          }`}>
           {row.status}
         </span>
       )
     },
     {
       key: 'commission',
-      label: 'Commission',
+      label: t.commission,
       className: 'min-w-[120px]',
       render: (row) => (
         <span className="font-medium text-gray-900 dark:text-white">
@@ -117,7 +140,7 @@ function AdminReferralsTable() {
     },
     {
       key: 'action',
-      label: 'Action',
+      label: t.action,
       className: 'w-20',
       render: (row, idx) => (
         <div className="text-center relative action-dropdown">
@@ -128,12 +151,16 @@ function AdminReferralsTable() {
             <HiDotsHorizontal className="w-5 h-5" />
           </button>
           {openAction === idx && (
-            <div className="absolute right-10 -top-10 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1">
+            <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1`}>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                onClick={() => { setOpenAction(null); alert('View clicked!'); }}
+                onClick={() => {
+                  setOpenAction(null);
+                  setSelectedReferral(row);
+                  setShowModal(true);
+                }}
               >
-                View Details
+                {t.viewDetails}
               </button>
             </div>
           )}
@@ -149,15 +176,15 @@ function AdminReferralsTable() {
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
               <h2 className="text-xl text-gray-900 dark:text-white">
-                Referrals
+                {t.referrals}
               </h2>
               <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
-                {filteredAndSortedData.length} Total
+                {filteredAndSortedData.length} {t.total}
               </span>
             </div>
           </div>
-          
-          <CommonTable 
+
+          <CommonTable
             data={currentPageData}
             columns={columns}
             className="w-full"
@@ -175,12 +202,111 @@ function AdminReferralsTable() {
             onPageSizeChange={setPageSize}
             noDataComponent={
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No referrals found
+                {t.noReferralsFound}
               </div>
             }
           />
         </div>
       </div>
+
+      {/* Referral Details Modal */}
+      {showModal && selectedReferral && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-customBrown border border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-white">Referral Details</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-purple-400 hover:text-white transition-colors"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Referred User Section */}
+              <div className="bg-customBlack p-6 rounded-lg">
+                <h4 className="text-white text-lg font-semibold mb-4">Referred User</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">First Name</p>
+                    <p className="text-white">{selectedReferral.referredFirstName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Last Name</p>
+                    <p className="text-white">{selectedReferral.referredLastName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Email</p>
+                    <p className="text-white">{selectedReferral.referredEmail}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">User ID</p>
+                    <p className="text-white">{selectedReferral.referredUserId}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Referrer Section */}
+              <div className="bg-customBlack p-6 rounded-lg">
+                <h4 className="text-white text-lg font-semibold mb-4">Referrer</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">First Name</p>
+                    <p className="text-white">{selectedReferral.referrerFirstName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Last Name</p>
+                    <p className="text-white">{selectedReferral.referrerLastName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Email</p>
+                    <p className="text-white">{selectedReferral.referrerEmail}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Referrer ID</p>
+                    <p className="text-white">{selectedReferral.referrerId}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Referral Details Section */}
+              <div className="bg-customBlack p-6 rounded-lg">
+                <h4 className="text-white text-lg font-semibold mb-4">Referral Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm">Referral ID</p>
+                    <p className="text-white">{selectedReferral.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Referrer Code</p>
+                    <p className="text-white">{selectedReferral.referrerCode}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Status</p>
+                    <span className={`px-3 py-1 rounded-full text-sm ${selectedReferral.status === 'Active'
+                        ? 'text-green-400'
+                        : 'text-orange-400'
+                      }`}>
+                      {selectedReferral.status}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Commission</p>
+                    <p className="text-white">${selectedReferral.commission}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-400 text-sm">Date</p>
+                    <p className="text-white">
+                      {new Date(selectedReferral.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -7,9 +7,10 @@ import AdminReferralManagement from '../pages/admin/ReferralManagement';
 import Analytics from '../pages/admin/analytics';
 import AccountSettings from '../pages/accountSettings';
 import AdminQRManagementListing from '../pages/admin/qrManagementListing';
-import EditUserModel from '../components/admin/customerManagement/EditUserModel';
-import CreateUserModel from '../components/admin/customerManagement/CreateUserModel';
+import EditUserModel from '../components/admin/userManagement/EditUserModel';
+import CreateUserModel from '../components/admin/userManagement/CreateUserModel';
 import MyQRCodes from '../pages/admin/myQRCodes';
+import CustomerManagement from '../pages/admin/customerManagement';
 
 function AdminRoutes() {
   return (
@@ -17,6 +18,10 @@ function AdminRoutes() {
       <Route path="/" element={<AdminHome />} />
       <Route path="/dashboard" element={<AdminHome />} />
       <Route path="/user-management" element={<UserManagement />} />
+      <Route path="/customer-management" element={<CustomerManagement />} />
+      {/* <Route path="/customer-management/create" element={<CreateUserModel />} />
+      <Route path="/customer-management/edit/:userId" element={<EditUserModel />} />
+      <Route path="/customer-management/edit" element={<EditUserModel />} /> */}
       <Route path="/user-management/create" element={<CreateUserModel />} />
       <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />

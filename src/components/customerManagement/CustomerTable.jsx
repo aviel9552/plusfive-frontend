@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { FaStar } from 'react-icons/fa';
-import allCustomerData from '../../jsonData/CustomerData.json';
 import CommonOutlineButton from '../commonComponent/CommonOutlineButton';
 import CommonTable from '../commonComponent/CommonTable';
 import { PiChatsCircleBold } from 'react-icons/pi';
@@ -41,16 +40,18 @@ const RatingStars = ({ rating }) => {
     );
 };
 
-function CustomerTable() {
+function CustomerTable({ customers = [], loading = false }) {
     const [searchValue, setSearchValue] = useState('');
     const [filterValue, setFilterValue] = useState('All Status');
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(7);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [showViewModal, setShowViewModal] = useState(false);
 
-    const filterOptions = ['All Status', ...new Set(allCustomerData.map(c => c.status))];
+    const filterOptions = ['All Status', ...new Set(customers.map(c => c.status))];
 
     const filteredData = useMemo(() => {
-        let data = allCustomerData;
+        let data = customers;
 
         if (filterValue && filterValue !== 'All Status') {
             data = data.filter(item => item.status === filterValue);
@@ -60,14 +61,15 @@ function CustomerTable() {
             const lowercasedValue = searchValue.toLowerCase();
             data = data.filter(item =>
                 item.id.toLowerCase().includes(lowercasedValue) ||
-                item.customer.name.toLowerCase().includes(lowercasedValue) ||
+                item.customer.firstName.toLowerCase().includes(lowercasedValue) ||
+                item.customer.lastName.toLowerCase().includes(lowercasedValue) ||
                 item.customer.email.toLowerCase().includes(lowercasedValue) ||
-                item.customer.phone.toLowerCase().includes(lowercasedValue)
+                item.customer.phoneNumber.toLowerCase().includes(lowercasedValue)
             );
         }
 
         return data;
-    }, [searchValue, filterValue]);
+    }, [customers, searchValue, filterValue]);
 
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * pageSize;
@@ -82,9 +84,11 @@ function CustomerTable() {
             label: 'Customer',
             render: (row) => (
                 <div>
-                    <div className="font-semibold text-gray-900 dark:text-white text-lg">{row.customer.name}</div>
+                    <div className="font-semibold text-gray-900 dark:text-white text-lg">
+                        {row.customer.firstName} {row.customer.lastName}
+                    </div>
                     <div className="text-black dark:text-white">{row.customer.email}</div>
-                    <div className="text-black dark:text-white">{row.customer.phone}</div>
+                    <div className="text-black dark:text-white">{row.customer.phoneNumber}</div>
                 </div>
             )
         },
@@ -99,11 +103,10 @@ function CustomerTable() {
             render: (row) => (
                 <div>
                     <div className="flex items-center gap-1">
-                        <RatingStars rating={row.rating.current} />
-                        <span className="ml-1 text-sm text-gray-700 dark:text-gray-300 font-semibold">{row.rating.current.toFixed(1)}</span>
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                        Last: {row.rating.last.toFixed(1)} <FaStar className="text-yellow-400 w-3 h-3" />
+                        <RatingStars rating={row.rating || 0} />
+                        <span className="ml-1 text-sm text-gray-700 dark:text-gray-300 font-semibold">
+                            {(row.rating || 0).toFixed(1)}
+                        </span>
                     </div>
                 </div>
             )
@@ -113,20 +116,24 @@ function CustomerTable() {
             label: 'Last Visit',
             render: (row) => (
                 <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{row.lastVisit.date}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{row.lastVisit.treatment}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {row.lastVisit ? new Date(row.lastVisit).toLocaleDateString() : 'Never'}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {row.totalVisits || 0} visits
+                    </div>
                 </div>
             )
         },
         {
             key: 'lastPayment',
             label: 'Last Payment',
-            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${row.lastPayment.toLocaleString()}</span>
+            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${(row.lastPayment || 0).toLocaleString()}</span>
         },
         {
             key: 'totalPaid',
             label: 'Total Paid',
-            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${row.totalPaid.toLocaleString()}</span>
+            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${(row.totalPaid || 0).toLocaleString()}</span>
         }
     ];
 
@@ -153,14 +160,129 @@ function CustomerTable() {
                     setCurrentPage(1);
                 }}
                 renderActions={(row) => (
-                    <CommonOutlineButton
-                        text="WhatsApp"
-                        icon={<PiChatsCircleBold />}
-                        onClick={() => alert(`WhatsApp: ${row.customer.phone}`)}
-                        className="!text-sm !py-1.5 !px-4 w-auto rounded-lg"
-                    />
+                    <div className="flex gap-2">
+                        <CommonOutlineButton
+                            text="View"
+                            onClick={() => {
+                                setSelectedCustomer(row);
+                                setShowViewModal(true);
+                            }}
+                            className="!text-sm !py-1.5 !px-4 w-auto rounded-lg"
+                        />
+                        <CommonOutlineButton
+                            text="Edit"
+                            onClick={() => {
+                                // Navigate to edit page with customer ID
+                                window.location.href = `/app/customers/edit/${row.id}`; 
+                            }}
+                            className="!text-sm !py-1.5 !px-4 w-auto rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+                        />
+                    </div>
                 )}
             />
+            
+            {/* Customer View Modal */}
+            {showViewModal && selectedCustomer && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-customBrown border border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-2xl font-bold text-white">Customer Details</h3>
+                            <button
+                                onClick={() => setShowViewModal(false)}
+                                className="text-purple-400 hover:text-white transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            {/* Customer Information Section */}
+                            <div className="bg-customBlack p-6 rounded-lg">
+                                <h4 className="text-white text-lg font-semibold mb-4">Customer Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-gray-400 text-sm">First Name</p>
+                                        <p className="text-white">{selectedCustomer.customer.firstName}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Last Name</p>
+                                        <p className="text-white">{selectedCustomer.customer.lastName}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Email</p>
+                                        <p className="text-white">{selectedCustomer.customer.email}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Phone Number</p>
+                                        <p className="text-white">{selectedCustomer.customer.phoneNumber}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Business Information Section */}
+                            <div className="bg-customBlack p-6 rounded-lg">
+                                <h4 className="text-white text-lg font-semibold mb-4">Business Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Business Name</p>
+                                        <p className="text-white">{selectedCustomer.customer.businessName || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Business Type</p>
+                                        <p className="text-white">{selectedCustomer.customer.businessType || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Address</p>
+                                        <p className="text-white">{selectedCustomer.customer.address || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">WhatsApp Number</p>
+                                        <p className="text-white">{selectedCustomer.customer.whatsappNumber || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Customer Details Section */}
+                            <div className="bg-customBlack p-6 rounded-lg">
+                                <h4 className="text-white text-lg font-semibold mb-4">Customer Details</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Customer ID</p>
+                                        <p className="text-white">{selectedCustomer.customerId}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Status</p>
+                                        <StatusBadge status={selectedCustomer.status} />
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Rating</p>
+                                        <div className="flex items-center gap-2">
+                                            <RatingStars rating={selectedCustomer.rating || 0} />
+                                            <span className="text-white">{(selectedCustomer.rating || 0).toFixed(1)}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Total Visits</p>
+                                        <p className="text-white">{selectedCustomer.totalVisits || 0}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Last Payment</p>
+                                        <p className="text-white">${(selectedCustomer.lastPayment || 0).toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-400 text-sm">Total Paid</p>
+                                        <p className="text-white">${(selectedCustomer.totalPaid || 0).toLocaleString()}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <p className="text-gray-400 text-sm">Notes</p>
+                                        <p className="text-white">{selectedCustomer.notes || 'No notes available'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

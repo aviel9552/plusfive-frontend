@@ -176,3 +176,19 @@ export const registerUser = async (userData) => {
     }
   }
 };
+
+export const createReferral = async (referralData) => {
+  try {
+    const response = await apiClient.post('/referrals', referralData);
+    return response.data;
+  } catch (error) {
+    console.error('Error in createReferral:', error);
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to create referral');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
