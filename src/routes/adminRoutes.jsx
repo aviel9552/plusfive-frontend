@@ -18,11 +18,11 @@ function AdminRoutes() {
     <Routes>
       <Route path="/" element={<AdminHome />} />
       <Route path="/dashboard" element={<AdminHome />} />
-      <Route path="/user-management" element={<UserManagement />} />
-      <Route path="/customer-management" element={<AdminCustomerManagement />} />
+      {/* <Route path="/customer-management" element={<AdminCustomerManagement />} /> */}
       {/* <Route path="/customer-management/create" element={<CreateAdminCustomer />} /> */}
       {/* <Route path="/customer-management/edit/:customerId" element={<EditUserModel />} /> */}
-      <Route path="/customer-management/edit" element={<EditUserModel />} />
+      {/* <Route path="/customer-management/edit" element={<EditUserModel />} /> */}
+      <Route path="/user-management" element={<UserManagement />} />
       <Route path="/user-management/create" element={<CreateUserModel />} />
       <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />

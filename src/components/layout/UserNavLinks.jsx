@@ -14,7 +14,7 @@ import {
       { to: '/app/dashboard', icon: IoHomeOutline, label: t.dashboard, specialPaths: ['/','/app'] },
       { to: '/app/qr-management/my-codes', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/app/qr-management'] },
       { to: '/app/referral', icon: MdShare, label: t.referralProgram },
-      { to: '/app/customers', icon: MdPeople, label: t.customerManagement, specialPaths: ['/app/customers/create', '/app/customers/edit', '/app/customers/edit/:customerId'] },
+      // { to: '/app/customers', icon: MdPeople, label: t.customerManagement, specialPaths: ['/app/customers/create', '/app/customers/edit', '/app/customers/edit/:customerId'] },
       { to: '/app/analytics', icon: MdAnalytics, label: t.analytics },
       { to: '/app/subscription-and-billing', icon: MdCreditCard, label: <>{t.subscriptionAndBilling}</>, specialPaths: ['/app/update-payment', '/app/add-card'] },
       { to: '/app/account-settings', icon: MdSettings, label: t.accountSettings },
@@ -27,10 +27,10 @@ import {
     const t = getLayoutTranslations(language);
     
     return {
-      '/app/customers': t.customerManagement,
-      '/app/customers/create': t.createUser,
-      '/app/customers/edit': t.editUser,
-      '/app/customers/edit/:customerId': t.editUser,
+      // '/app/customers': t.customerManagement,
+      // '/app/customers/create': t.createUser,
+      // '/app/customers/edit': t.editUser,
+      // '/app/customers/edit/:customerId': t.editUser,
       '/app/qr-management': t.qrManagement,
       '/app/update-payment': t.updatePayment,
       '/app/add-card': t.addNewCard
