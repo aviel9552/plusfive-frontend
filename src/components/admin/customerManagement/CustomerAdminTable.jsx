@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { FaStar } from 'react-icons/fa';
-import CommonOutlineButton from '../commonComponent/CommonOutlineButton';
-import CommonTable from '../commonComponent/CommonTable';
+import CommonOutlineButton from '../../commonComponent/CommonOutlineButton';
+import CommonTable from '../../commonComponent/CommonTable';
 import { PiChatsCircleBold } from 'react-icons/pi';
-import CommonButton from '../commonComponent/CommonButton';
+import CommonButton from '../../commonComponent/CommonButton';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block text-center";
@@ -41,7 +41,7 @@ const RatingStars = ({ rating }) => {
     );
 };
 
-function CustomerTable({ customers = [], loading = false }) {
+function CustomerAdminTable({ customers = [], loading = false }) {
     const [searchValue, setSearchValue] = useState('');
     const [filterValue, setFilterValue] = useState('All Status');
     const [currentPage, setCurrentPage] = useState(1);
@@ -142,13 +142,6 @@ function CustomerTable({ customers = [], loading = false }) {
         <div className="bg-white dark:bg-customBrown p-6 rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Customers ({filteredData.length})</h2>
-                <CommonButton
-                    text="Add Customer"
-                    onClick={() => {
-                        window.location.href = '/app/customers/create';
-                    }}
-                    className="px-6 pt-2.5 pb-2 rounded-lg text-18"
-                />
             </div>
             <CommonTable
                 columns={columns}
@@ -176,14 +169,6 @@ function CustomerTable({ customers = [], loading = false }) {
                                 setShowViewModal(true);
                             }}
                             className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
-                        />
-                        <CommonOutlineButton
-                            text="Edit"
-                            onClick={() => {
-                                // Navigate to edit page with customer ID
-                                window.location.href = `/app/customers/edit/${row.id}`;
-                            }}
-                            className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
                         />
                     </div>
                 )}
@@ -295,4 +280,4 @@ function CustomerTable({ customers = [], loading = false }) {
     )
 }
 
-export default CustomerTable;
+export default CustomerAdminTable;

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { addCustomerAction } from '../../redux/actions/customerActions';
+import { addCustomerAction } from '../../../redux/actions/customerActions';
 import { toast } from 'react-toastify';
-import CommonButton from '../../components/commonComponent/CommonButton';
-import CommonInput from '../../components/commonComponent/CommonInput';
-import CommonNormalDropDown from '../../components/commonComponent/CommonNormalDropDown';
+import CommonButton from '../../../components/commonComponent/CommonButton';
+import CommonInput from '../../../components/commonComponent/CommonInput';
+import CommonNormalDropDown from '../../../components/commonComponent/CommonNormalDropDown';
 
-function CreateCustomer() {
+function CreateAdminCustomer() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -529,4 +529,4 @@ function CreateCustomer() {
     );
 }
 
-export default CreateCustomer;
+export default CreateAdminCustomer;

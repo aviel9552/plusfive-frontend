@@ -14,7 +14,7 @@ const adminNavLinks = (language = 'en') => {
     { to: '/admin/qr-management/listing', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/admin/qr-management','/admin/qr-management/my-codes'] },
     { to: '/admin/referral-management', icon: MdShare, label: t.referralProgram },
     { to: '/admin/user-management', icon: MdPeople, label: t.userManagement, specialPaths: ['/admin/user-management/create', '/admin/user-management/edit', '/admin/user-management/edit/:userId']  },
-    { to: '/admin/customer-management', icon: MdPeople, label: t.customerManagement, specialPaths: ['/admin/customer-management/create', '/admin/customer-management/edit', '/admin/customer-management/edit/:userId']  },
+    { to: '/admin/customer-management', icon: MdPeople, label: t.customerManagement, specialPaths: ['/admin/customer-management/create', '/admin/customer-management/edit', '/admin/customer-management/edit/:customerId']  },
     { to: '/admin/analytics', icon: MdAnalytics, label: t.analytics },
     { to: '/admin/subscription-and-billing', icon: MdCreditCard, label: <>
       {t.subscriptionAndBilling}
