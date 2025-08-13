@@ -16,7 +16,6 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   const toggleDesktopSidebar = () => {
     onCollapse(!isCollapsed);
   };
-  console.log("isCollapsed ", isCollapsed);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
