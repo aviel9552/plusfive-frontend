@@ -16,6 +16,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   const toggleDesktopSidebar = () => {
     onCollapse(!isCollapsed);
   };
+  console.log("isCollapsed ", isCollapsed);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
       <aside className={sidebarClasses}>
         {/* Header */}
         <div className="flex items-center h-[69px] md:h-[85px] px-4 relative">
+          {/*
           <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
             <MdOutlineAdd className="text-white text-2xl" />
             {effectiveCollapsed && (
@@ -70,7 +72,18 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
               </span>
             )}
           </span>
-          <span className={`${isRTL ? 'mr-2' : 'ml-2'} text-20 font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
+        */}
+        {isCollapsed && (
+          <span className={`text-gray-900 dark:text-white text-2xl font-testtiemposfine font-bold icon-button ${isCollapsed ? 'block' : 'hidden'} relative group`}>
+            P
+            {effectiveCollapsed && (
+              <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>
+              {t.plusFive}
+              </span>
+            )}
+          </span>
+        )}
+          <span className={`${isRTL ? 'mr-2' : 'ml-2'} text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
             {t.plusFive}
           </span>
 
@@ -87,14 +100,14 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto" onClick={() => isMobile && setIsMobileMenuOpen(false)}>
           <ul className="space-y-3 px-2 list-none">
-                         {navLinks.map((link) => (
-               <SidebarNavItem
-                 key={link.to}
-                 {...link}
-                 isCollapsed={effectiveCollapsed}
-                 isRTL={isRTL}
-               />
-             ))}
+            {navLinks.map((link) => (
+              <SidebarNavItem
+                key={link.to}
+                {...link}
+                isCollapsed={effectiveCollapsed}
+                isRTL={isRTL}
+              />
+            ))}
           </ul>
         </nav>
 
@@ -105,18 +118,18 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           </div>
         )}
 
-                 {/* Logout */}
-         <div className="relative m-3">
-           <button onClick={handleLogoutClick} className="w-full">
-             <SidebarNavItem
-               onClick={handleLogoutClick}
-               icon={MdLogout}
-               label={t.logout}
-               isCollapsed={effectiveCollapsed}
-               isRTL={isRTL}
-             />
-           </button>
-         </div>
+        {/* Logout */}
+        <div className="relative m-3">
+          <button onClick={handleLogoutClick} className="w-full">
+            <SidebarNavItem
+              onClick={handleLogoutClick}
+              icon={MdLogout}
+              label={t.logout}
+              isCollapsed={effectiveCollapsed}
+              isRTL={isRTL}
+            />
+          </button>
+        </div>
       </aside>
       <CommonConfirmModel
         isOpen={showLogoutModal}

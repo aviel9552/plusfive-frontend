@@ -256,7 +256,7 @@ const CommonTable = ({
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (renderActions ? 1 : 0)} className="text-center py-8">
+                <td colSpan={columns.length + (renderActions ? 1 : 0)} className="text-center py-8 dark:text-white">
                   {noDataComponent || 'No data found'}
                 </td>
               </tr>

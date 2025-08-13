@@ -9,6 +9,9 @@ function customerManagement() {
   // Get customers from Redux state
   const { customers, loading } = useSelector(state => state.customer);
   
+  // Extract customers array from the nested structure
+  const customersList = customers?.customers || customers || [];
+  
   // Fetch customers on component mount
   useEffect(() => {
     dispatch(getMyCustomersAction());
@@ -20,7 +23,7 @@ function customerManagement() {
         <ManageAndTrackCustomers />
       </div>
       <div className='mt-7 border border-gray-200 dark:border-customBorderColor rounded-2xl dark:bg-customBrown dark:hover:bg-customBlack shadow-md hover:shadow-sm'>
-        <CustomerTable customers={customers} loading={loading} />
+        <CustomerTable customers={customersList} loading={loading} />
       </div>
     </div>
   )

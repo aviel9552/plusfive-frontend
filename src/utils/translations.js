@@ -43,15 +43,15 @@ export const getAccountSettingTranslations = (language) => {
 
 export const getAdminQRTranslations = (language) => {
   return getTranslationSection(language, 'adminQR');
-}; 
+};
 
 export const getUserSupportTranslations = (language) => {
   return getTranslationSection(language, 'userSupport');
-}; 
+};
 
 export const getAdminReferralTranslations = (language) => {
   return getTranslationSection(language, 'adminReferral');
-}; 
+};
 
 export const getUserCardTranslations = (language) => {
   return getTranslationSection(language, 'userCard');
@@ -59,4 +59,8 @@ export const getUserCardTranslations = (language) => {
 
 export const getReferralPageTranslations = (language) => {
   return getTranslationSection(language, 'referralPage');
+};
+
+export const getUserCustomerTranslations = (language) => {
+  return getTranslationSection(language, 'userCustomer');
 }; 

@@ -4,15 +4,19 @@ import { LuUsers } from 'react-icons/lu'
 import { RiLoopRightLine } from 'react-icons/ri'
 import { RxExclamationTriangle } from 'react-icons/rx'
 import { StatIconCard } from '../index'
+import { useLanguage } from '../../context/LanguageContext'
+import { getUserCustomerTranslations } from '../../utils/translations'
 
 function ManageAndTrackCustomers() {
+    const { language } = useLanguage();
+    const t = getUserCustomerTranslations(language);
 
     return (
         <div className="w-full space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl text-gray-900 dark:text-white transition-colors duration-200">
-                    Manage and Track Customers
+                    {t.manageAndTrackCustomers}
                 </h2>
             </div>
 
@@ -21,22 +25,22 @@ function ManageAndTrackCustomers() {
                 <StatIconCard
                     icon={<LuUsers className="text-2xl text-customRed transition-colors duration-200" />}
                     value="12"
-                    label="Active"
+                    label={t.active}
                 />
                 <StatIconCard
                     icon={<HiTrendingUp className="text-2xl text-customRed transition-colors duration-200" />}
                     value="8"
-                    label="Risk"
+                    label={t.atRisk}
                 />
                 <StatIconCard
                     icon={<RxExclamationTriangle className="text-2xl text-customRed transition-colors duration-200" />}
                     value="4"
-                    label="Lost"
+                    label={t.lost}
                 />
                 <StatIconCard
                     icon={<RiLoopRightLine className="text-2xl text-customRed transition-colors duration-200 rotate-[120deg]" />}
                     value="235"
-                    label="Recovered"
+                    label={t.recovered}
                 />
             </div>
         </div>

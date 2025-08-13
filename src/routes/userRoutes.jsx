@@ -28,8 +28,8 @@ function UserRoutes() {
       <Route path="/qr-management/my-codes" element={<MyQRCodes />} />
       <Route path="/referral" element={<ReferralManagement />} />
       {/* <Route path="/referral" element={<AdminReferralManagement />} /> */}
-      {/* <Route path="/customers" element={<CustomerManagement />} />
-      <Route path="/customers/create" element={<CreateCustomer />} />
+      <Route path="/customers" element={<CustomerManagement />} />
+      {/* <Route path="/customers/create" element={<CreateCustomer />} />
       <Route path="/customers/edit/:customerId" element={<EditCustomer />} /> */}
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} />
