@@ -6,22 +6,30 @@ import { PiChatsCircleBold } from 'react-icons/pi';
 import CommonButton from '../commonComponent/CommonButton';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCustomerTranslations } from '../../utils/translations';
+import { IoMdDownload } from 'react-icons/io';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block text-center";
     let colorClasses = "";
+    
+    // Convert status to lowercase for case-insensitive matching
+    const statusLower = status?.toLowerCase();
 
-    switch (status) {
-        case 'Active':
+    switch (statusLower) {
+        case 'active':
+        case 'פעיל':
             colorClasses = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
             break;
-        case 'At Risk':
+        case 'at risk':
+        case 'בסיכון':
             colorClasses = 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
             break;
-        case 'Lost':
+        case 'lost':
+        case 'אבוד':
             colorClasses = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
             break;
-        case 'Recovered':
+        case 'recovered':
+        case 'התאושש':
             colorClasses = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
             break;
         default:
@@ -84,60 +92,66 @@ function CustomerTable({ customers = [], loading = false }) {
     }, [currentPage, pageSize, filteredData]);
 
     const columns = [
-        { key: 'id', label: t.appointmentId, className: 'text-sm text-gray-900 dark:text-white' },
+        { key: 'id', label: t.userId, className: 'text-sm text-gray-900 dark:text-white' },
         {
             key: 'customer',
-            label: t.customerManagement,
+            label: 'Customer',
             render: (row) => (
                 <div>
                     <div className="font-semibold text-gray-900 dark:text-white text-lg">
-                        {row.firstName} {row.lastName}
+                        {row.customerFullName || `${row.firstName} ${row.lastName}`}
                     </div>
-                    <div className="text-black dark:text-white">{row.customerEmail || t.noDataAvailable}</div>
+                    <div className="text-black dark:text-white">{row.email || t.noDataAvailable}</div>
                     <div className="text-black dark:text-white">{row.customerPhone || t.noDataAvailable}</div>
                 </div>
             )
         },
         {
-            key: 'services',
-            label: t.services,
+            key: 'status',
+            label: 'Status',
             render: (row) => (
-                <div className="text-sm text-gray-900 dark:text-white">
-                    {row.selectedServices || t.noDataAvailable}
-                </div>
+                <StatusBadge status={row.customerStatus || row.status} />
             )
         },
         {
-            key: 'appointment',
-            label: t.appointment,
+            key: 'rating',
+            label: 'Rating',
             render: (row) => (
-                <div>
+                <div className='text-sm font-medium text-gray-900 dark:text-white'>
+                {/*
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {row.startDate ? new Date(row.startDate).toLocaleDateString() : t.noDataAvailable}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                         {row.duration || t.noDataAvailable}
                     </div>
+                */}
+                NA
                 </div>
             )
         },
         {
-            key: 'business',
-            label: t.business,
+            key: 'lastVisit',
+            label: 'Last Visit',
             render: (row) => (
                 <div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {row.user?.businessName || t.noDataAvailable}
+                        {row.startDate ? new Date(row.startDate).toLocaleDateString() : t.noDataAvailable}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {row.user?.businessType || t.noDataAvailable}
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {row.user?.businessName || t.noDataAvailable}
                     </div>
                 </div>
             )
         },
         {
-            key: 'appointmentCount',
-            label: t.appointments,
+            key: 'lastPayment',
+            label: 'Last Payment',
+            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">{row.appointmentCount || 0}</span>
+        },
+        {
+            key: 'totalPaid',
+            label: 'Total Paid',
             render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">{row.appointmentCount || 0}</span>
         }
     ];
@@ -145,28 +159,26 @@ function CustomerTable({ customers = [], loading = false }) {
     return (
         <div className="bg-white dark:bg-customBrown p-6 rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.appointments} ({filteredData.length})</h2>
-
-                {/*
-                <CommonButton
-                    text={t.addCustomer}
-                    onClick={() => {
-                        window.location.href = '/app/customers/create';
-                    }}
-                    className="px-6 pt-2.5 pb-2 rounded-lg text-18"
-                />
-                */}
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Customers ({filteredData.length})</h2>
+                <div className="flex items-center">
+                    <select
+                        value={filterValue}
+                        onChange={(e) => {
+                            setFilterValue(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        className="bg-gray-50 dark:bg-[#232323] text-gray-700 dark:text-white px-4 py-2.5 rounded-xl text-sm border-2 border-gray-200 dark:border-customBorderColor hover:border-pink-500 dark:hover:border-pink-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all duration-200 min-w-[180px]"
+                    >
+                        {filterOptions.map(option => (
+                            <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
             <CommonTable
                 columns={columns}
                 data={paginatedData}
                 total={filteredData.length}
-                filterValue={filterValue}
-                onFilterChange={(value) => {
-                    setFilterValue(value);
-                    setCurrentPage(1);
-                }}
-                filterOptions={filterOptions}
                 currentPage={currentPage}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
@@ -184,15 +196,15 @@ function CustomerTable({ customers = [], loading = false }) {
                             }}
                             className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
                         />
-                        {/*
-                    <CommonOutlineButton
-                            text="Edit"
-                            onClick={() => {
-                                window.location.href = `/app/customers/edit/${row.id}`;
-                            }}
+                        <CommonOutlineButton
+                            text="WhatsApp"
+                            // onClick={() => {
+                            //     window.location.href = `/app/customers/edit/${row.id}`;
+                            // }}
+                            icon={<PiChatsCircleBold />}
+                            iconClassName="mb-1"
                             className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
                         />
-                        */}
                     </div>
                 )}
             />

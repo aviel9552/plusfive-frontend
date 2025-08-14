@@ -939,7 +939,6 @@
   "userCustomer": {
     "customerManagement": "Customer Management",
     "manageAndTrackCustomers": "Manage and Track Customers",
-    "appointments": "Appointments",
     "addCustomer": "Add Customer",
     "view": "View",
     "edit": "Edit",
@@ -964,7 +963,6 @@
     "endDate": "End Date",
     "createdAt": "Created At",
     "noDataAvailable": "N/A",
-    "appointmentId": "Appointment ID",
     "services": "Services",
     "appointment": "Appointment",
     "business": "Business",

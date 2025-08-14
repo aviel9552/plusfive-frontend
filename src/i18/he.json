@@ -939,7 +939,6 @@
   "userCustomer": {
     "customerManagement": "ניהול לקוחות",
     "manageAndTrackCustomers": "נהל ועקוב אחר לקוחות",
-    "appointments": "ת appointments",
     "addCustomer": "הוסף לקוח",
     "view": "צפה",
     "edit": "ערוך",
@@ -964,7 +963,6 @@
     "endDate": "תאריך סיום",
     "createdAt": "נוצר בתאריך",
     "noDataAvailable": "לא זמין",
-    "appointmentId": "מזהה ת appointment",
     "services": "שירותים",
     "appointment": "ת appointment",
     "business": "עסק",

@@ -11,7 +11,7 @@ function customerManagement() {
   
   // Extract customers array from the nested structure
   const customersList = customers?.customers || customers || [];
-  
+  console.log(customersList, 'customersList');
   // Fetch customers on component mount
   useEffect(() => {
     dispatch(getMyCustomersAction());

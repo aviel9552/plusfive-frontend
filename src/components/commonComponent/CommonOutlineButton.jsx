@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { useTheme } from '../../context/ThemeContext';
 
-function CommonOutlineButton({ text, onClick, className = '', type = 'button', icon, lightBgColor = '#ffffff', darkBgColor = '#121212', bgColor }) {
+function CommonOutlineButton({ text, onClick, className = '', iconClassName = '', type = 'button', icon, lightBgColor = '#ffffff', darkBgColor = '#121212', bgColor }) {
   const { isDarkMode } = useTheme(); // ✅ dark mode from context
 
   return (
@@ -30,7 +30,7 @@ function CommonOutlineButton({ text, onClick, className = '', type = 'button', i
       }}
     >
       <div className="flex items-center justify-center gap-2">
-        {icon && <span className="text-2xl">{icon}</span>}
+        {icon && <span className={iconClassName}>{icon}</span>}
         {text}
       </div>
     </button>
@@ -41,6 +41,7 @@ CommonOutlineButton.propTypes = {
   text: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   className: PropTypes.string,
+  iconClassName: PropTypes.string,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
   icon: PropTypes.node,
   lightBgColor: PropTypes.string,
