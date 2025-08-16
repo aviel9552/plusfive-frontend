@@ -17,7 +17,8 @@ function LandingHeader() {
         { href: '/#features' },
         { href: '/#pricing' },
         { href: '/#success-stories' },
-        { href: '/#faq' }
+        { href: '/#faq' },
+        { href: '/reviews' }
     ];
 
     // Helper function/component
@@ -139,6 +140,9 @@ function LandingHeader() {
             } else {
                 console.warn(`Section with id "${id}" not found`);
             }
+        } else if (href === '/reviews') {
+            // Navigate to reviews page
+            window.location.href = '/reviews';
         }
         setMenuOpen(false);
     };
