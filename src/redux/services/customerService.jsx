@@ -101,3 +101,20 @@ export const recordCustomerVisit = async (customerId, visitData) => {
     }
   }
 };
+
+// GET /api/customers/status-count - Get customer status counts for dashboard
+export const getCustomersStatusCount = async () => {
+  try {
+    const response = await apiClient.get('/customers/status-count');
+    return response.data;
+  } catch (error) {
+    console.error('Error in getMyCustomers:', error);
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to get customers');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};

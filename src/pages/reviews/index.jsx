@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CommonButton } from '../../components';
 import CommonInput from '../../components/commonComponent/CommonInput';
-import reviewService from '../../services/reviewService';
+import reviewService from '../../redux/services/reviewServices';
 import { toast } from 'react-toastify';
 
 const ReviewPage = () => {

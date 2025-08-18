@@ -7,6 +7,9 @@ import CommonButton from '../commonComponent/CommonButton';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCustomerTranslations } from '../../utils/translations';
 import { IoMdDownload } from 'react-icons/io';
+import { toast } from 'react-toastify';
+import reviewService from '../../redux/services/reviewServices';
+import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block text-center";
@@ -45,8 +48,8 @@ const RatingStars = ({ rating }) => {
 
     return (
         <div className="flex items-center">
-            {[...Array(fullStars)].map((_, i) => <FaStar key={`full-${i}`} className="text-yellow-400" />)}
-            {[...Array(emptyStars)].map((_, i) => <FaStar key={`empty-${i}`} className="text-gray-300 dark:text-gray-600" />)}
+            {[...Array(fullStars)].map((_, i) => <FaStar key={`full-${i}`} className="text-[#FDB022]" />)}
+            {[...Array(emptyStars)].map((_, i) => <FaStar key={`empty-${i}`} className="text-gray-300 dark:text-white" />)}
         </div>
     );
 };
@@ -61,6 +64,9 @@ function CustomerTable({ customers = [], loading = false }) {
     const [pageSize, setPageSize] = useState(7);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [showViewModal, setShowViewModal] = useState(false);
+    const [sendingRating, setSendingRating] = useState(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [customerToSendRating, setCustomerToSendRating] = useState(null);
 
     const filterOptions = [t.allServices, ...new Set(customers.map(c => c.selectedServices).filter(Boolean))];
 
@@ -74,7 +80,7 @@ function CustomerTable({ customers = [], loading = false }) {
         if (searchValue) {
             const lowercasedValue = searchValue.toLowerCase();
             data = data.filter(item =>
-                item.id.toLowerCase().includes(lowercasedValue) ||
+                item.employeeId?.toString().toLowerCase().includes(lowercasedValue) ||
                 item.firstName?.toLowerCase().includes(lowercasedValue) ||
                 item.lastName?.toLowerCase().includes(lowercasedValue) ||
                 item.customerEmail?.toLowerCase().includes(lowercasedValue) ||
@@ -91,8 +97,56 @@ function CustomerTable({ customers = [], loading = false }) {
         return filteredData.slice(start, end);
     }, [currentPage, pageSize, filteredData]);
 
+    // Show confirmation modal before sending rating request
+    const handleWhatsAppClick = (customer) => {
+        setCustomerToSendRating(customer);
+        setShowConfirmModal(true);
+    };
+
+    // Send rating request function using reviewService
+    const handleSendRatingRequest = async () => {
+        if (!customerToSendRating) return;
+        
+        setSendingRating(customerToSendRating.id);
+        setShowConfirmModal(false);
+        
+        try {
+            const requestData = {
+                customerId: customerToSendRating.id,
+                customerType: 'regular',
+                useAlt: false
+            };
+            
+            const result = await reviewService.sendRatingRequest(requestData);
+            
+            if (result.success) {
+                toast.success(`Rating request sent successfully to ${customerToSendRating.customerFullName || customerToSendRating.firstName}!`);
+                console.log('Rating request response:', result.data);
+            } else {
+                toast.error(result.error || 'Failed to send rating request');
+            }
+        } catch (error) {
+            console.error('Rating request error:', error);
+            toast.error('An error occurred while sending rating request');
+        } finally {
+            setSendingRating(null);
+            setCustomerToSendRating(null);
+        }
+    };
+
+    // Close confirmation modal
+    const handleCloseConfirmModal = () => {
+        setShowConfirmModal(false);
+        setCustomerToSendRating(null);
+    };
+
     const columns = [
-        { key: 'id', label: t.userId, className: 'text-sm text-gray-900 dark:text-white' },
+        { 
+            key: 'employeeId', 
+            label: t.userId, 
+            className: 'text-sm text-gray-900 dark:text-white',
+            render: (row) => <span className="text-sm text-gray-900 dark:text-white">{row.employeeId}</span>
+        },
         {
             key: 'customer',
             label: 'Customer',
@@ -117,16 +171,38 @@ function CustomerTable({ customers = [], loading = false }) {
             key: 'rating',
             label: 'Rating',
             render: (row) => (
-                <div className='text-sm font-medium text-gray-900 dark:text-white'>
-                {/*
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {row.startDate ? new Date(row.startDate).toLocaleDateString() : t.noDataAvailable}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {row.duration || t.noDataAvailable}
-                    </div>
-                */}
-                NA
+                <div className="flex flex-col items-start">
+                    {row.reviewStatistics?.averageRating ? (
+                        <>
+                            <div className="flex items-center gap-2">
+                                <RatingStars rating={row.reviewStatistics.averageRating} />
+                                <span className="dark:text-white font-bold text-lg">
+                                    {row.reviewStatistics.averageRating.toFixed(1)}
+                                </span>
+                            </div>
+                            {row.reviews && row.reviews.length > 0 && (
+                                <div className="flex items-center gap-1 mt-1">
+                                    <span className="dark:text-white text-sm">Last:</span>
+                                    <span className="dark:text-white text-sm font-bold">
+                                        {row.reviews[row.reviews.length - 1].rating}
+                                    </span>
+                                    <div className="relative">
+                                        <FaStar className="text-gray-300 dark:text-white text-sm" />
+                                        <FaStar 
+                                            className="text-[#FDB022] absolute top-0 left-0 text-sm" 
+                                            style={{ 
+                                                clipPath: `inset(0 ${100 - (row.reviews[row.reviews.length - 1].rating / 5) * 100}% 0 0)` 
+                                            }} 
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="text-sm font-medium text-gray-500 dark:text-white">
+                            No reviews yet
+                        </div>
+                    )}
                 </div>
             )
         },
@@ -136,7 +212,7 @@ function CustomerTable({ customers = [], loading = false }) {
             render: (row) => (
                 <div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {row.startDate ? new Date(row.startDate).toLocaleDateString() : t.noDataAvailable}
+                        {row.lastVisit ? new Date(row.lastVisit).toLocaleDateString('en-GB') : t.noDataAvailable}
                     </div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {row.user?.businessName || t.noDataAvailable}
@@ -197,10 +273,9 @@ function CustomerTable({ customers = [], loading = false }) {
                             className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
                         />
                         <CommonOutlineButton
-                            text="WhatsApp"
-                            // onClick={() => {
-                            //     window.location.href = `/app/customers/edit/${row.id}`;
-                            // }}
+                            text={sendingRating === row.id ? "Sending..." : "WhatsApp"}
+                            onClick={() => handleWhatsAppClick(row)}
+                            disabled={sendingRating === row.id}
                             icon={<PiChatsCircleBold />}
                             iconClassName="mb-1"
                             className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
@@ -229,19 +304,19 @@ function CustomerTable({ customers = [], loading = false }) {
                                 <h4 className="text-white text-lg font-semibold mb-4">{t.customerInformation}</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.firstName}</p>
+                                        <p className="dark:text-white text-sm">{t.firstName}</p>
                                         <p className="text-white">{selectedCustomer.firstName}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.lastName}</p>
+                                        <p className="dark:text-white text-sm">{t.lastName}</p>
                                         <p className="text-white">{selectedCustomer.lastName}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.email}</p>
+                                        <p className="dark:text-white text-sm">{t.email}</p>
                                         <p className="text-white">{selectedCustomer.customerEmail || t.noDataAvailable}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.phoneNumber}</p>
+                                        <p className="dark:text-white text-sm">{t.phoneNumber}</p>
                                         <p className="text-white">{selectedCustomer.customerPhone}</p>
                                     </div>
                                 </div>
@@ -252,56 +327,84 @@ function CustomerTable({ customers = [], loading = false }) {
                                 <h4 className="text-white text-lg font-semibold mb-4">{t.businessInformation}</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.businessName}</p>
+                                        <p className="dark:text-white text-sm">{t.businessName}</p>
                                         <p className="text-white">{selectedCustomer.user?.businessName || t.noDataAvailable}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.businessType}</p>
+                                        <p className="dark:text-white text-sm">{t.businessType}</p>
                                         <p className="text-white">{selectedCustomer.user?.businessType || t.noDataAvailable}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.appointmentCount}</p>
+                                        <p className="dark:text-white text-sm">{t.appointmentCount}</p>
                                         <p className="text-white">{selectedCustomer.appointmentCount || 0}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.duration}</p>
+                                        <p className="dark:text-white text-sm">{t.duration}</p>
                                         <p className="text-white">{selectedCustomer.duration || t.noDataAvailable}</p>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Review Statistics Section */}
+                            {selectedCustomer.reviewStatistics && (
+                                <div className="bg-customBlack p-6 rounded-lg">
+                                    <h4 className="text-white text-lg font-semibold mb-4">Review Statistics</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="dark:text-white text-sm">Average Rating</p>
+                                            <div className="flex items-center gap-2">
+                                                <RatingStars rating={selectedCustomer.reviewStatistics.averageRating} />
+                                                <span className="text-white">{selectedCustomer.reviewStatistics.averageRating.toFixed(1)}/5</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="dark:text-white text-sm">Total Reviews</p>
+                                            <p className="text-white">{selectedCustomer.reviewStatistics.totalReviews}</p>
+                                        </div>
+                                        <div>
+                                            <p className="dark:text-white text-sm">Highest Rating</p>
+                                            <p className="text-white">{selectedCustomer.reviewStatistics.maxRating}/5</p>
+                                        </div>
+                                        <div>
+                                            <p className="dark:text-white text-sm">Lowest Rating</p>
+                                            <p className="text-white">{selectedCustomer.reviewStatistics.minRating}/5</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Customer Details Section */}
                             <div className="bg-customBlack p-6 rounded-lg">
                                 <h4 className="text-white text-lg font-semibold mb-4">{t.customerDetailsSection}</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.customerId}</p>
+                                        <p className="dark:text-white text-sm">{t.customerId}</p>
                                         <p className="text-white">{selectedCustomer.id}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.userId}</p>
+                                        <p className="dark:text-white text-sm">{t.userId}</p>
                                         <p className="text-white">{selectedCustomer.userId}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.selectedServices}</p>
+                                        <p className="dark:text-white text-sm">{t.selectedServices}</p>
                                         <p className="text-white">{selectedCustomer.selectedServices || t.noDataAvailable}</p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.startDate}</p>
+                                        <p className="dark:text-white text-sm">{t.startDate}</p>
                                         <p className="text-white">
-                                            {selectedCustomer.startDate ? new Date(selectedCustomer.startDate).toLocaleDateString() : t.noDataAvailable}
+                                            {selectedCustomer.startDate ? new Date(selectedCustomer.startDate).toLocaleDateString('en-GB') : t.noDataAvailable}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.endDate}</p>
+                                        <p className="dark:text-white text-sm">{t.endDate}</p>
                                         <p className="text-white">
-                                            {selectedCustomer.endDate ? new Date(selectedCustomer.endDate).toLocaleDateString() : t.noDataAvailable}
+                                            {selectedCustomer.endDate ? new Date(selectedCustomer.endDate).toLocaleDateString('en-GB') : t.noDataAvailable}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-gray-400 text-sm">{t.createdAt}</p>
+                                        <p className="dark:text-white text-sm">{t.createdAt}</p>
                                         <p className="text-white">
-                                            {selectedCustomer.createdAt ? new Date(selectedCustomer.createdAt).toLocaleDateString() : t.noDataAvailable}
+                                            {selectedCustomer.createdAt ? new Date(selectedCustomer.createdAt).toLocaleDateString('en-GB') : t.noDataAvailable}
                                         </p>
                                     </div>
                                 </div>
@@ -310,6 +413,17 @@ function CustomerTable({ customers = [], loading = false }) {
                     </div>
                 </div>
             )}
+
+            {/* Confirmation Modal */}
+            <CommonConfirmModel
+                isOpen={showConfirmModal}
+                onClose={handleCloseConfirmModal}
+                onConfirm={handleSendRatingRequest}
+                title="Send Rating Request"
+                message={`Are you sure you want to send a rating request to ${customerToSendRating?.customerFullName || customerToSendRating?.firstName || 'this customer'}?`}
+                confirmText="Send"
+                cancelText="Cancel"
+            />
         </div>
     )
 }
