@@ -17,6 +17,7 @@ import MyQRCodes from '../pages/admin/myQRCodes'
 import AdminReferralManagement from '../pages/admin/ReferralManagement'
 import CreateCustomer from '../pages/customerManagement/createCustomer'
 import EditCustomer from '../pages/customerManagement/editCustomer'
+import ViewCustomer from '../pages/customerManagement/viewCustomer'
 
 function UserRoutes() {
   return (
@@ -29,6 +30,7 @@ function UserRoutes() {
       <Route path="/referral" element={<ReferralManagement />} />
       {/* <Route path="/referral" element={<AdminReferralManagement />} /> */}
       <Route path="/customers" element={<CustomerManagement />} />
+      <Route path="/customers/view/:customerId" element={<ViewCustomer />} />
       {/* <Route path="/customers/create" element={<CreateCustomer />} />
       <Route path="/customers/edit/:customerId" element={<EditCustomer />} /> */}
       <Route path="/analytics" element={<Analytics />} />

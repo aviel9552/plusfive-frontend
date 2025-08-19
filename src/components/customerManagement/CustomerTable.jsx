@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
 import CommonOutlineButton from '../commonComponent/CommonOutlineButton';
 import CommonTable from '../commonComponent/CommonTable';
@@ -55,6 +56,7 @@ const RatingStars = ({ rating }) => {
 };
 
 function CustomerTable({ customers = [], loading = false }) {
+    const navigate = useNavigate();
     const { language } = useLanguage();
     const t = getUserCustomerTranslations(language);
     
@@ -62,8 +64,6 @@ function CustomerTable({ customers = [], loading = false }) {
     const [filterValue, setFilterValue] = useState(t.allServices);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(7);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [showViewModal, setShowViewModal] = useState(false);
     const [sendingRating, setSendingRating] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [customerToSendRating, setCustomerToSendRating] = useState(null);
@@ -120,14 +120,14 @@ function CustomerTable({ customers = [], loading = false }) {
             const result = await reviewService.sendRatingRequest(requestData);
             
             if (result.success) {
-                toast.success(`Rating request sent successfully to ${customerToSendRating.customerFullName || customerToSendRating.firstName}!`);
+                toast.success(`${t.ratingRequestSentSuccessfully} ${customerToSendRating.customerFullName || customerToSendRating.firstName}!`);
                 console.log('Rating request response:', result.data);
             } else {
-                toast.error(result.error || 'Failed to send rating request');
+                toast.error(result.error || t.failedToSendRatingRequest);
             }
         } catch (error) {
             console.error('Rating request error:', error);
-            toast.error('An error occurred while sending rating request');
+            toast.error(t.errorOccurredWhileSending);
         } finally {
             setSendingRating(null);
             setCustomerToSendRating(null);
@@ -149,7 +149,7 @@ function CustomerTable({ customers = [], loading = false }) {
         },
         {
             key: 'customer',
-            label: 'Customer',
+            label: t.customer,
             render: (row) => (
                 <div>
                     <div className="font-semibold text-gray-900 dark:text-white text-lg">
@@ -162,14 +162,14 @@ function CustomerTable({ customers = [], loading = false }) {
         },
         {
             key: 'status',
-            label: 'Status',
+            label: t.status,
             render: (row) => (
                 <StatusBadge status={row.customerStatus || row.status} />
             )
         },
         {
             key: 'rating',
-            label: 'Rating',
+            label: t.rating,
             render: (row) => (
                 <div className="flex flex-col items-start">
                     {row.reviewStatistics?.averageRating ? (
@@ -182,7 +182,7 @@ function CustomerTable({ customers = [], loading = false }) {
                             </div>
                             {row.reviews && row.reviews.length > 0 && (
                                 <div className="flex items-center gap-1 mt-1">
-                                    <span className="dark:text-white text-sm">Last:</span>
+                                    <span className="dark:text-white text-sm">{t.last}:</span>
                                     <span className="dark:text-white text-sm font-bold">
                                         {row.reviews[row.reviews.length - 1].rating}
                                     </span>
@@ -200,7 +200,7 @@ function CustomerTable({ customers = [], loading = false }) {
                         </>
                     ) : (
                         <div className="text-sm font-medium text-gray-500 dark:text-white">
-                            No reviews yet
+                            {t.noReviewsYet}
                         </div>
                     )}
                 </div>
@@ -208,7 +208,7 @@ function CustomerTable({ customers = [], loading = false }) {
         },
         {
             key: 'lastVisit',
-            label: 'Last Visit',
+            label: t.lastVisit,
             render: (row) => (
                 <div>
                     <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -222,20 +222,20 @@ function CustomerTable({ customers = [], loading = false }) {
         },
         {
             key: 'lastPayment',
-            label: 'Last Payment',
-            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">{row.appointmentCount || 0}</span>
+            label: t.lastPayment,
+            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
         },
         {
             key: 'totalPaid',
-            label: 'Total Paid',
-            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">{row.appointmentCount || 0}</span>
+            label: t.totalPaid,
+            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
         }
     ];
 
     return (
         <div className="bg-white dark:bg-customBrown p-6 rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Customers ({filteredData.length})</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.customers} ({filteredData.length})</h2>
                 <div className="flex items-center">
                     <select
                         value={filterValue}
@@ -266,163 +266,32 @@ function CustomerTable({ customers = [], loading = false }) {
                     <div className="flex gap-2">
                         <CommonOutlineButton
                             text={t.view}
-                            onClick={() => {
-                                setSelectedCustomer(row);
-                                setShowViewModal(true);
-                            }}
+                            onClick={() => navigate(`/app/customers/view/${row.id}`)}
                             className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
                         />
                         <CommonOutlineButton
-                            text={sendingRating === row.id ? "Sending..." : "WhatsApp"}
+                            text={sendingRating === row.id ? t.sending : t.whatsapp}
                             onClick={() => handleWhatsAppClick(row)}
                             disabled={sendingRating === row.id}
                             icon={<PiChatsCircleBold />}
                             iconClassName="mb-1"
-                            className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+                            className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
                         />
                     </div>
                 )}
             />
 
-            {/* Customer View Modal */}
-            {showViewModal && selectedCustomer && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-customBrown border border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-bold text-white">{t.customerDetails}</h3>
-                            <button
-                                onClick={() => setShowViewModal(false)}
-                                className="text-purple-400 hover:text-white transition-colors"
-                            >
-                                {t.close}
-                            </button>
-                        </div>
 
-                        <div className="space-y-6">
-                            {/* Customer Information Section */}
-                            <div className="bg-customBlack p-6 rounded-lg">
-                                <h4 className="text-white text-lg font-semibold mb-4">{t.customerInformation}</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.firstName}</p>
-                                        <p className="text-white">{selectedCustomer.firstName}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.lastName}</p>
-                                        <p className="text-white">{selectedCustomer.lastName}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.email}</p>
-                                        <p className="text-white">{selectedCustomer.customerEmail || t.noDataAvailable}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.phoneNumber}</p>
-                                        <p className="text-white">{selectedCustomer.customerPhone}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Business Information Section */}
-                            <div className="bg-customBlack p-6 rounded-lg">
-                                <h4 className="text-white text-lg font-semibold mb-4">{t.businessInformation}</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.businessName}</p>
-                                        <p className="text-white">{selectedCustomer.user?.businessName || t.noDataAvailable}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.businessType}</p>
-                                        <p className="text-white">{selectedCustomer.user?.businessType || t.noDataAvailable}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.appointmentCount}</p>
-                                        <p className="text-white">{selectedCustomer.appointmentCount || 0}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.duration}</p>
-                                        <p className="text-white">{selectedCustomer.duration || t.noDataAvailable}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Review Statistics Section */}
-                            {selectedCustomer.reviewStatistics && (
-                                <div className="bg-customBlack p-6 rounded-lg">
-                                    <h4 className="text-white text-lg font-semibold mb-4">Review Statistics</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="dark:text-white text-sm">Average Rating</p>
-                                            <div className="flex items-center gap-2">
-                                                <RatingStars rating={selectedCustomer.reviewStatistics.averageRating} />
-                                                <span className="text-white">{selectedCustomer.reviewStatistics.averageRating.toFixed(1)}/5</span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="dark:text-white text-sm">Total Reviews</p>
-                                            <p className="text-white">{selectedCustomer.reviewStatistics.totalReviews}</p>
-                                        </div>
-                                        <div>
-                                            <p className="dark:text-white text-sm">Highest Rating</p>
-                                            <p className="text-white">{selectedCustomer.reviewStatistics.maxRating}/5</p>
-                                        </div>
-                                        <div>
-                                            <p className="dark:text-white text-sm">Lowest Rating</p>
-                                            <p className="text-white">{selectedCustomer.reviewStatistics.minRating}/5</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Customer Details Section */}
-                            <div className="bg-customBlack p-6 rounded-lg">
-                                <h4 className="text-white text-lg font-semibold mb-4">{t.customerDetailsSection}</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.customerId}</p>
-                                        <p className="text-white">{selectedCustomer.id}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.userId}</p>
-                                        <p className="text-white">{selectedCustomer.userId}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.selectedServices}</p>
-                                        <p className="text-white">{selectedCustomer.selectedServices || t.noDataAvailable}</p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.startDate}</p>
-                                        <p className="text-white">
-                                            {selectedCustomer.startDate ? new Date(selectedCustomer.startDate).toLocaleDateString('en-GB') : t.noDataAvailable}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.endDate}</p>
-                                        <p className="text-white">
-                                            {selectedCustomer.endDate ? new Date(selectedCustomer.endDate).toLocaleDateString('en-GB') : t.noDataAvailable}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="dark:text-white text-sm">{t.createdAt}</p>
-                                        <p className="text-white">
-                                            {selectedCustomer.createdAt ? new Date(selectedCustomer.createdAt).toLocaleDateString('en-GB') : t.noDataAvailable}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Confirmation Modal */}
             <CommonConfirmModel
                 isOpen={showConfirmModal}
                 onClose={handleCloseConfirmModal}
                 onConfirm={handleSendRatingRequest}
-                title="Send Rating Request"
-                message={`Are you sure you want to send a rating request to ${customerToSendRating?.customerFullName || customerToSendRating?.firstName || 'this customer'}?`}
-                confirmText="Send"
-                cancelText="Cancel"
+                title={t.sendRatingRequest}
+                message={`${t.areYouSureToSendRating} ${customerToSendRating?.customerFullName || customerToSendRating?.firstName || t.thisCustomer}?`}
+                confirmText={t.send}
+                cancelText={t.cancel}
             />
         </div>
     )
