@@ -56,12 +56,11 @@ function AdminUserTable({ users, loading, error }) {
 
   // Action handlers
   const handleEdit = (userData) => {
-    navigate(`/admin/user-management/edit/${userData.id}`, { state: { userData } });
+    navigate(`/admin/user-management/edit/${userData.id}`);
   };
 
   const handleView = (userData) => {
-    // Implement view functionality
-    console.log('View user:', userData);
+    navigate(`/admin/user-management/view/${userData.id}`);
   };
 
   const handleDelete = (userData) => {

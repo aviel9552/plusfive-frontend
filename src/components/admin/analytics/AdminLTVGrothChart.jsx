@@ -36,9 +36,14 @@ function AdminLTVGrothChart() {
         return null;
     };
 
-    const CustomYAxisTick = ({ x, y, payload }) => (
-        <text x={x} y={y} dy={4} fill="#888" fontSize={12} textAnchor="end">{payload.value.toFixed(1)}</text>
-    );
+    const CustomYAxisTick = ({ x, y, payload }) => {
+        const textColor = isDarkMode ? "#fff" : "#000";
+        return (
+            <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
+                {payload.value.toFixed(1)}
+            </text>
+        );
+    };
 
     return (
         <div className='mt-10'>
@@ -52,13 +57,30 @@ function AdminLTVGrothChart() {
                                 stroke={isDarkMode ? "#D1D5DB" : "#000"}
                                 strokeOpacity={0.15}
                             />
-                            <XAxis dataKey="month" tickLine={false} axisLine={{ stroke: '#444' }} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
+                            <XAxis 
+                                dataKey="month" 
+                                tickLine={false} 
+                                axisLine={{ stroke: '#444' }} 
+                                tick={{ 
+                                    fill: isDarkMode ? '#fff' : '#000', 
+                                    fontSize: 16 
+                                }} 
+                                dy={10} 
+                            />
                             <YAxis
                                 tickLine={false}
                                 axisLine={{ stroke: '#444' }}
                                 domain={[5.5, 7.5]}
                                 tick={<CustomYAxisTick />}
-                                label={{ value: t.ltdMonthly, angle: -90, position: 'insideLeft', fill: '#fff', fontSize: 14, dx: 5, dy: 50 }}
+                                label={{ 
+                                    value: t.ltdMonthly, 
+                                    angle: -90, 
+                                    position: 'insideLeft', 
+                                    fill: isDarkMode ? '#fff' : '#000', 
+                                    fontSize: 14, 
+                                    dx: 5, 
+                                    dy: 50 
+                                }}
                             />
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                             <Line

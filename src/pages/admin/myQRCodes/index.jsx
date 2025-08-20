@@ -82,11 +82,11 @@ function myQRCodes() {
 
   // Handle create QR code - redirect to qr-management page
   const handleCreateQR = () => {
-    navigate('/admin/qr-management');
+    navigate('/app/qr-management');
   };
   // Handle create QR code - redirect to qr-management page
   const handleAllQRCodes = () => {
-    navigate('/admin/qr-management/listing');
+    navigate('/app/qr-management/listing');
   };
 
   // Handle delete QR code

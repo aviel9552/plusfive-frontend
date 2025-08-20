@@ -26,8 +26,25 @@ const ratingData = [
     { month: 'Sep', rating: 4.6 }, { month: 'Oct', rating: 4.8 }, { month: 'Nov', rating: 4.5 }, { month: 'Dec', rating: 5.0 },
 ];
 
-const CustomYAxisTick = ({ x, y, payload }) => (<text x={x} y={y} dy={4} fill="#888" fontSize={12} textAnchor="end">{payload.value === 0 ? '0%' : `${payload.value}k`}</text>);
-const CustomRatingYTick = ({ x, y, payload }) => (<text x={x} y={y} dy={4} fill="#888" fontSize={12} textAnchor="end">{payload.value.toFixed(1)}</text>);
+const CustomYAxisTick = ({ x, y, payload }) => {
+    const { isDarkMode } = useTheme();
+    const textColor = isDarkMode ? "#fff" : "#000";
+    return (
+        <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
+            {payload.value === 0 ? '0%' : `${payload.value}k`}
+        </text>
+    );
+};
+
+const CustomRatingYTick = ({ x, y, payload }) => {
+    const { isDarkMode } = useTheme();
+    const textColor = isDarkMode ? "#fff" : "#000";
+    return (
+        <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
+            {payload.value.toFixed(1)}
+        </text>
+    );
+};
 
 function AdminAnalyticsSecontChart() {
     const [filter, setFilter] = useState('Monthly');
@@ -86,17 +103,49 @@ function AdminAnalyticsSecontChart() {
                 <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={qrData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }} barGap={10} onMouseLeave={() => setHoveredBar(null)}>
+                            <defs>
+                                <linearGradient id="lastYearGradient" x1="0" y1="1" x2="0" y2="0">
+                                    <stop offset="0%" stopColor="#61656C" />
+                                    <stop offset="100%" stopColor="#BDC4D2" />
+                                </linearGradient>
+                                <linearGradient id="thisYearGradient" x1="0" y1="0" x2="0" y2="1" gradientTransform="rotate(259)">
+                                    <stop offset="3.28%" stopColor="#FE5D39" />
+                                    <stop offset="49.86%" stopColor="#FF2380" />
+                                    <stop offset="100.32%" stopColor="#DF64CC" />
+                                </linearGradient>
+                            </defs>
                             <CartesianGrid
                                 strokeDasharray="6 6"
                                 vertical={false}
                                 stroke={isDarkMode ? "#D1D5DB" : "#000"}
                                 strokeOpacity={0.15}
                             />
-                            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
+                            <XAxis 
+                                dataKey="label" 
+                                tickLine={false} 
+                                axisLine={false} 
+                                tick={{ 
+                                    fill: isDarkMode ? '#fff' : '#000', 
+                                    fontSize: 16 
+                                }} 
+                                dy={10} 
+                            />
                             <YAxis tickLine={false} axisLine={false} tick={<CustomYAxisTick />} domain={[0, 'dataMax']} />
                             <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} isAnimationActive={false} />
-                            <Bar dataKey="lastYear" fill="#4A4A4A" radius={[4, 4, 0, 0]} barSize={12} onMouseOver={() => setHoveredBar('lastYear')} />
-                            <Bar dataKey="thisYear" fill="#FF2380" radius={[4, 4, 0, 0]} barSize={12} onMouseOver={() => setHoveredBar('thisYear')} />
+                            <Bar 
+                                dataKey="lastYear" 
+                                fill="url(#lastYearGradient)" 
+                                radius={[4, 4, 0, 0]} 
+                                barSize={12} 
+                                onMouseOver={() => setHoveredBar('lastYear')} 
+                            />
+                            <Bar 
+                                dataKey="thisYear" 
+                                fill="url(#thisYearGradient)" 
+                                radius={[4, 4, 0, 0]} 
+                                barSize={12} 
+                                onMouseOver={() => setHoveredBar('thisYear')} 
+                            />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -118,7 +167,16 @@ function AdminAnalyticsSecontChart() {
                                 stroke={isDarkMode ? "#D1D5DB" : "#000"}
                                 strokeOpacity={0.15}
                             />
-                            <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
+                            <XAxis 
+                                dataKey="month" 
+                                tickLine={false} 
+                                axisLine={false} 
+                                tick={{ 
+                                    fill: isDarkMode ? '#fff' : '#000', 
+                                    fontSize: 16 
+                                }} 
+                                dy={10} 
+                            />
                             <YAxis tickLine={false} axisLine={false} domain={[1, 5]} tick={<CustomRatingYTick />} />
                             <Tooltip wrapperClassName="!hidden" />
                             <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="url(#ratingGradient)" />

@@ -5,6 +5,7 @@ import { CommonInput, CommonButton, CommonNormalDropDown } from '../../index';
 import { FiArrowLeft } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { updateUser } from '../../../redux/actions/userActions';
+import { getUserById } from '../../../redux/services/userServices';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminUserTranslations, getValidationTranslations } from '../../../utils/translations';
 
@@ -18,7 +19,7 @@ function EditUserModel() {
   const v = getValidationTranslations(language);
 
   // Get user data from navigation state or use fallback
-  const userDataProp = location.state?.userData || {
+  const userDataProp = {
     id: userId,
     firstName: '',
     lastName: '',
@@ -32,6 +33,11 @@ function EditUserModel() {
     address: '',
     whatsappNumber: ''
   };
+
+  // State for API fetched user data
+  const [apiUserData, setApiUserData] = useState(null);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -85,9 +91,35 @@ function EditUserModel() {
     return "";
   };
 
-  // Update form data when userData changes
+  // Fetch user data from API
   useEffect(() => {
-    if (userDataProp && typeof userDataProp === 'object') {
+    const fetchUserData = async () => {
+      if (userId) {
+        try {
+          setApiLoading(true);
+          setApiError(null);
+          
+          const response = await getUserById(userId);
+          
+          if (response.success && response.data) {
+            setApiUserData(response.data);
+          } else {
+            setApiError(response.message || 'Failed to fetch user data');
+          }
+        } catch (error) {
+          setApiError(error.message || 'Failed to fetch user data');
+        } finally {
+          setApiLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  // Update form data when API data changes
+  useEffect(() => {
+    if (apiUserData && typeof apiUserData === 'object') {
       const safeGetValue = (obj, key) => {
         if (!obj || typeof obj !== 'object') return '';
 
@@ -106,22 +138,22 @@ function EditUserModel() {
       };
 
       const newFormData = {
-        firstName: safeGetValue(userDataProp, 'firstName'),
-        lastName: safeGetValue(userDataProp, 'lastName'),
-        email: safeGetValue(userDataProp, 'email'),
-        phoneNumber: safeGetValue(userDataProp, 'phoneNumber'),
-        businessName: safeGetValue(userDataProp, 'businessName'),
-        businessType: safeGetValue(userDataProp, 'businessType'),
-        role: safeGetValue(userDataProp, 'role'),
-        accountStatus: safeGetValue(userDataProp, 'accountStatus'),
-        subscriptionPlan: safeGetValue(userDataProp, 'subscriptionPlan'),
-        address: safeGetValue(userDataProp, 'address'),
-        whatsappNumber: safeGetValue(userDataProp, 'whatsappNumber')
+        firstName: safeGetValue(apiUserData, 'firstName'),
+        lastName: safeGetValue(apiUserData, 'lastName'),
+        email: safeGetValue(apiUserData, 'email'),
+        phoneNumber: safeGetValue(apiUserData, 'phoneNumber'),
+        businessName: safeGetValue(apiUserData, 'businessName'),
+        businessType: safeGetValue(apiUserData, 'businessType'),
+        role: safeGetValue(apiUserData, 'role'),
+        accountStatus: safeGetValue(apiUserData, 'accountStatus'),
+        subscriptionPlan: safeGetValue(apiUserData, 'subscriptionPlan'),
+        address: safeGetValue(apiUserData, 'address'),
+        whatsappNumber: safeGetValue(apiUserData, 'whatsappNumber')
       };
 
       setFormData(newFormData);
     }
-  }, [userDataProp]);
+  }, [apiUserData]);
 
   const validate = () => {
     const newErrors = {};
@@ -463,6 +495,26 @@ function EditUserModel() {
             </button>
           </div>
         </div>
+
+        {/* Loading State */}
+        {apiLoading && (
+          <div className="bg-white dark:bg-customBlack rounded-xl shadow-lg border border-gray-200 dark:border-customBorderColor p-8 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="loader"></div>
+              <span className="ml-3 text-gray-600 dark:text-gray-300">Loading user data...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {apiError && (
+          <div className="bg-white dark:bg-customBlack rounded-xl shadow-lg border border-gray-200 dark:border-customBorderColor p-8 mb-6">
+            <div className="text-red-500 text-center">
+              <p className="text-lg font-semibold mb-2">Error Loading User Data</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{apiError}</p>
+            </div>
+          </div>
+        )}
 
         {/* Form */}
         <div className="bg-white dark:bg-customBlack rounded-xl shadow-lg border border-gray-200 dark:border-customBorderColor">

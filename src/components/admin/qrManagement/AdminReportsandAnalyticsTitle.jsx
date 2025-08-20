@@ -5,6 +5,9 @@ import { FiMousePointer } from 'react-icons/fi'
 import { IoStatsChart } from 'react-icons/io5'
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminQRTranslations } from '../../../utils/translations';
+import Todays_Scans_Icon from '../../../assets/Todays_Scans_Icon.svg'
+import Month_Clicks_Icon from '../../../assets/Month_Clicks_Icon.svg'
+import Referral_Conversions_Icon from '../../../assets/Referral_Conversions_Icon.svg'
 
 const timeOptions = [
     { value: 'monthly', label: 'Monthly' },
@@ -35,17 +38,17 @@ function AdminReportsandAnalyticsTitle() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatIconCard
-                    icon={<BiQr className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Todays_Scans_Icon}
                     value="25"
                     label={t.scans}
                 />
                 <StatIconCard
-                    icon={<FiMousePointer className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Month_Clicks_Icon}
                     value="980"
                     label={t.clicks}
                 />
                 <StatIconCard
-                    icon={<IoStatsChart className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Referral_Conversions_Icon}
                     value="75%"
                     label={t.conversions}
                 />

@@ -53,10 +53,10 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   };
 
   const pieChartData = [
-      { name: t.active, value: 680, percentage: '22%', color: '#6366F1' },
-      { name: t.atRisk, value: 75, percentage: '10%', color: '#F97316' },
-      { name: t.lost, value: 58, percentage: '8%', color: '#EF4444' },
-      { name: t.recovered, value: 240, percentage: '15%', color: '#EC4899' },
+      { name: t.active, value: 680, percentage: '22%', color: '#675DFF' },
+      { name: t.atRisk, value: 75, percentage: '10%', color: '#FE5D39' },
+      { name: t.lost, value: 58, percentage: '8%', color: '#912018' },
+      { name: t.recovered, value: 240, percentage: '15%', color: '#DF64CC' },
   ];
 
   return (

@@ -13,7 +13,7 @@ import reviewService from '../../redux/services/reviewServices';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 
 const StatusBadge = ({ status }) => {
-    const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block text-center";
+    const baseClasses = "px-3 pt-2 pb-1 text-xs font-semibold rounded-full inline-block text-center text-14";
     let colorClasses = "";
     
     // Convert status to lowercase for case-insensitive matching
@@ -22,25 +22,39 @@ const StatusBadge = ({ status }) => {
     switch (statusLower) {
         case 'active':
         case 'פעיל':
-            colorClasses = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+            colorClasses = 'text-[#2537A5] bg-[#D0E2FF]';
             break;
         case 'at risk':
+        case 'risk':
         case 'בסיכון':
-            colorClasses = 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
+            colorClasses = 'text-[#AD3D02] bg-[#FFE8E3]';
             break;
         case 'lost':
         case 'אבוד':
-            colorClasses = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+            colorClasses = 'text-[#55160C] bg-[#FDA29B]';
             break;
         case 'recovered':
         case 'התאושש':
-            colorClasses = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+            colorClasses = 'text-[#2C1C5F] bg-[#E9D7FE]';
             break;
         default:
             colorClasses = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
 
-    return <span className={`${baseClasses} ${colorClasses}`}>{status}</span>;
+    // Special formatting for status text
+    const formatStatusText = (statusText) => {
+        if (!statusText) return '';
+        
+        const statusLower = statusText.toLowerCase();
+        
+        if (statusLower === 'at risk' || statusLower === 'risk') {
+            return 'At Risk';
+        }
+        
+        return statusText?.charAt(0).toUpperCase() + statusText?.slice(1).toLowerCase();
+    };
+
+    return <span className={`${baseClasses} ${colorClasses}`}>{formatStatusText(status)}</span>;
 };
 
 const RatingStars = ({ rating }) => {

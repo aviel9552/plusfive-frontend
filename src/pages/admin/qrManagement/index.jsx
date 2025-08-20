@@ -237,7 +237,7 @@ function AdminQRManagement() {
               <CommonButton
                 text={loading ? t.generating : t.generateQRCode}
                 onClick={handleGenerateQR}
-                className="rounded-xl w-full py-3"
+                className="rounded-xl w-full py-3 text-14"
                 disabled={loading}
               />
             </div>
@@ -280,7 +280,7 @@ function AdminQRManagement() {
           <div className="flex gap-3 md:flex-row flex-col">
             <CommonButton
               text={t.downloadQRCode}
-              className="!py-2.5 !text-15 w-auto rounded-xl px-4 py-2"
+              className="py-2.5 w-auto rounded-xl px-4 text-14"
               icon={<LuDownload className="text-lg font-bold" />}
               disabled={!generatedQR}
               onClick={handleDownloadQR}

@@ -18,13 +18,13 @@ const StatusBadge = ({ status }) => (
   </span>
 );
 
-function CurrentActiveSubscription() {
+function CurrentActiveSubscription({ slug }) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = getUserCardTranslations(language);
 
   const handleUpdatePayment = () => {
-    navigate('/app/update-payment');
+    navigate(`/${slug}/update-payment`);
   };
 
   return (

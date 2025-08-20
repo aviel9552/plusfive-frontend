@@ -4,9 +4,11 @@ import Pricing from '../../components/subscriptionAndBilling/Pricing';
 import PaymentHistoryTable from '../../components/subscriptionAndBilling/PaymentHistoryTable';
 
 const SubscriptionAndBilling = () => {
+  const slug = window.location.pathname.split('/')[1];
+  
   return (
     <div className="space-y-8">
-      <CurrentActiveSubscription />
+      <CurrentActiveSubscription slug={slug} />
       <Pricing />
       <PaymentHistoryTable />
     </div>

@@ -7,13 +7,13 @@ import { BillingInformation } from '../index';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
 
-function UpdatePayment() {
+function UpdatePayment({ slug }) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = getUserCardTranslations(language);
     
     const handleAddCard = () => {
-        navigate('/app/add-card');
+        navigate(`/${slug}/add-card`);
     }
     
     return (

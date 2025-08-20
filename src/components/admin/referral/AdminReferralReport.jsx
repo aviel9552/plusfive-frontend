@@ -6,6 +6,10 @@ import { StatIconCard } from '../../index'
 import { useLanguage } from '../../../context/LanguageContext';
 import enTranslations from '../../../i18/en.json';
 import heTranslations from '../../../i18/he.json';
+import Todays_Scans_Icon from '../../../assets/Todays_Scans_Icon.svg'
+import Month_Clicks_Icon from '../../../assets/Month_Clicks_Icon.svg'
+import Referral_Conversions_Icon from '../../../assets/Referral_Conversions_Icon.svg'
+import Week_Views_Icon from '../../../assets/Week_Views_Icon.svg'
 
 function AdminReferralReport() {
     const { language } = useLanguage();
@@ -24,22 +28,22 @@ function AdminReferralReport() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <StatIconCard
-                    icon={<BiQr className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Todays_Scans_Icon}
                     value="25"
                     label={t.todaysScans}
                 />
                 <StatIconCard
-                    icon={<FiEye className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Week_Views_Icon}
                     value="128"
                     label={t.weekViews}
                 />
                 <StatIconCard
-                    icon={<FiMousePointer className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Month_Clicks_Icon}
                     value="980"
                     label={t.monthClicks}
                 />
                 <StatIconCard
-                    icon={<IoStatsChart className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Referral_Conversions_Icon}
                     value="72"
                     label={t.referralConversions}
                 />

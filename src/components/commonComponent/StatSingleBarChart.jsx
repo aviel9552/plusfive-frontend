@@ -4,17 +4,23 @@ import { CommonDropDown } from '../index';
 import { useTheme } from '../../context/ThemeContext';
 
 const CustomYAxisTick = ({ x, y, payload }) => {
-  if (payload.value === 0) return <text x={x} y={y} dy={3} fill="#6B7280" fontSize={12} textAnchor="end">0%</text>;
+  const { isDarkMode } = useTheme();
+  const textColor = isDarkMode ? "#fff" : "#000";
+  
+  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor="end">0%</text>;
   return (
-    <text x={x} y={y} dy={3} fill="#6B7280" fontSize={12} textAnchor="end">
+    <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor="end">
       {payload.value}k
     </text>
   );
 };
 
 const CustomXAxisTick = ({ x, y, payload }) => {
+  const { isDarkMode } = useTheme();
+  const textColor = isDarkMode ? "#fff" : "#000";
+  
   return (
-    <text x={x} y={y} dy={16} fill="#6B7280" fontSize={12} textAnchor="middle">
+    <text x={x} y={y} dy={16} fill={textColor} fontSize={16} textAnchor="middle">
       {payload.value}
     </text>
   );
@@ -81,7 +87,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             <Bar 
               dataKey="value" 
               fill="#6366F1"
-              radius={[4, 4, 0, 0]}
+              radius={[8, 8, 0, 0]}
               maxBarSize={40}
               onMouseOver={(_, idx) => setActiveIndex(idx)}
             />

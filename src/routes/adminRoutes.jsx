@@ -9,9 +9,14 @@ import AccountSettings from '../pages/accountSettings';
 import AdminQRManagementListing from '../pages/admin/qrManagementListing';
 import EditUserModel from '../components/admin/userManagement/EditUserModel';
 import CreateUserModel from '../components/admin/userManagement/CreateUserModel';
+import ViewUser from '../components/admin/userManagement/viewUser';
 import MyQRCodes from '../pages/admin/myQRCodes';
 import AdminCustomerManagement from '../pages/admin/customerManagement';
 import CreateAdminCustomer from '../pages/admin/customerManagement/createAdminCustomer';
+import SubscriptionAndBilling from '../pages/subscriptionAndBilling';
+import UpdatePaymentPage from '../pages/updatePayment';
+import AddCard from '../pages/addCard';
+import SupportAndHelp from '../pages/supportAndHelp';
 
 function AdminRoutes() {
   return (
@@ -24,6 +29,7 @@ function AdminRoutes() {
       {/* <Route path="/customer-management/edit" element={<EditUserModel />} /> */}
       <Route path="/user-management" element={<UserManagement />} />
       <Route path="/user-management/create" element={<CreateUserModel />} />
+      <Route path="/user-management/view/:userId" element={<ViewUser />} />
       <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />
       <Route path="/qr-management/listing" element={<AdminQRManagementListing />} />
@@ -31,6 +37,10 @@ function AdminRoutes() {
       <Route path="/referral-management" element={<AdminReferralManagement />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/account-settings" element={<AccountSettings />} />
+      <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} />
+      <Route path="/update-payment" element={<UpdatePaymentPage />} />
+      <Route path="/add-card" element={<AddCard />} />
+      <Route path="/support-and-help" element={<SupportAndHelp />} />
       {/* Add more admin routes here in the future */}
     </Routes>
   );

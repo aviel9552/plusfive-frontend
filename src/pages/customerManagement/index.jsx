@@ -8,7 +8,7 @@ function customerManagement() {
   const dispatch = useDispatch();
   const [statusCounts, setStatusCounts] = React.useState({
     active: 0,
-    at_risk: 0,
+    risk: 0,
     lost: 0,
     recovered: 0,
     new: 0

@@ -6,6 +6,10 @@ import { RxExclamationTriangle } from 'react-icons/rx'
 import { StatIconCard } from '../index'
 import { useLanguage } from '../../context/LanguageContext'
 import { getUserCustomerTranslations } from '../../utils/translations'
+import Total_Customers_Icon from '../../assets/Total_Customers_Icon.svg'
+import Active_Customers_Icon from '../../assets/Active_Customers_Icon.svg'
+import At_Risk_Customers_Icon from '../../assets/At_Risk_Customers_Icon.svg'
+import Total_Revenue_Icon from '../../assets/Total_Revenue_Icon.svg'
 
 function ManageAndTrackCustomers({ statusCounts = {} }) {
     const { language } = useLanguage();
@@ -23,22 +27,22 @@ function ManageAndTrackCustomers({ statusCounts = {} }) {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <StatIconCard
-                    icon={<LuUsers className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={Total_Customers_Icon}
                     value={statusCounts.active || 0}
                     label={t.active}
                 />
                 <StatIconCard
-                    icon={<HiTrendingUp className="text-2xl text-customRed transition-colors duration-200" />}
-                    value={statusCounts.at_risk || 0}
+                    image={Active_Customers_Icon}
+                    value={statusCounts.risk || 0}
                     label={t.atRisk}
                 />
                 <StatIconCard
-                    icon={<RxExclamationTriangle className="text-2xl text-customRed transition-colors duration-200" />}
+                    image={At_Risk_Customers_Icon}
                     value={statusCounts.lost || 0}
                     label={t.lost}
                 />
                 <StatIconCard
-                    icon={<RiLoopRightLine className="text-2xl text-customRed transition-colors duration-200 rotate-[120deg]" />}
+                    image={Total_Revenue_Icon}
                     value={statusCounts.recovered || 0}
                     label={t.recovered}
                 />
