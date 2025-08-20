@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CommonButton, CommonInput, CommonNormalDropDown } from '../index';
 import { updateUserProfile } from '../../redux/actions/authActions';
@@ -9,10 +9,10 @@ import { getAccountSettingTranslations, getValidationTranslations } from '../../
 function PersonalInformation() {
     const dispatch = useDispatch();
     const user = useSelector(state => state.auth.user);
-      const { language } = useLanguage();
-  const t = getAccountSettingTranslations(language);
-  const v = getValidationTranslations(language);
-    
+    const { language } = useLanguage();
+    const t = getAccountSettingTranslations(language);
+    const v = getValidationTranslations(language);
+
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -26,8 +26,8 @@ function PersonalInformation() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
-    // Business types dropdown options (same as register page)
-    const businessTypes = [
+    // Base business types dropdown options
+    const baseBusinessTypes = [
         { value: '', label: t.selectBusinessType },
         { value: 'salon', label: t.salon },
         { value: 'barbershop', label: t.barbershop },
@@ -39,6 +39,39 @@ function PersonalInformation() {
         { value: 'tanning-studio', label: t.tanningStudio },
         { value: 'technology', label: t.technology },
     ];
+
+    // Dynamic business types that include user's business type if not in base list
+    const businessTypes = useMemo(() => {
+        if (!user?.businessType) return baseBusinessTypes;
+
+        // Check if user's business type already exists in base list
+        const exists = baseBusinessTypes.some(type =>
+            type.value.toLowerCase() === user.businessType.toLowerCase()
+        );
+
+        if (!exists) {
+            // Add user's business type to the list
+            return [
+                ...baseBusinessTypes,
+                {
+                    value: user.businessType,
+                    label: user.businessType // Use the actual value as label
+                }
+            ];
+        } else {
+            // If exists, update the existing option to match user's case
+            return baseBusinessTypes.map(type => {
+                if (type.value.toLowerCase() === user.businessType.toLowerCase()) {
+                    return {
+                        ...type,
+                        value: user.businessType, // Use user's exact case
+                        label: type.label // Keep the translated label
+                    };
+                }
+                return type;
+            });
+        }
+    }, [user?.businessType]);
 
     // Populate form with user data from Redux
     useEffect(() => {
@@ -72,7 +105,7 @@ function PersonalInformation() {
 
     const validate = () => {
         const newErrors = {};
-        
+
         // First Name validation (only letters and spaces)
         if (!formData.firstName) {
             newErrors.firstName = v.firstNameRequired;
@@ -83,7 +116,7 @@ function PersonalInformation() {
         } else if (formData.firstName.length > 50) {
             newErrors.firstName = v.firstNameTooLong;
         }
-        
+
         // Last Name validation (only letters and spaces)
         if (!formData.lastName) {
             newErrors.lastName = v.lastNameRequired;
@@ -94,13 +127,13 @@ function PersonalInformation() {
         } else if (formData.lastName.length > 50) {
             newErrors.lastName = v.lastNameTooLong;
         }
-        
+
         // Email validation
         const emailError = validateEmail(formData.email);
         if (emailError) {
             newErrors.email = emailError;
         }
-        
+
         // Phone validation (exactly 10 digits)
         if (!formData.phone) {
             newErrors.phone = v.phoneRequired;
@@ -109,7 +142,7 @@ function PersonalInformation() {
         } else if (formData.phone.length !== 10) {
             newErrors.phone = v.phoneExactDigits;
         }
-        
+
         // Business Name validation (only letters and spaces)
         if (!formData.businessName) {
             newErrors.businessName = v.businessNameRequired;
@@ -120,12 +153,12 @@ function PersonalInformation() {
         } else if (formData.businessName.length > 100) {
             newErrors.businessName = v.businessNameTooLong;
         }
-        
+
         // Business Type validation
         if (!formData.businessType) {
             newErrors.businessType = v.businessTypeRequired;
         }
-        
+
         // Address validation
         if (!formData.address) {
             newErrors.address = v.addressRequired;
@@ -134,7 +167,7 @@ function PersonalInformation() {
         } else if (formData.address.length > 200) {
             newErrors.address = v.addressTooLong;
         }
-        
+
         return newErrors;
     };
 
@@ -150,7 +183,7 @@ function PersonalInformation() {
             const emailError = validateEmail(value);
             setErrors(prev => ({ ...prev, email: emailError }));
         }
-        
+
         // Real-time validation for first name
         else if (name === 'firstName') {
             if (!value) {
@@ -165,7 +198,7 @@ function PersonalInformation() {
                 setErrors(prev => ({ ...prev, firstName: "" }));
             }
         }
-        
+
         // Real-time validation for last name
         else if (name === 'lastName') {
             if (!value) {
@@ -180,7 +213,7 @@ function PersonalInformation() {
                 setErrors(prev => ({ ...prev, lastName: "" }));
             }
         }
-        
+
         // Real-time validation for phone
         else if (name === 'phone') {
             if (!value) {
@@ -193,7 +226,7 @@ function PersonalInformation() {
                 setErrors(prev => ({ ...prev, phone: "" }));
             }
         }
-        
+
         // Real-time validation for business name
         else if (name === 'businessName') {
             if (!value) {
@@ -208,7 +241,7 @@ function PersonalInformation() {
                 setErrors(prev => ({ ...prev, businessName: "" }));
             }
         }
-        
+
         // Real-time validation for address
         else if (name === 'address') {
             if (!value) {
@@ -221,7 +254,7 @@ function PersonalInformation() {
                 setErrors(prev => ({ ...prev, address: "" }));
             }
         }
-        
+
         // Clear other field errors
         else if (errors[name]) {
             setErrors(prev => ({
@@ -321,7 +354,7 @@ function PersonalInformation() {
         e.preventDefault();
         const validationErrors = validate();
         setErrors(validationErrors);
-        
+
         if (Object.keys(validationErrors).length === 0) {
             setIsLoading(true);
             try {
@@ -335,7 +368,7 @@ function PersonalInformation() {
                     businessType: formData.businessType,
                     address: formData.address,
                 };
-                
+
                 const result = await dispatch(updateUserProfile(apiData));
                 if (result.success) {
                     toast.success(t.profileUpdatedSuccess);
@@ -436,13 +469,13 @@ function PersonalInformation() {
                         placeholder={t.enterBusinessName}
                     />
                     <div>
-                        <label className="block text-16 font-medium mb-2 text-white">{t.businessType}</label>
+                        <label className="block text-16 font-medium mb-2 text-gray-900 dark:text-white">{t.businessType}</label>
                         <CommonNormalDropDown
                             options={businessTypes}
                             value={formData.businessType}
                             onChange={handleDropDownChange}
-                            bgColor="bg-customBrown backdrop-blur-sm"
-                            textColor="text-white"
+                            bgColor="bg-gray-50 dark:bg-customBrown backdrop-blur-sm"
+                            textColor="text-gray-900 dark:text-white"
                             fontSize="text-16"
                             showIcon={false}
                             borderRadius="rounded-xl"

@@ -20,10 +20,10 @@ const SearchInput = React.memo(({ value, onChange, onFocus, onBlur, placeholder 
       onChange={e => onChange(e.target.value)}
       onFocus={onFocus}
       onBlur={onBlur}
-      className="w-full pl-10 pr-4 py-2.5 bg-transparent border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
       aria-label="Search table"
     />
-    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
+    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" aria-hidden="true">
       <FiSearch className="w-5 h-5" />
     </span>
   </div>
@@ -59,27 +59,27 @@ const FilterDropdown = React.memo(({ value, options, onChange, icon, label }) =>
     <div className="relative min-w-[140px]" ref={filterRef}>
       <button
         type="button"
-        className="w-full flex items-center justify-between bg-transparent text-white px-4 py-2.5 rounded-lg text-sm border border-gray-700 hover:border-blue-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+        className="w-full flex items-center justify-between bg-gray-50 dark:bg-transparent text-gray-900 dark:text-white px-4 py-2.5 rounded-lg text-sm border border-gray-300 dark:border-gray-700 hover:border-blue-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
         onClick={() => setIsOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2">
-          {icon && <span className="text-gray-400">{icon}</span>}
+          {icon && <span className="text-gray-500 dark:text-gray-400">{icon}</span>}
           <span>{value || label}</span>
         </div>
         <svg className={`ml-2 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
       </button>
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-20 animate-fadeIn overflow-hidden"
+          className="absolute right-0 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-20 animate-fadeIn overflow-hidden"
           role="listbox"
         >
           {options.map(option => (
             <button
               key={option}
-              className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-700 transition-colors duration-150
-                ${value === option ? 'bg-blue-500/20 text-blue-400' : 'text-white'}`}
+              className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150
+                ${value === option ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}
               onClick={() => {
                 onChange(option);
                 setIsOpen(false);
@@ -161,7 +161,7 @@ function DropdownPortal({ anchorRef, open, children }) {
 
   if (!open) return null;
   return createPortal(
-    <div ref={dropdownRef} style={style} className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-1 z-[99999] backdrop-blur-sm">
+    <div ref={dropdownRef} style={style} className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-xl py-1 z-[99999] backdrop-blur-sm">
       {children}
     </div>,
     document.body
@@ -240,7 +240,7 @@ const CommonAdminTable = ({
     <div className={`transition-colors duration-200 font-ttcommons ${className}`}>
       {/* Filter Bar - Only show if showFilterBar is true */}
       {showFilterBar && (
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-transparent justify-between mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-white dark:bg-transparent justify-between mb-6">
           {/* Left side - Search and Filters (4 elements) */}
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full lg:w-auto">
             {/* Search */}
@@ -278,7 +278,7 @@ const CommonAdminTable = ({
             
             {/* Date Filter */}
             <div className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-white hover:border-blue-500 transition">
+              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition">
                 <FiCalendar className="mr-2 text-lg" />
                 {t.date}
                 <span className="ml-2">&#9662;</span>
@@ -290,7 +290,7 @@ const CommonAdminTable = ({
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full lg:w-auto">
             {/* Export Button */}
             <div className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-700 bg-transparent px-4 py-2.5 text-white hover:border-blue-500 transition">
+              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition">
                 <FiDownload className="mr-2 text-lg" />
                 {t.export}
               </button>
@@ -311,7 +311,7 @@ const CommonAdminTable = ({
       
       {/* Search Bar Only - Show when showFilterBar is false but search is needed */}
       {!showFilterBar && onSearchChange && (
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-transparent justify-between mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-white dark:bg-transparent justify-between mb-6">
           <div className="w-full lg:w-auto">
             <SearchInput 
               value={searchValue} 
@@ -327,11 +327,11 @@ const CommonAdminTable = ({
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm table-auto" role="grid">
           <thead>
-            <tr className="border-b border-gray-700">
+            <tr className="border-b border-gray-300 dark:border-gray-700">
               {columns.map(col => (
                 <th
                   key={col.key}
-                  className={`py-3 px-4 text-left font-semibold text-gray-300 ${col.className || ''} ${col.sortable ? 'cursor-pointer select-none' : ''}`}
+                  className={`py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300 ${col.className || ''} ${col.sortable ? 'cursor-pointer select-none' : ''}`}
                   onClick={() => col.sortable && handleSort(col.key)}
                   aria-sort={sortConfig?.key === col.key ? sortConfig.direction : undefined}
                 >
@@ -355,7 +355,7 @@ const CommonAdminTable = ({
                   </div>
                 </th>
               ))}
-              {renderActions && <th className="py-3 px-4 text-left font-semibold text-gray-300">{t.actions}</th>}
+              {renderActions && <th className="py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300">{t.actions}</th>}
             </tr>
           </thead>
           <tbody>
@@ -375,7 +375,7 @@ const CommonAdminTable = ({
               data.map((row, idx) => (
                 <tr
                   key={idx}
-                  className="text-white border-b border-gray-700 hover:bg-gray-800 transition-colors"
+                  className="text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   role="row"
                 >
                   {columns.map(col => (
@@ -402,14 +402,14 @@ const CommonAdminTable = ({
                       <div className="text-center relative action-dropdown">
                         <button
                           ref={el => actionBtnRefs.current[idx] = el}
-                          className="p-2 rounded-lg text-gray-400 hover:bg-gray-700 transition-colors duration-200 hover:scale-105"
+                          className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hover:scale-105"
                           onClick={() => handleActionClick(idx)}
                         >
                           <HiDotsHorizontal className="w-5 h-5" />
                         </button>
                         <DropdownPortal anchorRef={{ current: actionBtnRefs.current[idx] }} open={openAction === idx} upward={openUpward}>
                           <button
-                            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 transition-colors flex items-center gap-2"
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                             onClick={() => { 
                               setOpenAction(null); 
                               if (onView) onView(row);
@@ -420,7 +420,7 @@ const CommonAdminTable = ({
                             {t.viewDetails}
                           </button>
                           <button
-                            className="w-full text-left px-4 py-2 text-sm text-blue-400 hover:bg-blue-900/20 transition-colors flex items-center gap-2"
+                            className="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2"
                             onClick={() => { 
                               setOpenAction(null); 
                               if (onEdit) onEdit(row);
@@ -431,7 +431,7 @@ const CommonAdminTable = ({
                             {t.edit}
                           </button>
                           <button
-                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 transition-colors flex items-center gap-2"
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
                             onClick={() => { 
                               setOpenAction(null); 
                               if (onDelete) onDelete(row);
