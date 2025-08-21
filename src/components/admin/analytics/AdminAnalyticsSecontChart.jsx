@@ -28,7 +28,7 @@ const ratingData = [
 
 const CustomYAxisTick = ({ x, y, payload }) => {
     const { isDarkMode } = useTheme();
-    const textColor = isDarkMode ? "#fff" : "#000";
+    const textColor = isDarkMode ? "#ffffff" : "#000000";
     return (
         <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
             {payload.value === 0 ? '0%' : `${payload.value}k`}
@@ -38,7 +38,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
 
 const CustomRatingYTick = ({ x, y, payload }) => {
     const { isDarkMode } = useTheme();
-    const textColor = isDarkMode ? "#fff" : "#000";
+    const textColor = isDarkMode ? "#ffffff" : "#000000";
     return (
         <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
             {payload.value.toFixed(1)}
@@ -51,6 +51,7 @@ function AdminAnalyticsSecontChart() {
     const [hoveredBar, setHoveredBar] = useState(null);
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
+    const isRTL = language === 'he';
     const t = getAdminAnalyticsTranslations(language);
 
     const qrCodeDataMap = { 
@@ -95,6 +96,7 @@ function AdminAnalyticsSecontChart() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-ttcommons mt-7">
+            
             <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.qrCode}</h2>
@@ -102,7 +104,12 @@ function AdminAnalyticsSecontChart() {
                 </div>
                 <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={qrData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }} barGap={10} onMouseLeave={() => setHoveredBar(null)}>
+                        <BarChart 
+                            data={isRTL ? [...qrData].reverse() : qrData} 
+                            margin={isRTL ? { top: 5, right: -20, left: 20, bottom: 5 } : { top: 5, right: 0, left: -20, bottom: 5 }} 
+                            barGap={10} 
+                            onMouseLeave={() => setHoveredBar(null)}
+                        >
                             <defs>
                                 <linearGradient id="lastYearGradient" x1="0" y1="1" x2="0" y2="0">
                                     <stop offset="0%" stopColor="#61656C" />
@@ -125,12 +132,18 @@ function AdminAnalyticsSecontChart() {
                                 tickLine={false} 
                                 axisLine={false} 
                                 tick={{ 
-                                    fill: isDarkMode ? '#fff' : '#000', 
+                                    fill: isDarkMode ? '#ffffff' : '#000000', 
                                     fontSize: 16 
                                 }} 
                                 dy={10} 
                             />
-                            <YAxis tickLine={false} axisLine={false} tick={<CustomYAxisTick />} domain={[0, 'dataMax']} />
+                            <YAxis 
+                                tickLine={false} 
+                                axisLine={false} 
+                                tick={<CustomYAxisTick />} 
+                                domain={[0, 'dataMax']} 
+                                orientation={isRTL ? "right" : "left"}
+                            />
                             <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} isAnimationActive={false} />
                             <Bar 
                                 dataKey="lastYear" 
@@ -150,11 +163,15 @@ function AdminAnalyticsSecontChart() {
                     </ResponsiveContainer>
                 </div>
             </div>
+
             <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t.averageRatingOverTime}</h2>
                 <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={ratingData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                        <AreaChart 
+                            data={isRTL ? [...ratingData].reverse() : ratingData} 
+                            margin={isRTL ? { top: 5, right: -20, left: 20, bottom: 5 } : { top: 5, right: 0, left: -20, bottom: 5 }}
+                        >
                             <defs>
                                 <linearGradient id="ratingGradient" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#FF2380" stopOpacity={0.4} />
@@ -163,7 +180,7 @@ function AdminAnalyticsSecontChart() {
                             </defs>
                             <CartesianGrid
                                 strokeDasharray="6 6"
-                                vertical={true}
+                                vertical={false}
                                 stroke={isDarkMode ? "#D1D5DB" : "#000"}
                                 strokeOpacity={0.15}
                             />
@@ -172,18 +189,25 @@ function AdminAnalyticsSecontChart() {
                                 tickLine={false} 
                                 axisLine={false} 
                                 tick={{ 
-                                    fill: isDarkMode ? '#fff' : '#000', 
+                                    fill: isDarkMode ? '#ffffff' : '#000000', 
                                     fontSize: 16 
                                 }} 
                                 dy={10} 
                             />
-                            <YAxis tickLine={false} axisLine={false} domain={[1, 5]} tick={<CustomRatingYTick />} />
+                            <YAxis 
+                                tickLine={false} 
+                                axisLine={false} 
+                                domain={[1, 5]} 
+                                tick={<CustomRatingYTick />}
+                                orientation={isRTL ? "right" : "left"}
+                            />
                             <Tooltip wrapperClassName="!hidden" />
                             <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="url(#ratingGradient)" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
             </div>
+            
         </div>
     );
 }

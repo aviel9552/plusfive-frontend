@@ -38,9 +38,11 @@ function AdminReferrals() {
             className: 'min-w-[200px]',
             render: (row) => (
                 <div className="flex items-center gap-3">
+                {/*
                     <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
                         {row.name.charAt(0)}
                     </div>
+                */}
                     <span className="font-medium text-gray-900 dark:text-white">{row.name}</span>
                 </div>
             )

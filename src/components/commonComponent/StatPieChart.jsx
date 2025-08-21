@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { useLanguage } from '../../context/LanguageContext';
 
 const getPieChartTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -25,17 +26,23 @@ const getPieChartTooltip = ({ active, payload }) => {
 const StatPieChart = ({ title, data }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const customerData = data || [];
+  const { isRTL } = useLanguage();
+
+  // Reverse data for Hebrew to show legend in correct RTL order
+  const displayData = isRTL ? [...customerData].reverse() : customerData;
 
   return (
     <div className="bg-white dark:bg-customBrown rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
-      <h2 className="text-24 text-gray-900 dark:text-white mb-6">{title}</h2>
-      
+      <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
+        <h2 className="text-24 text-gray-900 dark:text-white">{title}</h2>
+      </div>
+
       <div className="flex justify-center">
         <div className="w-[250px] h-[250px] relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={customerData}
+                data={displayData}
                 dataKey="value"
                 cx="50%"
                 cy="50%"
@@ -46,9 +53,9 @@ const StatPieChart = ({ title, data }) => {
                 onMouseEnter={(_, index) => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(null)}
               >
-                {customerData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
+                {displayData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
                     fill={entry.color}
                     strokeWidth={activeIndex === index ? 2 : 0}
                     stroke={entry.color}
@@ -60,7 +67,7 @@ const StatPieChart = ({ title, data }) => {
                   />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 content={getPieChartTooltip}
                 cursor={false}
               />
@@ -70,14 +77,16 @@ const StatPieChart = ({ title, data }) => {
       </div>
 
       {/* Legend */}
-      <div className="grid sm:grid-cols-4 grid-cols-2 gap-4 mt-6">
-        {customerData.map((item, index) => (
-          <div key={index} className="flex-col items-center">
-          <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }}></div>
-            <span className="text-gray-900 dark:text-white mr-2 text-16">{item.name}</span>
+      <div className={`grid sm:grid-cols-4 grid-cols-2 gap-4 mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+        {displayData.map((item, index) => (
+          <div key={index} className={`flex flex-col items-center ${isRTL ? 'items-end' : 'items-start'}`}>
+            <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} mb-1`}>
+              <div className={`w-3 h-3 rounded-full ${isRTL ? 'ml-2' : 'mr-2'}`} style={{ backgroundColor: item.color }}></div>
+              <span className={`text-gray-900 dark:text-white text-16`}>{item.name}</span>
             </div>
-            <span className="text-gray-600 dark:text-white ml-5 text-14">{item.value} ({item.percentage})</span>
+            <span className={`text-gray-600 dark:text-white text-14 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {item.value} ({item.percentage})
+            </span>
           </div>
         ))}
       </div>

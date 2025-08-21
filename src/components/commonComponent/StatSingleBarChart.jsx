@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { BarChart, Bar, ResponsiveContainer, YAxis, CartesianGrid, XAxis, Tooltip } from 'recharts';
 import { CommonDropDown } from '../index';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 const CustomYAxisTick = ({ x, y, payload }) => {
   const { isDarkMode } = useTheme();
+  const { language } = useLanguage();
+  const isRTL = language === 'he';
   const textColor = isDarkMode ? "#fff" : "#000";
   
-  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor="end">0%</text>;
+  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor={isRTL ? "start" : "end"}>0%</text>;
   return (
-    <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor="end">
+    <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor={isRTL ? "start" : "end"}>
       {payload.value}k
     </text>
   );
@@ -30,8 +33,11 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
   const [selectedFilter, setSelectedFilter] = useState(filters?.[0]?.value || '');
   const [activeIndex, setActiveIndex] = useState(null);
   const { isDarkMode } = useTheme();
+  const { language } = useLanguage();
+  const isRTL = language === 'he';
 
   const chartData = dataMap?.[selectedFilter] || [];
+  const displayData = isRTL ? [...chartData].reverse() : chartData;
 
   const getValueIndicator = (entry) => (
     <div className="bg-gray-100 dark:bg-customGray px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
@@ -60,8 +66,8 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
       <div className="h-[300px] md:w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={chartData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 20 }}
+            data={displayData}
+            margin={isRTL ? { top: 5, right: -20, left: 20, bottom: 5 } : { top: 5, right: 0, left: -20, bottom: 5 }}
             onMouseLeave={() => setActiveIndex(null)}
           >
             <CartesianGrid 
@@ -83,6 +89,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
               tick={<CustomYAxisTick />}
               tickCount={5}
               domain={[0, 40]}
+              orientation={isRTL ? "right" : "left"}
             />
             <Bar 
               dataKey="value" 

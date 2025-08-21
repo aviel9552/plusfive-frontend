@@ -23,6 +23,9 @@ function AdminLTVGrothChart() {
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
     const t = getAdminAnalyticsTranslations(language);
+    const isRTL = language === 'he';
+
+    const chartData = isRTL ? [...ltvData].reverse() : ltvData;
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -54,7 +57,8 @@ function AdminLTVGrothChart() {
                     cx={cx}
                     cy={cy}
                     r={4}
-                    fill="#000000"
+                    // fill="#000000"
+                    fill={isDarkMode ? '#000000' : '#ffffff'}
                 />
                 {/* Yellow center circle */}
                 <circle
@@ -69,11 +73,16 @@ function AdminLTVGrothChart() {
 
     return (
         <div className='mt-10'>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t.ltvGrowthOverTime}</h2>
+            <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.ltvGrowthOverTime}</h2>
+            </div>
             <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={ltvData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                        <LineChart 
+                            data={chartData} 
+                            margin={isRTL ? { top: 5, right: 0, left: 20, bottom: 5 } : { top: 5, right: 20, left: 0, bottom: 5 }}
+                        >
                             <CartesianGrid
                                 strokeDasharray="6 6"
                                 stroke={isDarkMode ? "#D1D5DB" : "#000"}
@@ -94,13 +103,14 @@ function AdminLTVGrothChart() {
                                 axisLine={{ stroke: '#444' }}
                                 domain={[5.5, 7.5]}
                                 tick={<CustomYAxisTick />}
+                                orientation={isRTL ? "right" : "left"}
                                 label={{ 
                                     value: t.ltdMonthly, 
-                                    angle: -90, 
-                                    position: 'insideLeft', 
+                                    angle: isRTL ? 90 : -90, 
+                                    position: isRTL ? 'insideRight' : 'insideLeft', 
                                     fill: isDarkMode ? '#fff' : '#000', 
                                     fontSize: 14, 
-                                    dx: 5, 
+                                    dx: isRTL ? -5 : 5, 
                                     dy: 50 
                                 }}
                             />
@@ -110,7 +120,7 @@ function AdminLTVGrothChart() {
                                 dataKey="ltv"
                                 stroke="#675DFF"
                                 strokeWidth={2.5}
-                                dot={{ r: 6, stroke: '#FE7503', strokeWidth: 2, fill: '#000' }}
+                                dot={{ r: 6, stroke: '#FE7503', strokeWidth: 2, fill: isDarkMode ? '#000000' : '#ffffff' }}
                                 activeDot={<CustomActiveDot />}
                             />
                         </LineChart>
