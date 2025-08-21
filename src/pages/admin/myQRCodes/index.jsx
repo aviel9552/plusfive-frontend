@@ -337,13 +337,13 @@ function myQRCodes() {
           <CommonButton
             text={t.createNewQRCode}
             onClick={handleCreateQR}
-            className="pt-3 pb-2 px-6 rounded-xl"
+            className="py-2 px-6 rounded-xl"
           />
           {user.role === 'admin' && (
             <CommonButton
               text={t.showAllCodes}
               onClick={handleAllQRCodes}
-              className="pt-3 pb-2 px-6 rounded-xl"
+              className="py-2 px-6 rounded-xl"
             />
           )}
         </div>

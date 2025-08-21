@@ -689,109 +689,41 @@ function CreateUserModel() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <div>
-                    <label className="block text-xl font-medium text-black dark:text-white mb-2">
-                      {t.password}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
-                        placeholder={t.enterPassword}
-                        className={`w-full border rounded-lg px-4 py-3 text-gray-900 dark:text-white bg-customBody dark:bg-customBrown focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                          errors.password
-                            ? 'border-customRed pr-12'
-                            : 'border-gray-200 dark:border-customBorderColor pr-12'
-                        }`}
-                        autoComplete="off"
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <FiEyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
-                        ) : (
-                          <FiEye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
-                        )}
-                      </button>
-                    </div>
-                    {errors.password && <p className="text-customRed text-lg mt-1">{errors.password}</p>}
-                  </div>
-                  
-                  {/* Password Requirements Display */}
-                  {formData.password && (
-                    <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <p className="text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">{t.passwordRequirements}</p>
-                      <div className="space-y-1">
-                        <div className={`flex items-center text-xs ${passwordRequirements.hasMinLength ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          <span className="mr-2">{passwordRequirements.hasMinLength ? '✅' : '❌'}</span>
-                          {t.atLeast8Characters}
-                        </div>
-                        <div className={`flex items-center text-xs ${passwordRequirements.hasLowerCase ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          <span className="mr-2">{passwordRequirements.hasLowerCase ? '✅' : '❌'}</span>
-                          {t.lowercaseLetter}
-                        </div>
-                        <div className={`flex items-center text-xs ${passwordRequirements.hasUpperCase ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          <span className="mr-2">{passwordRequirements.hasUpperCase ? '✅' : '❌'}</span>
-                          {t.uppercaseLetter}
-                        </div>
-                        <div className={`flex items-center text-xs ${passwordRequirements.hasNumbers ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          <span className="mr-2">{passwordRequirements.hasNumbers ? '✅' : '❌'}</span>
-                          {t.number}
-                        </div>
-                        <div className={`flex items-center text-xs ${passwordRequirements.hasSpecialChar ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                          <span className="mr-2">{passwordRequirements.hasSpecialChar ? '✅' : '❌'}</span>
-                          {t.specialCharacter}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  <CommonInput
+                    label={t.password}
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder={t.enterPassword}
+                    error={errors.password}
+                    showPasswordToggle={true}
+                    showPasswordValidation={true}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xl font-medium text-black dark:text-white mb-2">
-                    {t.confirmPassword}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      onFocus={handleFocus}
-                      onBlur={handleBlur}
-                      placeholder={t.confirmPasswordPlaceholder}
-                      className={`w-full border rounded-lg px-4 py-3 text-gray-900 dark:text-white bg-customBody dark:bg-customBrown focus:outline-none focus:ring-2 focus:ring-pink-500 ${
-                        errors.confirmPassword
-                          ? 'border-customRed pr-12'
-                          : 'border-gray-200 dark:border-customBorderColor pr-12'
-                      }`}
-                      autoComplete="off"
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? (
-                        <FiEyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
-                      ) : (
-                        <FiEye className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && <p className="text-customRed text-lg mt-1">{errors.confirmPassword}</p>}
+                  <CommonInput
+                    label={t.confirmPassword}
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder={t.confirmPasswordPlaceholder}
+                    error={errors.confirmPassword}
+                    showPasswordToggle={true}
+                  />
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end space-x-4 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-end gap-4 pt-8 border-t border-gray-200 dark:border-gray-700">
               <CommonButton
                 text={t.cancel}
                 onClick={handleBack}

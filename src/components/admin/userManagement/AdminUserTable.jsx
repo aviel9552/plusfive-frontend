@@ -1,46 +1,31 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { CommonAdminTable, CommonDateRange } from '../../index';
+import { CommonAdminTable } from '../../index';
 import { format } from 'date-fns';
 import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminUserTranslations } from '../../../utils/translations';
 
-const getUnique = (arr, key) => Array.from(new Set(arr.map(item => item?.[key]))).filter(Boolean);
+const getUnique = (arr, key) => {
+  const values = arr.map(item => item?.[key]).filter(Boolean);
+  const uniqueValues = Array.from(new Set(values));
+  return uniqueValues;
+};
 
 function AdminUserTable({ users, loading, error }) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = getAdminUserTranslations(language);
-  
+
   // Ensure users is always an array
   const safeUsers = Array.isArray(users) ? users : [];
-  
-  // Fallback data for testing
-  const fallbackData = [
-    {
-      id: 'test1',
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com',
-      phoneNumber: '+1234567890',
-      role: 'user',
-      accountStatus: 'active',
-      businessName: 'Test Business',
-      businessType: 'barbershop',
-      createdAt: '2025-01-01T00:00:00.000Z',
-      subscriptionPlan: 'Free'
-    }
-  ];
-  
-  const [data, setData] = useState(safeUsers.length > 0 ? safeUsers : fallbackData);
-  
+
+  const [data, setData] = useState([]);
+
   // Update data when users prop changes
   useEffect(() => {
     const safeUsers = Array.isArray(users) ? users : [];
-    if (safeUsers.length > 0) {
-      setData(safeUsers);
-    }
+    setData(safeUsers);
   }, [users]);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -103,7 +88,7 @@ function AdminUserTable({ users, loading, error }) {
   const filteredData = useMemo(() => {
     // Filter out undefined or null rows first
     let d = data.filter(row => row && typeof row === 'object');
-    
+
     if (search) {
       d = d.filter(row =>
         `${row?.firstName || ''} ${row?.lastName || ''}`.toLowerCase().includes(search.toLowerCase()) ||
@@ -112,12 +97,42 @@ function AdminUserTable({ users, loading, error }) {
         row?.businessName?.toLowerCase().includes(search.toLowerCase())
       );
     }
-    if (filterStatus) d = d.filter(row => row?.accountStatus === filterStatus);
+    if (filterStatus) {
+      d = d.filter(row => {
+        // Handle Active/Inactive based on isActive field
+        if (filterStatus === 'active' && row?.isActive === true) return true;
+        if (filterStatus === 'inactive' && row?.isActive === false) return true;
+
+        // Handle subscriptionStatus values (with status_ prefix)
+        if (filterStatus.startsWith('status_')) {
+          const status = filterStatus.replace('status_', '');
+          return row?.subscriptionStatus === status;
+        }
+
+        return false;
+      });
+    }
     if (filterRole) d = d.filter(row => row?.role === filterRole);
     if (filterPlan) d = d.filter(row => row?.subscriptionPlan === filterPlan);
     // Date range filter
-    if (dateRange.startDate) d = d.filter(row => row?.createdAt >= format(dateRange.startDate, 'yyyy-MM-dd'));
-    if (dateRange.endDate) d = d.filter(row => row?.createdAt <= format(dateRange.endDate, 'yyyy-MM-dd'));
+    if (dateRange.startDate) {
+      const startDateStr = format(dateRange.startDate, 'yyyy-MM-dd');
+      d = d.filter(row => {
+        if (!row?.createdAt) return false;
+        const rowDate = new Date(row.createdAt);
+        const rowDateStr = format(rowDate, 'yyyy-MM-dd');
+        return rowDateStr >= startDateStr;
+      });
+    }
+    if (dateRange.endDate) {
+      const endDateStr = format(dateRange.endDate, 'yyyy-MM-dd');
+      d = d.filter(row => {
+        if (!row?.createdAt) return false;
+        const rowDate = new Date(row.createdAt);
+        const rowDateStr = format(rowDate, 'yyyy-MM-dd');
+        return rowDateStr <= endDateStr;
+      });
+    }
     if (sort.key) {
       d = d.sort((a, b) => {
         let aVal = a?.[sort.key];
@@ -165,10 +180,28 @@ function AdminUserTable({ users, loading, error }) {
   const handlePageChange = (p) => setPage(p);
   const handlePageSizeChange = (size) => { setPageSize(size); setPage(1); };
 
-  // Filter options
-  const statusOptions = getUnique(data, 'accountStatus');
-  const roleOptions = getUnique(data, 'role');
-  const planOptions = getUnique(data, 'subscriptionPlan');
+  // Filter options with better labels
+  const statusOptions = [
+    { value: '', label: 'Clear Filter' },
+    // Add Active/Inactive based on isActive field
+    { value: 'active', label: 'Active' },
+    { value: 'inactive', label: 'Inactive' },
+    // Get unique subscriptionStatus values (excluding 'active' to avoid duplicates)
+    ...getUnique(data, 'subscriptionStatus')
+      .filter(status => status !== 'active') // Remove 'active' to avoid duplicate
+      .map(status => ({
+        value: `status_${status}`,
+        label: status.charAt(0).toUpperCase() + status.slice(1)
+      }))
+  ];
+  const roleOptions = [
+    { value: '', label: 'Clear Filter' },
+    ...getUnique(data, 'role').map(role => ({ value: role, label: role.charAt(0).toUpperCase() + role.slice(1) }))
+  ];
+  const planOptions = [
+    { value: '', label: 'Clear Filter' },
+    ...getUnique(data, 'subscriptionPlan').map(plan => ({ value: plan, label: plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : 'No Plan' }))
+  ];
 
   // Columns with translations
   const columns = [
@@ -193,9 +226,9 @@ function AdminUserTable({ users, loading, error }) {
       sortable: true,
       render: (row) => `${row?.firstName || ''} ${row?.lastName || ''}`
     },
-    { 
-      key: 'email', 
-      label: t.email, 
+    {
+      key: 'email',
+      label: t.email,
       sortable: true,
       render: (row) => row?.email || 'N/A'
     },
@@ -212,32 +245,48 @@ function AdminUserTable({ users, loading, error }) {
       render: (row) => {
         // Safety check for undefined row
         if (!row) {
-          return <span className="px-2 py-1 rounded-full text-xs font-semibold border bg-gray-700 text-white border-gray-600">N/A</span>;
+          return <span className="px-3 pt-[10px] pb-[6px] rounded-full text-xs border dark:border-[#292929] border-gray-300 dark:text-white text-black">N/A</span>;
         }
-        
+
         const role = row.role || 'user';
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${role === 'admin' ? 'bg-gray-900 text-white border-gray-700' :
-            role === 'manager' ? 'bg-blue-900 text-blue-200 border-blue-700' :
-              'bg-gray-700 text-white border-gray-600'
-            }`}>
+          <span className="px-3 pt-[10px] pb-[6px] rounded-full text-xs border dark:border-[#292929] border-gray-300 dark:text-white text-black">
             {role.charAt(0).toUpperCase() + role.slice(1)}
           </span>
         );
       }
     },
     {
-      key: 'accountStatus',
+      key: 'subscriptionStatus',
       label: t.status,
       sortable: true,
       render: (row) => {
-        const status = row?.accountStatus || 'active';
+        const isActive = row?.isActive;
+        const subscriptionStatus = row?.subscriptionStatus;
+
+        // Determine the display status and styling
+        let displayStatus, statusClass;
+
+        if (isActive === true) {
+          displayStatus = 'Active';
+          statusClass = 'bg-[#D0E2FF] text-[#2537A5]';
+        } else if (isActive === false) {
+          displayStatus = 'Inactive';
+          statusClass = 'bg-[#FEE2E2] text-[#991B1B]';
+        } else if (subscriptionStatus === 'suspended') {
+          displayStatus = 'Suspended';
+          statusClass = 'bg-red-200 text-red-600';
+        } else if (subscriptionStatus === 'pending') {
+          displayStatus = 'Pending';
+          statusClass = 'bg-yellow-100 text-yellow-600';
+        } else {
+          displayStatus = 'Active';
+          statusClass = 'bg-[#D0E2FF] text-[#2537A5]';
+        }
+
         return (
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status === 'active' ? 'bg-green-100 text-green-600' :
-            status === 'suspended' ? 'bg-red-200 text-red-600' :
-              'bg-yellow-100 text-yellow-600'
-            }`}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+          <span className={`px-3 pt-[10px] pb-[6px] rounded-full text-xs ${statusClass}`}>
+            {displayStatus}
           </span>
         );
       }
@@ -277,10 +326,10 @@ function AdminUserTable({ users, loading, error }) {
       render: (row) => {
         const plan = row?.subscriptionPlan || 'Free';
         let color = 'bg-gray-200 text-gray-700';
-        if (plan === 'premium') color = 'bg-purple-100 text-purple-600';
-        if (plan === 'standard') color = 'bg-blue-100 text-blue-600';
-        if (plan === 'basic') color = 'bg-green-100 text-green-600';
-        return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${color}`}>
+        if (plan === 'premium') color = 'bg-[#F3E8FF] text-[#FF2380]';
+        if (plan === 'standard') color = 'bg-[#D0E2FF] text-[#2537A5]';
+        if (plan === 'basic') color = 'bg-[#3F588B] text-white';
+        return <span className={`px-3 pt-[10px] pb-[6px] rounded-full text-xs ${color}`}>
           {plan.charAt(0).toUpperCase() + plan.slice(1)}
         </span>;
       }
@@ -359,19 +408,7 @@ function AdminUserTable({ users, loading, error }) {
   return (
     <div className="p-4 md:p-6 dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl text-white">
       {/* Date Picker Popup */}
-      {showPicker && (
-        <div className="absolute z-50 mt-2">
-          <CommonDateRange
-            startDate={dateRange.startDate}
-            endDate={dateRange.endDate}
-            onChange={range => {
-              setDateRange({ startDate: range.startDate, endDate: range.endDate });
-              setShowPicker(false);
-              setPage(1);
-            }}
-          />
-        </div>
-      )}
+
       {/* Table */}
       <CommonAdminTable
         columns={columnsWithCheckbox}

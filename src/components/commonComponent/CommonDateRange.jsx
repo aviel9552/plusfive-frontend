@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { addDays, startOfMonth, endOfMonth, subMonths, addMonths, isSameDay, isWithinInterval, format, isEqual } from 'date-fns';
+import { FiCalendar } from 'react-icons/fi';
 
 function getDaysInMonth(year, month) {
   const date = new Date(year, month, 1);
@@ -66,7 +67,7 @@ const MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
-function CustomDropdown({ value, options, onChange, className, label, width = 'w-20', showLabelInsteadOfValue }) {
+function CustomDropdown({ value, options, onChange, className, label, width = 'w-24', showLabelInsteadOfValue }) {
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
@@ -87,7 +88,7 @@ function CustomDropdown({ value, options, onChange, className, label, width = 'w
     <div className={`relative ${width}`} ref={ref}>
       <button
         type="button"
-        className={`flex items-center justify-between bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-700 focus:outline-none ${className}`}
+        className={`flex items-center justify-between dark:bg-customGrayDarker dark:text-white text-black rounded px-2 py-1 text-sm border border-gray-700 focus:outline-none ${className}`}
         onClick={() => setOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -97,17 +98,17 @@ function CustomDropdown({ value, options, onChange, className, label, width = 'w
         <svg className={`ml-1 w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
       </button>
       {open && (
-        <ul className={`absolute z-40 mt-1 left-0 right-0 max-h-56 overflow-auto bg-gray-800 border border-gray-700 rounded shadow-lg ${width}`}
-            role="listbox">
+        <ul className={`absolute z-40 mt-1 left-0 right-0 max-h-56 overflow-auto dark:bg-customBrown bg-white border border-gray-700 rounded shadow-lg ${width}`}
+          role="listbox">
           {options.map((opt, idx) => (
             <li
               key={opt.value}
-              className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-pink-500/20 hover:text-pink-400 ${opt.value === value ? 'bg-pink-500/20 text-pink-400 font-semibold' : 'text-gray-300'}`}
+              className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-pink-500/20 hover:text-pink-400 ${opt.value === value ? 'bg-pink-500/20 text-pink-400 font-semibold' : 'dark:text-white text-black'}`}
               onClick={() => { onChange(opt.value); setOpen(false); }}
               role="option"
               aria-selected={opt.value === value}
               tabIndex={0}
-              onKeyDown={e => { if (e.key === 'Enter') { onChange(opt.value); setOpen(false); }}}
+              onKeyDown={e => { if (e.key === 'Enter') { onChange(opt.value); setOpen(false); } }}
             >
               {opt.label}
             </li>
@@ -143,7 +144,7 @@ function CalendarMonth({ year, month, startDate, endDate, selecting, onSelect, m
 
   return (
     <div className={`flex flex-col items-center min-w-[220px] ${className || ''}`}>
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2 mb-5">
         <CustomDropdown
           value={month}
           options={MONTHS.map((m, idx) => ({ value: idx, label: m }))}
@@ -159,7 +160,7 @@ function CalendarMonth({ year, month, startDate, endDate, selecting, onSelect, m
         />
       </div>
       <div className="grid grid-cols-7 gap-1 w-full text-xs mb-1">
-        {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="text-center text-gray-400">{d}</div>)}
+        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => <div key={d} className="text-center dark:text-white text-black text-14">{d}</div>)}
       </div>
       <div className="grid grid-cols-7 gap-1 w-full">
         {blanks.map((_, i) => <div key={i}></div>)}
@@ -172,7 +173,7 @@ function CalendarMonth({ year, month, startDate, endDate, selecting, onSelect, m
             <button
               key={day.toISOString()}
               className={`rounded-full w-8 h-8 text-sm text-center transition pt-1
-                ${isSelected ? 'bg-pink-500 text-white font-bold' : inRange ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-gray-700 text-gray-300'}
+                ${isSelected ? 'bg-pink-500 text-white font-bold' : inRange ? 'bg-pink-500/20 dark:text-white text-black' : 'dark:hover:bg-gray-700 hover:bg-gray-300 dark:text-white text-black'}
                 ${isSameDay(day, today) ? 'border border-pink-500' : ''}
                 ${isWeekend ? 'text-red-400' : ''}
                 ${isDisabled ? 'opacity-30 cursor-not-allowed' : ''}`}
@@ -239,7 +240,17 @@ function CommonDateRange({
 
   // Highlight quick range if matches tempRange
   React.useEffect(() => {
-    const idx = SIDEBAR_RANGES.findIndex(r => isRangeEqual(r.range(), tempRange));
+    const idx = SIDEBAR_RANGES.findIndex(r => {
+      const range = r.range();
+      return (
+        tempRange.startDate && 
+        tempRange.endDate && 
+        range.startDate && 
+        range.endDate &&
+        isSameDay(tempRange.startDate, range.startDate) && 
+        isSameDay(tempRange.endDate, range.endDate)
+      );
+    });
     setActiveQuick(idx >= 0 ? idx : null);
   }, [tempRange]);
 
@@ -247,6 +258,7 @@ function CommonDateRange({
     setTempRange(rangeObj);
     setActiveQuick(idx);
     setMonth(new Date(rangeObj.startDate.getFullYear(), rangeObj.startDate.getMonth(), 1));
+    setSelecting('start'); // Reset selecting state
   };
 
   const handleCalendarSelect = (date) => {
@@ -292,48 +304,61 @@ function CommonDateRange({
     <div className="relative inline-block">
       <button
         type="button"
-        className="relative flex items-center px-4 py-2.5 bg-transparent border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 md:w-56 w-full hover:border-pink-500 transition-all duration-200"
+        className="relative flex items-center px-4 py-2.5 gap-2 bg-transparent border dark:border-gray-700 border-gray-300 rounded-lg text-white text-sm focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 w-full hover:border-pink-500 transition-all duration-200"
         onClick={() => setShowPicker(v => !v)}
       >
-        <span className="truncate w-full text-left">
-          {tempRange.startDate && tempRange.endDate
-            ? `${format(tempRange.startDate, 'MMM d, yyyy')} - ${format(tempRange.endDate, 'MMM d, yyyy')}`
-            : 'Select date range'}
+        <span className="truncate w-full text-left flex items-center justify-normal gap-2">
+          <FiCalendar className=" text-lg dark:text-white text-black " />
+          <p className='dark:text-white text-black'>
+            {tempRange.startDate && tempRange.endDate
+              ? `${format(tempRange.startDate, 'MMM d, yyyy')} - ${format(tempRange.endDate, 'MMM d, yyyy')}`
+              : 'Date'}
+          </p>
         </span>
-        <svg
-          className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 ${showPicker ? 'rotate-180' : ''}`}
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path d="M19 9l-7 7-7-7" />
-        </svg>
+        <p>
+
+          <svg
+            className={`mt-1pointer-events-none transition-transform duration-200 dark:text-white text-black ${showPicker ? 'rotate-180' : ''}`}
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M19 9l-7 7-7-7" />
+          </svg>
+        </p>
+
       </button>
       {showPicker && (
-        <div
-          className={`
-            absolute z-30 mt-2
-            left-1/2 -translate-x-1/2
-            bg-gray-800 dark:bg-gray-900
-            border border-gray-700 dark:border-gray-600
-            rounded-lg shadow-xl p-4 animate-fadeIn
-            w-[95vw] max-w-xs sm:min-w-[500px] sm:max-w-none
-            flex flex-col sm:flex-row
-          `}
-          style={{ top: '100%' }}
-        >
-          {/* Main label */}
-          <div className="w-full text-center font-semibold text-lg mb-4 text-white">Select Date Range</div>
+        <>
+          {/* Overlay Background */}
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 pointer-events-none"></div>
+          
+          {/* Date Picker Content with higher z-index */}
+          <div
+            className={`
+              absolute z-30 md:mt-2 -mt-40
+              md:mb-0 mb-10
+              md:left-1/2 md:-translate-x-1/2 -left-8
+              bg-white dark:bg-customBrown
+              border border-gray-300 dark:border-gray-500
+              rounded-lg shadow-xl p-4 animate-fadeIn
+              w-auto max-w-xs sm:min-w-[500px] sm:max-w-none
+              flex flex-col sm:flex-row
+            `}
+          >
+          {/* Main label
+          <div className="w-auto text-center font-semibold text-lg mb-4 text-white">Select Date Range</div>
+           */}
           <div className="flex flex-col sm:flex-row flex-1">
             {/* Sidebar */}
             <div className="flex flex-col w-full sm:w-48 border-r border-gray-700 pr-0 sm:pr-4 mb-4 sm:mb-0">
               {SIDEBAR_RANGES.map((r, idx) => (
                 <button
                   key={r.label}
-                  className={`text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors font-normal text-gray-300 ${activeQuick === idx ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-pink-500/10 hover:text-pink-400'}`}
+                  className={`text-left px-3 py-2 rounded-lg text-sm mb-1 transition-colors font-normal dark:text-white text-black ${activeQuick === idx ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-pink-500/10 hover:text-pink-400'}`}
                   onClick={() => handleSidebarClick(r.range(), idx)}
                   type="button"
                 >
@@ -341,7 +366,7 @@ function CommonDateRange({
                 </button>
               ))}
               <button
-                className={`text-left px-3 py-2 rounded-lg text-sm mt-2 ${activeQuick === null ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-pink-500/10 hover:text-pink-400'}`}
+                className={`text-left px-3 py-2 rounded-lg text-sm mt-2 transition-colors font-normal dark:text-white text-black ${activeQuick === null && tempRange.startDate && tempRange.endDate ? 'bg-pink-500/20 text-pink-400' : 'hover:bg-pink-500/10 hover:text-pink-400'}`}
                 disabled
               >
                 Custom
@@ -352,7 +377,7 @@ function CommonDateRange({
               <div className="flex gap-4 justify-center items-start">
                 {/* Month navigation */}
                 <button
-                  className="h-8 w-8 flex items-center justify-center rounded-full border border-gray-600 text-gray-400 hover:bg-gray-700 mr-2 mt-8 bg-gray-800"
+                  className="h-8 w-8 flex items-center justify-center rounded-full border-2 border-gray-600 mr-2 mt-8 dark:bg-customGrayDarker dark:text-white text-black"
                   onClick={handlePrevMonth}
                   type="button"
                   aria-label="Previous month"
@@ -373,7 +398,7 @@ function CommonDateRange({
                   className="text-white"
                 />
                 <button
-                  className="h-8 w-8 flex items-center justify-center rounded-full border border-gray-600 text-gray-400 hover:bg-gray-700 ml-2 mt-8 bg-gray-800"
+                  className="h-8 w-8 flex items-center justify-center rounded-full border-2 border-gray-600 ml-2 mt-8 dark:bg-customGrayDarker dark:text-white text-black"
                   onClick={handleNextMonth}
                   type="button"
                   aria-label="Next month"
@@ -383,21 +408,21 @@ function CommonDateRange({
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600"
+                  className="px-4 pt-2 pb-1 rounded-lg text-sm dark:text-white text-black border-2 dark:border-gray-500 border-gray-300"
                   onClick={handleCancel}
                   type="button"
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600"
+                  className="px-4 pt-2 pb-1 rounded-lg text-sm dark:text-white text-black border-2 dark:border-gray-500 border-gray-300"
                   onClick={handleClear}
                   type="button"
                 >
                   Clear Filter
                 </button>
                 <button
-                  className="px-4 py-2 bg-pink-500 text-white rounded-lg text-sm hover:bg-pink-600"
+                  className="px-4 pt-2 pb-1 bg-pink-500 text-white rounded-lg text-sm hover:bg-pink-600"
                   onClick={handleApply}
                   type="button"
                   disabled={!(tempRange.startDate && tempRange.endDate)}
@@ -407,7 +432,8 @@ function CommonDateRange({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

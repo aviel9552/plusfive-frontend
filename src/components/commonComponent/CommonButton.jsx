@@ -18,7 +18,9 @@ function CommonButton({ text, onClick, className = '', type = 'button', icon, ic
     >
       <div className={`flex items-center justify-center ${icon ? gap : 'gap-0'}`}>
         {iconPosition === 'left' && icon}
-        {text}
+        <p className='mt-[3px]'>
+          {text}
+        </p>
         {iconPosition === 'right' && icon}
       </div>
     </button>

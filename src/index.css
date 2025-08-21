@@ -114,6 +114,43 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
+/* Custom Scrollbar Styling Start */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(259deg, #e55433 3.28%, #e01f6b 49.86%, #c85bb8 100.32%);
+}
+
+::-webkit-scrollbar-corner {
+  background: #f1f1f1;
+}
+
+/* Dark theme scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%);
+}
+
+.dark ::-webkit-scrollbar-corner {
+  background: #374151;
+}
+/* Custom Scrollbar Styling End */
 
 @keyframes slide-left {
   from {

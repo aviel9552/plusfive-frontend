@@ -86,10 +86,10 @@ function AdminLTVGrothChart() {
                             <Line
                                 type="monotone"
                                 dataKey="ltv"
-                                stroke="#8A3FFC"
-                                strokeWidth={2}
-                                dot={{ r: 4, stroke: '#FF8A00', strokeWidth: 2, fill: '#1F1F1F' }}
-                                activeDot={{ r: 6, stroke: '#FF8A00', strokeWidth: 2, fill: '#1F1F1F' }}
+                                stroke="#675DFF"
+                                strokeWidth={2.5}
+                                dot={{ r: 6, stroke: '#FE7503', strokeWidth: 2, fill: '#000' }}
+                                activeDot={{ r: 7, stroke: '#FE7503', strokeWidth: 2, fill: '#000' }}
                             />
                         </LineChart>
                     </ResponsiveContainer>

@@ -61,7 +61,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
       )}
       <aside className={sidebarClasses}>
         {/* Header */}
-        <div className="flex items-center h-[69px] md:h-[85px] px-4 relative">
+        <div className={`flex items-center  h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ''}`}>
           {/*
           <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
             <MdOutlineAdd className="text-white text-2xl" />
@@ -73,7 +73,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           </span>
         */}
         {isCollapsed && (
-          <span className={`text-gray-900 dark:text-white text-2xl font-testtiemposfine font-bold icon-button ${isCollapsed ? 'block' : 'hidden'} relative group`}>
+          <span className={`text-black dark:text-white text-2xl font-testtiemposfine font-bold ${isCollapsed ? 'block' : 'hidden'} relative group`}>
             P
             {effectiveCollapsed && (
               <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>

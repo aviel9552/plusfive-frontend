@@ -456,6 +456,7 @@
     "name": "שם",
     "email": "דוא\"ל",
     "phone": "טלפון",
+    "password": "סיסמה",
     "role": "תפקיד",
     "status": "סטטוס",
     "businessType": "סוג עסק",

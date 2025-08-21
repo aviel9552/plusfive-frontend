@@ -7,6 +7,8 @@ import { HiDotsHorizontal } from 'react-icons/hi';
 import { FiEye, FiEdit, FiTrash2, FiSearch, FiCalendar, FiDownload, FiPlus } from 'react-icons/fi';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAdminUserTranslations } from '../../utils/translations';
+import * as XLSX from 'xlsx';
+import CommonDateRange from './CommonDateRange';
 
 const PAGE_SIZES = [7, 10, 20, 30, 50];
 
@@ -20,7 +22,7 @@ const SearchInput = React.memo(({ value, onChange, onFocus, onBlur, placeholder 
       onChange={e => onChange(e.target.value)}
       onFocus={onFocus}
       onBlur={onBlur}
-      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all duration-200"
       aria-label="Search table"
     />
     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" aria-hidden="true">
@@ -55,18 +57,22 @@ const FilterDropdown = React.memo(({ value, options, onChange, icon, label }) =>
     return () => document.removeEventListener('mousedown', handleClick);
   }, [isOpen]);
 
+  // Helper function to get option value and label
+  const getOptionValue = (option) => typeof option === 'object' ? option.value : option;
+  const getOptionLabel = (option) => typeof option === 'object' ? option.label : option;
+
   return (
     <div className="relative min-w-[140px]" ref={filterRef}>
       <button
         type="button"
-        className="w-full flex items-center justify-between bg-gray-50 dark:bg-transparent text-gray-900 dark:text-white px-4 py-2.5 rounded-lg text-sm border border-gray-300 dark:border-gray-700 hover:border-blue-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
+        className="w-full flex items-center justify-between bg-gray-50 dark:bg-transparent text-gray-900 dark:text-white px-4 py-2.5 rounded-lg text-sm border border-gray-300 dark:border-gray-700 hover:border-pink-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all duration-200"
         onClick={() => setIsOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2">
           {icon && <span className="text-gray-500 dark:text-gray-400">{icon}</span>}
-          <span>{value || label}</span>
+          <span>{value ? options.find(opt => getOptionValue(opt) === value)?.label || value : label}</span>
         </div>
         <svg className={`ml-2 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
       </button>
@@ -75,21 +81,25 @@ const FilterDropdown = React.memo(({ value, options, onChange, icon, label }) =>
           className="absolute right-0 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg z-20 animate-fadeIn overflow-hidden"
           role="listbox"
         >
-          {options.map(option => (
-            <button
-              key={option}
-              className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150
-                ${value === option ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}`}
-              onClick={() => {
-                onChange(option);
-                setIsOpen(false);
-              }}
-              role="option"
-              aria-selected={value === option}
-            >
-              {option}
-            </button>
-          ))}
+          {options.map(option => {
+            const optionValue = getOptionValue(option);
+            const optionLabel = getOptionLabel(option);
+            return (
+              <button
+                key={optionValue}
+                className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150
+                  ${value === optionValue ? 'bg-blue-500/20 text-pink-600 dark:text-pink-400' : 'text-gray-900 dark:text-white'}`}
+                onClick={() => {
+                  onChange(optionValue);
+                  setIsOpen(false);
+                }}
+                role="option"
+                aria-selected={value === optionValue}
+              >
+                {optionLabel}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
@@ -98,7 +108,15 @@ const FilterDropdown = React.memo(({ value, options, onChange, icon, label }) =>
 
 FilterDropdown.propTypes = {
   value: PropTypes.string,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  options: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.shape({
+        value: PropTypes.string.isRequired,
+        label: PropTypes.string.isRequired
+      })
+    ])
+  ).isRequired,
   onChange: PropTypes.func.isRequired,
   icon: PropTypes.node,
   label: PropTypes.string
@@ -216,6 +234,97 @@ const CommonAdminTable = ({
   const [openAction, setOpenAction] = useState(null);
   const [openUpward, setOpenUpward] = useState(false);
 
+  // Excel export function
+  const exportToExcel = useCallback(() => {
+    if (!data || data.length === 0) {
+      alert('No data to export');
+      return;
+    }
+
+    try {
+      // Prepare data for export - exclude actions column and format data
+      const exportData = data.map(row => {
+        const exportRow = {};
+        columns.forEach((col, index) => {
+          // Skip the first column (index 0) and any problematic columns
+          if (index === 0 || col.key === 'id' || col.key === 'index' || col.key === 'actions') {
+            return;
+          }
+
+          if (col.render) {
+            // For custom rendered columns, try to get the raw value or formatted text
+            try {
+              const renderedValue = col.render(row, 0);
+              // If it's a React element, try to extract text content
+              if (typeof renderedValue === 'object' && renderedValue !== null) {
+                // For simple elements, try to get text content
+                if (renderedValue.props && renderedValue.props.children) {
+                  const children = renderedValue.props.children;
+                  if (Array.isArray(children)) {
+                    exportRow[col.label] = children.map(child =>
+                      typeof child === 'string' ? child : 'Content'
+                    ).join(' ');
+                  } else {
+                    exportRow[col.label] = String(children);
+                  }
+                } else {
+                  exportRow[col.label] = 'Content';
+                }
+              } else {
+                exportRow[col.label] = String(renderedValue);
+              }
+            } catch (error) {
+              // Fallback to raw data if render fails
+              exportRow[col.label] = row[col.key] || '';
+            }
+          } else {
+            // For regular columns, use the raw data
+            const value = row[col.key];
+            if (value !== undefined && value !== null) {
+              exportRow[col.label] = String(value);
+            } else {
+              exportRow[col.label] = '';
+            }
+          }
+        });
+        return exportRow;
+      });
+
+      // Filter out any empty rows or problematic data
+      const cleanExportData = exportData.filter(row =>
+        Object.values(row).some(value => value && value !== '')
+      );
+
+      if (cleanExportData.length === 0) {
+        alert('No valid data to export');
+        return;
+      }
+
+      // Create workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(cleanExportData);
+
+      // Auto-size columns
+      const columnWidths = Object.keys(cleanExportData[0] || {}).map(key => ({
+        wch: Math.max(key.length, 15) // Minimum width of 15
+      }));
+      worksheet['!cols'] = columnWidths;
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Table Data');
+
+      // Generate filename with current date
+      const date = new Date().toISOString().split('T')[0];
+      const filename = `table_export_${date}.xlsx`;
+
+      // Download the file
+      XLSX.writeFile(workbook, filename);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please try again.');
+    }
+  }, [data, columns]);
+
   const handleSort = useCallback((key) => {
     if (!onSort) return;
 
@@ -245,79 +354,86 @@ const CommonAdminTable = ({
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full lg:w-auto">
             {/* Search */}
             <div className="w-full sm:w-auto">
-              <SearchInput 
-                value={searchValue} 
-                onChange={onSearchChange} 
-                onFocus={onSearchFocus} 
-                onBlur={onSearchBlur} 
+              <SearchInput
+                value={searchValue}
+                onChange={onSearchChange}
+                onFocus={onSearchFocus}
+                onBlur={onSearchBlur}
                 placeholder={t.search}
               />
             </div>
-            
+
             {/* Role Filter */}
             <div className="w-full sm:w-auto">
-              <FilterDropdown 
-                value={roleValue} 
-                options={roleOptions} 
+              <FilterDropdown
+                value={roleValue}
+                options={roleOptions}
                 onChange={onRoleChange}
                 icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
                 label={t.roleFilter}
               />
             </div>
-            
+
             {/* Status Filter */}
             <div className="w-full sm:w-auto">
-              <FilterDropdown 
-                value={statusValue} 
-                options={statusOptions} 
+              <FilterDropdown
+                value={statusValue}
+                options={statusOptions}
                 onChange={onStatusChange}
                 icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>}
                 label={t.statusFilter}
               />
             </div>
-            
+
             {/* Date Filter */}
             <div className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition">
-                <FiCalendar className="mr-2 text-lg" />
-                {t.date}
-                <span className="ml-2">&#9662;</span>
-              </button>
+              <CommonDateRange
+                startDate={dateRange.startDate}
+                endDate={dateRange.endDate}
+                onChange={onDateRangeChange}
+              />
             </div>
           </div>
-          
+
           {/* Right side - Action Buttons (2 elements) */}
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full lg:w-auto">
             {/* Export Button */}
             <div className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition">
-                <FiDownload className="mr-2 text-lg" />
-                {t.export}
+              <button
+                className="w-full sm:w-auto flex items-center justify-center rounded-lg gap-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition"
+                onClick={exportToExcel}
+              >
+                <FiDownload className="text-lg" />
+                <p className='mt-[3px]'>
+                  {t.export}
+                </p>
               </button>
             </div>
-            
+
             {/* Add User Button */}
             <div className="w-full sm:w-auto">
               <CommonButton
                 text={t.addUser}
                 onClick={onAddUser}
-                className="w-full sm:w-auto px-4 pt-2.5 pb-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200"
-                icon={<FiPlus className="w-4 h-4" />}
+
+                className="!py-2.5 !text-14 w-auto rounded-lg px-4"
+                // className="w-full sm:w-auto px-4 pt-2.5 pb-1.5 text-white rounded-lg transition-all duration-200"
+                icon={<FiPlus className="text-lg" />}
               />
             </div>
           </div>
         </div>
       )}
-      
+
       {/* Search Bar Only - Show when showFilterBar is false but search is needed */}
       {!showFilterBar && onSearchChange && (
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center p-4 bg-white dark:bg-transparent justify-between mb-6">
           <div className="w-full lg:w-auto">
-            <SearchInput 
-              value={searchValue} 
-              onChange={onSearchChange} 
-              onFocus={onSearchFocus} 
-              onBlur={onSearchBlur} 
+            <SearchInput
+              value={searchValue}
+              onChange={onSearchChange}
+              onFocus={onSearchFocus}
+              onBlur={onSearchBlur}
               placeholder={t.search}
             />
           </div>
@@ -331,7 +447,7 @@ const CommonAdminTable = ({
               {columns.map(col => (
                 <th
                   key={col.key}
-                  className={`py-3 px-4 text-left font-semibold text-gray-700 dark:text-gray-300 ${col.className || ''} ${col.sortable ? 'cursor-pointer select-none' : ''}`}
+                  className={`py-3 px-4 text-left font-black text-gray-700 dark:text-gray-300 ${col.className || ''} ${col.sortable ? 'cursor-pointer select-none' : ''}`}
                   onClick={() => col.sortable && handleSort(col.key)}
                   aria-sort={sortConfig?.key === col.key ? sortConfig.direction : undefined}
                 >
@@ -340,10 +456,10 @@ const CommonAdminTable = ({
                     {col.sortable && (
                       <svg
                         className={`w-4 h-4 transition-transform ${sortConfig?.key === col.key
-                            ? sortConfig.direction === 'asc'
-                              ? 'transform rotate-180'
-                              : ''
+                          ? sortConfig.direction === 'asc'
+                            ? 'transform rotate-180'
                             : ''
+                          : ''
                           }`}
                         fill="none"
                         stroke="currentColor"
@@ -410,8 +526,8 @@ const CommonAdminTable = ({
                         <DropdownPortal anchorRef={{ current: actionBtnRefs.current[idx] }} open={openAction === idx} upward={openUpward}>
                           <button
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-                            onClick={() => { 
-                              setOpenAction(null); 
+                            onClick={() => {
+                              setOpenAction(null);
                               if (onView) onView(row);
                               else alert('View Details clicked!');
                             }}
@@ -421,8 +537,8 @@ const CommonAdminTable = ({
                           </button>
                           <button
                             className="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2"
-                            onClick={() => { 
-                              setOpenAction(null); 
+                            onClick={() => {
+                              setOpenAction(null);
                               if (onEdit) onEdit(row);
                               else alert('Edit clicked!');
                             }}
@@ -432,8 +548,8 @@ const CommonAdminTable = ({
                           </button>
                           <button
                             className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
-                            onClick={() => { 
-                              setOpenAction(null); 
+                            onClick={() => {
+                              setOpenAction(null);
                               if (onDelete) onDelete(row);
                               else alert('Delete clicked!');
                             }}

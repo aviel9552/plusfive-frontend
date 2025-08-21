@@ -88,12 +88,12 @@ function QRManagement() {
           <div className="flex gap-3 md:flex-row flex-col">
             <CommonButton
               text="Download QR Code"
-              className="!py-2.5 !text-15 w-auto rounded-xl px-4 py-2"
+              className="!py-2.5 !text-14 w-auto rounded-xl px-4"
               icon={<LuDownload className="text-lg font-bold" />}
             />
             <CommonOutlineButton
               text="Share WhatsApp"
-              className="!py-2.5 !text-15 w-auto rounded-xl"
+              className="!py-2.5 !text-14 w-auto rounded-xl"
               icon={<PiShareFatBold className="text-lg" />}
             />
           </div>
