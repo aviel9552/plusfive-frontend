@@ -44,7 +44,7 @@ function ReferralsTable() {
           row.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           row.id?.includes(searchTerm);
 
-        const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
+        const matchesStatus = statusFilter === 'All' || row.status?.toLowerCase() === statusFilter.toLowerCase();
 
         return matchesSearch && matchesStatus;
       })
@@ -121,10 +121,10 @@ function ReferralsTable() {
       label: t.status,
       className: 'min-w-[120px]',
       render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-sm ${
+        <span className={`px-3 pt-[7px] pb-[5px] rounded-full text-sm ${
           row.status === 'Active' 
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-            : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
+            ? 'text-[#2537A5] bg-[#D0E2FF]'
+            : 'text-[#EF5A0B] bg-[#FFE8E3]'
         }`}>
           {row.status}
         </span>
@@ -194,7 +194,7 @@ function ReferralsTable() {
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
             filterValue={statusFilter}
-            filterOptions={['All', 'Active', 'Pending']}
+            filterOptions={['All', 'active', 'pending']}
             onFilterChange={setStatusFilter}
             onSort={handleSort}
             loading={false}

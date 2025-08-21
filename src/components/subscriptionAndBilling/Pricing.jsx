@@ -34,7 +34,7 @@ const getPricingPlans = (t) => [
 ];
 
 // Toggle Switch Component
-const BillingToggle = ({ isYearly, onToggle, t }) => (
+const BillingToggle = ({ isYearly, onToggle, t, language }) => (
     <div className="flex items-center md:justify-center justify-between gap-3 md:mt-0 mt-5">
         <div className='flex items-center justify-center gap-2'>
             <span className={`font-medium transition-colors ${!isYearly ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>{t.payMonthly}</span>
@@ -42,6 +42,7 @@ const BillingToggle = ({ isYearly, onToggle, t }) => (
                 onClick={onToggle}
                 className={`relative inline-flex items-center h-7 rounded-full w-12 transition-colors focus:outline-none bg-gray-200 dark:bg-gray-700`}
             >
+            <span className={` ${language === 'he' ? 'block' : 'hidden'}`}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                 <span className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform ${isYearly ? 'translate-x-6 bg-indigo-500' : 'translate-x-1'}`} />
             </button>
         </div>
@@ -132,7 +133,7 @@ function Pricing() {
         <div className="bg-white dark:bg-customBrown text-gray-900 dark:text-white font-ttcommons p-6 border border-gray-200 dark:border-customBorderColor rounded-2xl mt-7 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className="md:flex justify-between items-center gap-6">
                 <h1 className="text-4xl font-bold">{t.pricing}</h1>
-                <BillingToggle isYearly={isYearly} onToggle={handleToggle} t={t} />
+                <BillingToggle isYearly={isYearly} onToggle={handleToggle} t={t} language={language} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-7 items-stretch">

@@ -45,6 +45,28 @@ function AdminLTVGrothChart() {
         );
     };
 
+    const CustomActiveDot = (props) => {
+        const { cx, cy } = props;
+        return (
+            <g>
+                {/* Black middle ring */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={4}
+                    fill="#000000"
+                />
+                {/* Yellow center circle */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={3}
+                    fill="#FE7503"
+                />
+            </g>
+        );
+    };
+
     return (
         <div className='mt-10'>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t.ltvGrowthOverTime}</h2>
@@ -89,7 +111,7 @@ function AdminLTVGrothChart() {
                                 stroke="#675DFF"
                                 strokeWidth={2.5}
                                 dot={{ r: 6, stroke: '#FE7503', strokeWidth: 2, fill: '#000' }}
-                                activeDot={{ r: 7, stroke: '#FE7503', strokeWidth: 2, fill: '#000' }}
+                                activeDot={<CustomActiveDot />}
                             />
                         </LineChart>
                     </ResponsiveContainer>

@@ -6,9 +6,9 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminTranslations } from '../../../utils/translations';
 
 const statusColors = {
-    Active: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400',
-    Pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400',
-    Inactive: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400',
+    Active: 'bg-[#D0E2FF] text-[#2537A5]',
+    Pending: 'bg-[#FFE8E3] text-[#EF5A0B]',
+    Inactive: 'bg-[#FEE2E2] text-[#991B1B]',
 };
 
 function AdminReferrals() {
