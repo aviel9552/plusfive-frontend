@@ -21,22 +21,23 @@ function AdminReportsandAnalyticsTitle() {
     const [timeFrame, setTimeFrame] = useState('monthly')
 
     return (
-        <div className="w-full space-y-6">
+        <div className="w-full gap-[24px] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h2 className="md:text-2xl font-semibold text-gray-900 dark:text-white transition-colors duration-200">
+                <h2 className="md:text-20 font-semibold text-gray-900 dark:text-white transition-colors duration-200">
                     {t.reportsAndAnalytics}
                 </h2>
                 <CommonDropDown
                     options={timeOptions}
                     value={timeFrame}
                     onChange={setTimeFrame}
-                    className="w-auto h-auto p-1"
+                    className="w-auto h-auto pb-2"
+                    fontSize="text-12"
                 />
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
                 <StatIconCard
                     image={Todays_Scans_Icon}
                     value="25"

@@ -8,11 +8,6 @@ function Analytics() {
   const t = getAdminAnalyticsTranslations(language);
   return (
     <div>
-      {/* <AnalyticsMonthlyPerformance />
-      <h2 className='text-2xl font-bold mt-10 dark:text-white'>Analytics</h2>
-      <AnalyticsRevenueAndCustomerStatus />
-      <AnalyticsSecontChart />
-      <LTVGrothChart /> */}
       <AdminAnalyticsMonthlyPerformance />
       <h2 className='text-2xl font-bold mt-10 dark:text-white'>{t.analytics}</h2>
       <AdminAnalyticsRevenueAndCustomerStatus />

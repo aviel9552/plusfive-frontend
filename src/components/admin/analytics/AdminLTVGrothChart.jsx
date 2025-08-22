@@ -30,9 +30,9 @@ function AdminLTVGrothChart() {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-[#2C2C2C] px-3 py-2 rounded-lg shadow-lg text-white font-ttcommons">
-                    <p className="font-semibold text-sm">{label}</p>
-                    <p className="text-xs text-gray-300">{payload[0].payload.tooltipLTV} {t.monthCustomersLTD}</p>
+                <div className="bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-white font-ttcommons">
+                    <p className="font-semibold text-14">{label}</p>
+                    <p className="text-16 text-gray-300">{payload[0].payload.tooltipLTV} {t.monthCustomersLTD}</p>
                 </div>
             );
         }
@@ -42,7 +42,7 @@ function AdminLTVGrothChart() {
     const CustomYAxisTick = ({ x, y, payload }) => {
         const textColor = isDarkMode ? "#fff" : "#000";
         return (
-            <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
+            <text x={x} y={y} dy={4} fill={textColor} fontSize={12} textAnchor="end">
                 {payload.value.toFixed(1)}
             </text>
         );
@@ -74,7 +74,7 @@ function AdminLTVGrothChart() {
     return (
         <div className='mt-10'>
             <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.ltvGrowthOverTime}</h2>
+                <h2 className="text-24 font-ttcommons font-semibold text-gray-900 dark:text-white">{t.ltvGrowthOverTime}</h2>
             </div>
             <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <div className="h-[250px]">
@@ -94,7 +94,7 @@ function AdminLTVGrothChart() {
                                 axisLine={{ stroke: '#444' }} 
                                 tick={{ 
                                     fill: isDarkMode ? '#fff' : '#000', 
-                                    fontSize: 16 
+                                    fontSize: 14 
                                 }} 
                                 dy={10} 
                             />

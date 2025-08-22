@@ -40,7 +40,7 @@ function customerManagement() {
   
   return (
     <div>
-      <div className='border border-gray-200 dark:border-customBorderColor rounded-2xl p-6 dark:bg-customBrown bg-white dark:hover:bg-customBlack shadow-md hover:shadow-sm'>
+      <div className='border border-gray-200 dark:border-customBorderColor rounded-2xl p-[24px] dark:bg-customBrown bg-white dark:hover:bg-customBlack shadow-md hover:shadow-sm'>
         <ManageAndTrackCustomers statusCounts={statusCounts} />
       </div>
       <div className='mt-7 border border-gray-200 dark:border-customBorderColor rounded-2xl dark:bg-customBrown dark:hover:bg-customBlack shadow-md hover:shadow-sm'>

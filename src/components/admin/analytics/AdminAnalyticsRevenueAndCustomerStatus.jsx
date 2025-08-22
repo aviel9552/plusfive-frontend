@@ -60,16 +60,20 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons mt-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
+        <div className="lg:col-span-7">
         <StatSingleBarChart 
             title={t.revenueImpact} 
             dataMap={dataMap}
             filters={FILTERS}
         />
+        </div>
+        <div className="lg:col-span-5">   
         <StatPieChart 
             title={t.customerStatusBreakdown}
             data={pieChartData}
         />
+        </div>
     </div>
   )
 }

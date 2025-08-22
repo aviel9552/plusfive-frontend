@@ -8,13 +8,13 @@ function AdminAnalyticsMonthlyPerformance() {
   const t = getAdminAnalyticsTranslations(language);
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-200">
+    <div className="w-full flex flex-col gap-[16px]">
+      <div className="flex items-center justify-between">
+        <h2 className="text-20 font-semibold text-gray-900 dark:text-white transition-colors duration-200">
           {t.monthlyPerformance}
         </h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[24px]">
         <StatChartCard
           title={t.recoveredCustomers}
           value="95"

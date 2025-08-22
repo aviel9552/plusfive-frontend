@@ -60,15 +60,15 @@ function AdminRevenueImpactCustomerStatus() {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-10 gap-[24px] font-ttcommons">
-      <div className="lg:col-span-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
+      <div className="lg:col-span-7">
         <StatSingleBarChart
           title={t.revenueImpact}
           dataMap={dataMap}
           filters={FILTERS}
         />
       </div>
-      <div className="lg:col-span-4">
+      <div className="lg:col-span-5">
         <StatPieChart
           title={t.customerStatusBreakdown}
           data={pieChartData}

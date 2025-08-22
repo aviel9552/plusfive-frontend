@@ -142,7 +142,7 @@ const Header = ({ onMobileMenuToggle }) => {
                 </h1>
               </span>
             ) : (
-              <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1 md:text-24">{pageTitle}</div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1 md:text-20">{pageTitle}</div>
             )}
           </div>
         </div>

@@ -64,7 +64,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
           />
         )}
       </div>
-      <div className="h-[300px] md:w-full relative">
+      <div className="h-[320px] md:w-full relative">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={displayData}

@@ -121,10 +121,10 @@ function ReferralsTable() {
       label: t.status,
       className: 'min-w-[120px]',
       render: (row) => (
-        <span className={`px-3 pt-[7px] pb-[5px] rounded-full text-sm ${
+        <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-sm ${
           row.status === 'active' 
-            ? 'text-[#2537A5] bg-[#D0E2FF] dark:text-blue-300 dark:bg-blue-900'
-            : 'text-[#EF5A0B] bg-[#FFE8E3] dark:text-orange-300 dark:bg-orange-900'
+            ? 'text-[#2537A5] bg-[#D0E2FF]'
+            : 'text-[#EF5A0B] bg-[#FFE8E3]'
         }`}>
           {row.status}
         </span>
@@ -177,7 +177,7 @@ function ReferralsTable() {
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
-              <h2 className="text-xl text-gray-900 dark:text-white">
+              <h2 className="text-20 text-gray-900 dark:text-white">
                 {t.referrals}
               </h2>
               <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
@@ -259,10 +259,10 @@ function ReferralsTable() {
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.status}</p>
-                    <span className={`px-3 py-1 rounded-full text-sm ${
+                    <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-sm ${
                       selectedReferral.status === 'active' 
-                        ? 'text-[#2537A5] bg-[#D0E2FF] dark:text-blue-300 dark:bg-blue-900'
-                        : 'text-[#EF5A0B] bg-[#FFE8E3] dark:text-orange-300 dark:bg-orange-900'
+                        ? 'text-[#2537A5] bg-[#D0E2FF]'
+                        : 'text-[#EF5A0B] bg-[#FFE8E3]'
                     }`}>
                       {selectedReferral.status}
                     </span>

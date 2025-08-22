@@ -199,10 +199,10 @@ function AdminQRManagement() {
     <div className="">
       {/* Main content boxes */}
       <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-gray-800 border-gray-200 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] p-8">
           {/* QR Generator Section */}
           <div className='md:p-8 p-0 dark:text-white text-black dark:bg-customBrown bg-customBody rounded-2xl md:border dark:border-gray-800 border-gray-200'>
-            <h2 className="text-22 font-medium mb-8">
+            <h2 className="text-24 font-medium mb-8 font-ttcommons">
               {t.qrGenerator}
             </h2>
             <div className="space-y-6">
@@ -217,7 +217,7 @@ function AdminQRManagement() {
                 showErrorOnFocus={true}
                 placeholder={t.messageForCustomerPlaceholder}
                 error={errors.customerMessage}
-                labelFontSize="text-15"
+                labelFontSize="text-14"
               />
 
               <CommonInput
@@ -231,7 +231,7 @@ function AdminQRManagement() {
                 showErrorOnFocus={true}
                 placeholder={t.directMessagePlaceholder}
                 error={errors.directMessage}
-                labelFontSize="text-15"
+                labelFontSize="text-14"
               />
 
               <CommonButton
@@ -245,7 +245,7 @@ function AdminQRManagement() {
 
           {/* QR Code Display Section */}
           <div className='md:p-8 p-0 dark:text-white text-black dark:bg-customBrown bg-white rounded-2xl md:border dark:border-gray-800 border-gray-200'>
-            <h2 className="text-22 font-medium mb-8">
+            <h2 className="text-24 font-medium mb-8 font-ttcommons">
               {t.myQRCodes}
             </h2>
             <div className="md:p-0 p-10 flex flex-col items-center justify-center h-[320px] rounded-lg dark:bg-customBrown bg-customBody border dark:border-gray-800 border-gray-200 border-dashed">
@@ -266,7 +266,7 @@ function AdminQRManagement() {
               ) : (
                 <>
                   <MdQrCode2 className="text-6xl dark:text-white text-black mb-4" />
-                  <p className="dark:text-white text-black text-18">
+                  <p className="dark:text-white text-black text-14">
                     {t.generatedQRCodesWillAppearHere}
                   </p>
                 </>
@@ -287,7 +287,7 @@ function AdminQRManagement() {
             />
             <CommonOutlineButton
               text={t.shareWhatsApp}
-              className="!py-2.5 !text-15 w-auto rounded-xl"
+              className="py-2.5 !text-14 w-auto rounded-xl"
               icon={<PiShareFatBold className="text-lg" />}
               disabled={!generatedQR}
               onClick={handleShareWhatsApp}

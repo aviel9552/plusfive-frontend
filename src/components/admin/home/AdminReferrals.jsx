@@ -72,7 +72,7 @@ function AdminReferrals() {
             label: t.status,
             className: 'min-w-[120px]',
             render: (row) => (
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[row.status]}`}>
+                <span className={`px-3 p-1 rounded-full text-xs font-medium ${statusColors[row.status]}`}>
                     {row.status}
                 </span>
             ),

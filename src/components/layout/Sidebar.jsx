@@ -45,8 +45,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
     ${isMobile ?
-      `w-64 ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
-      `${isCollapsed ? 'w-16' : 'w-64'}`
+      `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
+      `${isCollapsed ? 'w-16' : 'w-[288px]'}`
     }
   `;
 

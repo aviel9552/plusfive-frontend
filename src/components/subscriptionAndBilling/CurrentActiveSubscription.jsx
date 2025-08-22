@@ -13,7 +13,7 @@ const SubscriptionDetail = ({ title, value }) => (
 );
 
 const StatusBadge = ({ status }) => (
-  <span className="px-3 py-1 text-sm font-medium rounded-full bg-blue-500/20 text-blue-300">
+  <span className="px-3 p-1 text-16 font-medium rounded-full bg-blue-500/20 text-blue-300">
     {status}
   </span>
 );

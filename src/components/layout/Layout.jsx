@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         isRTL={isRTL}
       />
-      <div className={`flex flex-col flex-1 transition-all duration-300 min-w-0 ${isMobile ? (isRTL ? 'mr-0' : 'ml-0') : (isDesktopSidebarCollapsed ? (isRTL ? 'lg:mr-16' : 'lg:ml-16') : (isRTL ? 'lg:mr-64' : 'lg:ml-64'))}`}>
+      <div className={`flex flex-col flex-1 transition-all duration-300 min-w-0 ${isMobile ? (isRTL ? 'mr-0' : 'ml-0') : (isDesktopSidebarCollapsed ? (isRTL ? 'lg:mr-16' : 'lg:ml-16') : (isRTL ? 'lg:mr-[288px]' : 'lg:ml-[288px]'))}`}>
         <Header onMobileMenuToggle={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 overflow-y-auto p-6">
           {children}
