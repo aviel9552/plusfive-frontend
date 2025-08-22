@@ -10,7 +10,7 @@ function CommonCustomOutlineButton({ text, onClick, className = '', type = 'butt
         relative overflow-hidden rounded-xl
         px-8 py-2
         ${bgClass}
-        text-xl font-ttcommons font-medium
+        font-ttcommons font-medium
         transition-all duration-300 ease-in-out
         hover:shadow-lg hover:scale-[1.02]
         active:scale-[0.98]

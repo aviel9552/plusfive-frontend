@@ -91,10 +91,10 @@ const HistoryTable = ({
                     data.map((item, index) => (
                         <div key={index} className="flex flex-col sm:flex-row items-center justify-between bg-gray-100 dark:bg-customGray p-4 rounded-xl">
                             <div className="flex items-center gap-4 mb-4 sm:mb-0 flex-1">
-                                <div className={`shrink-0 p-3 rounded-lg ${item.iconBgColor || 'bg-[#5965F9]'}`}>{item.icon}</div>
-                                <div>
-                                    <p className="font-semibold text-base text-gray-900 dark:text-white">{item.title}</p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">{item.subtitle}</p>
+                                <div className={`shrink-0 p-3 rounded-lg ${item.iconBgColor || 'bg-[#675DFF]'}`}>{item.icon}</div>
+                                <div className='flex flex-col gap-[4px]'>
+                                    <p className="font-semibold text-gray-900 dark:text-white text-18">{item.title}</p>
+                                    <p className="text-14 text-gray-500 dark:text-white">{item.subtitle}</p>
                                 </div>
                             </div>
                             <div className="mb-4 sm:mb-0 text-center flex-1">

@@ -38,7 +38,7 @@ const UserFAQ = () => {
                     onClick={() => setOpenIndex(isOpen ? null : index)}
                     className="w-full flex justify-between items-center text-left p-4"
                 >
-                    <span className="md:text-xl text-lg font-medium">{faq.question}</span>
+                    <span className="md:text-18 text-lg font-medium">{faq.question}</span>
                     <FiChevronDown
                         className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                     />
@@ -47,7 +47,7 @@ const UserFAQ = () => {
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96' : 'max-h-0'
                         }`}
                 >
-                    <p className="text-black dark:text-customWhite md:text-lg text-base p-4 pt-0">
+                    <p className="text-black dark:text-white md:text-18 text-base p-4 pt-0">
                         {faq.answer}
                     </p>
                 </div>
@@ -57,7 +57,7 @@ const UserFAQ = () => {
 
     return (
         <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-3xl font-bold mb-8">{t.faq}</h2>
+            <h2 className="text-24 font-bold mb-8">{t.faq}</h2>
             <div className="space-y-4">
                 {faqData.map((faq, index) => (
                     <FaqItem

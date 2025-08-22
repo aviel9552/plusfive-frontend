@@ -30,7 +30,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
     const { isDarkMode } = useTheme();
     const textColor = isDarkMode ? "#ffffff" : "#000000";
     return (
-        <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
+        <text x={x} y={y} dy={4} fill={textColor} fontSize={12} textAnchor="end">
             {payload.value === 0 ? '0%' : `${payload.value}k`}
         </text>
     );
@@ -40,7 +40,7 @@ const CustomRatingYTick = ({ x, y, payload }) => {
     const { isDarkMode } = useTheme();
     const textColor = isDarkMode ? "#ffffff" : "#000000";
     return (
-        <text x={x} y={y} dy={4} fill={textColor} fontSize={16} textAnchor="end">
+        <text x={x} y={y} dy={4} fill={textColor} fontSize={12} textAnchor="end">
             {payload.value.toFixed(1)}
         </text>
     );
@@ -134,7 +134,7 @@ function AdminAnalyticsSecontChart() {
                                     axisLine={false}
                                     tick={{
                                         fill: isDarkMode ? '#ffffff' : '#000000',
-                                        fontSize: 16
+                                        fontSize: 14
                                     }}
                                     dy={10}
                                 />
@@ -193,7 +193,7 @@ function AdminAnalyticsSecontChart() {
                                     axisLine={false}
                                     tick={{
                                         fill: isDarkMode ? '#ffffff' : '#000000',
-                                        fontSize: 16
+                                        fontSize: 14
                                     }}
                                     dy={10}
                                 />

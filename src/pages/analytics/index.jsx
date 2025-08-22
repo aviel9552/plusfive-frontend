@@ -9,8 +9,10 @@ function Analytics() {
   return (
     <div>
       <AdminAnalyticsMonthlyPerformance />
-      <h2 className='text-2xl font-bold mt-10 dark:text-white'>{t.analytics}</h2>
-      <AdminAnalyticsRevenueAndCustomerStatus />
+      <div className='flex flex-col gap-[16px]'>
+        <h2 className='text-2xl font-bold mt-10 dark:text-white'>{t.analytics}</h2>
+        <AdminAnalyticsRevenueAndCustomerStatus />
+      </div>
       <AdminAnalyticsSecontChart />
       <AdminLTVGrothChart />
     </div>

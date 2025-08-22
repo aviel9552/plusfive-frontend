@@ -56,7 +56,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     <span>
       {isMobile && isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-[99]"
+          className="fixed inset-0 bg-black/50 z-[29]"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
       )}

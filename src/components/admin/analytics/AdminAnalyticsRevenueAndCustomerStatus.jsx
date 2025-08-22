@@ -53,27 +53,27 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   };
 
   const pieChartData = [
-      { name: t.active, value: 680, percentage: '22%', color: '#675DFF' },
-      { name: t.atRisk, value: 75, percentage: '10%', color: '#FE5D39' },
-      { name: t.lost, value: 58, percentage: '8%', color: '#912018' },
-      { name: t.recovered, value: 240, percentage: '15%', color: '#DF64CC' },
+    { name: t.active, value: 680, percentage: '22%', color: '#675DFF' },
+    { name: t.atRisk, value: 75, percentage: '10%', color: '#FE5D39' },
+    { name: t.lost, value: 58, percentage: '8%', color: '#912018' },
+    { name: t.recovered, value: 240, percentage: '15%', color: '#DF64CC' },
   ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
-        <div className="lg:col-span-7">
-        <StatSingleBarChart 
-            title={t.revenueImpact} 
-            dataMap={dataMap}
-            filters={FILTERS}
+      <div className="lg:col-span-7">
+        <StatSingleBarChart
+          title={t.revenueImpact}
+          dataMap={dataMap}
+          filters={FILTERS}
         />
-        </div>
-        <div className="lg:col-span-5">   
-        <StatPieChart 
-            title={t.customerStatusBreakdown}
-            data={pieChartData}
+      </div>
+      <div className="lg:col-span-5">
+        <StatPieChart
+          title={t.customerStatusBreakdown}
+          data={pieChartData}
         />
-        </div>
+      </div>
     </div>
   )
 }

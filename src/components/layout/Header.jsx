@@ -150,7 +150,7 @@ const Header = ({ onMobileMenuToggle }) => {
         <div className={`flex items-center gap-2 lg:gap-4 ${isRTL ? 'order-1' : 'order-2'} ${isRTL ? 'mr-auto' : 'ml-auto'}`}>
           {/* Search bar - Hidden on mobile */}
           <div className="hidden lg:block relative">
-            <div className="flex items-center justify-between border border-gray-200 dark:border-[#FFFFFF33] rounded-lg bg-transparent px-4 py-2 w-[250px] ">
+            <div className="flex items-center justify-between border border-gray-200 dark:border-[#FFFFFF33] rounded-lg bg-transparent px-4 py-2 w-[220px] ">
               <FiSearch className={`text-20 text-gray-400 ${isRTL ? 'ml-2' : 'mr-2'}`} />
               <input
                 type="text"

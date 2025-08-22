@@ -138,12 +138,13 @@ function ChangePassword() {
       showPasswordToggle={showPasswordToggle}
       showPasswordValidation={showPasswordValidation}
       autoComplete="off"
+      labelFontSize="text-14"
     />
   );
 
   return (
     <div className="dark:bg-customBrown bg-white dark:text-white border border-gray-200 dark:border-customBorderColor p-8 rounded-2xl mx-auto mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-      <h2 className="text-3xl font-bold mb-8">{t.changePassword}</h2>
+      <h2 className="text-24 font-ttcommons font-bold mb-8">{t.changePassword}</h2>
       <form onSubmit={handleSubmit}>
         <div className="mt-6">
           {renderPasswordInput({
