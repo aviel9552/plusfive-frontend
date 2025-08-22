@@ -150,12 +150,12 @@ const Header = ({ onMobileMenuToggle }) => {
         <div className={`flex items-center gap-2 lg:gap-4 ${isRTL ? 'order-1' : 'order-2'} ${isRTL ? 'mr-auto' : 'ml-auto'}`}>
           {/* Search bar - Hidden on mobile */}
           <div className="hidden lg:block relative">
-            <div className="flex items-center border border-gray-200 dark:border-[#FFFFFF33] rounded-lg bg-transparent px-4 py-3 w-full">
+            <div className="flex items-center justify-between border border-gray-200 dark:border-[#FFFFFF33] rounded-lg bg-transparent px-4 py-2 w-[250px] ">
               <FiSearch className={`text-20 text-gray-400 ${isRTL ? 'ml-2' : 'mr-2'}`} />
               <input
                 type="text"
                 placeholder={t.search}
-                className="flex-1 bg-transparent outline-none border-none text-gray-300 placeholder-gray-400 text-16"
+                className="flex-1 bg-transparent outline-none border-none text-gray-300 placeholder-gray-400 text-16 w-1"
               />
               <span className={`flex items-center gap-1 px-[5px] pt-[5px] pb-[1px] ${isRTL ? 'mr-2' : 'ml-2'} rounded border border-gray-200 dark:border-[#FFFFFF33] dark:text-white bg-transparent font-mono text-12`}>
                 <span className="text-10">⌘</span>
@@ -175,7 +175,7 @@ const Header = ({ onMobileMenuToggle }) => {
             options={languageOptions}
             value={language}
             onChange={changeLanguage}
-            className="hidden lg:flex"
+            className="hidden lg:flex p-1"
             showIcon={true}
             borderRadius="rounded-full"
             inputBorderRadius="rounded-full"
