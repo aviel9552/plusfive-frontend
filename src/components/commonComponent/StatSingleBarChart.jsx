@@ -10,9 +10,9 @@ const CustomYAxisTick = ({ x, y, payload }) => {
   const isRTL = language === 'he';
   const textColor = isDarkMode ? "#fff" : "#000";
   
-  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor={isRTL ? "start" : "end"}>0%</text>;
+  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>0%</text>;
   return (
-    <text x={x} y={y} dy={3} fill={textColor} fontSize={16} textAnchor={isRTL ? "start" : "end"}>
+    <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>
       {payload.value}k
     </text>
   );
@@ -23,7 +23,7 @@ const CustomXAxisTick = ({ x, y, payload }) => {
   const textColor = isDarkMode ? "#fff" : "#000";
   
   return (
-    <text x={x} y={y} dy={16} fill={textColor} fontSize={16} textAnchor="middle">
+    <text x={x} y={y} dy={16} fill={textColor} fontSize={14} textAnchor="middle">
       {payload.value}
     </text>
   );
@@ -40,11 +40,11 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
   const displayData = isRTL ? [...chartData].reverse() : chartData;
 
   const getValueIndicator = (entry) => (
-    <div className="bg-gray-100 dark:bg-customGray px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
-      <div className="text-gray-900 dark:text-white text-xl font-medium">
+    <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
+      <div className="text-gray-900 dark:text-white text-16 font-medium">
         ${entry.value * 500 + 10000}
       </div>
-      <div className="text-gray-600 dark:text-gray-400 text-sm">
+      <div className="text-gray-600 dark:text-white text-12">
         {entry.month || 'Month'} 2025
       </div>
     </div>
@@ -53,13 +53,14 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
   return (
     <div className="bg-white dark:bg-customBrown rounded-xl p-6 border border-gray-200 dark:border-gray-800 relative shadow-md dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody hover:shadow-sm">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-24 text-gray-900 dark:text-white">{title}</h2>
+        <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
         {filters && dataMap && (
           <CommonDropDown
             options={filters}
             value={selectedFilter}
             onChange={setSelectedFilter}
-            className="w-[130px] h-auto p-1"
+            className="w-[120px] h-auto pb-2"
+            fontSize="text-12"
           />
         )}
       </div>

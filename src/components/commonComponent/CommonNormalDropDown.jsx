@@ -80,13 +80,13 @@ function CommonNormalDropDown({
       >
         <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {showIcon && (
-            <FiGlobe className={`${fontSize} text-gray-500 dark:text-gray-400`} />
+            <FiGlobe className={`${fontSize} text-gray-500 dark:text-white text-20`} />
           )}
           <span className={`${fontSize} ${!selectedOption ? 'text-gray-500 dark:text-gray-400' : ''}`}>
             {selectedOption?.shortLabel || selectedOption?.label || placeholder}
           </span>
         </div>
-        <IoChevronDownOutline className={`${isRTL ? 'mr-2' : 'ml-2'} ${fontSize} transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <IoChevronDownOutline className={`${isRTL ? 'mr-2' : 'ml-2'} transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (
         <div
@@ -118,7 +118,7 @@ function CommonNormalDropDown({
             >
               <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 {showIcon && (
-                  <FiGlobe className={`${fontSize} text-gray-500 dark:text-gray-400`} />
+                  <FiGlobe className={`${fontSize} text-gray-500 dark:text-white`} />
                 )}
                 <span>{option.fullName || option.label}</span>
               </div>

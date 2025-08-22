@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,7 +60,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'TT Commons', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-style: normal;
 }
@@ -353,4 +356,12 @@ input[type=number] {
 @keyframes l5-1 {
   10%,70%  {background-size:100% 205%,var(--s,0) 100%}
   70%,100% {background-position: top,center}
+}
+
+.active-border {
+  border-radius:  8px;
+  /* background: linear-gradient(144deg, #FF2380 0%, #675DFF 100%); */
+  border-left: 3px solid var(linear-gradient(144deg, #FF2380 0%, #675DFF 100%));
+  
+  
 }

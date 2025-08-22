@@ -23,11 +23,13 @@ export default {
         customRed: '#FF542A',
         customErrorRed: '#D92D20',
         customViolet: '#7E3AF2',
+        commonBorder: '#ffffff1a',
       },
       fontFamily: {
         ttcommons: ['"TT Commons"', 'sans-serif'],
         testtiemposfine: ['"TestTiemposFineLight"', 'sans-serif'],
         aktivgrotesk: ['"AktivGrotesk_Trial_SBd"', 'sans-serif'],
+        inter: ['"Inter"', 'sans-serif'],
       },
       fontSize: {
         // Custom font sizes only

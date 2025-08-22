@@ -6,15 +6,15 @@ const getPieChartTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-gray-100 dark:bg-[#2C2C2C] px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
+      <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.color }}></div>
-          <span className="text-gray-900 dark:text-white font-medium">{data.name}</span>
+          <span className="text-gray-900 dark:text-white font-medium text-16">{data.name}</span>
         </div>
-        <div className="text-gray-900 dark:text-white text-xl font-medium">
+        <div className="text-gray-900 dark:text-white text-16 font-medium">
           {data.value.toLocaleString()} Users
         </div>
-        <div className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+        <div className="text-gray-600 dark:text-white text-12 mt-1">
           {data.percentage} of Total
         </div>
       </div>
@@ -32,9 +32,9 @@ const StatPieChart = ({ title, data }) => {
   const displayData = isRTL ? [...customerData].reverse() : customerData;
 
   return (
-    <div className="bg-white dark:bg-customBrown rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+    <div className="bg-white dark:bg-customBrown rounded-xl p-6 border border-gray-200 dark:border-gray-800 dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
       <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
-        <h2 className="text-24 text-gray-900 dark:text-white">{title}</h2>
+        <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
       </div>
 
       <div className="flex justify-center">

@@ -2,14 +2,12 @@ import { MonthlyPerformance, RevenueImpactCustomerStatus, Referrals, Users, Admi
 
 const Home = () => {
   return (
-    <div className="space-y-4">
-      {/* <MonthlyPerformance />
-      <RevenueImpactCustomerStatus />
-      <Referrals /> */}
-      <AdminMonthlyPerformance />
-      <AdminRevenueImpactCustomerStatus />
+    <div className="space-y-12">
+      <div className="flex flex-col gap-[24px]">
+        <AdminMonthlyPerformance />
+        <AdminRevenueImpactCustomerStatus />
+      </div>
       <AdminReferrals />
-      {/* <Users /> */}
     </div>
   );
 };

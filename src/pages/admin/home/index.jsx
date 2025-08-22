@@ -3,9 +3,11 @@ import { AdminMonthlyPerformance, AdminRevenueImpactCustomerStatus, AdminReferra
 
 function AdminHome() {
   return (
-    <div className="space-y-4">
-      <AdminMonthlyPerformance />
-      <AdminRevenueImpactCustomerStatus />
+    <div className="space-y-12">
+      <div className="flex flex-col gap-[24px]">
+        <AdminMonthlyPerformance />
+        <AdminRevenueImpactCustomerStatus />
+      </div>
       <AdminReferrals />
     </div>
   )
