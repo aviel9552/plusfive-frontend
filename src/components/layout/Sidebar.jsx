@@ -11,6 +11,7 @@ import { useState } from 'react';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getLayoutTranslations } from '../../utils/translations';
+import { PiPlusBold } from 'react-icons/pi';
 
 const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMobileMenuOpen, isRTL = false }) => {
   const toggleDesktopSidebar = () => {
@@ -44,8 +45,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
     ${isMobile ?
-      `w-64 ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
-      `${isCollapsed ? 'w-16' : 'w-64'}`
+      `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
+      `${isCollapsed ? 'w-16' : 'w-[288px]'}`
     }
   `;
 
@@ -55,7 +56,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     <span>
       {isMobile && isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-[99]"
+          className="fixed inset-0 bg-black/50 z-[29]"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
       )}
@@ -63,28 +64,22 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         {/* Header */}
         <div className={`flex items-center  h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ''}`}>
           {/*
-          <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
-            <MdOutlineAdd className="text-white text-2xl" />
-            {effectiveCollapsed && (
-              <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>
-                {t.createNew}
-              </span>
-            )}
-          </span>
         */}
-        {isCollapsed && (
-          <span className={`text-black dark:text-white text-2xl font-testtiemposfine font-bold ${isCollapsed ? 'block' : 'hidden'} relative group`}>
-            P
+        <div className='flex items-center gap-[8px]'>
+          <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1V15M1 8H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
             {effectiveCollapsed && (
               <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>
-              {t.plusFive}
+                {t.plusFive}
               </span>
             )}
           </span>
-        )}
-          <span className={`${isRTL ? 'mr-2' : 'ml-2'} text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
+          <span className={`text-20  font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
             {t.plusFive}
           </span>
+        </div>
 
           {!isMobile && (
             <button

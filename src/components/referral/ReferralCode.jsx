@@ -46,18 +46,18 @@ function ReferralCode() {
   return (
     <div className="">
       <div className="dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-6 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-        <h2 className="text-xl font-medium text-gray-900 dark:text-white mb-6">
+        <h2 className="text-24 font-medium text-gray-900 dark:text-white mb-6 font-ttcommons">
           {t.myReferralCode}
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[72px]">
           {/* Referral Code */}
-          <div>
-            <p className="text-sm dark:text-white text-black mb-2">
+          <div className='flex flex-col gap-[6px]'>
+            <p className="text-14 dark:text-white text-black mb-2">
               {t.referralCode}
             </p>
             <div className="flex items-center gap-2 ">
-              <div className="border dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium">
+              <div className="border text-16 dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium">
                 {referralCode}
               </div>
               <button
@@ -76,12 +76,12 @@ function ReferralCode() {
           </div>
 
           {/* Referral Link */}
-          <div>
-            <p className="text-sm dark:text-white text-black mb-2">
+          <div className='flex flex-col gap-[6px]'>
+            <p className="text-14 dark:text-white text-black mb-2">
               {t.referralLink}
             </p>
             <div className="flex items-center gap-2">
-              <div className="border dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="border text-16 dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium overflow-hidden text-ellipsis whitespace-nowrap">
                 {import.meta.env.VITE_APP_URL}/ref/{referralCode}
               </div>
               <button

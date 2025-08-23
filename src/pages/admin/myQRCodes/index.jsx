@@ -37,6 +37,7 @@ function myQRCodes() {
   const user = useSelector(state => state.auth.user);
   const { language } = useLanguage();
   const t = getAdminQRTranslations(language);
+  const slug = window.location.pathname.split('/')[1];
 
   const qrState = useSelector((state) => state.qr);
 
@@ -180,12 +181,12 @@ function myQRCodes() {
 
   // Handle create QR code - redirect to qr-management page
   const handleCreateQR = () => {
-    navigate('/app/qr-management');
+    navigate(`/${slug}/qr-management`);
   };
   
   // Handle view all QR codes
   const handleAllQRCodes = () => {
-    navigate('/app/qr-management/listing');
+    navigate(`/${slug}/qr-management/listing`);
   };
 
   // Handle refresh data
@@ -251,12 +252,11 @@ function myQRCodes() {
       const response = await getQRCodeById(qr.id);
       if (response && response.data) {
         setQrDetails(response.data);
-        toast.success('QR Code details loaded successfully');
       } else {
-        toast.error('Failed to load QR Code details');
+        toast.error(t.failedToLoadQRCodeDetails);
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to load QR Code details');
+      toast.error(error.message || t.failedToLoadQRCodeDetailsTryAgain);
     } finally {
       setLoadingDetails(false);
     }
@@ -451,21 +451,19 @@ function myQRCodes() {
   }, [qrCodes, pagination, loading, error]);
 
   return (
-    <div className="space-y-6">
-      {/* Professional Header Section */}
-      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
-              <MdQrCode2 className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                My QR Codes
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Manage and track your QR code performance
-              </p>
+    <div className="p-4 md:p-6 dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl text-gray-900 dark:text-white">
+      {/* QR Code Analytics Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-customBrown border border-gray-300 dark:border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.qrCodeAnalytics}</h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-purple-600 dark:text-purple-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                {t.close}
+              </button>
             </div>
           </div>
           
@@ -495,49 +493,31 @@ function myQRCodes() {
         </div>
       </div>
 
-      {/* Enhanced QR Code Analytics Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-customBrown border border-gray-300 dark:border-customBorderColor rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-white dark:bg-customBrown border-b border-gray-200 dark:border-gray-700 px-8 py-6 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                  <MdAnalytics className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    QR Code Analytics Dashboard
-                  </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedQR?.name || 'Detailed performance metrics and insights'}
-                  </p>
-                </div>
+            {loadingDetails ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+                <span className="ml-2 text-gray-900 dark:text-white">{t.loadingQRCodeDetails}</span>
               </div>
-              
-              <div className="flex items-center space-x-3">
-                <CommonOutlineButton
-                  text="Export Data"
-                  icon={<MdDownload className="w-4 h-4" />}
-                  onClick={() => {/* Add export functionality */}}
-                  className="px-4 py-2 text-sm"
-                />
-                <button
-                  onClick={handleCloseModal}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
-                >
-                  <MdClose className="w-6 h-6 text-gray-500 dark:text-gray-400" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-8 overflow-y-auto max-h-[calc(95vh-120px)]">
-              {loadingDetails ? (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600"></div>
-                  <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">Loading comprehensive analytics...</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Please wait while we gather your data</p>
+            ) : qrDetails ? (
+              <div className="space-y-6">
+                {/* Key Metrics Section */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
+                    <h3 className="text-gray-700 dark:text-white text-sm">{t.chatsBack}</h3>
+                    <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.chatsBack || 0}</p>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
+                    <h3 className="text-gray-700 dark:text-white text-sm">{t.friendClicks}</h3>
+                    <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.friendClicks || 0}</p>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
+                    <h3 className="text-gray-700 dark:text-white text-sm">{t.sharedCount}</h3>
+                    <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.sharedCount || 0}</p>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
+                    <h3 className="text-gray-700 dark:text-white text-sm">{t.totalScans}</h3>
+                    <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.scanCount || 0}</p>
+                  </div>
                 </div>
               ) : qrDetails ? (
                 <div className="space-y-8">
@@ -597,229 +577,70 @@ function myQRCodes() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
-                        <CommonOutlineButton
-                          text="Copy QR Data"
-                          icon={<FiCopy className="w-4 h-4" />}
-                          onClick={() => handleCopyQRData(qrDetails.qrData || qrDetails.qrdata)}
-                          className="px-4 py-2 text-sm"
-                        />
-                        {qrDetails.url && (
-                          <CommonButton
-                            text="Visit Target URL"
-                            icon={<FiExternalLink className="w-4 h-4" />}
-                            onClick={() => window.open(qrDetails.url, '_blank')}
-                            className="px-4 py-2 text-sm"
-                          />
-                        )}
-                      </div>
+                {/* QR Code Details */}
+                <div className="bg-gray-100 dark:bg-customBlack p-6 rounded-lg">
+                  <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.qrCodeInformation}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-gray-700 dark:text-white text-sm">{t.qrCodeName}</p>
+                      <p className="text-gray-900 dark:text-white">{qrDetails.name || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-700 dark:text-white text-sm">{t.qrCodeID}</p>
+                      <p className="text-gray-900 dark:text-white">{qrDetails.id || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-700 dark:text-white text-sm">{t.qrData}</p>
+                      <p className="text-gray-900 dark:text-white">{qrDetails.qrData || qrDetails.qrdata || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-700 dark:text-white text-sm">{t.createdAt}</p>
+                      <p className="text-gray-900 dark:text-white">{qrDetails.createdAt ? new Date(qrDetails.createdAt).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-700 dark:text-white text-sm">{t.status}</p>
+                      <p className={`${qrDetails.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {/* {qrDetails.isActive ? t.active : t.inactive} */}
+                        {qrDetails.isActive ? 'Active' : 'Inactive'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-700 dark:text-white text-sm">{t.url}</p>
+                      <p className="text-gray-900 dark:text-white break-all">{qrDetails.url || 'N/A'}</p>
                     </div>
                   </div>
 
-                  {/* Key Performance Metrics */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 rounded-2xl border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">Total Scans</p>
-                          <p className="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">
-                            {qrDetails.scanCount || 0}
-                          </p>
-                          <p className="text-blue-600 dark:text-blue-400 text-xs mt-1">
-                            {qrDetails.scanCount > 0 ? 'Active engagement' : 'No scans yet'}
-                          </p>
-                        </div>
-                        <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                          <MdVisibility className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-2xl border border-green-200 dark:border-green-800">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-green-600 dark:text-green-400 text-sm font-medium">Shares</p>
-                          <p className="text-3xl font-bold text-green-900 dark:text-green-100 mt-1">
-                            {qrDetails.sharedCount || 0}
-                          </p>
-                          <p className="text-green-600 dark:text-green-400 text-xs mt-1">
-                            {qrDetails.sharedCount > 0 ? 'Viral potential' : 'Not shared yet'}
-                          </p>
-                        </div>
-                        <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                          <MdShare className="w-6 h-6 text-green-600 dark:text-green-400" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 rounded-2xl border border-purple-200 dark:border-purple-800">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">Friend Clicks</p>
-                          <p className="text-3xl font-bold text-purple-900 dark:text-purple-100 mt-1">
-                            {qrDetails.friendClicks || 0}
-                          </p>
-                          <p className="text-purple-600 dark:text-purple-400 text-xs mt-1">
-                            {qrDetails.friendClicks > 0 ? 'Social engagement' : 'No clicks yet'}
-                          </p>
-                        </div>
-                        <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                          <FiExternalLink className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 rounded-2xl border border-orange-200 dark:border-orange-800">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-orange-600 dark:text-orange-400 text-sm font-medium">Chats Back</p>
-                          <p className="text-3xl font-bold text-orange-900 dark:text-orange-100 mt-1">
-                            {qrDetails.chatsBack || 0}
-                          </p>
-                          <p className="text-orange-600 dark:text-orange-400 text-xs mt-1">
-                            {qrDetails.chatsBack > 0 ? 'Conversations' : 'No chats yet'}
-                          </p>
-                        </div>
-                        <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
-                          <MdTrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* QR Code Details & Configuration */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <MdQrCode2 className="w-5 h-5 mr-2" />
-                        QR Code Configuration
-                      </h3>
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">QR Data</p>
-                          <div className="mt-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                            <p className="text-gray-900 dark:text-white font-mono text-sm break-all">
-                              {qrDetails.qrData || qrDetails.qrdata || 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {qrDetails.url && (
-                          <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Target URL</p>
-                            <div className="mt-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                              <a
-                                href={qrDetails.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 dark:text-blue-400 hover:underline break-all text-sm"
-                              >
-                                {qrDetails.url}
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
-                            <div className="mt-1">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                qrDetails.isActive 
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                                  : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                              }`}>
-                                {qrDetails.isActive ? (
-                                  <>
-                                    <MdCheckCircle className="w-3 h-3 mr-1" />
-                                    Active
-                                  </>
-                                ) : (
-                                  <>
-                                    <MdCancel className="w-3 h-3 mr-1" />
-                                    Inactive
-                                  </>
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</p>
-                            <p className="text-gray-900 dark:text-white mt-1 text-sm">
-                              {qrDetails.createdAt ? new Date(qrDetails.createdAt).toLocaleDateString() : 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center">
-                        <MdTrendingUp className="w-5 h-5 mr-2" />
-                        Performance Insights
-                      </h3>
-                      <div className="space-y-4">
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                              <MdVisibility className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Scan Performance</p>
-                              <p className="text-xs text-blue-700 dark:text-blue-300">
-                                {qrDetails.scanCount > 100 ? 'Excellent engagement' : 
-                                 qrDetails.scanCount > 50 ? 'Good performance' : 
-                                 qrDetails.scanCount > 10 ? 'Growing steadily' : 'Getting started'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                              <MdShare className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-green-900 dark:text-green-100">Share Rate</p>
-                              <p className="text-xs text-green-700 dark:text-green-300">
-                                {qrDetails.sharedCount > 0 ? `${Math.round((qrDetails.sharedCount / qrDetails.scanCount) * 100)}% of scans resulted in shares` : 'No shares yet'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-                              <FiExternalLink className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-purple-900 dark:text-purple-100">Conversion Rate</p>
-                              <p className="text-xs text-purple-700 dark:text-purple-300">
-                                {qrDetails.friendClicks > 0 ? `${Math.round((qrDetails.friendClicks / qrDetails.scanCount) * 100)}% of scans led to actions` : 'No conversions yet'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Enhanced Scan Details Table */}
-                  <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                        <MdAnalytics className="w-5 h-5 mr-2" />
-                        Detailed Scan Analytics
-                      </h3>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                        <span>Total Scans: {qrDetails.scanDetails?.length || 0}</span>
-                        {qrDetails.scanDetails?.length > 0 && (
-                          <span className="text-green-600 dark:text-green-400">
-                            • Last scan: {new Date(Math.max(...qrDetails.scanDetails.map(s => new Date(s.when || 0)))).toLocaleDateString()}
-                          </span>
+                {/* Scan Details Section */}
+                <div className="bg-gray-100 dark:bg-customBlack p-6 rounded-lg">
+                  <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.mainQRScanDetails}</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-300 dark:border-gray-700">
+                          <th className="text-left py-2 text-gray-700 dark:text-gray-400">{t.referrer}</th>
+                          <th className="text-left py-2 text-gray-700 dark:text-gray-400">{t.userAgent}</th>
+                          <th className="text-left py-2 text-gray-700 dark:text-gray-400">{t.ip}</th>
+                          <th className="text-left py-2 text-gray-700 dark:text-gray-400">{t.when}</th>
+                          <th className="text-left py-2 text-gray-700 dark:text-gray-400">{t.id}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {qrDetails.scanDetails && qrDetails.scanDetails.length > 0 ? (
+                          qrDetails.scanDetails.map((scan, index) => (
+                            <tr key={index} className="border-b border-gray-200 dark:border-gray-800">
+                              <td className="py-2 text-gray-900 dark:text-white">{scan.referrer || 'N/A'}</td>
+                              <td className="py-2 text-gray-900 dark:text-white">{scan.userAgent || 'N/A'}</td>
+                              <td className="py-2 text-gray-900 dark:text-white">{scan.ip || 'N/A'}</td>
+                              <td className="py-2 text-gray-900 dark:text-white">{scan.when ? new Date(scan.when).toLocaleString() : 'N/A'}</td>
+                              <td className="py-2 text-gray-900 dark:text-white">{scan.id || 'N/A'}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" className="py-4 text-center text-gray-600 dark:text-gray-400">
+                              {t.noScanDetailsAvailable}
+                            </td>
+                          </tr>
                         )}
                       </div>
                     </div>
@@ -929,27 +750,12 @@ function myQRCodes() {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
-                    <MdAnalytics className="w-10 h-10 text-gray-400" />
-                  </div>
-                  <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                    Analytics Data Unavailable
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
-                    We couldn't load the analytics data for this QR code. Please try refreshing or contact support if the issue persists.
-                  </p>
-                  <div className="mt-6">
-                    <CommonOutlineButton
-                      text="Try Again"
-                      onClick={() => handleViewQR(selectedQR)}
-                      className="px-6 py-3"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600 dark:text-gray-400">{t.noQRCodeDetailsAvailable}</p>
+              </div>
+            )}
           </div>
         </div>
       )}

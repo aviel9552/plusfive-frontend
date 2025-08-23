@@ -9,7 +9,7 @@ import { getUserCustomerTranslations } from '../../utils/translations';
 import { toast } from 'react-toastify';
 
 const StatusBadge = ({ status }) => {
-    const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block text-center";
+    const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center";
     let colorClasses = "";
 
     const statusLower = status?.toLowerCase();
@@ -295,7 +295,7 @@ function ViewCustomer() {
                                                                 {review.rating}/5
                                                             </span>
                                                         </div>
-                                                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${review.status === 'received'
+                                                        <span className={`px-3 p-1 text-xs font-semibold rounded-full ${review.status === 'received'
                                                                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                                                                 : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                                             }`}>

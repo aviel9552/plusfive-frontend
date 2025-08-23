@@ -120,9 +120,9 @@ function AdminReferralsTable() {
       label: t.status,
       className: 'min-w-[120px]',
       render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-sm ${row.status === 'Active'
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-            : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
+        <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-sm ${row.status === 'Active'
+            ? 'text-[#2537A5] bg-[#D0E2FF]'
+            : 'text-[#EF5A0B] bg-[#FFE8E3]'
           }`}>
           {row.status}
         </span>
@@ -175,7 +175,7 @@ function AdminReferralsTable() {
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
-              <h2 className="text-xl text-gray-900 dark:text-white">
+              <h2 className="text-20 text-gray-900 dark:text-white">
                 {t.referrals}
               </h2>
               <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
@@ -212,92 +212,92 @@ function AdminReferralsTable() {
       {/* Referral Details Modal */}
       {showModal && selectedReferral && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-customBrown border border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-white">Referral Details</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.referralDetails}</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-purple-400 hover:text-white transition-colors"
+                className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-white transition-colors"
               >
-                Close
+                {t.close}
               </button>
             </div>
 
             <div className="space-y-6">
               {/* Referred User Section */}
-              <div className="bg-customBlack p-6 rounded-lg">
-                <h4 className="text-white text-lg font-semibold mb-4">Referred User</h4>
+              <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-lg">
+                <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.referredUser}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-gray-400 text-sm">First Name</p>
-                    <p className="text-white">{selectedReferral.referredFirstName}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.firstName}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referredFirstName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Last Name</p>
-                    <p className="text-white">{selectedReferral.referredLastName}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.lastName}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referredLastName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Email</p>
-                    <p className="text-white">{selectedReferral.referredEmail}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.email}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referredEmail}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">User ID</p>
-                    <p className="text-white">{selectedReferral.referredUserId}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.userId}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referredUserId}</p>
                   </div>
                 </div>
               </div>
 
               {/* Referrer Section */}
-              <div className="bg-customBlack p-6 rounded-lg">
-                <h4 className="text-white text-lg font-semibold mb-4">Referrer</h4>
+              <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-lg">
+                <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.referrer}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-gray-400 text-sm">First Name</p>
-                    <p className="text-white">{selectedReferral.referrerFirstName}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.firstName}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referrerFirstName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Last Name</p>
-                    <p className="text-white">{selectedReferral.referrerLastName}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.lastName}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referrerLastName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Email</p>
-                    <p className="text-white">{selectedReferral.referrerEmail}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.email}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referrerEmail}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Referrer ID</p>
-                    <p className="text-white">{selectedReferral.referrerId}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.referrerId}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referrerId}</p>
                   </div>
                 </div>
               </div>
 
               {/* Referral Details Section */}
-              <div className="bg-customBlack p-6 rounded-lg">
-                <h4 className="text-white text-lg font-semibold mb-4">Referral Details</h4>
+              <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-lg">
+                <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.referralDetails}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-gray-400 text-sm">Referral ID</p>
-                    <p className="text-white">{selectedReferral.id}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.referralCode}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.id}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Referrer Code</p>
-                    <p className="text-white">{selectedReferral.referrerCode}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.referrerCode}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedReferral.referrerCode}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Status</p>
-                    <span className={`px-3 py-1 rounded-full text-sm ${selectedReferral.status === 'Active'
-                        ? 'text-green-400'
-                        : 'text-orange-400'
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.status}</p>
+                    <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-sm ${selectedReferral.status === 'Active'
+                        ? 'text-[#2537A5] bg-[#D0E2FF]'
+                        : 'text-[#EF5A0B] bg-[#FFE8E3]'
                       }`}>
                       {selectedReferral.status}
                     </span>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Commission</p>
-                    <p className="text-white">${selectedReferral.commission}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.commission}</p>
+                    <p className="text-gray-900 dark:text-white">${selectedReferral.commission}</p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-gray-400 text-sm">Date</p>
-                    <p className="text-white">
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{t.date}</p>
+                    <p className="text-gray-900 dark:text-white">
                       {new Date(selectedReferral.date).toLocaleDateString()}
                     </p>
                   </div>

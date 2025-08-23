@@ -7,6 +7,7 @@ import HistoryTable from '../commonComponent/HistoryTable';
 import CommonOutlineButton from '../commonComponent/CommonOutlineButton';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
+import checkCircleBroken from '../../assets/checkCircleBroken.svg';
 
 const PaymentHistoryTable = () => {
     const [searchValue, setSearchValue] = useState('');
@@ -40,8 +41,8 @@ const PaymentHistoryTable = () => {
 
         const getStatusClassName = (status) => {
             switch (status) {
-                case t.paid: return 'text-[#5965F9]';
-                case t.decline: return 'text-red-500';
+                case t.paid: return 'text-[#675DFF]';
+                case t.decline: return 'text-[#D92D20]';
                 case t.pending: return 'text-yellow-500';
                 default: return 'text-gray-500';
             }
@@ -57,7 +58,7 @@ const PaymentHistoryTable = () => {
         };
 
         return paginated.map(item => ({
-            icon: <LuCheck className="text-white" size={20} />,
+            icon: <img src={checkCircleBroken} alt="check" className="text-white" size={20} />,
             title: item.invoiceId,
             subtitle: item.date,
             value: `$${item.amount}`,
@@ -78,7 +79,7 @@ const PaymentHistoryTable = () => {
     
     return (
         <div className="bg-white dark:bg-customBrown p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">{t.paymentHistory}</h2>
+            <h2 className="text-24 font-ttcommons mb-6 text-gray-900 dark:text-white">{t.paymentHistory}</h2>
             
             <HistoryTable 
                 data={paginatedAndMappedData}

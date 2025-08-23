@@ -5,6 +5,9 @@ import { CommonButton, CommonInput } from '../index';
 import { LuMessageSquare } from 'react-icons/lu';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserSupportTranslations } from '../../utils/translations';
+import ChatIcon from '../../assets/Chat1.svg'
+import PhoneIcon from '../../assets/Call.svg'
+import MailIcon from '../../assets/Mail.svg'
 
 function ContactAndSubmitTicket() {
     const { language } = useLanguage();
@@ -44,18 +47,18 @@ function ContactAndSubmitTicket() {
 
     const contactMethods = [
         {
-            icon: <LuMessageSquare className="md:text-3xl text-2xl text-pink-500" />,
+            icon: <img src={ChatIcon} alt="Chat" className="text-24 text-pink-500" />,
             title: t.liveChat,
             detail: t.availableMondayToFriday,
-            action: <CommonButton text={t.startChat} className="!text-white rounded-lg md:px-6 md:py-2 md:text-xl text-sm px-4 py-2" />,
+            action: <CommonButton text={t.startChat} className="!text-white rounded-lg md:px-6 md:py-2 md:text-14 text-sm px-4 py-2" />,
         },
         {
-            icon: <FiPhone className="md:text-3xl text-2xl text-pink-500" />,
+            icon: <img src={PhoneIcon} alt="Phone" className="text-24 text-pink-500" />,
             title: t.phone,
             detail: '+103-1234567',
         },
         {
-            icon: <FiMail className="md:text-3xl text-2xl text-pink-500" />,
+            icon: <img src={MailIcon} alt="Mail" className="text-24 text-pink-500" />,
             title: t.email,
             detail: 'support@plusfive.io',
         },
@@ -71,9 +74,12 @@ function ContactAndSubmitTicket() {
                         <div key={index} className="dark:bg-customBrown bg-customBody border border-gray-200 dark:border-customBorderColor p-6 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between">
                             <div className="flex flex-row items-start flex-1 min-w-0 gap-4">
                                 <div className="md:text-2xl border border-gray-200 dark:border-customBorderColor rounded-lg md:p-3 p-2 bg-white dark:bg-customBrown flex-shrink-0">{method.icon}</div>
-                                <div className="flex flex-col">
-                                    <h3 className="font-bold md:text-xl leading-tight">{method.title}</h3>
-                                    <p className="text-gray-500 dark:text-white md:text-lg leading-tight">{method.detail}</p>
+                                <div className="flex md:flex-row flex-col justify-between w-full">
+                                    <div>
+
+                                        <h3 className="font-bold md:text-18 leading-tight">{method.title}</h3>
+                                        <p className="text-gray-500 dark:text-white md:text-14 leading-tight">{method.detail}</p>
+                                    </div>
                                     {method.action && (
                                         <div className="mt-4">
                                             {method.action}
@@ -88,7 +94,7 @@ function ContactAndSubmitTicket() {
 
             {/* Submit Ticket Section */}
             <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-                <h2 className="text-3xl font-bold mb-8">{t.submitTicket}</h2>
+                <h2 className="text-24 font-ttcommons font-bold mb-8">{t.submitTicket}</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <CommonInput
                         label={t.ticketSubject}
@@ -98,6 +104,7 @@ function ContactAndSubmitTicket() {
                         onChange={handleChange}
                         error={errors.subject}
                         placeholder={t.enterIssuesSubject}
+                        labelFontSize="text-14"
                     />
 
                     <CommonInput
@@ -108,14 +115,15 @@ function ContactAndSubmitTicket() {
                         value={ticketData.description}
                         onChange={handleChange}
                         error={errors.description}
-                        placeholder={t.describeIssues}
+                        placeholder={t.describeIssues}  
+                        labelFontSize="text-14"
                     />
 
                     <div>
                         <CommonButton
                             text={t.submitTicketButton}
                             type="submit"
-                            className="w-full !text-white rounded-lg py-3 text-xl"
+                            className="w-full !text-white rounded-lg py-3 text-14"
                         />
                     </div>
                 </form>

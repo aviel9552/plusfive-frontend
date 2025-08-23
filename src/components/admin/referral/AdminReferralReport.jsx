@@ -17,16 +17,16 @@ function AdminReferralReport() {
     const t = translations.adminReferral;
 
     return (
-        <div className="w-full space-y-6">
+        <div className="w-full gap-[24px] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl text-gray-900 dark:text-white transition-colors duration-200">
+                <h2 className="text-20 text-gray-900 dark:text-white transition-colors duration-200">
                     {t.reports}
                 </h2>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-[24px]">
                 <StatIconCard
                     image={Todays_Scans_Icon}
                     value="25"

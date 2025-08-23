@@ -78,16 +78,20 @@ function AdminRevenueImpactCustomerStatus() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons">
-      <StatSingleBarChart 
-        title={t.revenueImpact} 
-        dataMap={dataMap}
-        filters={FILTERS}
-      />
-      <StatPieChart 
-        title={t.customerStatusBreakdown}
-        data={pieChartData}
-      />
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
+      <div className="lg:col-span-7">
+        <StatSingleBarChart
+          title={t.revenueImpact}
+          dataMap={dataMap}
+          filters={FILTERS}
+        />
+      </div>
+      <div className="lg:col-span-5">
+        <StatPieChart
+          title={t.customerStatusBreakdown}
+          data={pieChartData}
+        />
+      </div>
     </div>
   );
 }

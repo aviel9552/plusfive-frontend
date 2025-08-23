@@ -395,7 +395,7 @@ function PersonalInformation() {
 
     return (
         <div className="dark:bg-customBrown bg-white dark:text-white border border-gray-200 dark:border-customBorderColor p-8 rounded-2xl mx-auto dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-3xl font-bold mb-8">{t.personalInformation}</h2>
+            <h2 className="text-24 font-ttcommons font-bold mb-8">{t.personalInformation}</h2>
             <form onSubmit={handleSubmit} autoComplete="off">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <CommonInput
@@ -409,6 +409,7 @@ function PersonalInformation() {
                         showErrorOnFocus={true}
                         error={errors.firstName}
                         placeholder={t.enterFirstName}
+                        labelFontSize="text-14"
                     />
                     <CommonInput
                         label={t.lastName}
@@ -421,6 +422,7 @@ function PersonalInformation() {
                         showErrorOnFocus={true}
                         error={errors.lastName}
                         placeholder={t.enterLastName}
+                        labelFontSize="text-14"
                     />
                 </div>
 
@@ -437,6 +439,7 @@ function PersonalInformation() {
                         showErrorOnFocus={true}
                         error={errors.email}
                         placeholder={t.enterEmail}
+                        labelFontSize="text-14"
                     />
                 </div>
 
@@ -452,6 +455,7 @@ function PersonalInformation() {
                         showErrorOnFocus={true}
                         error={errors.phone}
                         placeholder={t.enterPhone}
+                        labelFontSize="text-14"
                     />
                 </div>
 
@@ -467,6 +471,7 @@ function PersonalInformation() {
                         showErrorOnFocus={true}
                         error={errors.businessName}
                         placeholder={t.enterBusinessName}
+                        labelFontSize="text-14"
                     />
                     <div>
                         <label className="block text-16 font-medium mb-2 text-gray-900 dark:text-white">{t.businessType}</label>
@@ -499,6 +504,7 @@ function PersonalInformation() {
                         showErrorOnFocus={true}
                         error={errors.address}
                         placeholder={t.enterAddress}
+                        labelFontSize="text-14"
                     />
                 </div>
 

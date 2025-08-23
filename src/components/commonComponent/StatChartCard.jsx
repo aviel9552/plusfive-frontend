@@ -31,11 +31,11 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#FF54
   const gradientId = React.useId();
 
   return (
-    <div className="bg-white dark:bg-customBrown rounded-xl p-6 border border-gray-200 dark:border-gray-800 relative dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+    <div className="bg-white dark:bg-customBrown rounded-xl p-[20px] border border-gray-200 dark:border-commonBorder  relative dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
       <span className="text-gray-900 dark:text-white text-14 mb-2">{title}</span>
       <div className="flex items-end justify-between">
         <div className="flex flex-col">
-          <span className="text-44 font-semibold text-gray-900 dark:text-white mb-2">{value}</span>
+          <span className="text-44 font-semibold text-gray-900 dark:text-white my-2 font-ttcommons">{value}</span>
           <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} gap-2`}>
             <span className={`text-12 ${color === 'green' ? 'text-customGreen' : 'text-customRed'}`}>
               {change > 0 ? '+' : ''}{change}%
@@ -59,7 +59,7 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#FF54
                 strokeWidth={1.12}
                 fill={`url(#${gradientId})`}
               />
-              <Tooltip 
+              <Tooltip
                 content={<CustomTooltip />}
                 cursor={false}
               />

@@ -33,11 +33,11 @@ const CommonPagination = ({
   const [showPageSizeDropdown, setShowPageSizeDropdown] = React.useState(false);
 
   return (
-    <div className={`flex flex-col md:flex-row justify-between items-center gap-4 px-2 ${className}`}>
+    <div className={`flex flex-col md:flex-row justify-between items-center gap-4 px-2 py-2 ${className}`}>
       {showPageSizeSelector && (
-        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-4">
-          <label className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
-            <span className="hidden sm:inline mr-2">Rows per page</span>
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-4">
+          <label className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+            <span className="hidden sm:inline ">Rows per page</span>
             <div className="relative min-w-[10px]">
               <button
                 type="button"

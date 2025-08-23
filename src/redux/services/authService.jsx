@@ -192,3 +192,28 @@ export const createReferral = async (referralData) => {
     }
   }
 };
+
+export const softDeleteUser = async () => {
+  try {
+    const response = await apiClient.patch('/users/soft-delete');
+    return response.data;
+  } catch (error) {
+    console.error('Error in softDeleteUser:', error);
+    if (error.response) {
+      // Handle specific error statuses
+      if (error.response.status === 401) {
+        throw new Error('Authentication required. Please login again.');
+      } else if (error.response.status === 403) {
+        throw new Error('You do not have permission to delete this account.');
+      } else if (error.response.status === 404) {
+        throw new Error('User account not found.');
+      } else {
+        throw new Error(error.response.data.message || 'Failed to delete account');
+      }
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};

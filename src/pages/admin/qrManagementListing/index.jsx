@@ -111,7 +111,6 @@ function AdminQRManagementListing() {
       const response = await getQRCodeById(qr.id);
       if (response && response.data) {
         setQrDetails(response.data);
-        toast.success('QR Code details loaded successfully');
       } else {
         toast.error('Failed to load QR Code details');
       }
@@ -219,70 +218,71 @@ function AdminQRManagementListing() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">QR Code Analytics</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.qrCodeAnalytics}</h2>
               <button
                 onClick={handleCloseModal}
                 className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-white transition-colors"
               >
-                Close
+                {t.close}
               </button>
             </div>
 
             {loadingDetails ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600 dark:border-white"></div>
-                <span className="ml-2 text-gray-600 dark:text-white">Loading QR Code details...</span>
+                <span className="ml-2 text-gray-600 dark:text-white">{t.loadingQRCodeDetails}</span>
               </div>
             ) : qrDetails ? (
               <div className="space-y-6">
                 {/* Key Metrics Section */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
-                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">Chats Back</h3>
+                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">{t.chatsBack}</h3>
                     <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.chatsBack || 0}</p>
                   </div>
                   <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
-                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">Friend Clicks</h3>
+                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">{t.friendClicks}</h3>
                     <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.friendClicks || 0}</p>
                   </div>
                   <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
-                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">Shared Count</h3>
+                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">{t.sharedCount}</h3>
                     <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.sharedCount || 0}</p>
                   </div>
                   <div className="bg-gray-100 dark:bg-customBlack p-4 rounded-lg">
-                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">Total Scans</h3>
+                    <h3 className="text-gray-600 dark:text-gray-400 text-sm">{t.totalScans}</h3>
                     <p className="text-gray-900 dark:text-white text-2xl font-bold">{qrDetails.scanCount || 0}</p>
                   </div>
                 </div>
 
                 {/* QR Code Details */}
                 <div className="bg-gray-100 dark:bg-customBlack p-6 rounded-lg">
-                  <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">QR Code Information</h3>
+                  <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.qrCodeInformation}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">QR Code Name</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{t.qrCodeName}</p>
                       <p className="text-gray-900 dark:text-white">{qrDetails.name || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">QR Code ID</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{t.qrCodeID}</p>
                       <p className="text-gray-900 dark:text-white">{qrDetails.id || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">QR Data</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{t.qrData}</p>
                       <p className="text-gray-900 dark:text-white">{qrDetails.qrData || qrDetails.qrdata || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">Created At</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{t.createdAt}</p>
                       <p className="text-gray-900 dark:text-white">{qrDetails.createdAt ? new Date(qrDetails.createdAt).toLocaleDateString() : 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">Status</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{t.status}</p>
                       <p className={`${qrDetails.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {/* {qrDetails.isActive ? t.active : t.inactive} */}
                         {qrDetails.isActive ? 'Active' : 'Inactive'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">URL</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">{t.url}</p>
                       <p className="text-gray-900 dark:text-white break-all">{qrDetails.url || 'N/A'}</p>
                     </div>
                   </div>
@@ -290,16 +290,16 @@ function AdminQRManagementListing() {
 
                 {/* Scan Details Section */}
                 <div className="bg-gray-100 dark:bg-customBlack p-6 rounded-lg">
-                  <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">Main QR Scan Details</h3>
+                  <h3 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.mainQRScanDetails}</h3>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-gray-300 dark:border-gray-700">
-                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">Referrer</th>
-                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">User-Agent</th>
-                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">IP</th>
-                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">When</th>
-                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">ID</th>
+                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">{t.referrer}</th>
+                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">{t.userAgent}</th>
+                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">{t.ip}</th>
+                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">{t.when}</th>
+                          <th className="text-left py-2 text-gray-600 dark:text-gray-400">{t.id}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -316,7 +316,7 @@ function AdminQRManagementListing() {
                         ) : (
                           <tr>
                             <td colSpan="5" className="py-4 text-center text-gray-500 dark:text-gray-400">
-                              No scan details available
+                              {t.noScanDetailsAvailable}
                             </td>
                           </tr>
                         )}
@@ -327,7 +327,7 @@ function AdminQRManagementListing() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">No QR Code details available</p>
+                <p className="text-gray-500 dark:text-gray-400">{t.noQRCodeDetailsAvailable}</p>
               </div>
             )}
           </div>

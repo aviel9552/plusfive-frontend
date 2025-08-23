@@ -13,9 +13,9 @@ import reviewService from '../../redux/services/reviewServices';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 
 const StatusBadge = ({ status }) => {
-    const baseClasses = "px-3 pt-2 pb-1 text-xs font-semibold rounded-full inline-block text-center text-14";
+    const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center text-14 whitespace-nowrap";
     let colorClasses = "";
-    
+
     // Convert status to lowercase for case-insensitive matching
     const statusLower = status?.toLowerCase();
 
@@ -44,13 +44,13 @@ const StatusBadge = ({ status }) => {
     // Special formatting for status text
     const formatStatusText = (statusText) => {
         if (!statusText) return '';
-        
+
         const statusLower = statusText.toLowerCase();
-        
+
         if (statusLower === 'at risk' || statusLower === 'risk') {
             return 'At Risk';
         }
-        
+
         return statusText?.charAt(0).toUpperCase() + statusText?.slice(1).toLowerCase();
     };
 
@@ -68,20 +68,20 @@ const RatingStars = ({ rating }) => {
             {[...Array(fullStars)].map((_, i) => (
                 <FaStar key={`full-${i}`} className="text-[#FDB022]" />
             ))}
-            
+
             {/* Partial star (if there's a decimal) */}
             {partialStarFill > 0 && (
                 <div className="relative">
                     <FaStar className="text-gray-300 dark:text-white" />
-                    <FaStar 
-                        className="text-[#FDB022] absolute top-0 left-0" 
-                        style={{ 
-                            clipPath: `inset(0 ${100 - (partialStarFill * 100)}% 0 0)` 
-                        }} 
+                    <FaStar
+                        className="text-[#FDB022] absolute top-0 left-0"
+                        style={{
+                            clipPath: `inset(0 ${100 - (partialStarFill * 100)}% 0 0)`
+                        }}
                     />
                 </div>
             )}
-            
+
             {/* Empty stars */}
             {[...Array(emptyStars)].map((_, i) => (
                 <FaStar key={`empty-${i}`} className="text-gray-300 dark:text-white" />
@@ -94,7 +94,7 @@ function CustomerTable({ customers = [], loading = false }) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = getUserCustomerTranslations(language);
-    
+
     const [searchValue, setSearchValue] = useState('');
     const [filterValue, setFilterValue] = useState(t.allServices);
     const [currentPage, setCurrentPage] = useState(1);
@@ -141,19 +141,19 @@ function CustomerTable({ customers = [], loading = false }) {
     // Send rating request function using reviewService
     const handleSendRatingRequest = async () => {
         if (!customerToSendRating) return;
-        
+
         setSendingRating(customerToSendRating.id);
         setShowConfirmModal(false);
-        
+
         try {
             const requestData = {
                 customerId: customerToSendRating.id,
                 customerType: 'regular',
                 useAlt: false
             };
-            
+
             const result = await reviewService.sendRatingViaWhatsApp(requestData);
-            
+
             if (result.success) {
                 toast.success(`${t.ratingRequestSentSuccessfully} ${customerToSendRating.customerFullName || customerToSendRating.firstName}!`);
                 console.log('Rating request response:', result.data);
@@ -176,9 +176,9 @@ function CustomerTable({ customers = [], loading = false }) {
     };
 
     const columns = [
-        { 
-            key: 'employeeId', 
-            label: t.userId, 
+        {
+            key: 'employeeId',
+            label: t.userId,
             className: 'text-sm text-gray-900 dark:text-white',
             render: (row) => <span className="text-sm text-gray-900 dark:text-white">{row.employeeId}</span>
         },
@@ -223,20 +223,20 @@ function CustomerTable({ customers = [], loading = false }) {
                                     </span>
                                     <div className="relative">
                                         <FaStar className="text-gray-300 dark:text-white text-sm" />
-                                        <FaStar 
-                                            className="text-[#FDB022] absolute top-0 left-0 text-sm" 
-                                            style={{ 
-                                                clipPath: `inset(0 ${100 - (row.reviews[row.reviews.length - 1].rating / 5) * 100}% 0 0)` 
-                                            }} 
+                                        <FaStar
+                                            className="text-[#FDB022] absolute top-0 left-0 text-sm"
+                                            style={{
+                                                clipPath: `inset(0 ${100 - (row.reviews[row.reviews.length - 1].rating / 5) * 100}% 0 0)`
+                                            }}
                                         />
                                     </div>
-                    </div>
+                                </div>
                             )}
                         </>
                     ) : (
                         <div className="text-sm font-medium text-gray-500 dark:text-white">
                             {t.noReviewsYet}
-                    </div>
+                        </div>
                     )}
                 </div>
             )
@@ -268,55 +268,56 @@ function CustomerTable({ customers = [], loading = false }) {
     ];
 
     return (
-        <div className="bg-white dark:bg-customBrown p-6 rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.customers} ({filteredData.length})</h2>
-                <div className="flex items-center">
-                    <select
-                        value={filterValue}
-                        onChange={(e) => {
-                            setFilterValue(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                        className="bg-gray-50 dark:bg-[#232323] text-gray-700 dark:text-white px-4 py-2.5 rounded-xl text-sm border-2 border-gray-200 dark:border-customBorderColor hover:border-pink-500 dark:hover:border-pink-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all duration-200 min-w-[180px]"
-                    >
-                        {filterOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-            <CommonTable
-                columns={columns}
-                data={paginatedData}
-                total={filteredData.length}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                    setPageSize(size);
-                    setCurrentPage(1);
-                }}
-                renderActions={(row) => (
-                    <div className="flex gap-2">
-                        <CommonOutlineButton
-                            text={t.view}
-                            onClick={() => navigate(`/app/customers/view/${row.id}`)}
-                            className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
-                        />
-                        <CommonOutlineButton
-                            text={sendingRating === row.id ? t.sending : t.whatsapp}
-                            onClick={() => handleWhatsAppClick(row)}
-                            disabled={sendingRating === row.id}
-                            icon={<PiChatsCircleBold />}
-                            iconClassName="mb-1"
-                            className="!text-sm !pt-1.8 !pb-1 !px-4 w-auto rounded-lg"
-                        />
+        <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+            <div className='flex flex-col gap-[24px]'>
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.customers} ({filteredData.length})</h2>
+                    <div className="flex items-center">
+                        <select
+                            value={filterValue}
+                            onChange={(e) => {
+                                setFilterValue(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="bg-gray-50 dark:bg-[#232323] text-gray-700 dark:text-white px-4 py-2.5 rounded-xl text-sm border-2 border-gray-200 dark:border-customBorderColor hover:border-pink-500 dark:hover:border-pink-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all duration-200 min-w-[180px]"
+                        >
+                            {filterOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </select>
                     </div>
-                )}
-            />
+                </div>
+                <CommonTable
+                    columns={columns}
+                    data={paginatedData}
+                    total={filteredData.length}
+                    currentPage={currentPage}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={(size) => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                    }}
+                    renderActions={(row) => (
+                        <div className="flex gap-2">
+                            <CommonOutlineButton
+                                text={t.view}
+                                onClick={() => navigate(`/app/customers/view/${row.id}`)}
+                                className="!text-sm pt-2 !px-4 w-auto rounded-lg"
+                            />
+                            <CommonOutlineButton
+                                text={sendingRating === row.id ? t.sending : t.whatsapp}
+                                onClick={() => handleWhatsAppClick(row)}
+                                disabled={sendingRating === row.id}
+                                icon={<PiChatsCircleBold />}
+                                iconClassName="mb-1"
+                                className="!text-sm pt-2 !px-4 w-auto rounded-lg"
+                            />
+                        </div>
+                    )}
+                />
 
-
+            </div>
 
             {/* Confirmation Modal */}
             <CommonConfirmModel
