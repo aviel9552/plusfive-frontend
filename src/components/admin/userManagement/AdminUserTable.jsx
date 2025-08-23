@@ -285,7 +285,7 @@ function AdminUserTable({ users, loading, error }) {
         }
 
         return (
-          <span className={`px-3 pt-[10px] pb-[6px] rounded-full text-xs ${statusClass}`}>
+          <span className={`px-3 p-1 rounded-full text-xs ${statusClass}`}>
             {displayStatus}
           </span>
         );
@@ -329,7 +329,7 @@ function AdminUserTable({ users, loading, error }) {
         if (plan === 'premium') color = 'bg-[#F3E8FF] text-[#FF2380]';
         if (plan === 'standard') color = 'bg-[#D0E2FF] text-[#2537A5]';
         if (plan === 'basic') color = 'bg-[#3F588B] text-white';
-        return <span className={`px-3 pt-[10px] pb-[6px] rounded-full text-xs ${color}`}>
+        return <span className={`px-3 p-1 rounded-full text-xs ${color}`}>
           {plan.charAt(0).toUpperCase() + plan.slice(1)}
         </span>;
       }
