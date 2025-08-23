@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import { CommonTable } from '../../index';
 import referralData from '../../../jsonData/ReferralData.json';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminTranslations } from '../../../utils/translations';
+import { useAdminData } from '../../../hooks/useAdminData';
 
 const statusColors = {
     Active: 'bg-[#D0E2FF] text-[#2537A5]',
@@ -23,6 +24,11 @@ function AdminReferrals() {
     const { language } = useLanguage();
     const isRTL = language === 'he';
     const t = getAdminTranslations(language);
+    const { adminSummary, fetchSummary } = useAdminData();
+
+    useEffect(() => {
+        fetchSummary();
+    }, [fetchSummary]);
 
     const statusOptions = ['All', 'Active', 'Pending', 'Inactive'];
 
@@ -187,7 +193,7 @@ function AdminReferrals() {
                             {t.admin}
                         </h2>
                         <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
-                            {filteredAndSortedData.length} {t.total}
+                            {adminSummary.data?.totalAdmins || filteredAndSortedData.length} {t.total}
                         </span>
                     </div>
                     <div className="flex items-center gap-3">

@@ -395,6 +395,8 @@
     "messageForCustomerPlaceholder": "The message your customer shares with friends...",
     "directMessage": "Direct Message",
     "directMessagePlaceholder": "The message your customer's friends will send you...",
+    "targetUrl": "Target URL",
+    "targetUrlPlaceholder": "https://example.com or leave empty for code-only QR",
     "customerMessageRequired": "Customer message is required",
     "customerMessageMinLength": "Customer message must be at least 10 characters",
     "directMessageRequired": "Direct message is required",

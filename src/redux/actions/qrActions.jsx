@@ -1,4 +1,4 @@
-import { getAllQRCodes, getQRCodeById, createQRCode, deleteQRCodeById, createQRCodeWithUserInfo, getMyQRCodes } from '../services/qrServices';
+import { getAllQRCodes, getQRCodeById, createQRCode, deleteQRCodeById, createQRCodeWithUserInfo, getMyQRCodes, getQRCodesWithAnalytics, getQRPerformance, getIndividualQRAnalytics } from '../services/qrServices';
 
 // Action Types
 export const FETCH_QRS_REQUEST = 'FETCH_QRS_REQUEST';
@@ -24,6 +24,19 @@ export const CREATE_QR_WITH_USER_INFO_FAILURE = 'CREATE_QR_WITH_USER_INFO_FAILUR
 export const DELETE_QR_REQUEST = 'DELETE_QR_REQUEST';
 export const DELETE_QR_SUCCESS = 'DELETE_QR_SUCCESS';
 export const DELETE_QR_FAILURE = 'DELETE_QR_FAILURE';
+
+// Analytics Action Types
+export const FETCH_QR_ANALYTICS_REQUEST = 'FETCH_QR_ANALYTICS_REQUEST';
+export const FETCH_QR_ANALYTICS_SUCCESS = 'FETCH_QR_ANALYTICS_SUCCESS';
+export const FETCH_QR_ANALYTICS_FAILURE = 'FETCH_QR_ANALYTICS_FAILURE';
+
+export const FETCH_QR_PERFORMANCE_REQUEST = 'FETCH_QR_PERFORMANCE_REQUEST';
+export const FETCH_QR_PERFORMANCE_SUCCESS = 'FETCH_QR_PERFORMANCE_SUCCESS';
+export const FETCH_QR_PERFORMANCE_FAILURE = 'FETCH_QR_PERFORMANCE_FAILURE';
+
+export const FETCH_INDIVIDUAL_QR_ANALYTICS_REQUEST = 'FETCH_INDIVIDUAL_QR_ANALYTICS_REQUEST';
+export const FETCH_INDIVIDUAL_QR_ANALYTICS_SUCCESS = 'FETCH_INDIVIDUAL_QR_ANALYTICS_SUCCESS';
+export const FETCH_INDIVIDUAL_QR_ANALYTICS_FAILURE = 'FETCH_INDIVIDUAL_QR_ANALYTICS_FAILURE';
 
 // Action Creators
 
@@ -140,6 +153,65 @@ export const deleteQRCode = (qrId) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: DELETE_QR_FAILURE,
+      payload: error.message
+    });
+    return { success: false, error: error.message };
+  }
+};
+
+// Analytics Action Creators
+
+// Fetch QR codes with enhanced analytics
+export const fetchQRCodesWithAnalytics = () => async (dispatch) => {
+  dispatch({ type: FETCH_QR_ANALYTICS_REQUEST });
+  try {
+    const response = await getQRCodesWithAnalytics();
+    dispatch({
+      type: FETCH_QR_ANALYTICS_SUCCESS,
+      payload: response.data || response
+    });
+    return { success: true, data: response.data || response };
+  } catch (error) {
+    dispatch({
+      type: FETCH_QR_ANALYTICS_FAILURE,
+      payload: error.message
+    });
+    return { success: false, error: error.message };
+  }
+};
+
+// Fetch QR performance summary
+export const fetchQRPerformance = () => async (dispatch) => {
+  dispatch({ type: FETCH_QR_PERFORMANCE_REQUEST });
+  try {
+    const response = await getQRPerformance();
+    dispatch({
+      type: FETCH_QR_PERFORMANCE_SUCCESS,
+      payload: response.data || response
+    });
+    return { success: true, data: response.data || response };
+  } catch (error) {
+    dispatch({
+      type: FETCH_QR_PERFORMANCE_FAILURE,
+      payload: error.message
+    });
+    return { success: false, error: error.message };
+  }
+};
+
+// Fetch individual QR code analytics
+export const fetchIndividualQRAnalytics = (qrId) => async (dispatch) => {
+  dispatch({ type: FETCH_INDIVIDUAL_QR_ANALYTICS_REQUEST });
+  try {
+    const response = await getIndividualQRAnalytics(qrId);
+    dispatch({
+      type: FETCH_INDIVIDUAL_QR_ANALYTICS_SUCCESS,
+      payload: response.data || response
+    });
+    return { success: true, data: response.data || response };
+  } catch (error) {
+    dispatch({
+      type: FETCH_INDIVIDUAL_QR_ANALYTICS_FAILURE,
       payload: error.message
     });
     return { success: false, error: error.message };

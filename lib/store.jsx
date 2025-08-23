@@ -6,6 +6,7 @@ import qrReducer from '../src/redux/reducers/qrReducer';
 import userReducer from '../src/redux/reducers/userReducer';
 import referralReducer from '../src/redux/reducers/referralReducer';
 import customerReducer from '../src/redux/reducers/customerReducer';
+import adminReducer from '../src/redux/reducers/adminReducer';
 
 // Root Reducer
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   qr: qrReducer,
   referral: referralReducer,
   customer: customerReducer,
+  admin: adminReducer,
 });
 
 // Persist Config
