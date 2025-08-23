@@ -7,7 +7,8 @@ import { LuDownload } from 'react-icons/lu';
 function QRManagement() {
   const [formData, setFormData] = useState({
     customerMessage: '',
-    directMessage: ''
+    directMessage: '',
+    targetUrl: ''
   });
 
   const handleChange = (e) => {
@@ -20,6 +21,8 @@ function QRManagement() {
 
   const handleGenerateQR = () => {
     console.log('Generating QR with:', formData);
+    // TODO: Implement QR generation with URL support
+    // The form now includes targetUrl field for future implementation
   };
 
   return (
@@ -57,6 +60,20 @@ function QRManagement() {
                   value={formData.directMessage}
                   onChange={handleChange}
                   placeholder="The message your customer's friends will send you..."
+                  className="w-full dark:bg-customBrown bg-white border dark:border-gray-800 border-gray-200 rounded-lg px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-500 text-15"
+                />
+              </div>
+
+              <div >
+                <label className="block text-15 mb-3">
+                  Target URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  name="targetUrl"
+                  value={formData.targetUrl}
+                  onChange={handleChange}
+                  placeholder="https://example.com or leave empty for code-only QR"
                   className="w-full dark:bg-customBrown bg-white border dark:border-gray-800 border-gray-200 rounded-lg px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-500 text-15"
                 />
               </div>

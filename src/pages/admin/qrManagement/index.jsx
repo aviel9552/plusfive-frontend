@@ -14,7 +14,8 @@ function AdminQRManagement() {
   
   const [formData, setFormData] = useState({
     customerMessage: '',
-    directMessage: ''
+    directMessage: '',
+    targetUrl: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -91,6 +92,22 @@ function AdminQRManagement() {
       } else if (value.trim().length < 10) {
         setErrors(prev => ({ ...prev, directMessage: t.directMessageMinLength }));
       }
+    } else if (name === 'targetUrl') {
+      if (value && !isValidUrl(value)) {
+        setErrors(prev => ({ ...prev, targetUrl: 'Please enter a valid URL' }));
+      } else {
+        setErrors(prev => ({ ...prev, targetUrl: '' }));
+      }
+    }
+  };
+
+  // Helper function to validate URLs
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
     }
   };
 
@@ -107,6 +124,11 @@ function AdminQRManagement() {
       newErrors.directMessage = t.directMessageRequired;
     } else if (formData.directMessage.trim().length < 10) {
       newErrors.directMessage = t.directMessageMinLength;
+    }
+    
+    // URL validation (optional field)
+    if (formData.targetUrl && !isValidUrl(formData.targetUrl)) {
+      newErrors.targetUrl = 'Please enter a valid URL';
     }
     
     setErrors(newErrors);
@@ -126,6 +148,7 @@ function AdminQRManagement() {
         name: t.myBusinessQRCode,
         messageForCustomer: formData.customerMessage.trim(),
         directMessage: formData.directMessage.trim(),
+        targetUrl: formData.targetUrl.trim() || null, // Include target URL if provided
         size: 300,
         color: "#000000",
         backgroundColor: "#FFFFFF"
@@ -139,7 +162,8 @@ function AdminQRManagement() {
         // Clear form after successful generation
         setFormData({
           customerMessage: '',
-          directMessage: ''
+          directMessage: '',
+          targetUrl: ''
         });
         setErrors({});
         // Show success toast with API message
@@ -234,6 +258,20 @@ function AdminQRManagement() {
                 labelFontSize="text-15"
               />
 
+              <CommonInput
+                label={t.targetUrl}
+                id="targetUrl"
+                name="targetUrl"
+                value={formData.targetUrl}
+                onChange={handleChange}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                showErrorOnFocus={true}
+                placeholder={t.targetUrlPlaceholder}
+                error={errors.targetUrl}
+                labelFontSize="text-15"
+              />
+
               <CommonButton
                 text={loading ? t.generating : t.generateQRCode}
                 onClick={handleGenerateQR}
@@ -262,6 +300,34 @@ function AdminQRManagement() {
                   <p className="dark:text-gray-400 text-gray-600 text-14 mt-2">
                     {t.qrCodeGeneratedSuccessfully}
                   </p>
+                  <div className="space-y-3 mt-4">
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">QR Data:</p>
+                      <p className="text-gray-900 dark:text-white break-all text-sm font-mono">
+                        {generatedQR.qrData}
+                      </p>
+                    </div>
+                    {generatedQR.targetUrl && (
+                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <p className="text-sm font-medium text-green-900 dark:text-green-100 mb-1">Target URL:</p>
+                        <p className="text-green-800 dark:text-green-200 break-all text-sm font-mono">
+                          {generatedQR.targetUrl}
+                        </p>
+                      </div>
+                    )}
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Customer Message:</p>
+                      <p className="text-blue-800 dark:text-blue-200">
+                        {generatedQR.messageForCustomer}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <p className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">Direct Message:</p>
+                      <p className="text-purple-800 dark:text-purple-200">
+                        {generatedQR.directMessage}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>

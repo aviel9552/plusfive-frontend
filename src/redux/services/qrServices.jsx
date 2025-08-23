@@ -97,3 +97,74 @@ export const deleteQRCodeById = async (qrId) => {
     }
   }
 };
+
+// Record QR code scan
+export const recordQRScan = async (scanData) => {
+  try {
+    console.log('Scan data:', scanData);
+    const response = await apiClient.post(`/qr/${scanData.qrCodeId}/scan`, {
+      timestamp: scanData.timestamp,
+      userAgent: scanData.userAgent,
+      referrer: scanData.referrer,
+      ipAddress: scanData.ipAddress,
+      deviceInfo: scanData.deviceInfo
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to record QR scan');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
+// Get QR codes with enhanced analytics
+export const getQRCodesWithAnalytics = async () => {
+  try {
+    const response = await apiClient.get('/qr/analytics');
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to fetch QR analytics');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
+// Get QR performance summary
+export const getQRPerformance = async () => {
+  try {
+    const response = await apiClient.get('/qr/performance');
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to fetch QR performance');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
+// Get individual QR code analytics
+export const getIndividualQRAnalytics = async (qrId) => {
+  try {
+    const response = await apiClient.get(`/qr/${qrId}/analytics`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to fetch individual QR analytics');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
