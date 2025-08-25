@@ -38,7 +38,7 @@ const StatPieChart = ({ title, data }) => {
       </div>
 
       <div className="flex justify-center">
-        <div className="w-[250px] h-[250px] relative">
+        <div className="w-[250px] h-[190px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -82,9 +82,9 @@ const StatPieChart = ({ title, data }) => {
           <div key={index} className={`flex flex-col items-center ${isRTL ? 'items-end' : 'items-start'}`}>
             <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} mb-1`}>
               <div className={`w-3 h-3 rounded-full ${isRTL ? 'ml-2' : 'mr-2'}`} style={{ backgroundColor: item.color }}></div>
-              <span className={`text-gray-900 dark:text-white text-16`}>{item.name}</span>
+              <span className={`text-gray-900 dark:text-white text-14`}>{item.name}</span>
             </div>
-            <span className={`text-gray-600 dark:text-white text-14 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <span className={`text-gray-600 dark:text-white text-12 ${isRTL ? 'text-right' : 'text-left'}`}>
               {item.value} ({item.percentage})
             </span>
           </div>
