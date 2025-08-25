@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { useTheme } from '../../context/ThemeContext';
 
-function CommonOutlineButton({ text, onClick, className = '', iconClassName = '', type = 'button', icon, lightBgColor = '#ffffff', darkBgColor = '#121212', bgColor }) {
+function CommonOutlineButton({ text, onClick, className = '', textClass = '', iconClassName = '', type = 'button', icon, lightBgColor = '#ffffff', darkBgColor = '#121212', bgColor }) {
   const { isDarkMode } = useTheme(); // ✅ dark mode from context
 
   return (
@@ -12,7 +12,7 @@ function CommonOutlineButton({ text, onClick, className = '', iconClassName = ''
       className={`
         relative overflow-hidden
         px-8 py-2
-        dark:text-white text-black text-xl font-ttcommons font-medium
+        dark:text-white text-black font-ttcommons font-medium
         transition-all duration-300 ease-in-out
         hover:shadow-lg hover:scale-[1.02]
         active:scale-[0.98]
@@ -29,7 +29,7 @@ function CommonOutlineButton({ text, onClick, className = '', iconClassName = ''
         backgroundClip: bgColor === 'transparent' ? 'border-box' : 'padding-box, border-box',
       }}
     >
-      <div className="flex items-center justify-center gap-2">
+      <div className={`flex items-center justify-center gap-2 ${textClass}`}>
         {icon && <span className={iconClassName}>{icon}</span>}
         {text}
       </div>
@@ -41,6 +41,7 @@ CommonOutlineButton.propTypes = {
   text: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   className: PropTypes.string,
+  textClass: PropTypes.string,
   iconClassName: PropTypes.string,
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
   icon: PropTypes.node,

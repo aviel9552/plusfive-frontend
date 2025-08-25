@@ -10,12 +10,12 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminQRTranslations } from '../../../utils/translations';
 import { getQRCodeById } from '../../../redux/services/qrServices';
 import { toast } from 'react-toastify';
-import { 
-  MdQrCode2, 
-  MdAdd, 
-  MdSearch, 
-  MdFilterList, 
-  MdSort, 
+import {
+  MdQrCode2,
+  MdAdd,
+  MdSearch,
+  MdFilterList,
+  MdSort,
   MdViewList,
   MdGridView,
   MdClose,
@@ -54,13 +54,13 @@ function myQRCodes() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
-  
+
   // Modal state for QR details
   const [showModal, setShowModal] = useState(false);
   const [selectedQR, setSelectedQR] = useState(null);
   const [qrDetails, setQrDetails] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  
+
   // UI state
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -182,7 +182,7 @@ function myQRCodes() {
   const handleCreateQR = () => {
     navigate('/app/qr-management');
   };
-  
+
   // Handle view all QR codes
   const handleAllQRCodes = () => {
     navigate('/app/qr-management/listing');
@@ -246,7 +246,7 @@ function myQRCodes() {
     setSelectedQR(qr);
     setShowModal(true);
     setLoadingDetails(true);
-    
+
     try {
       const response = await getQRCodeById(qr.id);
       if (response && response.data) {
@@ -303,9 +303,8 @@ function myQRCodes() {
                 <MdQrCode2 className="w-6 h-6 text-gray-400 dark:text-gray-500" />
               </div>
             )}
-            <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-customBrown ${
-              qr.isActive ? 'bg-green-500' : 'bg-gray-400'
-            }`} />
+            <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-customBrown ${qr.isActive ? 'bg-green-500' : 'bg-gray-400'
+              }`} />
           </div>
           <div className="min-w-0 flex-1">
             <div className="font-medium text-gray-900 dark:text-white truncate">
@@ -419,11 +418,10 @@ function myQRCodes() {
       label: 'Status',
       render: (qr) => (
         <div className="space-y-1">
-          <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-            qr.isActive 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+          <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${qr.isActive
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
               : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-          }`}>
+            }`}>
             {qr.isActive ? (
               <>
                 <MdCheckCircle className="w-3 h-3 mr-1" />
@@ -460,36 +458,38 @@ function myQRCodes() {
               <MdQrCode2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-20 font-bold text-gray-900 dark:text-white">
                 My QR Codes
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-12 text-black dark:text-white">
                 Manage and track your QR code performance
               </p>
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <CommonOutlineButton
               text="Refresh"
               icon={<MdRefresh className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />}
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="px-4 py-2"
+              className="px-4 py-2 rounded-[8px]"
+              textClass="text-14 rounded-full"
             />
             {user.role === 'admin' && (
               <CommonOutlineButton
                 text="All QR Codes"
                 icon={<MdViewList className="w-4 h-4" />}
                 onClick={handleAllQRCodes}
-                className="px-4 py-2"
+                className="px-4 py-2 rounded-[8px]"
+                textClass="whitespace-nowrap text-14"
               />
             )}
             <CommonButton
               text="Create QR Code"
               icon={<MdAdd className="w-4 h-4" />}
               onClick={handleCreateQR}
-              className="px-6 py-2"
+              className="px-6 py-2 whitespace-nowrap rounded-[8px] text-14"
             />
           </div>
         </div>
@@ -514,12 +514,12 @@ function myQRCodes() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <CommonOutlineButton
                   text="Export Data"
                   icon={<MdDownload className="w-4 h-4" />}
-                  onClick={() => {/* Add export functionality */}}
+                  onClick={() => {/* Add export functionality */ }}
                   className="px-4 py-2 text-sm"
                 />
                 <button
@@ -557,9 +557,8 @@ function myQRCodes() {
                               <MdQrCode2 className="w-12 h-12 text-gray-400 dark:text-gray-500" />
                             </div>
                           )}
-                          <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-3 border-white dark:border-gray-800 flex items-center justify-center ${
-                            qrDetails.isActive ? 'bg-green-500' : 'bg-red-500'
-                          }`}>
+                          <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-3 border-white dark:border-gray-800 flex items-center justify-center ${qrDetails.isActive ? 'bg-green-500' : 'bg-red-500'
+                            }`}>
                             {qrDetails.isActive ? (
                               <MdCheckCircle className="w-4 h-4 text-white" />
                             ) : (
@@ -567,7 +566,7 @@ function myQRCodes() {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                             {qrDetails.name || 'Unnamed QR Code'}
@@ -583,11 +582,10 @@ function myQRCodes() {
                             </span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                              qrDetails.isActive 
-                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${qrDetails.isActive
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                                 : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                            }`}>
+                              }`}>
                               {qrDetails.isActive ? 'Active' : 'Inactive'}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -703,7 +701,7 @@ function myQRCodes() {
                             </p>
                           </div>
                         </div>
-                        
+
                         {qrDetails.url && (
                           <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Target URL</p>
@@ -719,16 +717,15 @@ function myQRCodes() {
                             </div>
                           </div>
                         )}
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
                             <div className="mt-1">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                qrDetails.isActive 
-                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${qrDetails.isActive
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                                   : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                              }`}>
+                                }`}>
                                 {qrDetails.isActive ? (
                                   <>
                                     <MdCheckCircle className="w-3 h-3 mr-1" />
@@ -743,7 +740,7 @@ function myQRCodes() {
                               </span>
                             </div>
                           </div>
-                          
+
                           <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</p>
                             <p className="text-gray-900 dark:text-white mt-1 text-sm">
@@ -768,9 +765,9 @@ function myQRCodes() {
                             <div>
                               <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Scan Performance</p>
                               <p className="text-xs text-blue-700 dark:text-blue-300">
-                                {qrDetails.scanCount > 100 ? 'Excellent engagement' : 
-                                 qrDetails.scanCount > 50 ? 'Good performance' : 
-                                 qrDetails.scanCount > 10 ? 'Growing steadily' : 'Getting started'}
+                                {qrDetails.scanCount > 100 ? 'Excellent engagement' :
+                                  qrDetails.scanCount > 50 ? 'Good performance' :
+                                    qrDetails.scanCount > 10 ? 'Growing steadily' : 'Getting started'}
                               </p>
                             </div>
                           </div>
@@ -823,7 +820,7 @@ function myQRCodes() {
                         )}
                       </div>
                     </div>
-                    
+
                     {qrDetails.scanDetails && qrDetails.scanDetails.length > 0 ? (
                       <div className="overflow-x-auto">
                         <table className="w-full">
@@ -916,13 +913,13 @@ function myQRCodes() {
                         <CommonOutlineButton
                           text="Edit QR Code"
                           icon={<MdQrCode2 className="w-4 h-4" />}
-                          onClick={() => {/* Add edit functionality */}}
+                          onClick={() => {/* Add edit functionality */ }}
                           className="px-6 py-3"
                         />
                         <CommonButton
                           text="View Full Analytics"
                           icon={<MdAnalytics className="w-4 h-4" />}
-                          onClick={() => {/* Add full analytics view */}}
+                          onClick={() => {/* Add full analytics view */ }}
                           className="px-6 py-3"
                         />
                       </div>
@@ -974,11 +971,10 @@ function myQRCodes() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium transition-all duration-200 ${
-                showFilters || statusFilter !== 'all' || dateFilter !== 'all'
+              className={`inline-flex items-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium transition-all duration-200 ${showFilters || statusFilter !== 'all' || dateFilter !== 'all'
                   ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-600'
                   : 'bg-white dark:bg-customBlack text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
+                }`}
             >
               <MdFilterList className="w-4 h-4 mr-2" />
               Filters
@@ -991,11 +987,10 @@ function myQRCodes() {
 
             <button
               onClick={() => handleSort('scanCount')}
-              className={`inline-flex items-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium transition-all duration-200 ${
-                sortBy === 'scanCount'
+              className={`inline-flex items-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium transition-all duration-200 ${sortBy === 'scanCount'
                   ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-600'
                   : 'bg-white dark:bg-customBlack text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
+                }`}
             >
               <MdSort className="w-4 h-4 mr-2" />
               Sort by Scans
@@ -1010,7 +1005,8 @@ function myQRCodes() {
               <CommonOutlineButton
                 text="Reset"
                 onClick={handleResetFilters}
-                className="px-4 py-3 text-sm"
+                className="rounded-[8px]"
+                textClass="text-14"
               />
             )}
           </div>
@@ -1138,7 +1134,7 @@ function myQRCodes() {
               {qrCodes.length === 0 ? 'No QR codes yet' : 'No QR codes match your filters'}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
-              {qrCodes.length === 0 
+              {qrCodes.length === 0
                 ? 'Create your first QR code to start tracking engagement and analytics.'
                 : 'Try adjusting your search terms or filters to find what you\'re looking for.'
               }

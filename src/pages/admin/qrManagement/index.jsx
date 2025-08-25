@@ -15,7 +15,7 @@ function AdminQRManagement() {
   const [formData, setFormData] = useState({
     customerMessage: '',
     directMessage: '',
-    targetUrl: ''
+    // targetUrl: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -92,13 +92,14 @@ function AdminQRManagement() {
       } else if (value.trim().length < 10) {
         setErrors(prev => ({ ...prev, directMessage: t.directMessageMinLength }));
       }
-    } else if (name === 'targetUrl') {
-      if (value && !isValidUrl(value)) {
-        setErrors(prev => ({ ...prev, targetUrl: 'Please enter a valid URL' }));
-      } else {
-        setErrors(prev => ({ ...prev, targetUrl: '' }));
-      }
-    }
+    } 
+    // else if (name === 'targetUrl') {
+    //   if (value && !isValidUrl(value)) {
+    //     setErrors(prev => ({ ...prev, targetUrl: 'Please enter a valid URL' }));
+    //   } else {
+    //     setErrors(prev => ({ ...prev, targetUrl: '' }));
+    //   }
+    // }
   };
 
   // Helper function to validate URLs
@@ -127,9 +128,9 @@ function AdminQRManagement() {
     }
     
     // URL validation (optional field)
-    if (formData.targetUrl && !isValidUrl(formData.targetUrl)) {
-      newErrors.targetUrl = 'Please enter a valid URL';
-    }
+    // if (formData.targetUrl && !isValidUrl(formData.targetUrl)) {
+    //   newErrors.targetUrl = 'Please enter a valid URL';
+    // }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -148,7 +149,7 @@ function AdminQRManagement() {
         name: t.myBusinessQRCode,
         messageForCustomer: formData.customerMessage.trim(),
         directMessage: formData.directMessage.trim(),
-        targetUrl: formData.targetUrl.trim() || null, // Include target URL if provided
+        // targetUrl: formData.targetUrl.trim() || null, // Include target URL if provided
         size: 300,
         color: "#000000",
         backgroundColor: "#FFFFFF"
@@ -163,7 +164,7 @@ function AdminQRManagement() {
         setFormData({
           customerMessage: '',
           directMessage: '',
-          targetUrl: ''
+          // targetUrl: ''
         });
         setErrors({});
         // Show success toast with API message
@@ -258,7 +259,7 @@ function AdminQRManagement() {
                 labelFontSize="text-14"
               />
 
-              <CommonInput
+              {/* <CommonInput
                 label={t.targetUrl}
                 id="targetUrl"
                 name="targetUrl"
@@ -270,7 +271,7 @@ function AdminQRManagement() {
                 placeholder={t.targetUrlPlaceholder}
                 error={errors.targetUrl}
                 labelFontSize="text-15"
-              />
+              /> */}
 
               <CommonButton
                 text={loading ? t.generating : t.generateQRCode}
@@ -300,7 +301,7 @@ function AdminQRManagement() {
                   <p className="dark:text-gray-400 text-gray-600 text-14 mt-2">
                     {t.qrCodeGeneratedSuccessfully}
                   </p>
-                  <div className="space-y-3 mt-4">
+                  {/* <div className="space-y-3 mt-4">
                     <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">QR Data:</p>
                       <p className="text-gray-900 dark:text-white break-all text-sm font-mono">
@@ -327,7 +328,7 @@ function AdminQRManagement() {
                         {generatedQR.directMessage}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               ) : (
                 <>
