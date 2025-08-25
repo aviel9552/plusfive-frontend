@@ -72,7 +72,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             onMouseLeave={() => setActiveIndex(null)}
           >
             <CartesianGrid 
-              strokeDasharray="3 3" 
+              strokeDasharray="8 8" 
               vertical={false} 
               stroke={isDarkMode ? "#D1D5DB" : "#000"}
               opacity={0.4}
