@@ -44,6 +44,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-gray-800 
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
+    h-[900px]
     ${isMobile ?
       `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
       `${isCollapsed ? 'w-16' : 'w-[288px]'}`
@@ -106,11 +107,11 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         </nav>
 
         {/* Upgrade Plan Card - only for user role and if not closed */}
-        {/* {userRole !== 'admin' && showUpgradeCard && (
+        {userRole !== 'admin' && showUpgradeCard && (
           <div className={`text-gray-700 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'block'} p-4`}>
             <UpgradeCard onClose={() => setShowUpgradeCard(false)} />
           </div>
-        )} */}
+        )}
 
         {/* Logout */}
         <div className="relative m-3">
