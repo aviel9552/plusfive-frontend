@@ -13,7 +13,7 @@ export const useAdminData = () => {
   const adminState = useSelector((state) => state.admin);
 
   // Use useCallback to prevent infinite re-renders
-  const fetchAllData = useCallback((month, year, months = 6) => {
+  const fetchAllData = useCallback((month, year, months = 7) => {
     dispatch(fetchAdminDashboardOverview(month, year, months));
   }, [dispatch]);
 
@@ -21,7 +21,7 @@ export const useAdminData = () => {
     dispatch(fetchAdminMonthlyPerformance(month, year));
   }, [dispatch]);
 
-  const fetchRevenueImpact = useCallback((months = 6) => {
+  const fetchRevenueImpact = useCallback((months = 7) => {
     dispatch(fetchAdminRevenueImpact(months));
   }, [dispatch]);
 
