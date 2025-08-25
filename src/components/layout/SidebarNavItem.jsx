@@ -25,7 +25,8 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
     const getLinkClasses = () => {
         return `flex items-center w-full px-3 py-2 rounded-lg relative group transition-colors duration-200
         ${isActive()
-                ? `bg-gray-200 dark:bg-[#212121] ${isRTL ? 'border-r-4 border-r-pink-500' : 'border-l-4 border-l-pink-500'} text-gray-900 dark:text-white`
+                // ? `bg-gray-200 dark:bg-[#212121] ${isRTL ? 'border-r-4 border-r-pink-500' : 'border-l-4 border-l-pink-500'} text-gray-900 dark:text-white`
+                ? `bg-gray-200 dark:bg-[#212121] text-gray-900 dark:text-white`
                 : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
             }`;
     };

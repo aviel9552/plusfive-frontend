@@ -14,6 +14,7 @@ import { getLayoutTranslations } from '../../utils/translations';
 import { PiPlusBold } from 'react-icons/pi';
 import DarkLogo from "../../assets/DarkLogo.png"
 import LightLogo from "../../assets/LightLogo.jpeg"
+import Sidebar_Toggle_Icon from "../../assets/Sidebar_Toggle_Icon.svg"
 import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMobileMenuOpen, isRTL = false }) => {
@@ -67,7 +68,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
       )}
       <aside className={sidebarClasses}>
         {/* Header */}
-        <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ''}`}>
+        <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ' justify-between'}`}>
           {/*
         */}
           <div className='flex items-center gap-[8px]'>
@@ -96,6 +97,16 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
               P
             </span>
           </div>
+
+          {!isMobile && !effectiveCollapsed && (
+            <button
+              onClick={toggleDesktopSidebar}
+              className={`flex text-white rounded-full p-1 shadow-lg z-[101]`}
+            >
+              {/* {isCollapsed ? (isRTL ? <MdChevronLeft size={16} /> : <MdChevronRight size={16} />) : (isRTL ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />)} */}
+              <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" className="" />
+            </button>
+          )}
 
           {/* {!isMobile && (
             <button
