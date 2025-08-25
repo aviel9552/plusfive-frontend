@@ -10,7 +10,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
   const isRTL = language === 'he';
   const textColor = isDarkMode ? "#fff" : "#000";
   
-  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>0%</text>;
+  if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>0</text>;
   return (
     <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>
       {payload.value}k
@@ -60,7 +60,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             value={selectedFilter}
             onChange={setSelectedFilter}
             className="w-[120px] h-auto pb-2"
-            fontSize="text-12"
+            fontSize="text-14"
           />
         )}
       </div>
@@ -96,7 +96,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
               dataKey="value" 
               fill="#6366F1"
               radius={[8, 8, 0, 0]}
-              maxBarSize={40}
+              maxBarSize={35}
               onMouseOver={(_, idx) => setActiveIndex(idx)}
             />
             <Tooltip

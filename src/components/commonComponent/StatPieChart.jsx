@@ -77,7 +77,7 @@ const StatPieChart = ({ title, data }) => {
       </div>
 
       {/* Legend */}
-      <div className={`grid sm:grid-cols-4 grid-cols-2 gap-4 mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+      <div className={`grid sm:grid-cols-5 grid-cols-2 gap-4 mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
         {displayData.map((item, index) => (
           <div key={index} className={`flex flex-col items-center ${isRTL ? 'items-end' : 'items-start'}`}>
             <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} mb-1`}>
