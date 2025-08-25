@@ -66,8 +66,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ''}`}>
           {/*
         */}
-        <div className='flex items-center gap-[8px]'>
-          <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
+          <div className='flex items-center gap-[8px]'>
+            {/* <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M8 1V15M1 8H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -76,20 +76,30 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
                 {t.plusFive}
               </span>
             )}
-          </span>
-          <span className={`text-20  font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
-            {t.plusFive}
-          </span>
-        </div>
+          </span> */}
+            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
+              {effectiveCollapsed && (
+                <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>
+                  {t.plusFive}
+                </span>
+              )}
+            </span>
+            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
+              {t.plusFive}
+            </span>
+            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'inline' : 'hidden'}`}>
+              P
+            </span>
+          </div>
 
-          {!isMobile && (
+          {/* {!isMobile && (
             <button
               onClick={toggleDesktopSidebar}
               className={`flex absolute ${isRTL ? '-left-3' : '-right-3'} top-7 bg-pink-500 hover:bg-pink-600 text-white rounded-full p-1 shadow-lg z-[101]`}
             >
               {isCollapsed ? (isRTL ? <MdChevronLeft size={16} /> : <MdChevronRight size={16} />) : (isRTL ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />)}
             </button>
-          )}
+          )} */}
         </div>
 
         {/* Navigation */}
