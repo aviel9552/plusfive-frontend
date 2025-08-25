@@ -129,12 +129,12 @@ input[type=number] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%);
+  /* background: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%); */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(259deg, #e55433 3.28%, #e01f6b 49.86%, #c85bb8 100.32%);
+  /* background: linear-gradient(259deg, #e55433 3.28%, #e01f6b 49.86%, #c85bb8 100.32%); */
 }
 
 ::-webkit-scrollbar-corner {
@@ -147,7 +147,7 @@ input[type=number] {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%);
+  /* background: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%); */
 }
 
 .dark ::-webkit-scrollbar-corner {

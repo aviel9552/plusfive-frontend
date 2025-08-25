@@ -106,11 +106,11 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         </nav>
 
         {/* Upgrade Plan Card - only for user role and if not closed */}
-        {userRole !== 'admin' && showUpgradeCard && (
+        {/* {userRole !== 'admin' && showUpgradeCard && (
           <div className={`text-gray-700 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'block'} p-4`}>
             <UpgradeCard onClose={() => setShowUpgradeCard(false)} />
           </div>
-        )}
+        )} */}
 
         {/* Logout */}
         <div className="relative m-3">
