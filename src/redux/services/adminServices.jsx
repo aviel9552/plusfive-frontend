@@ -16,7 +16,7 @@ export const getAdminMonthlyPerformance = async (month, year) => {
   }
 };
 
-export const getAdminRevenueImpact = async (months = 6) => {
+export const getAdminRevenueImpact = async (months = 7) => {
   try {
     const response = await apiClient.get('/admin-dashboard/revenue-impact', {
       params: { months }
