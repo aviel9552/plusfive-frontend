@@ -12,11 +12,15 @@ import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getLayoutTranslations } from '../../utils/translations';
 import { PiPlusBold } from 'react-icons/pi';
+import DarkLogo from "../../assets/DarkLogo.png"
+import LightLogo from "../../assets/LightLogo.jpeg"
+import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMobileMenuOpen, isRTL = false }) => {
   const toggleDesktopSidebar = () => {
     onCollapse(!isCollapsed);
   };
+  const { isDarkMode } = useTheme();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -85,7 +89,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
               )}
             </span>
             <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
-              {t.plusFive}
+              {/* {t.plusFive} */}
+              <img src={isDarkMode ? DarkLogo : LightLogo} alt="Logo" className="w-[100px] h-auto" />
             </span>
             <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'inline' : 'hidden'}`}>
               P
@@ -103,7 +108,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto" onClick={() => isMobile && setIsMobileMenuOpen(false)}>
+        {/* <nav className="flex-1 overflow-y-auto" onClick={() => isMobile && setIsMobileMenuOpen(false)}> */}
+        <nav className="flex-1 overflow-hidden" onClick={() => isMobile && setIsMobileMenuOpen(false)}>
           <ul className="space-y-3 px-2 list-none">
             {navLinks.map((link) => (
               <SidebarNavItem
