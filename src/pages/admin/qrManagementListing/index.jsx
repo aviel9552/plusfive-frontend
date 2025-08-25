@@ -206,7 +206,7 @@ function AdminQRManagementListing() {
     setLoadingDetails(true);
     
     try {
-      const response = await getQRCodeById(qr.id);
+      const response = await getQRCodeById(qr.qrData);
       if (response && response.data) {
         setQrDetails(response.data);
       } else {
@@ -504,7 +504,7 @@ function AdminQRManagementListing() {
                   <MdAnalytics className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-20 font-bold text-gray-900 dark:text-white">
                     QR Code Analytics Dashboard
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400">

@@ -15,7 +15,7 @@ function QRScanHandler() {
   const [qrData, setQrData] = useState(null);
   const [error, setError] = useState(null);
   const [isScanEvent, setIsScanEvent] = useState(false);
-  const [redirectCountdown, setRedirectCountdown] = useState(5);
+  const [redirectCountdown, setRedirectCountdown] = useState(5000);
 
   useEffect(() => {
     if (qrId) {

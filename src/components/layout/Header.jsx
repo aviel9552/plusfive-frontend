@@ -118,7 +118,7 @@ const Header = ({ onMobileMenuToggle }) => {
   const t = getLayoutTranslations(language);
 
   return (
-    <header className="bg-white dark:bg-customBlack px-4 lg:px-6 py-4 border-b border-gray-200 dark:border-gray-800 font-ttcommons transition-colors duration-200">
+    <header className="bg-white dark:bg-customBlack px-4 lg:px-6 h-[72px] pt-3 border-b border-gray-200 dark:border-gray-800 font-ttcommons transition-colors duration-200">
       <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div className={`flex items-center ${isRTL ? 'order-2' : 'order-1'}`}>
           <button 

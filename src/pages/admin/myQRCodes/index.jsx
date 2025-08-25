@@ -248,7 +248,7 @@ function myQRCodes() {
     setLoadingDetails(true);
 
     try {
-      const response = await getQRCodeById(qr.id);
+      const response = await getQRCodeById(qr.qrData);
       if (response && response.data) {
         setQrDetails(response.data);
         toast.success('QR Code details loaded successfully');
