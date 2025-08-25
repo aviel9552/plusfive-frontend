@@ -46,8 +46,10 @@ const StatPieChart = ({ title, data }) => {
                 dataKey="value"
                 cx="50%"
                 cy="50%"
-                innerRadius={75}
-                outerRadius={105}
+                // innerRadius={75}
+                // outerRadius={105}
+                innerRadius={65}
+                outerRadius={95}
                 startAngle={90}
                 endAngle={450}
                 onMouseEnter={(_, index) => setActiveIndex(index)}
