@@ -63,7 +63,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
       )}
       <aside className={sidebarClasses}>
         {/* Header */}
-        <div className={`flex items-center  h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ''}`}>
+        <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ''}`}>
           {/*
         */}
         <div className='flex items-center gap-[8px]'>
