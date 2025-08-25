@@ -118,7 +118,7 @@ const Header = ({ onMobileMenuToggle }) => {
   const t = getLayoutTranslations(language);
 
   return (
-    <header className="bg-white dark:bg-customBlack px-4 lg:px-6 h-[72px] pt-3 border-b border-gray-200 dark:border-gray-800 font-ttcommons transition-colors duration-200">
+    <header className="bg-white dark:bg-customBlack px-4 lg:px-6 h-[72px] grid border-b border-gray-200 dark:border-gray-800 font-ttcommons transition-colors duration-200">
       <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div className={`flex items-center ${isRTL ? 'order-2' : 'order-1'}`}>
           <button 
@@ -131,15 +131,12 @@ const Header = ({ onMobileMenuToggle }) => {
           <div className="hidden lg:block">
             {isDashboard ? (
               <span>
-                <p className="text-gray-600 dark:text-white text-16">Hi {userName},</p>
+                {/* <p className="text-gray-600 dark:text-white text-16">Hi {userName},</p>
                 <h1 className="text-gray-900 dark:text-white font-semibold flex items-center md:text-24 gap-[8px]">
                   {t.welcome} <span className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
-                  {/*
-                  👋
-                  */}
                   <img src={Clap} alt="clap" className="w-6 h-6" />
                   </span>
-                </h1>
+                </h1> */}
               </span>
             ) : (
               <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1 md:text-20">{pageTitle}</div>
