@@ -49,6 +49,22 @@ export const getQRCodeById = async (qrId) => {
   }
 };
 
+// Get QR code by Code
+export const getQRCodeByCode = async (qrCode) => {
+  try {
+    const response = await apiClient.get(`/qr/qr-code/${qrCode}`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to fetch QR code');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
 // Create new QR code
 export const createQRCode = async (qrData) => {
   try {

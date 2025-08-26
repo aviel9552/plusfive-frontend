@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatSingleBarChart, StatPieChart } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
+import { useAdminData } from '../../../hooks/useAdminData';
 
 const monthlyData = [
   { month: 'Jan', value: 32 },
@@ -37,6 +38,22 @@ const thisMonthData = [
 function AdminAnalyticsRevenueAndCustomerStatus() {
   const { language } = useLanguage();
   const t = getAdminAnalyticsTranslations(language);
+  const { customerStatus, fetchCustomerStatus } = useAdminData();
+
+  useEffect(() => {
+    fetchCustomerStatus();
+  }, [fetchCustomerStatus]);
+
+  // Transform customer status data for the pie chart
+  const transformCustomerData = (data) => {
+    if (!data) return [];
+    return data.breakdown?.map(item => ({
+      name: item.status,
+      value: item.count,
+      percentage: `${item.percentage}%`,
+      color: item.color
+    })) || [];
+  };
 
   const FILTERS = [
     { label: t.monthly, value: 'monthly' },
@@ -52,12 +69,41 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
     thisMonth: thisMonthData,
   };
 
-  const pieChartData = [
-    { name: t.active, value: 680, percentage: '22%', color: '#675DFF' },
-    { name: t.atRisk, value: 75, percentage: '10%', color: '#FE5D39' },
-    { name: t.lost, value: 58, percentage: '8%', color: '#912018' },
-    { name: t.recovered, value: 240, percentage: '15%', color: '#DF64CC' },
-  ];
+  const pieChartData = transformCustomerData(customerStatus.data);
+
+  if (customerStatus.loading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
+        <div className="lg:col-span-7">
+          <StatSingleBarChart
+            title={t.revenueImpact}
+            dataMap={dataMap}
+            filters={FILTERS}
+          />
+        </div>
+        <div className="lg:col-span-5 animate-pulse">
+          <div className="h-64 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (customerStatus.error) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
+        <div className="lg:col-span-7">
+          <StatSingleBarChart
+            title={t.revenueImpact}
+            dataMap={dataMap}
+            filters={FILTERS}
+          />
+        </div>
+        <div className="lg:col-span-5 text-red-500 text-center py-8">
+          Customer Status Error: {customerStatus.error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
@@ -75,7 +121,7 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
         />
       </div>
     </div>
-  )
+  );
 }
 
 export default AdminAnalyticsRevenueAndCustomerStatus;

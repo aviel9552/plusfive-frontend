@@ -7,7 +7,7 @@ export const getAdminMonthlyPerformance = async (month, year) => {
     const params = {};
     if (month) params.month = month;
     if (year) params.year = year;
-    
+
     const response = await apiClient.get('/admin-dashboard/monthly-performance', { params });
     return response.data;
   } catch (error) {
@@ -21,6 +21,7 @@ export const getAdminRevenueImpact = async (months = 7) => {
     const response = await apiClient.get('/admin-dashboard/revenue-impact', {
       params: { months }
     });
+
     return response.data;
   } catch (error) {
     console.error('API Error - Revenue Impact:', error);
@@ -53,7 +54,7 @@ export const getAdminDashboardOverview = async (month, year, months = 6) => {
     const params = { months };
     if (month) params.month = month;
     if (year) params.year = year;
-    
+
     const response = await apiClient.get('/admin-dashboard/overview', { params });
     return response.data;
   } catch (error) {

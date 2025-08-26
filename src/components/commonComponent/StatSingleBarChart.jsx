@@ -68,7 +68,14 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={displayData}
-            margin={isRTL ? { top: 5, right: -20, left: 20, bottom: 5 } : { top: 5, right: 0, left: -20, bottom: 5 }}
+            margin={isRTL ? { top: 5, right: -20, left: 30, bottom: 5 } : { top: 5, right: 30, left: -20, bottom: 5 }}
+            // margin={{
+            //   top: 5,
+            //   right: 30,
+            //   left: 20,
+            //   bottom: 5,
+            // }}
+            barSize={35}
             onMouseLeave={() => setActiveIndex(null)}
           >
             <CartesianGrid 
@@ -79,6 +86,8 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             />
             <XAxis 
               dataKey="month" 
+              scale="point"
+              padding={{ left: 25, right: 10 }}
               axisLine={false}
               tickLine={false}
               tick={<CustomXAxisTick />}
@@ -94,15 +103,15 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             />
             <Bar 
               dataKey="value" 
-              fill="#6366F1"
+              fill="#6166F1"
               radius={[8, 8, 0, 0]}
               maxBarSize={35}
               onMouseOver={(_, idx) => setActiveIndex(idx)}
             />
             <Tooltip
-              cursor={{ fill: 'rgba(99,102,241,0.1)' }}
+              active={false}
               content={({ active, payload }) => {
-                if (active && payload && payload.length) {
+                if (active && payload && payload.length > 0) {
                   return getValueIndicator(payload[0].payload);
                 }
                 return null;

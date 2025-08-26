@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getQRCodeById, recordQRScan } from '../../redux/services/qrServices';
+import { getQRCodeByCode, recordQRScan } from '../../redux/services/qrServices';
 import { MdQrCode2, MdError, MdRefresh, MdContentCopy, MdDownload, MdCheckCircle, MdAnalytics, MdVisibility, MdShare, MdTrendingUp } from 'react-icons/md';
 import { FiExternalLink, FiHome, FiCopy } from 'react-icons/fi';
 import CommonButton from '../../components/commonComponent/CommonButton';
@@ -64,7 +64,7 @@ function QRScanHandler() {
       setError(null);
 
       // Get QR code details
-      const response = await getQRCodeById(qrId);
+      const response = await getQRCodeByCode(qrId);
       
       if (response && response.data) {
         setQrData(response.data);

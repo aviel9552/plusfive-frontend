@@ -22,9 +22,9 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     onCollapse(!isCollapsed);
   };
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const userRole = useSelector(state => state.auth?.user?.role);
   const [showUpgradeCard, setShowUpgradeCard] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -40,6 +40,10 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     setShowLogoutModal(true);
   };
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   const effectiveCollapsed = isMobile ? false : isCollapsed;
 
   const sidebarClasses = `
@@ -50,9 +54,10 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
     h-[900px]
+    group
     ${isMobile ?
       `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
-      `${isCollapsed ? 'w-16' : 'w-[288px]'}`
+      `${isCollapsed ? 'w-16 hover:w-[288px]' : 'w-[288px]'}`
     }
   `;
 
@@ -68,42 +73,28 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
       )}
       <aside className={sidebarClasses}>
         {/* Header */}
-        <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : ' justify-between'}`}>
-          {/*
-        */}
+        <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-between' : ' justify-between'}`}>
           <div className='flex items-center gap-[8px]'>
-            {/* <span className="text-gray-900 dark:text-white text-2xl font-bold icon-button relative group">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1V15M1 8H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            {effectiveCollapsed && (
-              <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>
-                {t.plusFive}
-              </span>
-            )}
-          </span> */}
-            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
+            {/* <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
               {effectiveCollapsed && (
                 <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#2C2C2C] text-white text-sm rounded-md transition-all duration-300 ease-in-out opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} z-[9999] shadow-lg`}>
                   {t.plusFive}
                 </span>
               )}
-            </span>
-            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'inline'}`}>
-              {/* {t.plusFive} */}
+            </span> */}
+            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`} onClick={handleLogoClick}>
               <img src={isDarkMode ? DarkLogo : LightLogo} alt="Logo" className="w-[100px] h-auto" />
             </span>
-            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'inline' : 'hidden'}`}>
+            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'inline group-hover:hidden' : 'hidden'}`} onClick={handleLogoClick}>
               P
             </span>
           </div>
 
-          {!isMobile && !effectiveCollapsed && (
+          {!isMobile && (
             <button
               onClick={toggleDesktopSidebar}
-              className={`flex text-white rounded-full p-1 shadow-lg z-[101]`}
+              className={`flex text-white rounded-full p-1 shadow-lg z-[101] ${isCollapsed ? 'hidden group-hover:flex' : 'flex'}`}
             >
-              {/* {isCollapsed ? (isRTL ? <MdChevronLeft size={16} /> : <MdChevronRight size={16} />) : (isRTL ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />)} */}
               <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" className="" />
             </button>
           )}
@@ -119,7 +110,6 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         </div>
 
         {/* Navigation */}
-        {/* <nav className="flex-1 overflow-y-auto" onClick={() => isMobile && setIsMobileMenuOpen(false)}> */}
         <nav className="flex-1 overflow-hidden" onClick={() => isMobile && setIsMobileMenuOpen(false)}>
           <ul className="space-y-3 px-2 list-none">
             {navLinks.map((link) => (
@@ -128,6 +118,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
                 {...link}
                 isCollapsed={effectiveCollapsed}
                 isRTL={isRTL}
+                showHoverText={isCollapsed}
               />
             ))}
           </ul>

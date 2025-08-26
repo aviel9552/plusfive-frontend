@@ -11,7 +11,7 @@ function AdminRevenueImpactCustomerStatus() {
   const [selectedFilter, setSelectedFilter] = useState('monthly');
 
   useEffect(() => {
-    fetchRevenueImpact(6); // Default to 6 months
+    fetchRevenueImpact();
     fetchCustomerStatus();
   }, [fetchRevenueImpact, fetchCustomerStatus]);
 

@@ -8,7 +8,7 @@ import CommonButton from '../../../components/commonComponent/CommonButton';
 import CommonOutlineButton from '../../../components/commonComponent/CommonOutlineButton';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminQRTranslations } from '../../../utils/translations';
-import { getQRCodeById } from '../../../redux/services/qrServices';
+import { getQRCodeByCode } from '../../../redux/services/qrServices';
 import { toast } from 'react-toastify';
 import {
   MdQrCode2,
@@ -30,11 +30,13 @@ import {
   MdRefresh
 } from 'react-icons/md';
 import { FiExternalLink, FiCopy } from 'react-icons/fi';
+import AdminQRManagement from '../qrManagement';
 
 function myQRCodes() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector(state => state.auth.user);
+  const slug = user.role === 'admin' ? 'admin' : 'user';
   const { language } = useLanguage();
   const t = getAdminQRTranslations(language);
 
@@ -180,12 +182,12 @@ function myQRCodes() {
 
   // Handle create QR code - redirect to qr-management page
   const handleCreateQR = () => {
-    navigate('/app/qr-management');
+    navigate(`/${slug}/qr-management`);
   };
 
   // Handle view all QR codes
   const handleAllQRCodes = () => {
-    navigate('/app/qr-management/listing');
+    navigate(`/${slug}/qr-management/listing`);
   };
 
   // Handle refresh data
@@ -248,7 +250,7 @@ function myQRCodes() {
     setLoadingDetails(true);
 
     try {
-      const response = await getQRCodeById(qr.qrData);
+      const response = await getQRCodeByCode(qr.qrData);
       if (response && response.data) {
         setQrDetails(response.data);
         toast.success('QR Code details loaded successfully');
@@ -485,16 +487,18 @@ function myQRCodes() {
                 textClass="whitespace-nowrap text-14"
               />
             )}
-            <CommonButton
+            {/* <CommonButton
               text="Create QR Code"
               icon={<MdAdd className="w-4 h-4" />}
               onClick={handleCreateQR}
               className="px-6 py-2 whitespace-nowrap rounded-[8px] text-14"
-            />
+            /> */}
           </div>
         </div>
       </div>
 
+      {/* Create QR Code */}
+      <AdminQRManagement />
       {/* Enhanced QR Code Analytics Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -520,7 +524,7 @@ function myQRCodes() {
                   text="Export Data"
                   icon={<MdDownload className="w-4 h-4" />}
                   onClick={() => {/* Add export functionality */ }}
-                  className="px-4 py-2 text-sm"
+                  className="px-4 py-2 text-sm rounded-[8px]"
                 />
                 <button
                   onClick={handleCloseModal}
@@ -600,14 +604,14 @@ function myQRCodes() {
                           text="Copy QR Data"
                           icon={<FiCopy className="w-4 h-4" />}
                           onClick={() => handleCopyQRData(qrDetails.qrData || qrDetails.qrdata)}
-                          className="px-4 py-2 text-sm"
+                          className="px-4 py-2 text-sm rounded-[8px]"
                         />
                         {qrDetails.url && (
                           <CommonButton
                             text="Visit Target URL"
                             icon={<FiExternalLink className="w-4 h-4" />}
                             onClick={() => window.open(qrDetails.url, '_blank')}
-                            className="px-4 py-2 text-sm"
+                            className="px-4 py-2 text-sm rounded-[8px]"
                           />
                         )}
                       </div>
@@ -914,13 +918,13 @@ function myQRCodes() {
                           text="Edit QR Code"
                           icon={<MdQrCode2 className="w-4 h-4" />}
                           onClick={() => {/* Add edit functionality */ }}
-                          className="px-6 py-3"
+                          className="rounded-[8px]"
                         />
                         <CommonButton
                           text="View Full Analytics"
                           icon={<MdAnalytics className="w-4 h-4" />}
                           onClick={() => {/* Add full analytics view */ }}
-                          className="px-6 py-3"
+                          className="px-6 py-2 rounded-[8px]"
                         />
                       </div>
                     </div>
@@ -951,9 +955,9 @@ function myQRCodes() {
         </div>
       )}
       {/* Advanced Filters and Search Section */}
-      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-6">
+      {/* <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          {/* Search Bar */}
+          
           <div className="relative flex-1 max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MdSearch className="h-5 w-5 text-gray-400" />
@@ -967,7 +971,6 @@ function myQRCodes() {
             />
           </div>
 
-          {/* Filter Controls */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -1012,7 +1015,6 @@ function myQRCodes() {
           </div>
         </div>
 
-        {/* Expandable Filters */}
         {showFilters && (
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1066,10 +1068,10 @@ function myQRCodes() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Results Summary */}
-      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-6">
+      {/* <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div className="flex items-center space-x-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -1116,7 +1118,7 @@ function myQRCodes() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Content Area */}
       <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl overflow-hidden">
