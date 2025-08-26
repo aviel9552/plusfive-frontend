@@ -184,3 +184,36 @@ export const getIndividualQRAnalytics = async (qrId) => {
     }
   }
 };
+
+// Scan QR code and redirect to WhatsApp
+export const scanQRCode = async (shortCode) => {
+  try {
+    const response = await apiClient.post(`/qr/scan/${shortCode}`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to scan QR code');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
+// Share QR code and redirect to WhatsApp
+export const shareQRCode = async (shortCode) => {
+  try {
+    const response = await apiClient.post(`/qr/share/${shortCode}`);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to share QR code');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+

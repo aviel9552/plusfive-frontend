@@ -25,8 +25,8 @@ function UserRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/dashboard" element={<Home />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />
-      <Route path="/qr-management/listing" element={<AdminQRManagementListing />} />
-      <Route path="/qr-management/my-codes" element={<MyQRCodes />} />
+      {/* <Route path="/qr-management/listing" element={<AdminQRManagementListing />} />
+      <Route path="/qr-management/my-codes" element={<MyQRCodes />} /> */}
       <Route path="/referral" element={<ReferralManagement />} />
       {/* <Route path="/referral" element={<AdminReferralManagement />} /> */}
       <Route path="/customers" element={<CustomerManagement />} />

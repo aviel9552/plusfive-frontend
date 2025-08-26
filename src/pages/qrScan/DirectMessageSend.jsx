@@ -1,10 +1,8 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { getQRCodeByCode, scanQRCode } from '../../redux/services/qrServices';
+import { getQRCodeByCode, shareQRCode } from '../../redux/services/qrServices';
 
-export default function QRScanHandler() {
+function DirectMessageSend() {
   const { qrId } = useParams();
   const [qrData, setQrData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +14,7 @@ export default function QRScanHandler() {
   // API Call Count Tracking
   const [apiCallCounts, setApiCallCounts] = useState({
     getQRCodeByCode: 0,
-    scanQRCode: 0
+    shareQRCode: 0
   });
 
   useEffect(() => {
@@ -46,7 +44,7 @@ export default function QRScanHandler() {
       if (response && response.data) {
         setQrData(response.data);
         
-        // After getting data, redirect to WhatsApp
+        // After getting data, redirect to WhatsApp using directUrl
         await redirectToWhatsApp(response.data);
       } else {
         setError('QR code not found');
@@ -60,44 +58,36 @@ export default function QRScanHandler() {
   };
 
   const redirectToWhatsApp = async (data) => {
-    // Use only dynamic data from API response - no static fallbacks
-    const customerMessage = data.messageForCustomer;
-    const messageUrl = data.messageUrl;
+    // Use directUrl from API response for WhatsApp redirect
+    const directUrl = data.directUrl;
 
-    // Only redirect if we have both message and URL
-    if (customerMessage && messageUrl) {
+    if (directUrl) {
       try {
-        // Track scanQRCode API call
+        // Track shareQRCode API call
         setApiCallCounts(prev => ({
           ...prev,
-          scanQRCode: prev.scanQRCode + 1
+          shareQRCode: prev.shareQRCode + 1
         }));
         
-        // First, call scanQRCode service to increment scan count
-        await scanQRCode(qrId);
+        // First, call shareQRCode service to increment share count
+        await shareQRCode(qrId);
         
-        // Create message in simple text format (WhatsApp will auto-detect and make URL clickable)
-        const message = `${customerMessage}: ${messageUrl}`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-
-        // 1 sec delay so page load ho sake, then redirect
+        // Then redirect to WhatsApp
         setTimeout(() => {
-          window.location.href = whatsappUrl;
+          window.location.href = directUrl;
         }, 1000);
         
-      } catch (scanError) {
-        console.error('Failed to increment scan count:', scanError);
+      } catch (shareError) {
+        console.error('Failed to increment share count:', shareError);
         
-        // Continue with redirect even if scan count fails
-        const message = `${customerMessage}: ${messageUrl}`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        
+        // Continue with redirect even if share count fails
         setTimeout(() => {
-          window.location.href = whatsappUrl;
+          window.location.href = directUrl;
         }, 1000);
       }
+      
     } else {
-      setError('Required data not available for WhatsApp redirect');
+      setError('WhatsApp redirect URL not available');
     }
   };
 
@@ -124,5 +114,4 @@ export default function QRScanHandler() {
   );
 }
 
-
-
+export default DirectMessageSend;

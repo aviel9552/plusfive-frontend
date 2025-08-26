@@ -1145,8 +1145,8 @@ function AdminQRManagementListing() {
                 <CommonButton
                   text="Create Your First QR Code"
                   icon={<MdAdd className="w-4 h-4" />}
-                  onClick={handleCreateQR}
-                  className="px-6 py-3"
+                  // onClick={handleCreateQR}
+                  className="px-6 py-3 rounded-[8px]"
                 />
               ) : (
                 <CommonOutlineButton

@@ -14,6 +14,7 @@ import ContactSales from '../pages/contactSales';
 import ReferralPage from '../pages/referral';
 import ReviewPage from '../pages/reviews';
 import QRScanHandler from '../pages/qrScan';
+import DirectMessageSend from '../pages/qrScan/DirectMessageSend';
 
 function PublicRouteGuard({ children }) {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -57,7 +58,7 @@ function PublicRoutes() {
         <Route path="ref/:referralCode" element={<ReferralPage />} />
         <Route path="reviews" element={<ReviewPage />} />
         <Route path="qr/redirect/:qrId" element={<QRScanHandler />} />
-        <Route path="qr/:qrId" element={<QRScanHandler />} />
+        <Route path="qr/:qrId" element={<DirectMessageSend />} />
         <Route path="scan/:qrId" element={<QRScanHandler />} />
         <Route path="qr-scan/:qrId" element={<QRScanHandler />} />
         <Route path="scan-qr/:qrId" element={<QRScanHandler />} />

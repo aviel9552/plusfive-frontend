@@ -403,6 +403,7 @@
     "directMessageMinLength": "Direct message must be at least 10 characters",
     "generating": "Generating...",
     "generateQRCode": "Generate QR Code",
+    "qrCodeAlreadyExists": "QR Code Already Exists",
     "myQRCodes": "My QR Codes",
     "showMyCodes": "Show My Codes",
     "showAllCodes": "Show All Codes",

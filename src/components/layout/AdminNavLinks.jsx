@@ -11,7 +11,7 @@ const adminNavLinks = (language = 'en') => {
   
   return [
     { to: '/admin/dashboard', icon: IoHomeOutline, label: t.dashboard, specialPaths: ['/','/admin'] },
-    { to: '/admin/qr-management/listing', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/admin/qr-management','/admin/qr-management/my-codes'] },
+    { to: '/admin/qr-management', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/admin/qr-management','/admin/qr-management/my-codes'] },
     { to: '/admin/referral-management', icon: MdShare, label: t.referralProgram },
     { to: '/admin/user-management', icon: MdPeople, label: t.userManagement, specialPaths: ['/admin/user-management/create', '/admin/user-management/edit', '/admin/user-management/edit/:userId', '/admin/user-management/view', '/admin/user-management/view/:userId']  },
     // { to: '/admin/customer-management', icon: MdPeople, label: t.customerManagement, specialPaths: ['/admin/customer-management/create', '/admin/customer-management/edit', '/admin/customer-management/edit/:customerId']  },

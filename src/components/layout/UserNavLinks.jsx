@@ -12,7 +12,7 @@ import {
     
     return [
       { to: '/app/dashboard', icon: IoHomeOutline, label: t.dashboard, specialPaths: ['/','/app'] },
-      { to: '/app/qr-management/my-codes', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/app/qr-management','/app/qr-management/my-codes'] },
+      { to: '/app/qr-management', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/app/qr-management','/app/qr-management/my-codes'] },
       { to: '/app/referral', icon: MdShare, label: t.referralProgram },
       { to: '/app/customers', icon: MdPeople, label: t.customerManagement, specialPaths: ['/app/customers/view', '/app/customers/view/:customerId'] },
       { to: '/app/analytics', icon: MdAnalytics, label: t.analytics },

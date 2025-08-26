@@ -12,7 +12,7 @@ const StatIconCard = ({ icon, image, value, label }) => {
                     )}
                 </div>
                 <div className='flex flex-col gap-[4px]'>
-                    <span className="text-30 font-semibold text-gray-900 dark:text-white transition-colors duration-200">{value}</span>
+                    <p className="text-30 font-bold font-ttcommons text-gray-900 dark:text-white transition-colors duration-200">{value}</p>
                     <span className="text-gray-600 dark:text-white transition-colors duration-200 text-14">{label}</span>
                 </div>
             </div>
