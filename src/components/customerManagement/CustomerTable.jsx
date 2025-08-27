@@ -26,6 +26,7 @@ const StatusBadge = ({ status }) => {
             break;
         case 'at risk':
         case 'risk':
+        case 'at_risk':
         case 'בסיכון':
             colorClasses = 'text-[#AD3D02] bg-[#FFE8E3]';
             break;
@@ -47,7 +48,7 @@ const StatusBadge = ({ status }) => {
 
         const statusLower = statusText.toLowerCase();
 
-        if (statusLower === 'at risk' || statusLower === 'risk') {
+        if (statusLower === 'at risk' || statusLower === 'risk' || statusLower === 'at_risk') {
             return 'At Risk';
         }
 
@@ -134,8 +135,20 @@ function CustomerTable({ customers = [], loading = false }) {
 
     // Show confirmation modal before sending rating request
     const handleWhatsAppClick = (customer) => {
-        setCustomerToSendRating(customer);
-        setShowConfirmModal(true);
+        console.log('customer', customer);
+
+        if (customer?.customerPhone) {
+            // Format phone number for WhatsApp (remove + and add country code)
+            const phoneNumber = customer.customerPhone.replace('+', '');
+
+            // Create WhatsApp URL
+            const whatsappURL = `https://wa.me/${phoneNumber}`;
+
+            // Open WhatsApp in new tab
+            window.open(whatsappURL, '_blank');
+        } else {
+            console.error('Customer phone number not available');
+        }
     };
 
     // Send rating request function using reviewService
@@ -186,12 +199,12 @@ function CustomerTable({ customers = [], loading = false }) {
             key: 'customer',
             label: t.customer,
             render: (row) => (
-                <div>
-                    <div className="font-semibold text-gray-900 dark:text-white text-lg">
+                <div className="flex flex-col gap-3">
+                    <div className="font-semibold text-gray-900 dark:text-white text-14 whitespace-nowrap">
                         {row.customerFullName || `${row.firstName} ${row.lastName}`}
                     </div>
-                    <div className="text-black dark:text-white">{row.email || t.noDataAvailable}</div>
-                    <div className="text-black dark:text-white">{row.customerPhone || t.noDataAvailable}</div>
+                    <div className="text-black dark:text-[#CECFD2] text-12">{row.email || t.noDataAvailable}</div>
+                    <div className="text-black dark:text-[#CECFD2] text-12">{row.customerPhone || t.noDataAvailable}</div>
                 </div>
             )
         },
@@ -245,11 +258,11 @@ function CustomerTable({ customers = [], loading = false }) {
             key: 'lastVisit',
             label: t.lastVisit,
             render: (row) => (
-                <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                <div className="flex flex-col gap-3">
+                    <div className="text-14 font-medium text-gray-900 dark:text-white">
                         {row.lastVisit ? new Date(row.lastVisit).toLocaleDateString('en-GB') : t.noDataAvailable}
                     </div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    <div className="text-12 font-medium text-black dark:text-[#CECFD2]">
                         {row.user?.businessName || t.noDataAvailable}
                     </div>
                 </div>
@@ -271,7 +284,7 @@ function CustomerTable({ customers = [], loading = false }) {
         <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className='flex flex-col gap-[24px]'>
                 <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.customers} ({filteredData.length})</h2>
+                    <h2 className="text-[24px] font-semibold text-gray-900 dark:text-white">{t.customers} ({filteredData.length})</h2>
                     <div className="flex items-center">
                         <select
                             value={filterValue}

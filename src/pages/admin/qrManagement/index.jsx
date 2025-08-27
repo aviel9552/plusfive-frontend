@@ -46,7 +46,7 @@ function AdminQRManagement() {
 
   // Check if user already has a QR code
   const existingQRCode = qrCodes?.qrCodes?.[0];
-  const hasExistingQR = existingQRCode && existingQRCode.id;
+  const hasExistingQR = existingQRCode && existingQRCode.id;  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -208,7 +208,7 @@ function AdminQRManagement() {
 
   // Download QR Code functionality
   const handleDownloadQR = () => {
-    if (!generatedQR || !generatedQR.qrCodeImage) {
+    if (!generatedQR && !existingQRCode) {
       toast.error(t.noQRCodeToDownload);
       return;
     }
@@ -216,8 +216,8 @@ function AdminQRManagement() {
     try {
       // Create a temporary link element
       const link = document.createElement('a');
-      link.href = generatedQR.qrCodeImage;
-      link.download = `${generatedQR.name || 'QRCode'}.png`;
+      link.href = generatedQR?.qrCodeImage || existingQRCode.qrCodeImage;
+      link.download = `${generatedQR?.name || existingQRCode.name || 'QRCode'}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -349,14 +349,14 @@ function AdminQRManagement() {
                     <img
                       src={existingQRCode.qrCodeImage}
                       alt="Existing QR Code"
-                      className="w-48 h-48 mx-auto mb-4 border border-gray-300 rounded-lg"
+                      className="w-28 h-28 mx-auto mb-4 border border-gray-300 rounded-lg"
                     />
-                    <p className="dark:text-white text-black text-16 font-medium">
+                    {/* <p className="dark:text-white text-black text-16 font-medium">
                       {existingQRCode.name}
                     </p>
                     <p className="dark:text-gray-400 text-gray-600 text-14 mt-2">
                       Your Existing QR Code
-                    </p>
+                    </p> */}
                   </div>
                 ) : (
                   <>
@@ -378,16 +378,16 @@ function AdminQRManagement() {
               text={t.downloadQRCode}
               className="py-2.5 w-auto rounded-xl px-4 text-14"
               icon={<LuDownload className="text-lg font-bold" />}
-              // disabled={!generatedQR}
+              disabled={!generatedQR && !existingQRCode}
               onClick={handleDownloadQR}
             />
-            <CommonOutlineButton
+            {/* <CommonOutlineButton
               text={t.shareWhatsApp}
               className="py-2.5 !text-14 w-auto rounded-xl"
               icon={<PiShareFatBold className="text-lg" />}
               disabled={!generatedQR}
               onClick={handleShareWhatsApp}
-            />
+            /> */}
           </div>
         </div>
       </div>
@@ -395,6 +395,7 @@ function AdminQRManagement() {
         <AdminReportsandAnalyticsTitle
           scanCount={existingQRCode?.scanCount || 0}
           shareCount={existingQRCode?.shareCount || 0}
+          conversions={existingQRCode?.scanCount > 0 ? (existingQRCode?.shareCount / existingQRCode?.scanCount) : 0}
         />
       </div>
     </div>

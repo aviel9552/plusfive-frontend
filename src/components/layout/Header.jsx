@@ -130,18 +130,18 @@ const Header = ({ onMobileMenuToggle }) => {
             <FiMenu size={24} />
           </button>
           <div className="hidden lg:block">
-            {isDashboard ? (
+            {/* {isDashboard ? (
               <span>
-                {/* <p className="text-gray-600 dark:text-white text-16">Hi {userName},</p>
+                <p className="text-gray-600 dark:text-white text-16">Hi {userName},</p>
                 <h1 className="text-gray-900 dark:text-white font-semibold flex items-center md:text-24 gap-[8px]">
                   {t.welcome} <span className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
                   <img src={Clap} alt="clap" className="w-6 h-6" />
                   </span>
-                </h1> */}
+                </h1>
               </span>
             ) : (
               <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1 md:text-20">{pageTitle}</div>
-            )}
+            )} */}
           </div>
         </div>
         {/* Right side - Search and icons */}

@@ -203,7 +203,7 @@ const CommonTable = ({
 
   return (
     <div className={`shadow-sm dark:shadow-none transition-colors duration-200 font-ttcommons ${className}`}>
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className={`flex flex-col sm:flex-row gap-4 ${onSearchChange || onFilterChange ? 'mb-6' : 'mb-0'}`}>
         {onSearchChange && (
           <SearchInput value={searchValue} onChange={onSearchChange} />
         )}

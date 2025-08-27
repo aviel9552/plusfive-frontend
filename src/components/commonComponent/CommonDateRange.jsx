@@ -88,7 +88,7 @@ function CustomDropdown({ value, options, onChange, className, label, width = 'w
     <div className={`relative ${width}`} ref={ref}>
       <button
         type="button"
-        className={`flex items-center justify-between dark:bg-customGrayDarker dark:text-white text-black rounded px-2 py-1 text-sm border border-gray-700 focus:outline-none ${className}`}
+        className={`flex items-center justify-between dark:bg-customGrayDarker dark:text-white text-black rounded p-2 text-sm border border-gray-700 focus:outline-none ${className}`}
         onClick={() => setOpen(o => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -172,7 +172,7 @@ function CalendarMonth({ year, month, startDate, endDate, selecting, onSelect, m
           return (
             <button
               key={day.toISOString()}
-              className={`rounded-full w-8 h-8 text-sm text-center transition pt-1
+              className={`rounded-full w-8 h-8 text-sm text-center transition p-1
                 ${isSelected ? 'bg-pink-500 text-white font-bold' : inRange ? 'bg-pink-500/20 dark:text-white text-black' : 'dark:hover:bg-gray-700 hover:bg-gray-300 dark:text-white text-black'}
                 ${isSameDay(day, today) ? 'border border-pink-500' : ''}
                 ${isWeekend ? 'text-red-400' : ''}
@@ -408,21 +408,21 @@ function CommonDateRange({
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  className="px-4 pt-2 pb-1 rounded-lg text-sm dark:text-white text-black border-2 dark:border-gray-500 border-gray-300"
+                  className="px-4 p-1 rounded-lg text-sm dark:text-white text-black border-2 dark:border-gray-500 border-gray-300"
                   onClick={handleCancel}
                   type="button"
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-4 pt-2 pb-1 rounded-lg text-sm dark:text-white text-black border-2 dark:border-gray-500 border-gray-300"
+                  className="px-4 p-1 rounded-lg text-sm dark:text-white text-black border-2 dark:border-gray-500 border-gray-300"
                   onClick={handleClear}
                   type="button"
                 >
                   Clear Filter
                 </button>
                 <button
-                  className="px-4 pt-2 pb-1 bg-pink-500 text-white rounded-lg text-sm hover:bg-pink-600"
+                  className="px-4 p-1 bg-pink-500 text-white rounded-lg text-sm hover:bg-pink-600"
                   onClick={handleApply}
                   type="button"
                   disabled={!(tempRange.startDate && tempRange.endDate)}

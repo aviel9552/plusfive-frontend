@@ -94,8 +94,8 @@ const CommonPagination = ({
                 type="button"
                 className={`w-8 h-8 flex items-center justify-center rounded-full border ${
                   currentPage === num
-                    ? 'bg-customRed text-white border-customRed font-bold pt-1'
-                    : 'border-gray-200 dark:border-customBorderColor text-gray-700 dark:text-gray-300 hover:border-customRed hover:text-customRed font-bold pt-1'
+                    ? 'bg-customRed text-white border-customRed font-bold '
+                    : 'border-gray-200 dark:border-customBorderColor text-gray-700 dark:text-gray-300 hover:border-customRed hover:text-customRed font-bold'
                 } transition-all duration-200 text-sm`}
                 onClick={() => onPageChange?.(Number(num))}
                 aria-label={`Go to page ${num}`}

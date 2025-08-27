@@ -11,9 +11,20 @@ const CustomYAxisTick = ({ x, y, payload }) => {
   const textColor = isDarkMode ? "#fff" : "#000";
   
   if (payload.value === 0) return <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>0</text>;
+  
+  // Format large numbers to k format
+  const formatValue = (value) => {
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(0)}M`;  // 19000000 → 19M
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}k`;     // 999999 → 999k
+    }
+    return value.toString();
+  };
+  
   return (
     <text x={x} y={y} dy={3} fill={textColor} fontSize={12} textAnchor={isRTL ? "start" : "end"}>
-      {payload.value}k
+      {formatValue(payload.value)}
     </text>
   );
 };
@@ -39,16 +50,27 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
   const chartData = dataMap?.[selectedFilter] || [];
   const displayData = isRTL ? [...chartData].reverse() : chartData;
 
-  const getValueIndicator = (entry) => (
-    <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
-      <div className="text-gray-900 dark:text-white text-16 font-medium">
-        ${entry.value * 500 + 10000}
+  const getValueIndicator = (entry) => {
+    const formatTooltipValue = (value) => {
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(0)}M`;
+      } else if (value >= 1000) {
+        return `${(value / 1000).toFixed(0)}k`;
+      }
+      return value.toString();
+    };
+
+    return (
+      <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
+        <div className="text-gray-900 dark:text-white text-16 font-medium">
+          ${formatTooltipValue(entry.value)}
+        </div>
+        <div className="text-gray-600 dark:text-white text-12">
+          {entry.month || 'Month'} 2025
+        </div>
       </div>
-      <div className="text-gray-600 dark:text-white text-12">
-        {entry.month || 'Month'} 2025
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="h-[360px] bg-white dark:bg-customBrown grid grid-cols-1 gap-[24px] rounded-xl p-[24px] border border-gray-200 dark:border-gray-800 relative shadow-md dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody hover:shadow-sm">
@@ -98,7 +120,6 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
               tickLine={false}
               tick={<CustomYAxisTick />}
               tickCount={5}
-              domain={[0, 40]}
               orientation={isRTL ? "right" : "left"}
             />
             <Bar 

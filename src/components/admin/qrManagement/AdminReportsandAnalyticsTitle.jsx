@@ -15,7 +15,7 @@ const timeOptions = [
     { value: 'yearly', label: 'Yearly' }
 ];
 
-function AdminReportsandAnalyticsTitle({ scanCount = 0, shareCount = 0 }) {
+function AdminReportsandAnalyticsTitle({ scanCount = 0, shareCount = 0, conversions = 0 }) {
     const { language } = useLanguage();
     const t = getAdminQRTranslations(language);
     const [timeFrame, setTimeFrame] = useState('monthly')
@@ -50,7 +50,7 @@ function AdminReportsandAnalyticsTitle({ scanCount = 0, shareCount = 0 }) {
                 />
                 <StatIconCard
                     image={Referral_Conversions_Icon}
-                    value="75%"
+                    value={`${conversions.toString()}%`}
                     label={t.conversions}
                 />
             </div>

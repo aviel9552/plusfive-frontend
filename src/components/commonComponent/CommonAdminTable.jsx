@@ -404,7 +404,7 @@ const CommonAdminTable = ({
                 onClick={exportToExcel}
               >
                 <FiDownload className="text-lg" />
-                <p className='mt-[3px]'>
+                <p className=''>
                   {t.export}
                 </p>
               </button>

@@ -33,7 +33,7 @@ function ManageAndTrackCustomers({ statusCounts = {} }) {
                 />
                 <StatIconCard
                     image={Active_Customers_Icon}
-                    value={statusCounts.risk || 0}
+                    value={statusCounts.at_risk || 0}
                     label={t.atRisk}
                 />
                 <StatIconCard
