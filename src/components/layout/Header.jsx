@@ -110,6 +110,7 @@ const Header = ({ onMobileMenuToggle }) => {
   }
 
   const isDashboard = location.pathname === '/app/dashboard' || location.pathname === '/app' || location.pathname === '/admin/dashboard' || location.pathname === '/admin';
+  const isRootPage = location.pathname === '/app/dashboard' || location.pathname === '/app' || location.pathname === '/admin/dashboard' || location.pathname === '/admin';
 
   const isAdmin = userRole === 'admin';
   const accountSettingsLink = isAdmin ? '/admin/account-settings' : '/app/account-settings';
@@ -118,7 +119,7 @@ const Header = ({ onMobileMenuToggle }) => {
   const t = getLayoutTranslations(language);
 
   return (
-    <header className="bg-white dark:bg-customBlack px-4 lg:px-6 h-[72px] grid border-b border-gray-200 dark:border-gray-800 font-ttcommons transition-colors duration-200">
+    <header className={`bg-white dark:bg-customBlack px-4 lg:px-6 ${isRootPage ? 'h-[72px]' : 'h-[55px]'} grid border-b border-gray-200 dark:border-gray-800 font-ttcommons transition-colors duration-200`}>
       <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div className={`flex items-center ${isRTL ? 'order-2' : 'order-1'}`}>
           <button 
