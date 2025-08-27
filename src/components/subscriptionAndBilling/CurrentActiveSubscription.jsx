@@ -18,7 +18,7 @@ const StatusBadge = ({ status }) => {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+        return 'bg-[#D0E2FF] text-[#2537A5]';
       case 'canceled':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
       case 'past_due':
@@ -49,24 +49,7 @@ function CurrentActiveSubscription({ slug }) {
   
   // Get current subscription data from Stripe
   const { currentSubscription, subscriptionLoading, handleCancelSubscription, handleOpenCustomerPortal } = useStripeSubscription();
-
-  // Debug: Log the subscription data structure
-  console.log('🔍 CurrentActiveSubscription - currentSubscription:', currentSubscription);
-  console.log('🔍 CurrentActiveSubscription - subscriptionLoading:', subscriptionLoading);
   
-  // Debug: Check subscription structure
-  if (currentSubscription) {
-    const subscription = currentSubscription.data?.stripe?.subscriptions?.[0];
-    console.log('🔍 Subscription data structure:', {
-      hasData: !!currentSubscription.data,
-      hasStripe: !!currentSubscription.data?.stripe,
-      hasSubscriptions: !!currentSubscription.data?.stripe?.subscriptions,
-      subscriptionsLength: currentSubscription.data?.stripe?.subscriptions?.length || 0,
-      firstSubscription: subscription,
-      subscriptionId: subscription?.id || 'No ID found'
-    });
-  }
-
   const handleUpdatePayment = () => {
     if (currentSubscription) {
       // Option 1: Navigate to Payment Methods Manager (Recommended)
@@ -125,9 +108,9 @@ function CurrentActiveSubscription({ slug }) {
     
     // Map product IDs to plan names based on your Stripe setup
     const planNameMap = {
-      'prod_SwC7p778WSLVvq': 'Starter Plan',
-      'prod_SwC8Dz3kDa6xYB': 'Premium Plan', 
-      'prod_SwC88i6PEs1Y95': 'Business Plan'
+      'prod_SwTx8DIjYRUOzB': 'Starter Plan',
+      'prod_SwTymqc2gU74Iu': 'Premium Plan', 
+      'prod_SwTzVJFwvltfmJ': 'Business Plan'
     };
     
     if (productId && planNameMap[productId]) {
@@ -252,7 +235,7 @@ function CurrentActiveSubscription({ slug }) {
           <h2 className="text-20 font-semibold">{t.currentActiveSubscription}</h2>
           <div className="md:p-[24px] rounded-xl md:border dark:border-gray-800 border-gray-200 dark:bg-customBrown bg-customBody">
             <div className="text-center py-8">
-              <p className="text-gray-600 dark:text-gray-400 text-16">
+              <p className="text-black dark:text-white text-16">
                 No active subscription found. 
                 <br />
                 <span className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" onClick={() => navigate('/pricing')}>
@@ -277,12 +260,12 @@ function CurrentActiveSubscription({ slug }) {
 
           <div className="flex items-center justify-between">
             <h2 className="text-20 font-semibold">{t.currentActiveSubscription}</h2>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-sm text-green-600 dark:text-green-400 font-medium">
                 Active Subscription
               </span>
-            </div>
+            </div> */}
           </div>
 
           {subscriptionLoading ? (
@@ -296,7 +279,7 @@ function CurrentActiveSubscription({ slug }) {
             <div className="md:p-[24px] rounded-xl md:border dark:border-gray-800 border-gray-200 dark:bg-customBrown bg-customBody">
               {/* Enhanced Subscription Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-6 border-b border-gray-200 dark:border-gray-800">
-                <SubscriptionDetail title="Plan" value={getPlanName()} />
+                <SubscriptionDetail title="Subscription" value={getPlanName()} />
                 <SubscriptionDetail title="Amount" value={getAmount()} />
                 <SubscriptionDetail title="Start Date" value={getStartDate()} />
                 <SubscriptionDetail title="Next Billing" value={getEndDate()} />
@@ -309,7 +292,7 @@ function CurrentActiveSubscription({ slug }) {
               </div>
 
               {/* Additional Subscription Info */}
-              <div className="py-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg px-4 mb-6">
+              {/* <div className="py-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg px-4 mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <MdInfo className="text-blue-600 dark:text-blue-400" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -336,10 +319,10 @@ function CurrentActiveSubscription({ slug }) {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Action Buttons */}
-              <div className="flex flex-col md:flex-row items-center gap-4">
+              <div className="flex flex-col md:flex-row items-center gap-4 pt-[24px]">
                 <CommonButton
                   text={t.updatePayment}
                   icon={<CgCreditCard className='rotate-180' />}

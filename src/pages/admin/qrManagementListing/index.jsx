@@ -55,7 +55,7 @@ function AdminQRManagementListing() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
-
+  
   // Modal state for QR details
   const [showModal, setShowModal] = useState(false);
   const [selectedQR, setSelectedQR] = useState(null);
@@ -71,24 +71,24 @@ function AdminQRManagementListing() {
     let filtered = qrCodes.filter(qr => {
       // Search filter
       if (searchValue && searchValue.trim() !== '') {
-        const searchLower = searchValue.toLowerCase().trim();
-        const nameMatch = qr.name?.toLowerCase().includes(searchLower) || false;
-        const urlMatch = qr.url?.toLowerCase().includes(searchLower) || false;
-        const qrDataMatch = (qr.qrData || qr.qrdata)?.toLowerCase().includes(searchLower) || false;
-        const scanCountMatch = qr.scanCount?.toString().includes(searchLower) || false;
+    const searchLower = searchValue.toLowerCase().trim();
+    const nameMatch = qr.name?.toLowerCase().includes(searchLower) || false;
+    const urlMatch = qr.url?.toLowerCase().includes(searchLower) || false;
+    const qrDataMatch = (qr.qrData || qr.qrdata)?.toLowerCase().includes(searchLower) || false;
+    const scanCountMatch = qr.scanCount?.toString().includes(searchLower) || false;
 
-        let ownerNameMatch = false;
-        let ownerEmailMatch = false;
+    let ownerNameMatch = false;
+    let ownerEmailMatch = false;
 
-        if (qr.user) {
-          const firstName = qr.user.firstName?.toLowerCase() || '';
-          const lastName = qr.user.lastName?.toLowerCase() || '';
-          const fullName = `${firstName} ${lastName}`.trim();
-          const email = qr.user.email?.toLowerCase() || '';
+    if (qr.user) {
+      const firstName = qr.user.firstName?.toLowerCase() || '';
+      const lastName = qr.user.lastName?.toLowerCase() || '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      const email = qr.user.email?.toLowerCase() || '';
 
-          ownerNameMatch = fullName.includes(searchLower) || firstName.includes(searchLower) || lastName.includes(searchLower);
-          ownerEmailMatch = email.includes(searchLower);
-        }
+      ownerNameMatch = fullName.includes(searchLower) || firstName.includes(searchLower) || lastName.includes(searchLower);
+      ownerEmailMatch = email.includes(searchLower);
+    }
 
         if (!(nameMatch || urlMatch || qrDataMatch || scanCountMatch || ownerNameMatch || ownerEmailMatch)) {
           return false;
@@ -205,7 +205,7 @@ function AdminQRManagementListing() {
     setSelectedQR(qr);
     setShowModal(true);
     setLoadingDetails(true);
-
+    
     try {
       const response = await getQRCodeByCode(qr.qrData);
       if (response && response.data) {
@@ -294,12 +294,12 @@ function AdminQRManagementListing() {
         <div className="flex items-center space-x-3">
           <div className="relative">
             {qr.qrCodeImage ? (
-              <img
-                src={qr.qrCodeImage}
-                alt={`QR Code for ${qr.name}`}
+          <img
+            src={qr.qrCodeImage}
+            alt={`QR Code for ${qr.name}`}
                 className="w-12 h-12 object-contain border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-              />
-            ) : (
+          />
+        ) : (
               <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg flex items-center justify-center">
                 <MdQrCode2 className="w-6 h-6 text-gray-400 dark:text-gray-500" />
               </div>
@@ -315,7 +315,7 @@ function AdminQRManagementListing() {
               ID: {qr.id}
             </div>
           </div>
-        </div>
+          </div>
       )
     },
     {
@@ -325,7 +325,7 @@ function AdminQRManagementListing() {
         <div className="group max-w-xs">
           <div className="flex items-center space-x-2">
             <div className="truncate text-gray-900 dark:text-white font-mono text-sm" title={qr.qrData || qr.qrdata}>
-              {qr.qrData || qr.qrdata}
+          {qr.qrData || qr.qrdata}
             </div>
             <button
               onClick={() => handleCopyQRData(qr.qrData || qr.qrdata)}
@@ -524,24 +524,24 @@ function AdminQRManagementListing() {
                   onClick={() => {/* Add export functionality */ }}
                   className="px-4 py-2 text-sm rounded-[8px]"
                 />
-                <button
-                  onClick={handleCloseModal}
+              <button
+                onClick={handleCloseModal}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
-                >
+              >
                   <MdClose className="w-6 h-6 text-gray-500 dark:text-gray-400" />
-                </button>
+              </button>
               </div>
             </div>
 
             {/* Modal Content */}
             <div className="p-8 overflow-y-auto max-h-[calc(95vh-120px)]">
-              {loadingDetails ? (
+            {loadingDetails ? (
                 <div className="flex flex-col items-center justify-center py-16">
                   <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600"></div>
                   <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">Loading comprehensive analytics...</p>
                   <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Please wait while we gather your data</p>
-                </div>
-              ) : qrDetails ? (
+              </div>
+            ) : qrDetails ? (
                 <div className="space-y-8">
                   {/* QR Code Preview & Quick Actions */}
                   <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-700">
@@ -683,8 +683,8 @@ function AdminQRManagementListing() {
                         <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
                           <MdTrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                         </div>
-                      </div>
-                    </div>
+                  </div>
+                  </div>
                   </div>
 
                   {/* QR Code Details & Configuration */}
@@ -701,8 +701,8 @@ function AdminQRManagementListing() {
                             <p className="text-gray-900 dark:text-white font-mono text-sm break-all">
                               {qrDetails.qrData || qrDetails.qrdata || 'N/A'}
                             </p>
-                          </div>
-                        </div>
+                  </div>
+                </div>
 
                         {qrDetails.url && (
                           <div>
@@ -721,7 +721,7 @@ function AdminQRManagementListing() {
                         )}
 
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
+                    <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
                             <div className="mt-1">
                               <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${qrDetails.isActive
@@ -741,9 +741,9 @@ function AdminQRManagementListing() {
                                 )}
                               </span>
                             </div>
-                          </div>
+                    </div>
 
-                          <div>
+                    <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</p>
                             <p className="text-gray-900 dark:text-white mt-1 text-sm">
                               {qrDetails.createdAt ? new Date(qrDetails.createdAt).toLocaleDateString() : 'N/A'}
@@ -763,8 +763,8 @@ function AdminQRManagementListing() {
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                               <MdVisibility className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Scan Performance</p>
                               <p className="text-xs text-blue-700 dark:text-blue-300">
                                 {qrDetails.scanCount > 100 ? 'Excellent engagement' :
@@ -779,8 +779,8 @@ function AdminQRManagementListing() {
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                               <MdShare className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <p className="text-sm font-medium text-green-900 dark:text-green-100">Share Rate</p>
                               <p className="text-xs text-green-700 dark:text-green-300">
                                 {qrDetails.sharedCount > 0 ? `${Math.round((qrDetails.sharedCount / qrDetails.scanCount) * 100)}% of scans resulted in shares` : 'No shares yet'}
@@ -793,18 +793,18 @@ function AdminQRManagementListing() {
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
                               <FiExternalLink className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <p className="text-sm font-medium text-purple-900 dark:text-purple-100">Conversion Rate</p>
                               <p className="text-xs text-purple-700 dark:text-purple-300">
                                 {qrDetails.friendClicks > 0 ? `${Math.round((qrDetails.friendClicks / qrDetails.scanCount) * 100)}% of scans led to actions` : 'No conversions yet'}
-                              </p>
-                            </div>
+                      </p>
+                    </div>
                           </div>
                         </div>
-                      </div>
                     </div>
                   </div>
+                </div>
 
                   {/* Enhanced Scan Details Table */}
                   <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
@@ -824,17 +824,17 @@ function AdminQRManagementListing() {
                     </div>
 
                     {qrDetails.scanDetails && qrDetails.scanDetails.length > 0 ? (
-                      <div className="overflow-x-auto">
+                  <div className="overflow-x-auto">
                         <table className="w-full">
-                          <thead>
+                      <thead>
                             <tr className="border-b border-gray-200 dark:border-gray-700">
                               <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Scan Details</th>
                               <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Location & Device</th>
                               <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Timestamp</th>
                               <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                        </tr>
+                      </thead>
+                      <tbody>
                             {qrDetails.scanDetails.map((scan, index) => (
                               <tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors">
                                 <td className="py-4 px-4">
@@ -879,11 +879,11 @@ function AdminQRManagementListing() {
                                       <FiCopy className="w-4 h-4" />
                                     </button>
                                   </div>
-                                </td>
-                              </tr>
+                            </td>
+                          </tr>
                             ))}
-                          </tbody>
-                        </table>
+                      </tbody>
+                    </table>
                       </div>
                     ) : (
                       <div className="text-center py-12">
@@ -925,10 +925,10 @@ function AdminQRManagementListing() {
                           className="px-6 py-2 rounded-[8px]"
                         />
                       </div>
-                    </div>
                   </div>
                 </div>
-              ) : (
+              </div>
+            ) : (
                 <div className="flex flex-col items-center justify-center py-16">
                   <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
                     <MdAnalytics className="w-10 h-10 text-gray-400" />
@@ -946,8 +946,8 @@ function AdminQRManagementListing() {
                       className="px-6 py-3"
                     />
                   </div>
-                </div>
-              )}
+              </div>
+            )}
             </div>
           </div>
         </div>
@@ -960,12 +960,12 @@ function AdminQRManagementListing() {
           <div className="relative flex-1 max-w-md">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MdSearch className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
+        </div>
+          <input
+            type="text"
               placeholder="Search QR codes, owners, or data..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
               className="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-customBlack text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
             />
           </div>
@@ -1092,9 +1092,9 @@ function AdminQRManagementListing() {
                   <MdCheckCircle className="w-4 h-4 text-green-500" />
                   <span>
                     {filteredQRCodes.filter(qr => qr.isActive).length} active
-                  </span>
-                </div>
-              </div>
+          </span>
+        </div>
+      </div>
             )}
           </div>
 
@@ -1159,17 +1159,17 @@ function AdminQRManagementListing() {
           </div>
         ) : (
           <>
-            <CommonAdminTable
-              columns={columns}
-              data={paginatedQRCodes}
-              total={totalItems}
-              loading={loading}
-              renderActions={true}
-              onEdit={handleEditQR}
-              onView={handleViewQR}
-              onDelete={handleDeleteQR}
-              currentPage={currentPage}
-              pageSize={pageSize}
+        <CommonAdminTable
+          columns={columns}
+          data={paginatedQRCodes}
+          total={totalItems}
+          loading={loading}
+          renderActions={true}
+          onEdit={handleEditQR}
+          onView={handleViewQR}
+          onDelete={handleDeleteQR}
+          currentPage={currentPage}
+          pageSize={pageSize}
               showPagination={false}
               showFilterBar={false}
               noDataComponent="No QR codes found"
@@ -1178,19 +1178,19 @@ function AdminQRManagementListing() {
             />
 
             {/* Enhanced Pagination */}
-            {totalItems > 0 && (
+      {totalItems > 0 && (
               <div className="border-t border-gray-200 dark:border-gray-700 p-6">
-                <CommonPagination
-                  currentPage={currentPage}
-                  pageSize={pageSize}
-                  total={totalItems}
-                  onPageChange={handlePageChange}
-                  onPageSizeChange={handlePageSizeChange}
-                  showPageSizeSelector={true}
-                  showPageInfo={true}
-                />
-              </div>
-            )}
+          <CommonPagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            total={totalItems}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            showPageSizeSelector={true}
+            showPageInfo={true}
+          />
+        </div>
+      )}
           </>
         )}
       </div>

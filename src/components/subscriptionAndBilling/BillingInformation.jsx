@@ -5,9 +5,9 @@ import { useStripeSubscription } from '../../hooks/useStripeSubscription';
 import { format, addDays, addMonths, addYears } from 'date-fns';
 
 const BillingInfoItem = ({ label, value, valueClassName = '' }) => (
-    <div>
-        <p className="dark:text-white mb-1 text-xl">{label}</p>
-        <p className={`font-thin text-lg ${valueClassName}`}>{value}</p>
+    <div className='flex flex-col gap-[4px]'>
+        <p className="dark:text-white mb-1 text-16">{label}</p>
+        <p className={`font-thin text-14 ${valueClassName}`}>{value}</p>
     </div>
 );
 
@@ -107,11 +107,11 @@ function BillingInformation() {
     const billingData = getBillingData();
 
     return (
-        <div className="dark:text-white dark:bg-customBrown bg-white p-8 rounded-2xl border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold">{t.billingInformation}</h2>
+        <div className="dark:text-white dark:bg-customBrown bg-white p-[24px] rounded-2xl grid gap-[24px] border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+            <div className="flex items-center justify-between">
+                <h2 className="text-24 font-ttcommons font-bold">{t.billingInformation}</h2>
                 
-                {/* Subscription Status Indicator */}
+                {/* Subscription Status Indicator
                 {!loading && currentSubscription?.data?.stripe?.subscriptions?.[0] && (
                     <div className="flex items-center gap-2">
                         <div className={`w-3 h-3 rounded-full ${
@@ -123,7 +123,7 @@ function BillingInformation() {
                             {currentSubscription.data.stripe.subscriptions[0].status}
                         </span>
                     </div>
-                )}
+                )} */}
             </div>
             
             {/* Loading State */}
@@ -136,14 +136,14 @@ function BillingInformation() {
             
             {/* Billing Data Grid */}
             {!loading && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 justify-between gap-8">
                     <BillingInfoItem label={t.currentBillingCycle} value={billingData.cycle} />
                     <BillingInfoItem label={t.nextBillingDate} value={billingData.nextDate} />
                     <BillingInfoItem label={t.amountToBeCharged} value={billingData.amount} valueClassName="font-semibold text-customRed" />
                     <BillingInfoItem label={t.paymentMethod} value={billingData.method} />
                     
                     {/* Additional Billing Info */}
-                    {currentSubscription?.data?.stripe?.subscriptions?.[0] && (
+                    {/* {currentSubscription?.data?.stripe?.subscriptions?.[0] && (
                         <>
                             <BillingInfoItem 
                                 label="Subscription ID" 
@@ -155,12 +155,12 @@ function BillingInformation() {
                                 value={currentSubscription.data.stripe.subscriptions[0].items?.data?.[0]?.price?.product || 'N/A'} 
                             />
                         </>
-                    )}
+                    )} */}
                 </div>
             )}
             
             {/* Multiple Subscriptions Notice */}
-            {!loading && currentSubscription?.data?.stripe?.subscriptions && 
+            {/* {!loading && currentSubscription?.data?.stripe?.subscriptions && 
                 currentSubscription.data.stripe.subscriptions.length > 1 && (
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -179,10 +179,10 @@ function BillingInformation() {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
             
             {/* No Subscription Message */}
-            {!loading && (!currentSubscription?.data?.stripe?.subscriptions || 
+            {/* {!loading && (!currentSubscription?.data?.stripe?.subscriptions || 
                 !Array.isArray(currentSubscription.data.stripe.subscriptions) || 
                 currentSubscription.data.stripe.subscriptions.length === 0) && (
                 <div className="text-center py-8">
@@ -193,10 +193,10 @@ function BillingInformation() {
                         Subscribe to a plan to see billing information here
                     </p>
                 </div>
-            )}
+            )} */}
             
             {/* Debug Information (Development Only) */}
-            {process.env.NODE_ENV === 'development' && !loading && (
+            {/* {process.env.NODE_ENV === 'development' && !loading && (
                 <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                     <details className="text-sm">
                         <summary className="cursor-pointer font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -207,7 +207,7 @@ function BillingInformation() {
                         </pre>
                     </details>
                 </div>
-            )}
+            )} */}
         </div>
     );
 }

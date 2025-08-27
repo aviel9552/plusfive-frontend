@@ -267,7 +267,13 @@ function AddNewCreditCard({ onSubmit, onCancel }) {
             };
             
             if (onSubmit) {
-                onSubmit(paymentData);
+                // Add sorting logic before submitting
+                const sortedPaymentData = {
+                    ...paymentData,
+                    // Add sorting priority based on expiry date
+                    sortPriority: (parseInt('20' + formData.expireDate.split('/')[1]) * 100) + parseInt(formData.expireDate.split('/')[0])
+                };
+                onSubmit(sortedPaymentData);
             } else {
                 console.log('New card added:', paymentData);
                 navigate(-1);

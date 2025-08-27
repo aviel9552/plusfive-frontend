@@ -255,7 +255,7 @@ function Pricing() {
              </div>
              
              {/* Authentication Status */}
-             <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+             {/* <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
                  <div className="flex items-center justify-between">
                      <div className="flex items-center gap-2">
                          <span className={`w-3 h-3 rounded-full ${isAuthenticated ? 'bg-green-500' : 'bg-red-500'}`}></span>
@@ -269,10 +269,10 @@ function Pricing() {
                          </span>
                      )}
                  </div>
-             </div>
+             </div> */}
 
             {/* Current Subscription Status */}
-            {currentSubscription && (
+            {/* {currentSubscription && (
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                     <div className="flex items-center justify-between">
                         <div>
@@ -292,7 +292,7 @@ function Pricing() {
                         />
                     </div>
                 </div>
-            )}
+            )} */}
 
             {/* Pricing Plans Grid */}
             {pricingPlans.length > 0 ? (
@@ -334,14 +334,14 @@ function Pricing() {
             )}
             
                          {/* Stripe Integration Test - Remove this in production */}
-             <div className="mt-8">
+             {/* <div className="mt-8">
                  <StripeTest />
              </div>
-             
+              */}
              {/* Authentication Debugger - Remove this in production */}
-             <div className="mt-8">
+             {/* <div className="mt-8">
                  <AuthDebugger />
-             </div>
+             </div> */}
             
             {/* API Configuration Notice */}
             {pricesLoading === false && (!Array.isArray(prices) || prices.length === 0) && (

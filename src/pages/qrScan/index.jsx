@@ -117,12 +117,12 @@ export default function QRScanHandler() {
     );
   }
 
-  return (
+    return (
     <div className="flex justify-center items-center h-screen text-xl">
       Redirecting to WhatsApp...
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
 
 
