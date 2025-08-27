@@ -1,48 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { StatSingleBarChart, StatPieChart } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
-import { getAdminAnalyticsTranslations } from '../../../utils/translations';
+import { getAdminTranslations } from '../../../utils/translations';
 import { useAdminData } from '../../../hooks/useAdminData';
-
-const monthlyData = [
-  { month: 'Jan', value: 32 },
-  { month: 'Feb', value: 25 },
-  { month: 'Mar', value: 42 },
-  { month: 'Apr', value: 18 },
-  { month: 'May', value: 28 },
-  { month: 'Jun', value: 25 },
-  { month: 'Jul', value: 32 },
-];
-
-const weeklyData = [
-  { month: 'W1', value: 10 },
-  { month: 'W2', value: 18 },
-  { month: 'W3', value: 22 },
-  { month: 'W4', value: 15 },
-];
-
-const lastMonthData = [
-  { month: 'Week 1', value: 8 },
-  { month: 'Week 2', value: 12 },
-  { month: 'Week 3', value: 16 },
-  { month: 'Week 4', value: 10 },
-];
-
-const thisMonthData = [
-  { month: 'Week 1', value: 14 },
-  { month: 'Week 2', value: 18 },
-  { month: 'Week 3', value: 20 },
-  { month: 'Week 4', value: 16 },
-];
 
 function AdminAnalyticsRevenueAndCustomerStatus() {
   const { language } = useLanguage();
-  const t = getAdminAnalyticsTranslations(language);
-  const { customerStatus, fetchCustomerStatus } = useAdminData();
+  const t = getAdminTranslations(language);
+  const { revenueImpact, customerStatus, fetchRevenueImpact, fetchCustomerStatus } = useAdminData();
+  const [selectedFilter, setSelectedFilter] = useState('monthly');
 
   useEffect(() => {
+    fetchRevenueImpact();
     fetchCustomerStatus();
-  }, [fetchCustomerStatus]);
+  }, [fetchRevenueImpact, fetchCustomerStatus]);
+
+  // Transform revenue impact data for the chart
+  const transformRevenueData = (data) => {
+    if (!data) return [];
+    return data.map(item => ({
+      month: item.month.substring(0, 3), // Take first 3 letters of month
+      value: item.revenue
+    }));
+  };
 
   // Transform customer status data for the pie chart
   const transformCustomerData = (data) => {
@@ -63,43 +43,35 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   ];
 
   const dataMap = {
-    monthly: monthlyData,
-    weekly: weeklyData,
-    lastMonth: lastMonthData,
-    thisMonth: thisMonthData,
+    monthly: transformRevenueData(revenueImpact.data),
+    weekly: transformRevenueData(revenueImpact.data)?.slice(0, 4) || [],
+    lastMonth: transformRevenueData(revenueImpact.data)?.slice(0, 4) || [],
+    thisMonth: transformRevenueData(revenueImpact.data)?.slice(0, 4) || [],
   };
 
   const pieChartData = transformCustomerData(customerStatus.data);
 
-  if (customerStatus.loading) {
+  if (revenueImpact.loading || customerStatus.loading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
-        <div className="lg:col-span-7">
-          <StatSingleBarChart
-            title={t.revenueImpact}
-            dataMap={dataMap}
-            filters={FILTERS}
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons">
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded-lg"></div>
         </div>
-        <div className="lg:col-span-5 animate-pulse">
+        <div className="animate-pulse">
           <div className="h-64 bg-gray-200 rounded-lg"></div>
         </div>
       </div>
     );
   }
 
-  if (customerStatus.error) {
+  if (revenueImpact.error || customerStatus.error) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
-        <div className="lg:col-span-7">
-          <StatSingleBarChart
-            title={t.revenueImpact}
-            dataMap={dataMap}
-            filters={FILTERS}
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons">
+        <div className="text-red-500 text-center py-8">
+          {revenueImpact.error && `Revenue Error: ${revenueImpact.error}`}
         </div>
-        <div className="lg:col-span-5 text-red-500 text-center py-8">
-          Customer Status Error: {customerStatus.error}
+        <div className="text-red-500 text-center py-8">
+          {customerStatus.error && `Customer Status Error: ${customerStatus.error}`}
         </div>
       </div>
     );
