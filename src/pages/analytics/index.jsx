@@ -17,19 +17,7 @@ function Analytics() {
       </div>
       <AdminAnalyticsSecontChart />
       <AdminLTVGrothChart />
-      
-      {/* QR Code Analytics Section */}
-      <div className="mt-16">
-        <h2 className='text-2xl font-bold mb-6 dark:text-white'>QR Code Analytics</h2>
-        
-        {/* Debug Test Component */}
-        <div className="mb-8">
-          <h3 className='text-lg font-semibold mb-4 dark:text-white'>🔧 Debug Test</h3>
-          <TestQRAnalytics />
-        </div>
-        
-        <EnhancedQRAnalyticsDashboard />
-      </div>
+    
     </div>
   )
 }
