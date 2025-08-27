@@ -395,7 +395,8 @@ function AdminQRManagement() {
         <AdminReportsandAnalyticsTitle
           scanCount={existingQRCode?.scanCount || 0}
           shareCount={existingQRCode?.shareCount || 0}
-          conversions={existingQRCode?.scanCount > 0 ? (existingQRCode?.shareCount / existingQRCode?.scanCount) : 0}
+          conversions={existingQRCode?.scanCount > 0 ? 
+            (existingQRCode?.shareCount / existingQRCode?.scanCount).toFixed(2).replace(/\.?0+$/, '') : 0}
         />
       </div>
     </div>

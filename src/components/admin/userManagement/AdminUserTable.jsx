@@ -245,12 +245,12 @@ function AdminUserTable({ users, loading, error }) {
       render: (row) => {
         // Safety check for undefined row
         if (!row) {
-          return <span className="px-3 pt-[10px] pb-[6px] rounded-full text-xs border dark:border-[#292929] border-gray-300 dark:text-white text-black">N/A</span>;
+          return <span className="px-3 pt-[4px] pb-[4px] rounded-full text-xs border dark:border-[#292929] border-gray-300 dark:text-white text-black">N/A</span>;
         }
 
         const role = row.role || 'user';
         return (
-          <span className="px-3 pt-[10px] pb-[6px] rounded-full text-xs border dark:border-[#292929] border-gray-300 dark:text-white text-black">
+          <span className="px-3 pt-[4px] pb-[4px] rounded-full text-xs border dark:border-[#292929] border-gray-300 dark:text-white text-black">
             {role.charAt(0).toUpperCase() + role.slice(1)}
           </span>
         );
