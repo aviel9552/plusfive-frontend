@@ -965,7 +965,14 @@
     "all": "All",
     "paid": "Paid",
     "decline": "Decline",
-    "pending": "Pending"
+    "pending": "Pending",
+    "subscriptionSuccess": "Subscription Successful!",
+    "welcomeTo": "Welcome to",
+    "subscriptionActive": "Your subscription is now active. You can start using all the premium features immediately.",
+    "goToDashboard": "Go to Dashboard",
+    "viewBilling": "View Billing",
+    "redirectingIn": "Redirecting to dashboard in",
+    "seconds": "seconds"
   },
   "referralPage": {
     "loading": "Loading...",

@@ -963,7 +963,14 @@
     "all": "הכל",
     "paid": "שולם",
     "decline": "נדחה",
-    "pending": "ממתין"
+    "pending": "ממתין",
+    "subscriptionSuccess": "המנוי הצליח!",
+    "welcomeTo": "ברוכים הבאים ל",
+    "subscriptionActive": "המנוי שלך פעיל כעת. אתה יכול להתחיל להשתמש בכל התכונות הפרימיום מיד.",
+    "goToDashboard": "עבור ללוח הבקרה",
+    "viewBilling": "צפה בחיוב",
+    "redirectingIn": "מעביר ללוח הבקרה בעוד",
+    "seconds": "שניות"
   },
   "referralPage": {
     "loading": "טוען...",
