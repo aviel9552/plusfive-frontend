@@ -1,18 +1,20 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-function CommonButton({ text, onClick, className = '', type = 'button', icon, iconPosition = 'left', gap = 'gap-2' }) {
+function CommonButton({ text, onClick, className = '', type = 'button', icon, iconPosition = 'left', gap = 'gap-2', disabled = false }) {
   return (
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`
         relative overflow-hidden
-        bg-gradient-to-r from-[#DF64CC] via-[#FF2380] to-[#FE5D39]
+        ${disabled 
+          ? 'bg-gray-400 cursor-not-allowed opacity-60' 
+          : 'bg-gradient-to-r from-[#DF64CC] via-[#FF2380] to-[#FE5D39] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+        }
         text-white font-ttcommons font-medium
         transition-all duration-300 ease-in-out
-        hover:shadow-lg hover:scale-[1.02]
-        active:scale-[0.98]
         ${className}
       `}
     >
@@ -32,7 +34,8 @@ CommonButton.propTypes = {
   type: PropTypes.oneOf(['button', 'submit', 'reset']),
   icon: PropTypes.node,
   iconPosition: PropTypes.oneOf(['left', 'right']),
-  gap: PropTypes.string
+  gap: PropTypes.string,
+  disabled: PropTypes.bool
 }
 
 export default CommonButton

@@ -15,7 +15,7 @@ const timeOptions = [
     { value: 'yearly', label: 'Yearly' }
 ];
 
-function AdminReportsandAnalyticsTitle() {
+function AdminReportsandAnalyticsTitle({ scanCount = 0, shareCount = 0 }) {
     const { language } = useLanguage();
     const t = getAdminQRTranslations(language);
     const [timeFrame, setTimeFrame] = useState('monthly')
@@ -40,12 +40,12 @@ function AdminReportsandAnalyticsTitle() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
                 <StatIconCard
                     image={Todays_Scans_Icon}
-                    value="25"
+                    value={scanCount.toString()}
                     label={t.scans}
                 />
                 <StatIconCard
                     image={Month_Clicks_Icon}
-                    value="980"
+                    value={shareCount.toString()}
                     label={t.clicks}
                 />
                 <StatIconCard

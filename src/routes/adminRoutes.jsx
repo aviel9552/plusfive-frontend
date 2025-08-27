@@ -32,8 +32,8 @@ function AdminRoutes() {
       <Route path="/user-management/view/:userId" element={<ViewUser />} />
       <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
       <Route path="/qr-management" element={<AdminQRManagement />} />
-      <Route path="/qr-management/listing" element={<AdminQRManagementListing />} />
-      <Route path="/qr-management/my-codes" element={<MyQRCodes />} />
+      {/* <Route path="/qr-management/listing" element={<AdminQRManagementListing />} /> */}
+      {/* <Route path="/qr-management/my-codes" element={<MyQRCodes />} /> */}
       <Route path="/referral-management" element={<AdminReferralManagement />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/account-settings" element={<AccountSettings />} />

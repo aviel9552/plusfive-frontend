@@ -401,6 +401,7 @@
     "directMessageMinLength": "ההודעה הישירה חייבת להיות לפחות 10 תווים",
     "generating": "מייצר...",
     "generateQRCode": "צור קוד QR",
+    "qrCodeAlreadyExists": "קוד QR כבר קיים",
     "myQRCodes": "קודי ה-QR שלי",
     "showMyCodes": "הצג את הקודים שלי",
     "showAllCodes": "הצג את כל הקודים",
