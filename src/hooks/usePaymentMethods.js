@@ -43,10 +43,12 @@ export const usePaymentMethods = () => {
 
     try {
       setAdding(true);
+      
+      // paymentData now contains Stripe payment method ID and card details
       const response = await addPaymentMethod(paymentData);
       
-      // Add the new payment method to the list
-      setPaymentMethods(prev => [...prev, response.data || response]);
+      // Refresh the payment methods list to get the updated data
+      await fetchPaymentMethods();
       
       toast.success('Payment method added successfully!');
       return response;
@@ -57,7 +59,7 @@ export const usePaymentMethods = () => {
     } finally {
       setAdding(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchPaymentMethods]);
 
   // Update existing payment method
   const handleUpdatePaymentMethod = useCallback(async (paymentMethodId, updateData) => {
@@ -99,20 +101,33 @@ export const usePaymentMethods = () => {
 
     try {
       setRemoving(true);
-      await removePaymentMethod(paymentMethodId);
+      const response = await removePaymentMethod(paymentMethodId);
       
-      // Remove the payment method from the list
-      setPaymentMethods(prev => prev.filter(pm => pm.id !== paymentMethodId));
+      // Refresh the payment methods data after removal
+      await fetchPaymentMethods();
       
-      toast.success('Payment method removed successfully!');
+      // Show success message with additional info if available
+      const message = response?.data?.message || 'Payment method removed successfully!';
+      toast.success(message);
+      
+      return response;
     } catch (error) {
       console.error('Failed to remove payment method:', error);
-      toast.error(error.message);
+      
+      // Handle specific error messages from backend
+      let errorMessage = 'Failed to remove payment method';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setRemoving(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchPaymentMethods]);
 
   // Set default payment method
   const handleSetDefault = useCallback(async (paymentMethodId) => {

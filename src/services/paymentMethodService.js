@@ -1,9 +1,9 @@
 import apiClient from '../config/apiClient';
 
-// Get all payment methods for the current user
+// Get all payment methods and billing information for the current user
 export const getPaymentMethods = async () => {
   try {
-    const response = await apiClient.get('/stripe/payment-methods');
+    const response = await apiClient.get('/stripe/billing-dashboard');
     return response.data;
   } catch (error) {
     console.error('Failed to fetch payment methods:', error);
@@ -17,6 +17,10 @@ export const getPaymentMethods = async () => {
 // Add a new payment method
 export const addPaymentMethod = async (paymentData) => {
   try {
+    // paymentData should contain:
+    // - paymentMethodId: Stripe payment method ID (required)
+    // - cardholderName, billingAddress, city, state, postalCode, country
+    // - last4, brand, expMonth, expYear (from Stripe)
     const response = await apiClient.post('/stripe/payment-methods', paymentData);
     return response.data;
   } catch (error) {

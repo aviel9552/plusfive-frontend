@@ -7,7 +7,8 @@ import { BillingInformation } from '../index';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
 import { usePaymentMethods } from '../../hooks/usePaymentMethods';
-import AddNewCreditCard from './AddNewCreditCard';
+import StripePaymentForm from './StripePaymentForm';
+import { toast } from 'react-toastify';
 
 function UpdatePayment({ slug }) {
     const navigate = useNavigate();
@@ -32,24 +33,15 @@ function UpdatePayment({ slug }) {
     
     const handleAddPaymentMethodSubmit = async (paymentData) => {
         try {
+            // The paymentData now contains the Stripe payment method ID and card details
             await handleAddPaymentMethod(paymentData);
             setCurrentView('main');
             
-            // Auto-sort payment methods after adding new card
-            if (paymentMethods?.paymentMethods) {
-                const sortedMethods = [...paymentMethods.paymentMethods].sort((a, b) => {
-                    // Sort by expiry date (earliest first)
-                    const aExpiry = (a.card?.exp_year * 100) + (a.card?.exp_month || 0);
-                    const bExpiry = (b.card?.exp_year * 100) + (b.card?.exp_month || 0);
-                    return aExpiry - bExpiry;
-                });
-                
-                // Update the sorted data in state
-                // Note: This is a temporary solution - ideally the API should return sorted data
-                console.log('Payment methods sorted by expiry date:', sortedMethods);
-            }
+            // Refresh payment methods to show the new one
+            // The hook will handle this automatically
         } catch (error) {
             // Error is already handled in the hook
+            console.error('Failed to add payment method:', error);
         }
     };
 
@@ -68,9 +60,6 @@ function UpdatePayment({ slug }) {
         setDeleteModal({ isOpen: false, paymentMethod: null });
     };
 
-    const handleEditClick = (paymentMethod) => {
-        setEditModal({ isOpen: true, paymentMethod });
-    };
 
     const handleCloseEditModal = () => {
         setEditModal({ isOpen: false, paymentMethod: null });
@@ -112,9 +101,10 @@ function UpdatePayment({ slug }) {
                         ← Back to Payment Settings
                     </button>
                 </div>
-                <AddNewCreditCard
+                <StripePaymentForm
                     onSubmit={handleAddPaymentMethodSubmit}
                     onCancel={() => setCurrentView('main')}
+                    onSuccess={() => setCurrentView('main')}
                 />
             </div>
         );
@@ -143,41 +133,8 @@ function UpdatePayment({ slug }) {
                     />
                 </div>
 
-                {/* Debug Payment Methods Data */}
-                {!loading && (
-                    <>
-
-                        {/* <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                            <strong>Debug Info:</strong> paymentMethods type: {typeof paymentMethods}, 
-                            isArray: {Array.isArray(paymentMethods)}, 
-                            length: {Array.isArray(paymentMethods) ? paymentMethods.length : 'N/A'}
-                        </p>
-                        <p className="text-sm text-yellow-800 dark:text-yellow-300 mt-1">
-                            Raw data: {JSON.stringify(paymentMethods, null, 2)}
-                        </p>
-                    </div> */}
-                    </>
-                )}
-
-                {/* Error Display for non-array paymentMethods */}
-                {!loading && !Array.isArray(paymentMethods) && (
-                    <>
-                        {/* <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                        <div className="flex items-center gap-3">
-                            <FiAlertCircle className="text-red-600 dark:text-red-400 text-xl" />
-                            <div>
-                                <h3 className="text-lg font-semibold text-red-800 dark:text-red-300">
-                                    Payment Methods Data Issue
-                                </h3>
-                                <p className="text-sm text-red-700 dark:text-red-400 mt-1">
-                                    Expected array but received: {typeof paymentMethods}. Please check the API response structure.
-                                </p>
-                            </div>
-                        </div>
-                    </div> */}
-                    </>
-                )}
+                
+               
                 {loading ? (
                     <div className="dark:bg-[#121212] bg-gray-50 p-6 rounded-xl flex justify-center items-center border border-gray-200 dark:border-customBorderColor">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -197,20 +154,14 @@ function UpdatePayment({ slug }) {
                                     <FiCreditCard className="w-10 h-10 text-purple-400 bg-purple-200 dark:bg-purple-900/50 p-2 rounded-md" />
                                     <div>
                                         <p className="font-bold text-lg">
-                                            {pm.card?.brand || 'Card'} **** **** **** {pm.card?.last4 || '••••'}
+                                            {pm.card?.brand_display || pm.card?.brand || 'Card'} **** **** **** {pm.card?.last4 || '••••'}
                                         </p>
                                         <p className="text-gray-500 dark:text-gray-400">
-                                            {pm.card?.exp_month}/{pm.card?.exp_year}
+                                            Expires {pm.card?.expiry_date || `${pm.card?.exp_month}/${pm.card?.exp_year}`}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <button
-                                        className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                                        onClick={() => handleEditClick(pm)}
-                                    >
-                                        Edit
-                                    </button>
                                     <button
                                         className="text-customRed font-semibold hover:text-red-700 px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                         onClick={() => handleDeleteClick(pm)}
@@ -233,7 +184,7 @@ function UpdatePayment({ slug }) {
                 onClose={handleCloseDeleteModal}
                 onConfirm={handleConfirmDelete}
                 title="Remove Payment Method"
-                message={`Are you sure you want to remove this ${deleteModal.paymentMethod?.card?.brand || 'card'} ending in ${deleteModal.paymentMethod?.card?.last4 || '••••'}? This action cannot be undone.`}
+                message={`Are you sure you want to remove this ${deleteModal.paymentMethod?.card?.brand_display || deleteModal.paymentMethod?.card?.brand || 'card'} ending in ${deleteModal.paymentMethod?.card?.last4 || '••••'}? This action cannot be undone.`}
                 confirmText="Remove"
                 cancelText="Cancel"
                 confirmButtonColor="bg-gradient-to-r from-customRed to-orange-500 hover:from-orange-500 hover:to-customRed focus:ring-2 focus:ring-orange-400"

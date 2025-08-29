@@ -316,7 +316,7 @@ function myQRCodes() {
               ID: {qr.id}
             </div>
           </div>
-        </div>
+          </div>
       )
     },
     {
@@ -685,8 +685,8 @@ function myQRCodes() {
                         <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
                           <MdTrendingUp className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                         </div>
-                      </div>
-                    </div>
+                  </div>
+                  </div>
                   </div>
 
                   {/* QR Code Details & Configuration */}
@@ -703,8 +703,8 @@ function myQRCodes() {
                             <p className="text-gray-900 dark:text-white font-mono text-sm break-all">
                               {qrDetails.qrData || qrDetails.qrdata || 'N/A'}
                             </p>
-                          </div>
-                        </div>
+                  </div>
+                </div>
 
                         {qrDetails.url && (
                           <div>
@@ -723,7 +723,7 @@ function myQRCodes() {
                         )}
 
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
+                    <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
                             <div className="mt-1">
                               <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${qrDetails.isActive
@@ -743,7 +743,7 @@ function myQRCodes() {
                                 )}
                               </span>
                             </div>
-                          </div>
+                    </div>
 
                     <div>
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</p>
@@ -765,8 +765,8 @@ function myQRCodes() {
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                               <MdVisibility className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
+                    </div>
+                    <div>
                               <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Scan Performance</p>
                               <p className="text-xs text-blue-700 dark:text-blue-300">
                                 {qrDetails.scanCount > 100 ? 'Excellent engagement' :
@@ -795,18 +795,18 @@ function myQRCodes() {
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
                               <FiExternalLink className="w-5 h-5 text-white" />
-                            </div>
+                    </div>
                     <div>
                               <p className="text-sm font-medium text-purple-900 dark:text-purple-100">Conversion Rate</p>
                               <p className="text-xs text-purple-700 dark:text-purple-300">
                                 {qrDetails.friendClicks > 0 ? `${Math.round((qrDetails.friendClicks / qrDetails.scanCount) * 100)}% of scans led to actions` : 'No conversions yet'}
-                              </p>
-                            </div>
+                      </p>
+                    </div>
                           </div>
                         </div>
-                      </div>
                     </div>
                   </div>
+                </div>
 
                   {/* Enhanced Scan Details Table */}
                   <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-2xl border border-gray-200 dark:border-gray-700">
@@ -927,10 +927,10 @@ function myQRCodes() {
                           className="px-6 py-2 rounded-[8px]"
                         />
                       </div>
-                    </div>
                   </div>
                 </div>
-              ) : (
+              </div>
+            ) : (
                 <div className="flex flex-col items-center justify-center py-16">
                   <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
                     <MdAnalytics className="w-10 h-10 text-gray-400" />
@@ -1093,9 +1093,9 @@ function myQRCodes() {
                   <MdCheckCircle className="w-4 h-4 text-green-500" />
                   <span>
                     {filteredQRCodes.filter(qr => qr.isActive).length} active
-                  </span>
-                </div>
-              </div>
+          </span>
+        </div>
+      </div>
             )}
       </div>
 
