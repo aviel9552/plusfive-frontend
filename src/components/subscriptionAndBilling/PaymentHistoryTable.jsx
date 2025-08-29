@@ -17,10 +17,6 @@ const PaymentHistoryTable = () => {
     // Get Stripe subscription data
     const { currentSubscription, subscriptionLoading } = useStripeSubscription();
 
-    // Debug: Log the subscription data for payment history
-    console.log('🔍 PaymentHistoryTable - currentSubscription:', currentSubscription);
-    console.log('🔍 PaymentHistoryTable - invoices:', currentSubscription?.data?.stripe?.invoices);
-
     const filterOptions = ['All', 'Paid', 'Pending', 'Failed'];
 
     // Extract invoice data from Stripe subscription

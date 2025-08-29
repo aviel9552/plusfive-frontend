@@ -94,6 +94,7 @@ function UpdatePayment({ slug }) {
             <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-400">
                     Please login to manage your payment methods.
+                    
                 </p>
             </div>
         );

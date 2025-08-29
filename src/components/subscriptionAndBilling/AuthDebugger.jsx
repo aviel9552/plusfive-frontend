@@ -29,7 +29,6 @@ const AuthDebugger = () => {
     };
     
     setDebugInfo(info);
-    console.log('🔍 Authentication Debug Info:', info);
   };
 
   const testStripeAuth = async () => {
@@ -48,7 +47,6 @@ const AuthDebugger = () => {
       });
 
       const data = await response.json();
-      console.log('🧪 Stripe Auth Test Result:', { status: response.status, data });
       
       setDebugInfo(prev => ({
         ...prev,
@@ -71,7 +69,6 @@ const AuthDebugger = () => {
         return;
       }
 
-      console.log('🧪 Testing checkout endpoint...');
       
       // Test with a real price ID from your Stripe setup
       const testPriceId = 'price_1S0JjRHQYvEoMm95CVIXb6A8'; // Starter plan price ID
@@ -90,15 +87,7 @@ const AuthDebugger = () => {
       });
 
       const data = await response.json();
-      console.log('🧪 Checkout Test Result:', { status: response.status, data });
       
-      // Log the full response for debugging
-      console.log('🔍 Full response details:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        data: data
-      });
       
       setDebugInfo(prev => ({
         ...prev,
@@ -121,7 +110,6 @@ const AuthDebugger = () => {
           return;
         }
 
-        console.log('🧪 Testing raw API call...');
         
         // Test the exact same call that the service makes
         const response = await fetch(`${import.meta.env.VITE_API_URL}/stripe/checkout`, {
@@ -137,21 +125,12 @@ const AuthDebugger = () => {
           })
         });
 
-        console.log('🔍 Raw API Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          ok: response.ok,
-          headers: Object.fromEntries(response.headers.entries())
-        });
-
         let data;
         try {
           data = await response.json();
-          console.log('✅ Response data parsed:', data);
         } catch (parseError) {
           console.error('❌ Failed to parse response as JSON:', parseError);
           const textData = await response.text();
-          console.log('📝 Raw response text:', textData);
           data = { error: 'Failed to parse JSON', rawText: textData };
         }
         

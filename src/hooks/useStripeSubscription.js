@@ -50,11 +50,9 @@ export const useStripeSubscription = () => {
     try {
       setPricesLoading(true);
       const response = await getStripePrices();
-      console.log('📡 Raw API response:', response);
       
       // Extract prices from the nested response structure
       const prices = response?.data?.prices || response?.prices || response;
-      console.log('💰 Extracted prices:', prices);
       
       setPrices(prices);
     } catch (error) {

@@ -11,24 +11,18 @@ import CheckIcon from '../../assets/CheckIcon.svg';
 
 // Helper function to format Stripe price data into plan objects
 const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
-    console.log('🔍 formatStripePricesToPlans called with:', { stripePrices, isYearly });
     
     if (!Array.isArray(stripePrices) || stripePrices.length === 0) {
-        console.log('❌ No stripe prices available');
         return [];
     }
 
     const formattedPlans = stripePrices.map(price => {
-        console.log('📦 Processing price:', price);
         
         const amount = price.unit_amount / 100; // Convert from cents
         const interval = price.recurring?.interval; // monthly or yearly
         
-        console.log('💰 Amount:', amount, 'Interval:', interval, 'IsYearly:', isYearly);
-        
         // Only show plans that match the current billing interval
         if (interval !== (isYearly ? 'year' : 'month')) {
-            console.log('⏰ Skipping price - interval mismatch');
             return null;
         }
 
@@ -45,7 +39,6 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
             priceId: price.id
         };
         
-        console.log('✅ Created plan:', plan);
         return plan;
     }).filter(Boolean); // Remove null values
     
@@ -56,7 +49,6 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
         return priceA - priceB;
     });
     
-    console.log('🎯 Final sorted plans:', sortedPlans);
     return sortedPlans;
 };
 
@@ -214,22 +206,12 @@ function Pricing() {
 
     // Get pricing plans from Stripe API only
     const getPricingPlans = () => {
-        console.log('🎯 getPricingPlans called with prices:', prices, 'isYearly:', isYearly);
         const plans = formatStripePricesToPlans(prices, t, isYearly);
-        console.log('🎯 Final plans returned:', plans);
         return plans;
     };
 
     const pricingPlans = getPricingPlans();
     
-    // Debug logging
-    console.log('🔍 Pricing component state:', {
-        prices,
-        pricesLoading,
-        isYearly,
-        pricingPlans: pricingPlans.length,
-        currentSubscription
-    });
 
     const handlePlanSubscribe = (priceId, planName) => {
         if (!isAuthenticated) {
