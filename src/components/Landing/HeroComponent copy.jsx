@@ -90,7 +90,7 @@ function HeroComponent({ language }) {
         <div className="mb-2">
           <CommonButton
             text={buttonText}
-            className=" !text-white rounded-lg px-4 py-2 font-bold text-16"
+            className=" !text-white rounded-lg px-4 py-2 text-16"
             icon={<GoArrowRight />}
             iconPosition="right"
           />

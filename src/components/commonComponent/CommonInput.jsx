@@ -57,7 +57,7 @@ function CommonInput({
   const labelClass = labelColor ? labelColor : 'dark:text-white text-black';
 
   // 👇 labelFontSize yahan use karein
-  const labelClasses = `block ${labelFontSize} font-medium mb-2 ${labelClass}`;
+  const labelClasses = `block ${labelFontSize} mb-2 ${labelClass}`;
 
   const bgClass = inputBg
     ? inputBg

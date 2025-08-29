@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import CommonPagination from './CommonPagination';
+import { FiCheckCircle } from 'react-icons/fi';
 
 const SearchInput = React.memo(({ value, onChange }) => (
     <div className="relative flex-1">
@@ -73,14 +74,14 @@ const HistoryTable = ({
 }) => {
     return (
         <>
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            {/* <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 {onSearchChange && (
                     <SearchInput value={searchValue} onChange={onSearchChange} />
                 )}
                 {onFilterChange && filterOptions && (
                     <FilterDropdown value={filterValue} options={filterOptions} onChange={onFilterChange} />
                 )}
-            </div>
+            </div> */}
 
             <div className="space-y-4">
                 {loading ? (
@@ -91,15 +92,18 @@ const HistoryTable = ({
                     data.map((item, index) => (
                         <div key={index} className="flex flex-col sm:flex-row items-center justify-between bg-gray-100 dark:bg-customGray p-4 rounded-xl">
                             <div className="flex items-center gap-4 mb-4 sm:mb-0 flex-1">
-                                <div className={`shrink-0 p-3 rounded-lg ${item.iconBgColor || 'bg-[#675DFF]'}`}>{item.icon}</div>
+                                {/* <div className={`shrink-0 p-3 rounded-lg ${item.iconBgColor || 'bg-[#675DFF]'}`}>{item.icon}</div> */}
+                                <div className='shrink-0 p-3 rounded-lg bg-[#675DFF]'>
+                                    <FiCheckCircle className='text-white text-24' />
+                                </div>
                                 <div className='flex flex-col gap-[4px]'>
-                                    <p className="font-semibold text-gray-900 dark:text-white text-18">{item.title}</p>
+                                    <p className="text-gray-900 dark:text-white text-18">{item.title}</p>
                                     <p className="text-14 text-gray-500 dark:text-white">{item.subtitle}</p>
                                 </div>
                             </div>
                             <div className="mb-4 sm:mb-0 text-center flex-1">
-                                <p className="font-semibold text-lg text-gray-900 dark:text-white">{item.value}</p>
-                                {item.statusInfo && <p className={`text-sm font-semibold ${item.statusInfo.className}`}>{item.statusInfo.text}</p>}
+                                <p className="text-lg text-gray-900 dark:text-white">{item.value}</p>
+                                {item.statusInfo && <p className={`text-sm ${item.statusInfo.className}`}>{item.statusInfo.text}</p>}
                             </div>
                             <div className="flex-1 flex justify-end">{item.action}</div>
                         </div>

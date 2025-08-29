@@ -110,7 +110,7 @@ function LandingHeader() {
                 />
                 <CommonButton
                     text={t.button || 'Start Free Trial'}
-                    className="!text-white rounded-lg px-4 py-2 font-bold text-16"
+                    className="!text-white rounded-lg px-4 py-2 text-16"
                     type="submit"
                     onClick={() => window.location.href = '/login'}
                 />

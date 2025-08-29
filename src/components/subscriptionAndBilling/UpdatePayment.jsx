@@ -116,7 +116,7 @@ function UpdatePayment({ slug }) {
             <div className="flex items-center mb-8 gap-4">
                 <GoShieldLock className="w-8 h-8 text-blue-500" />
                 <div>
-                    <h2 className="text-24 font-ttcommons font-bold">{t.secureAndEncrypted}</h2>
+                    <h2 className="text-24 font-ttcommons ">{t.secureAndEncrypted}</h2>
                     <p className="text-14 text-black dark:text-white">{t.secureDescriptionSSL}</p>
                 </div>
             </div>
@@ -124,12 +124,12 @@ function UpdatePayment({ slug }) {
             {/* Current Payment Methods Section */}
             <div className="dark:bg-customBrown bg-white p-[24px] rounded-2xl border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-[24px] font-bold">{t.currentPaymentMethods}</h2>
+                    <h2 className="text-[24px] ">{t.currentPaymentMethods}</h2>
                     <CommonButton
                         text={t.addCard}
                         onClick={handleAddCard}
                         icon={<FiPlus className="text-xl" />}
-                        className=" text-white font-bold py-2 px-4 rounded-lg flex items-center text-[14px]"
+                        className=" text-white  py-2 px-4 rounded-lg flex items-center text-[14px]"
                     />
                 </div>
 
@@ -151,9 +151,9 @@ function UpdatePayment({ slug }) {
                         {paymentMethods.paymentMethods.map((pm) => (
                             <div key={pm.id} className="dark:bg-[#121212] bg-gray-50 p-6 rounded-xl flex justify-between items-center border border-gray-200 dark:border-customBorderColor">
                                 <div className="flex items-center gap-6">
-                                    <FiCreditCard className="w-10 h-10 text-purple-400 bg-purple-200 dark:bg-purple-900/50 p-2 rounded-md" />
+                                    <FiCreditCard className="w-10 h-10 bg-[#C7BAFF] text-[#675DFF] p-2 rounded-md" />
                                     <div>
-                                        <p className="font-bold text-lg">
+                                        <p className=" text-lg">
                                             {pm.card?.brand_display || pm.card?.brand || 'Card'} **** **** **** {pm.card?.last4 || '••••'}
                                         </p>
                                         <p className="text-gray-500 dark:text-gray-400">
@@ -164,7 +164,7 @@ function UpdatePayment({ slug }) {
                                 <div className="flex items-center gap-3">
                                     <button
                                         className="text-customRed font-semibold hover:text-red-700 px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                        onClick={() => handleDeleteClick(pm)}
+                                        onClick={() => handleDeleteClick(pm)}Card Information
                                     >
                                         {t.remove}
                                     </button>
@@ -207,7 +207,7 @@ function UpdatePayment({ slug }) {
                                 <div className="flex-shrink-0 w-11 h-11 bg-gradient-to-br from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-600 rounded-full flex items-center justify-center shadow-md">
                                     <FiCreditCard className="text-white" size={24} />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+                                <h3 className="text-xl  text-gray-900 dark:text-white tracking-tight">
                                     Edit Payment Method
                                 </h3>
                             </div>

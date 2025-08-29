@@ -73,9 +73,9 @@ function AdminLTVGrothChart() {
 
     return (
         <div className='mt-10 flex flex-col gap-[16px]'>
-            <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center`}>
+            {/* <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center`}>
                 <h2 className="text-24 font-ttcommons text-gray-900 dark:text-white">{t.ltvGrowthOverTime}</h2>
-            </div>
+            </div> */}
             <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-customBorderColor font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">

@@ -223,7 +223,7 @@ const CommonTable = ({
                   onClick={() => col.sortable && handleSort(col.key)}
                   aria-sort={sortConfig?.key === col.key ? sortConfig.direction : undefined}
                 >
-                  <div className="flex items-center gap-1 font-bold text-16">
+                  <div className="flex items-center gap-1 text-16">
                     {col.label}
                     {col.sortable && (
                       <svg

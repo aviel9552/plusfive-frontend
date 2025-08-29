@@ -16,14 +16,18 @@ const cardElementOptions = {
   style: {
     base: {
       fontSize: '16px',
-      color: '#424770',
+      // color: '#374151',
+      color: '#fff',
+      fontFamily: 'inherit',
       '::placeholder': {
-        color: '#aab7c4',
+        // color: '#9CA3AF', // text-gray-400
+        color: '#fff', // text-gray-400
       },
-      iconColor: '#6772e5',
+      iconColor: '#EC4899', // text-pink-500
     },
     invalid: {
-      color: '#9e2146',
+      color: '#DC2626', // text-red-600
+      iconColor: '#DC2626',
     },
   },
 };
@@ -172,11 +176,11 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
           <label className="block text-sm font-medium text-black dark:text-white mb-2">
             Card Information <span className="text-red-500">*</span>
           </label>
-          <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
+          <div className="w-full border border-gray-200 dark:border-customBorderColor rounded-lg px-4 py-3 bg-customBody dark:bg-customBrown focus-within:border-pink-500 focus-within:ring-2 focus-within:ring-pink-500 transition-all duration-200">
             <CardElement
               options={cardElementOptions}
               onChange={handleCardChange}
-              className="min-h-[40px]"
+              className="min-h-[24px]"
             />
           </div>
         </div>
@@ -322,7 +326,6 @@ function StripePaymentForm({ onSubmit, onCancel, onSuccess }) {
           <FiCreditCard className="text-white text-xl" />
         </div> */}
         <div>
-          <h2 className="text-[24px] font-bold text-gray-900 dark:text-white">Add New Credit Card</h2>
           {/* <p className="text-gray-600 dark:text-gray-400">Securely add a new credit or debit card</p> */}
         </div>
       </div>

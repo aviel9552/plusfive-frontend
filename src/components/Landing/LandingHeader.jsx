@@ -192,7 +192,7 @@ function LandingHeader() {
                 */}
                 <CommonBorderButton
                     text={'Start Free Trial'}
-                    className="!text-white rounded-[8px] px-[16px] pt-[10px] pb-[8px] font-bold text-16"
+                    className="!text-white rounded-[8px] px-[16px] pt-[10px] pb-[8px] text-16"
                     type="submit"
                     onClick={() => window.location.href = '/login'}
                 />

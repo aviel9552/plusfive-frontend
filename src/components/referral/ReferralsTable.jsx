@@ -93,13 +93,13 @@ function ReferralsTable() {
     {
       key: 'name',
       label: t.name,
-      className: 'text-left min-w-[200px]',
+      className: 'text-left min-w-[200px] text-16',
       render: (row) => (
         <div className="flex items-center gap-3">
           {/* <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
             {row.firstName?.charAt(0)}
           </div> */}
-          <span className=" text-black dark:text-white">
+          <span className=" text-black dark:text-white text-14">
             {row.firstName} {row.lastName}
           </span>
         </div>
@@ -108,9 +108,9 @@ function ReferralsTable() {
     {
       key: 'email',
       label: t.email,
-      className: `${isRTL ? 'text-right' : 'text-left'} min-w-[200px]`,
+      className: `${isRTL ? 'text-right' : 'text-left'} min-w-[200px] text-16`,
       render: (row) => (
-        <a href={`mailto:${row.email}`} className="text-black dark:text-white hover:underline">
+        <a href={`mailto:${row.email}`} className="text-black dark:text-white hover:underline text-14">
           {row.email}
         </a>
       )
@@ -118,9 +118,9 @@ function ReferralsTable() {
     {
       key: 'date',
       label: t.date,
-      className: `${isRTL ? 'text-right' : 'text-left'} min-w-[100px]`,
+      className: `${isRTL ? 'text-right' : 'text-left'} min-w-[100px] text-16`,
       render: (row) => (
-        <span className="text-gray-600 dark:text-gray-400">
+        <span className="text-gray-600 dark:text-gray-400 text-14">
           {formatDate(row.date)}
         </span>
       )
@@ -128,7 +128,7 @@ function ReferralsTable() {
     {
       key: 'status',
       label: t.status,
-      className: 'min-w-[120px]',
+      className: 'min-w-[120px] text-16`',
       render: (row) => (
         <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-[14px] ${
           row.status === 'active' 
@@ -142,9 +142,9 @@ function ReferralsTable() {
     {
       key: 'commission',
       label: t.commission,
-      className: 'min-w-[120px]',
+      className: 'min-w-[120px] text-16',
       render: (row) => (
-        <span className="font-medium text-black dark:text-white">
+        <span className="font-medium text-black dark:text-white text-14">
           ${row.commission}
         </span>
       )
@@ -152,7 +152,7 @@ function ReferralsTable() {
     {
       key: 'action',
       label: t.action,
-      className: 'w-20',
+      className: 'w-20 text-16',
       render: (row, idx) => (
         <div className="text-center relative action-dropdown">
           <button
@@ -162,7 +162,7 @@ function ReferralsTable() {
             <HiDotsHorizontal className="w-5 h-5" />
           </button>
           {openAction === idx && (
-            <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-customBorderColor rounded-lg shadow-lg z-20 py-1`}>
+            <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-[#FFFFFF1A] rounded-lg shadow-lg z-20 py-1`}>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => { 
@@ -182,7 +182,7 @@ function ReferralsTable() {
 
   return (
     <div className="w-full mt-10">
-      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-[#FFFFFF1A] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className="p-[24px]">
           <div className="flex justify-between items-center mb-[24px]">
             <div className="flex items-center gap-4">
@@ -223,7 +223,7 @@ function ReferralsTable() {
       {/* Referral Details Modal */}
       {showModal && selectedReferral && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-[#FFFFFF1A] rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-black dark:text-white">{t.referralDetails}</h3>
               <button

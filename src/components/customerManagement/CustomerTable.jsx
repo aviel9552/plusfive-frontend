@@ -284,7 +284,7 @@ function CustomerTable({ customers = [], loading = false }) {
         <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className='flex flex-col gap-[24px]'>
                 <div className="flex justify-between items-center">
-                    <h2 className="text-[24px] font-semibold text-gray-900 dark:text-white">{t.customers} ({filteredData.length})</h2>
+                    <h2 className="text-[24px] text-gray-900 dark:text-white font-ttcommons">{t.customers} ({filteredData.length})</h2>
                     <div className="flex items-center">
                         <select
                             value={filterValue}

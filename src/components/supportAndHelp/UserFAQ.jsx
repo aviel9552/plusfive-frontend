@@ -57,7 +57,7 @@ const UserFAQ = () => {
 
     return (
         <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white p-[24px] rounded-[16px] text-black dark:text-white border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-24 font-bold">{t.faq}</h2>
+            <h2 className="text-24 ">{t.faq}</h2>
             <div className=" flex flex-col gap-[16px]">
                 {faqData.map((faq, index) => (
                     <FaqItem

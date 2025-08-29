@@ -26,15 +26,17 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
             return null;
         }
 
+        const planName = price.product?.name || price.metadata?.planName || price.nickname || 'Premium Plan';
+        
         const plan = {
-            name: price.product?.name || price.metadata?.planName || price.nickname || 'Premium Plan',
+            name: planName,
             description: price.product?.description || price.metadata?.description || t.premiumDescription,
             monthlyPrice: interval === 'month' ? amount : null,
             yearlyPrice: interval === 'year' ? amount : null,
             features: price.product?.marketing_features ? 
                 price.product.marketing_features.map(feature => feature.name) : 
                 [t.basicReports, t.emailSupport],
-            isPopular: price.metadata?.isPopular === 'true',
+            isPopular: planName.toLowerCase().includes('premium') || price.metadata?.isPopular === 'true',
             stripePriceId: price.id,
             priceId: price.id
         };
@@ -89,7 +91,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
     const isSubscribed = !!currentSubscription;
 
     const cardClasses = `
-    bg-customGray2 dark:bg-customGray p-[24px] rounded-2xl flex flex-col h-full
+    bg-customGray2 dark:bg-[#1D1C20] p-[24px] rounded-2xl flex flex-col h-full
     ${isPopular ? 'relative' : ''}
   `;
 
@@ -102,7 +104,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
         </div>
     ) : null;
 
-    const cardWrapperClass = isPopular ? 'p-[2px] bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl' : 'border-2 border-gray-300 dark:border-customBorderColor rounded-2xl';
+    const cardWrapperClass = isPopular ? 'p-[2px] bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl' : 'border border-gray-300 dark:border-[#FFFFFF29] rounded-2xl';
 
     const handleAction = () => {
         if (isCurrentPlan) {
@@ -142,8 +144,8 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
             <div className={cardClasses}>
                 {popularBadge}
                 <div className='flex flex-col gap-[12px]'>
-                    <h3 className="text-24 font-semibold text-gray-900 dark:text-white">{name}</h3>
-                    <p className="text-gray-500 dark:text-white text-16">{description}</p>
+                    <h3 className="text-24 font-ttcommons text-gray-900 dark:text-white">{name}</h3>
+                    <p className="text-gray-500 dark:text-[#FFFFFFCC] text-16">{description}</p>
                 </div>
 
                 <div className="mt-8">
@@ -211,7 +213,7 @@ function Pricing() {
     };
 
     const pricingPlans = getPricingPlans();
-    
+    console.log("pricingPlans ", pricingPlans);
 
     const handlePlanSubscribe = (priceId, planName) => {
         if (!isAuthenticated) {
@@ -278,7 +280,7 @@ function Pricing() {
 
             {/* Pricing Plans Grid */}
             {pricingPlans.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-7 items-stretch">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px] mt-[24px] items-stretch">
                     {pricingPlans.map(plan => (
                         <PricingCard 
                             key={plan.name} 

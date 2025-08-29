@@ -143,7 +143,7 @@ const PaymentHistoryTable = () => {
 
     return (
         <div className="bg-white dark:bg-customBrown p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-24 font-ttcommons mb-6 text-gray-900 dark:text-white">{t.paymentHistory}</h2>
+            <h2 className="text-24 font-ttcommons mb-[24px] text-gray-900 dark:text-white">{t.paymentHistory}</h2>
             
             <HistoryTable 
                 data={paginatedAndMappedData}
