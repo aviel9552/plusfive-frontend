@@ -32,7 +32,7 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#675D
 
   return (
     <div className="bg-white dark:bg-customBrown rounded-xl p-[20px] border border-gray-200 dark:border-commonBorder  relative dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
-      <span className="text-gray-900 dark:text-white text-14">{title}</span>
+      <span className="text-black dark:text-white text-14">{title}</span>
       <div className="flex items-end justify-between">
         <div className="flex flex-col">
           <span className="text-44 font-semibold text-gray-900 dark:text-white font-ttcommons">{value}</span>

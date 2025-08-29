@@ -61,7 +61,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
     };
 
     return (
-      <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-lg shadow-lg transition-colors duration-200">
+      <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-[16px] shadow-lg transition-colors duration-200">
         <div className="text-gray-900 dark:text-white text-16 font-medium">
           ${formatTooltipValue(entry.value)}
         </div>
@@ -78,10 +78,8 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
         <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
         {filters && dataMap && (
           <CommonDropDown
-            options={filters}
-            value={selectedFilter}
-            onChange={setSelectedFilter}
-            className="w-[120px] h-auto pb-2"
+            options={filters} 
+            value={selectedFilter}   
             fontSize="text-14"
           />
         )}
@@ -101,7 +99,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             onMouseLeave={() => setActiveIndex(null)}
           >
             <CartesianGrid 
-              strokeDasharray="8 8" 
+              strokeDasharray="8 12" 
               vertical={false} 
               stroke={isDarkMode ? "#D1D5DB" : "#000"}
               opacity={0.4}

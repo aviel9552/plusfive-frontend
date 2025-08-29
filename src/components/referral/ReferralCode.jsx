@@ -45,15 +45,15 @@ function ReferralCode() {
 
   return (
     <div className="">
-      <div className="dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-6 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-        <h2 className="text-24 font-medium text-gray-900 dark:text-white mb-6 font-ttcommons">
+      <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-6 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+        <h2 className="text-24 font-medium text-gray-900 dark:text-white font-ttcommons">
           {t.myReferralCode}
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[72px]">
           {/* Referral Code */}
           <div className='flex flex-col gap-[6px]'>
-            <p className="text-14 dark:text-white text-black mb-2">
+            <p className="text-14 dark:text-white text-black">
               {t.referralCode}
             </p>
             <div className="flex items-center gap-2 ">
@@ -77,7 +77,7 @@ function ReferralCode() {
 
           {/* Referral Link */}
           <div className='flex flex-col gap-[6px]'>
-            <p className="text-14 dark:text-white text-black mb-2">
+            <p className="text-14 dark:text-white text-black">
               {t.referralLink}
             </p>
             <div className="flex items-center gap-2">

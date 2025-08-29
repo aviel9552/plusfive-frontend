@@ -200,7 +200,7 @@ function CustomerTable({ customers = [], loading = false }) {
             label: t.customer,
             render: (row) => (
                 <div className="flex flex-col gap-3">
-                    <div className="font-semibold text-gray-900 dark:text-white text-14 whitespace-nowrap">
+                    <div className="font-semibold text-black dark:text-white text-14 whitespace-nowrap">
                         {row.customerFullName || `${row.firstName} ${row.lastName}`}
                     </div>
                     <div className="text-black dark:text-[#CECFD2] text-12">{row.email || t.noDataAvailable}</div>

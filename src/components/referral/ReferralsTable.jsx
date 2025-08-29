@@ -14,6 +14,15 @@ function ReferralsTable() {
   const t = getAdminReferralTranslations(language);
   const dispatch = useDispatch();
   
+  // Helper function to format date in DD MM YYYY format
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2); // Get only last 2 digits
+    return `${day}/${month}/${year}`;
+  };
+  
   // Get referrals from Redux state
   const { userReferrals, loading } = useSelector(state => state.referral);
   // console.log('userReferrals', userReferrals);
@@ -79,7 +88,7 @@ function ReferralsTable() {
     {
       key: 'id',
       label: t.no,
-      className: `${isRTL ? 'text-right' : 'text-left'} font-medium w-16 dark:text-white`
+      className: `${isRTL ? 'text-right' : 'text-left'} w-16 dark:text-white text-16`
     },
     {
       key: 'name',
@@ -87,10 +96,10 @@ function ReferralsTable() {
       className: 'text-left min-w-[200px]',
       render: (row) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
+          {/* <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
             {row.firstName?.charAt(0)}
-          </div>
-          <span className="font-medium text-gray-900 dark:text-white">
+          </div> */}
+          <span className=" text-black dark:text-white">
             {row.firstName} {row.lastName}
           </span>
         </div>
@@ -101,7 +110,7 @@ function ReferralsTable() {
       label: t.email,
       className: `${isRTL ? 'text-right' : 'text-left'} min-w-[200px]`,
       render: (row) => (
-        <a href={`mailto:${row.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+        <a href={`mailto:${row.email}`} className="text-black dark:text-white hover:underline">
           {row.email}
         </a>
       )
@@ -112,7 +121,7 @@ function ReferralsTable() {
       className: `${isRTL ? 'text-right' : 'text-left'} min-w-[100px]`,
       render: (row) => (
         <span className="text-gray-600 dark:text-gray-400">
-          {row.date}
+          {formatDate(row.date)}
         </span>
       )
     },
@@ -121,7 +130,7 @@ function ReferralsTable() {
       label: t.status,
       className: 'min-w-[120px]',
       render: (row) => (
-        <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-sm ${
+        <span className={`px-3 pt-[4px] pb-[5px] rounded-full text-[14px] ${
           row.status === 'active' 
             ? 'text-[#2537A5] bg-[#D0E2FF]'
             : 'text-[#EF5A0B] bg-[#FFE8E3]'
@@ -135,8 +144,8 @@ function ReferralsTable() {
       label: t.commission,
       className: 'min-w-[120px]',
       render: (row) => (
-        <span className="font-medium text-gray-900 dark:text-white">
-          {row.commission}
+        <span className="font-medium text-black dark:text-white">
+          ${row.commission}
         </span>
       )
     },
@@ -174,15 +183,15 @@ function ReferralsTable() {
   return (
     <div className="w-full mt-10">
       <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
+        <div className="p-[24px]">
+          <div className="flex justify-between items-center mb-[24px]">
             <div className="flex items-center gap-4">
-              <h2 className="text-20 text-gray-900 dark:text-white">
+              <h2 className="text-20 text-black dark:text-white">
                 {t.referrals}
               </h2>
-              <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
+              {/* <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400">
                 {filteredAndSortedData.length} {t.total}
-              </span>
+              </span> */}
             </div>
           </div>
           
@@ -216,7 +225,7 @@ function ReferralsTable() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.referralDetails}</h3>
+              <h3 className="text-2xl font-bold text-black dark:text-white">{t.referralDetails}</h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-white transition-colors"
@@ -228,34 +237,34 @@ function ReferralsTable() {
             <div className="space-y-6">
               {/* User Information Section */}
               <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-lg">
-                <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.userInformation}</h4>
+                <h4 className="text-black dark:text-white text-lg font-semibold mb-4">{t.userInformation}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.firstName}</p>
-                    <p className="text-gray-900 dark:text-white">{selectedReferral.firstName}</p>
+                    <p className="text-black dark:text-white">{selectedReferral.firstName}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.lastName}</p>
-                    <p className="text-gray-900 dark:text-white">{selectedReferral.lastName}</p>
+                    <p className="text-black dark:text-white">{selectedReferral.lastName}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.email}</p>
-                    <p className="text-gray-900 dark:text-white">{selectedReferral.email}</p>
+                    <p className="text-black dark:text-white">{selectedReferral.email}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.userId}</p>
-                    <p className="text-gray-900 dark:text-white">{selectedReferral.id}</p>
+                    <p className="text-black dark:text-white">{selectedReferral.id}</p>
                   </div>
                 </div>
               </div>
 
               {/* Referral Details Section */}
               <div className="bg-gray-50 dark:bg-customBlack p-6 rounded-lg">
-                <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-4">{t.referralDetails}</h4>
+                <h4 className="text-black dark:text-white text-lg font-semibold mb-4">{t.referralDetails}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.referralCode}</p>
-                    <p className="text-gray-900 dark:text-white">{selectedReferral.id}</p>
+                    <p className="text-black dark:text-white">{selectedReferral.id}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.status}</p>
@@ -269,12 +278,12 @@ function ReferralsTable() {
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.commission}</p>
-                    <p className="text-gray-900 dark:text-white">${selectedReferral.commission}</p>
+                    <p className="text-black dark:text-white">${selectedReferral.commission}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.date}</p>
-                    <p className="text-gray-900 dark:text-white">
-                      {new Date(selectedReferral.date).toLocaleDateString()}
+                    <p className="text-black dark:text-white">
+                      {formatDate(selectedReferral.date)}
                     </p>
                   </div>
                 </div>

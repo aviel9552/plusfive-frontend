@@ -98,9 +98,9 @@ function AdminAnalyticsSecontChart() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons mt-7">
 
             <div className="lg:col-span-5">
-                <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-24 font-ttcommons font-semibold text-gray-900 dark:text-white">{t.qrCode}</h2>
+                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+                    <div className="flex justify-between items-center mb-[31px] text-center">
+                        <h2 className="text-24 font-ttcommons text-gray-900 dark:text-white text-center">{t.qrCode}</h2>
                         <CommonDropDown options={FILTER_OPTIONS} value={filter} onChange={setFilter} fontSize="text-12" className="w-[120px] h-auto pb-2" />
                     </div>
                     <div className="h-[250px]">
@@ -167,8 +167,8 @@ function AdminAnalyticsSecontChart() {
             </div>
 
             <div className="lg:col-span-7">
-                <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
-                    <h2 className="text-24 font-ttcommons font-semibold text-gray-900 dark:text-white mb-6">{t.averageRatingOverTime}</h2>
+                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+                    <h2 className="text-24 font-ttcommons text-gray-900 dark:text-white mb-[32px]">{t.averageRatingOverTime}</h2>
                     <div className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart
@@ -182,8 +182,8 @@ function AdminAnalyticsSecontChart() {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid
-                                    strokeDasharray="6 6"
-                                    vertical={false}
+                                    strokeDasharray="8 12"
+                                    vertical={true}
                                     stroke={isDarkMode ? "#D1D5DB" : "#000"}
                                     strokeOpacity={0.15}
                                 />

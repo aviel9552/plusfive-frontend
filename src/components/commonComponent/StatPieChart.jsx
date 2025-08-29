@@ -32,7 +32,7 @@ const StatPieChart = ({ title, data }) => {
   const displayData = isRTL ? [...customerData].reverse() : customerData;
 
   return (
-    <div className="bg-white dark:bg-customBrown rounded-xl p-6 border border-gray-200 dark:border-gray-800 dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+    <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-gray-800 dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
       <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
         <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
       </div>
@@ -48,8 +48,8 @@ const StatPieChart = ({ title, data }) => {
                 cy="50%"
                 // innerRadius={75}
                 // outerRadius={105}
-                innerRadius={65}
-                outerRadius={95}
+                innerRadius={62}
+                outerRadius={80}
                 startAngle={90}
                 endAngle={450}
                 onMouseEnter={(_, index) => setActiveIndex(index)}
@@ -84,7 +84,7 @@ const StatPieChart = ({ title, data }) => {
           <div key={index} className={`flex flex-col items-center ${isRTL ? 'items-end' : 'items-start'}`}>
             <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} mb-1`}>
               <div className={`w-3 h-3 rounded-full ${isRTL ? 'ml-2' : 'mr-2'}`} style={{ backgroundColor: item.color }}></div>
-              <span className={`text-gray-900 dark:text-white text-14`}>{item.name}</span>
+              <span className={`text-black dark:text-white text-14`}>{item.name}</span>
             </div>
             <span className={`text-gray-600 dark:text-white text-12 ${isRTL ? 'text-right' : 'text-left'}`}>
               {item.value} ({item.percentage})

@@ -203,14 +203,14 @@ const CommonTable = ({
 
   return (
     <div className={`shadow-sm dark:shadow-none transition-colors duration-200 font-ttcommons ${className}`}>
-      <div className={`flex flex-col sm:flex-row gap-4 ${onSearchChange || onFilterChange ? 'mb-6' : 'mb-0'}`}>
+      {/* <div className={`flex flex-col sm:flex-row gap-4 ${onSearchChange || onFilterChange ? 'mb-6' : 'mb-0'}`}>
         {onSearchChange && (
           <SearchInput value={searchValue} onChange={onSearchChange} />
         )}
         {onFilterChange && filterOptions && (
           <FilterDropdown value={filterValue} options={filterOptions} onChange={onFilterChange} />
         )}
-      </div>
+      </div> */}
 
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm table-auto" role="grid">
@@ -274,7 +274,7 @@ const CommonTable = ({
                   {columns.map(col => (
                     <td 
                       key={col.key}
-                      className={`py-3 px-4 ${col.className || ''}`}
+                      className={`py-3 px-4 text-14 ${col.className || ''}`}
                       role="gridcell"
                     >
                       {col.render ? col.render(row, idx) : row[col.key]}
