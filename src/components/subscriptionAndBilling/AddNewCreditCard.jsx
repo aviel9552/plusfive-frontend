@@ -14,7 +14,7 @@ function LabelWithAsterisk({ htmlFor, children }) {
     );
 }
 
-function AddNewCreditCard() {
+function AddNewCreditCard({ onSubmit, onCancel }) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const v = getValidationTranslations(language);
@@ -253,13 +253,40 @@ function AddNewCreditCard() {
         const validationErrors = validate();
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            console.log('New card added:', formData);
-            navigate(-1);
+            // Transform form data to match payment method structure
+            const paymentData = {
+                cardNumber: formData.cardNumber,
+                cardholderName: formData.cardName,
+                expMonth: parseInt(formData.expireDate.split('/')[0]),
+                expYear: parseInt('20' + formData.expireDate.split('/')[1]),
+                cvc: formData.cvc,
+                billingAddress: formData.streetAddress,
+                city: formData.city,
+                zipCode: formData.postCode,
+                isDefault: false
+            };
+            
+            if (onSubmit) {
+                // Add sorting logic before submitting
+                const sortedPaymentData = {
+                    ...paymentData,
+                    // Add sorting priority based on expiry date
+                    sortPriority: (parseInt('20' + formData.expireDate.split('/')[1]) * 100) + parseInt(formData.expireDate.split('/')[0])
+                };
+                onSubmit(sortedPaymentData);
+            } else {
+                console.log('New card added:', paymentData);
+                navigate(-1);
+            }
         }
     };
 
     const handleCancel = () => {
-        navigate(-1);
+        if (onCancel) {
+            onCancel();
+        } else {
+            navigate(-1);
+        }
     };
 
     return (

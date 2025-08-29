@@ -14,6 +14,9 @@ import ContactSales from '../pages/contactSales';
 import ReferralPage from '../pages/referral';
 import ReviewPage from '../pages/reviews';
 import QRScanHandler from '../pages/qrScan';
+import SubscriptionSuccess from '../pages/subscription/Success';
+import BillingPage from '../pages/billing';
+import UpdatePayment from '../pages/subscription/UpdatePayment';
 import DirectMessageSend from '../pages/qrScan/DirectMessageSend';
 
 function PublicRouteGuard({ children }) {
@@ -62,6 +65,9 @@ function PublicRoutes() {
         <Route path="scan/:qrId" element={<QRScanHandler />} />
         <Route path="qr-scan/:qrId" element={<QRScanHandler />} />
         <Route path="scan-qr/:qrId" element={<QRScanHandler />} />
+        <Route path="subscription/success" element={<SubscriptionSuccess />} />
+        <Route path="billing" element={<BillingPage />} />
+        <Route path="update-payment" element={<UpdatePayment />} />
         {/* Add more public routes here in the future */}
         <Route path="*" element={<NotFound />} />
       </Routes>

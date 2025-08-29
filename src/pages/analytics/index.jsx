@@ -17,7 +17,7 @@ function Analytics() {
       </div>
       <AdminAnalyticsSecontChart />
       <AdminLTVGrothChart />
-    
+      
     </div>
   )
 }
