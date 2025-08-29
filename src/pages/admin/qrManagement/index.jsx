@@ -250,10 +250,10 @@ function AdminQRManagement() {
   return (
     <div className="">
       {/* Main content boxes */}
-      <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-gray-800 border-gray-200 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-[#FFFFFF1A] border-gray-200 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] p-[24px]">
           {/* QR Generator Section */}
-          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-customBody rounded-2xl md:border dark:border-gray-800 border-gray-200'>
+          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-customBody rounded-2xl md:border dark:border-[#FFFFFF1A] border-gray-200'>
             <div className='flex flex-col gap-[36px] '>
 
               <div className='flex flex-col gap-[24px]'>
@@ -323,13 +323,13 @@ function AdminQRManagement() {
           </div>
 
           {/* QR Code Display Section */}
-          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-white rounded-2xl md:border dark:border-gray-800 border-gray-200'>
+          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-white rounded-2xl md:border dark:border-[#FFFFFF1A] border-gray-200'>
             <div className='flex flex-col gap-[24px]'>
 
               <h2 className="text-24 font-medium font-ttcommons">
                 {t.myQRCodes}
               </h2>
-              <div className="md:p-0 p-10 flex flex-col items-center justify-center h-[260px] rounded-lg dark:bg-customBrown bg-customBody border dark:border-gray-800 border-gray-200 border-dashed">
+              <div className="md:p-0 p-10 flex flex-col items-center justify-center h-[260px] rounded-lg dark:bg-customBrown bg-customBody border dark:border-[#FFFFFF1A] border-gray-200 border-dashed">
                 {generatedQR ? (
                   <div className="text-center">
                     <img
@@ -391,7 +391,7 @@ function AdminQRManagement() {
           </div>
         </div>
       </div>
-      <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-gray-800 border-gray-200 p-[24px] mt-[32px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-[#FFFFFF1A] border-gray-200 p-[24px] mt-[32px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <AdminReportsandAnalyticsTitle
           scanCount={existingQRCode?.scanCount || 0}
           shareCount={existingQRCode?.shareCount || 0}

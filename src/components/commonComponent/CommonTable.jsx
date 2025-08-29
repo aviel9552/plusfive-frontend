@@ -266,8 +266,8 @@ const CommonTable = ({
                   key={idx}
                   className={
                     idx % 2 === 0
-                    ? "border-b border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors dark:bg-[#181818] bg-gray-100"
-                    : "border-b border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors"
+                    ? "border-b border-gray-200 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors dark:bg-[#181818] bg-gray-100"
+                    : "border-b border-gray-200 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors"
                   }
                   role="row"
                 >

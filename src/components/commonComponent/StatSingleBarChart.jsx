@@ -73,7 +73,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
   };
 
   return (
-    <div className="h-[360px] bg-white dark:bg-customBrown grid grid-cols-1 gap-[24px] rounded-xl p-[24px] border border-gray-200 dark:border-gray-800 relative shadow-md dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody hover:shadow-sm">
+    <div className="h-[360px] bg-white dark:bg-customBrown grid grid-cols-1 gap-[24px] rounded-xl p-[24px] border border-gray-200 dark:border-[#FFFFFF1A] relative shadow-md dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody hover:shadow-sm">
       <div className="flex justify-between items-center ">
         <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
         {filters && dataMap && (

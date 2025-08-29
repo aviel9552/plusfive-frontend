@@ -233,7 +233,7 @@ function CurrentActiveSubscription({ slug }) {
       <div className="font-ttcommons dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-[24px] dark:text-white dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className='flex flex-col gap-[24px]'>
           <h2 className="text-20 font-semibold">{t.currentActiveSubscription}</h2>
-          <div className="md:p-[24px] rounded-xl md:border dark:border-gray-800 border-gray-200 dark:bg-customBrown bg-customBody">
+          <div className="md:p-[24px] rounded-xl md:border dark:border-[#FFFFFF1A] border-gray-200 dark:bg-customBrown bg-customBody">
             <div className="text-center py-8">
               <p className="text-black dark:text-white text-16">
                 No active subscription found. 
@@ -269,16 +269,16 @@ function CurrentActiveSubscription({ slug }) {
           </div>
 
           {subscriptionLoading ? (
-            <div className="md:p-[24px] rounded-xl md:border dark:border-gray-800 border-gray-200 dark:bg-customBrown bg-customBody">
+            <div className="md:p-[24px] rounded-xl md:border dark:border-[#FFFFFF1A] border-gray-200 dark:bg-customBrown bg-customBody">
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 <span className="ml-3 text-gray-600 dark:text-gray-400">Loading subscription...</span>
               </div>
             </div>
           ) : (
-            <div className="md:p-[24px] rounded-xl md:border dark:border-gray-800 border-gray-200 dark:bg-customBrown bg-customBody">
+            <div className="md:p-[24px] rounded-xl md:border dark:border-[#FFFFFF1A] border-gray-200 dark:bg-customBrown bg-customBody">
               {/* Enhanced Subscription Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-6 border-b border-gray-200 dark:border-[#FFFFFF1A]">
                 <SubscriptionDetail title="Subscription" value={getPlanName()} />
                 <SubscriptionDetail title="Amount" value={getAmount()} />
                 <SubscriptionDetail title="Start Date" value={getStartDate()} />

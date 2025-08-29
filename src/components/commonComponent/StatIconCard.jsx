@@ -2,7 +2,7 @@ import React from 'react'
 
 const StatIconCard = ({ icon, image, value, label }) => {
     return (
-        <div className="bg-customBody dark:bg-customBrown rounded-xl px-6 py-[24px] border border-gray-200 dark:border-gray-800 transition-colors duration-200">
+        <div className="bg-customBody dark:bg-customBrown rounded-xl px-6 py-[24px] border border-gray-200 dark:border-[#FFFFFF1A] transition-colors duration-200">
             <div className="flex flex-col items-center text-center gap-[16px]">
                 <div className="p-3 bg-gray-100 dark:bg-white rounded-full transition-colors duration-200">
                     {image ? (

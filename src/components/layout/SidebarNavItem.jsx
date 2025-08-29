@@ -39,7 +39,7 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
             <Link to={to} className={getLinkClasses()}>
                 <span className='flex items-center gap-[8px]'>
                     <Icon className={getIconClasses()} />
-                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 mt-1 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
+                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
                         {label}
                     </span>
                 </span>

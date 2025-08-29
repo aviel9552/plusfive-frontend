@@ -391,7 +391,7 @@ function AddNewCreditCard({ onSubmit, onCancel }) {
                     </div>
                 </div>
 
-                <div className="dark:bg-[#1F252F] bg-blue-50 p-4 rounded-lg flex items-start mt-8 border-2 dark:border-gray-800 border-gray-200 gap-4">
+                <div className="dark:bg-[#1F252F] bg-blue-50 p-4 rounded-lg flex items-start mt-8 border-2 dark:border-[#FFFFFF1A] border-gray-200 gap-4">
                     <GoShieldLock className="w-6 h-6 text-blue-500 mt-1 flex-shrink-0" />
                     <div>
                         <h3 className="font-bold">{t.secureAndEncrypted}</h3>
@@ -410,7 +410,7 @@ function AddNewCreditCard({ onSubmit, onCancel }) {
                         text={t.cancel}
                         onClick={handleCancel}
                         className="flex-1 rounded-lg py-3 text-lg"
-                        borderColor='border dark:border-gray-800 border-gray-200'
+                        borderColor='border dark:border-[#FFFFFF1A] border-gray-200'
                     />
                 </div>
             </form>

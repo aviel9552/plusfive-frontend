@@ -50,7 +50,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     font-ttcommons
     fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen 
     bg-white dark:bg-customBlack 
-    ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-gray-800 
+    ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-[#FFFFFF1A] 
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
     h-[900px]

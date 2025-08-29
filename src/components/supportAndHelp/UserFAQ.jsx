@@ -33,12 +33,12 @@ const UserFAQ = () => {
         const isOpen = index === openIndex;
 
         return (
-            <div className="border dark:bg-customBrown bg-customBody dark:border-customBorderColor rounded-xl">
+            <div className="border dark:bg-customBrown bg-customBody dark:border-customBorderColor rounded-[8px]">
                 <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}
-                    className="w-full flex justify-between items-center text-left p-4"
+                    className="w-full flex justify-between items-center text-left p-[12px]"
                 >
-                    <span className="md:text-18 text-lg font-medium">{faq.question}</span>
+                    <span className="text-18 font-medium">{faq.question}</span>
                     <FiChevronDown
                         className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                     />
@@ -47,7 +47,7 @@ const UserFAQ = () => {
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96' : 'max-h-0'
                         }`}
                 >
-                    <p className="text-black dark:text-white md:text-18 text-base p-4 pt-0">
+                    <p className="text-black dark:text-white text-16 p-4 pt-0">
                         {faq.answer}
                     </p>
                 </div>
@@ -56,9 +56,9 @@ const UserFAQ = () => {
     }
 
     return (
-        <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-            <h2 className="text-24 font-bold mb-8">{t.faq}</h2>
-            <div className="space-y-4">
+        <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white p-[24px] rounded-[16px] text-black dark:text-white border border-gray-200 dark:border-customBorderColor mt-8 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+            <h2 className="text-24 font-bold">{t.faq}</h2>
+            <div className=" flex flex-col gap-[16px]">
                 {faqData.map((faq, index) => (
                     <FaqItem
                         key={index}
