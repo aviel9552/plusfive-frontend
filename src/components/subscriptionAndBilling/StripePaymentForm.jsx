@@ -3,7 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { FiCreditCard, FiLock, FiShield, FiAlertCircle } from 'react-icons/fi';
 import { GoShieldLock } from "react-icons/go";
-import { CommonButton, CommonCustomOutlineButton } from '../index';
+import { CommonButton, CommonCustomOutlineButton, CommonInput, CommonNormalDropDown } from '../index';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
 import { toast } from 'react-toastify';
@@ -169,7 +169,7 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
       {/* Card Information Section */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-black dark:text-white mb-2">
             Card Information <span className="text-red-500">*</span>
           </label>
           <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
@@ -182,24 +182,16 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Cardholder Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
+          <CommonInput
+            label="Cardholder Name"
+            id="cardholderName"
             name="cardholderName"
             value={formData.cardholderName}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              errors.cardholderName 
-                ? 'border-red-500 focus:ring-red-500' 
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
             placeholder="Name as it appears on card"
+            error={errors.cardholderName}
+            labelFontSize="text-sm"
           />
-          {errors.cardholderName && (
-            <p className="mt-1 text-sm text-red-600">{errors.cardholderName}</p>
-          )}
         </div>
       </div>
 
@@ -208,104 +200,80 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">Billing Address</h3>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Address <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
+          <CommonInput
+            label="Address"
+            id="billingAddress"
             name="billingAddress"
             value={formData.billingAddress}
             onChange={handleInputChange}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-              errors.billingAddress 
-                ? 'border-red-500 focus:ring-red-500' 
-                : 'border-gray-300 dark:border-gray-600'
-            }`}
             placeholder="Street address"
+            error={errors.billingAddress}
+            labelFontSize="text-sm"
           />
-          {errors.billingAddress && (
-            <p className="mt-1 text-sm text-red-600">{errors.billingAddress}</p>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              City <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
+            <CommonInput
+              label="City"
+              id="city"
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-                errors.city 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
               placeholder="City"
+              error={errors.city}
+              labelFontSize="text-sm"
             />
-            {errors.city && (
-              <p className="mt-1 text-sm text-red-600">{errors.city}</p>
-            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              State/Province
-            </label>
-            <input
-              type="text"
+            <CommonInput
+              label="State/Province"
+              id="state"
               name="state"
               value={formData.state}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
               placeholder="State"
+              labelFontSize="text-sm"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Postal Code <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
+            <CommonInput
+              label="Postal Code"
+              id="postalCode"
               name="postalCode"
               value={formData.postalCode}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white ${
-                errors.postalCode 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : 'border-gray-300 dark:border-gray-600'
-              }`}
               placeholder="Postal code"
+              error={errors.postalCode}
+              labelFontSize="text-sm"
             />
-            {errors.postalCode && (
-              <p className="mt-1 text-sm text-red-600">{errors.postalCode}</p>
-            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">
               Country
             </label>
-            <select
-              name="country"
+            <CommonNormalDropDown
+              options={[
+                { value: 'US', label: 'United States' },
+                { value: 'CA', label: 'Canada' },
+                { value: 'GB', label: 'United Kingdom' },
+                { value: 'AU', label: 'Australia' },
+                { value: 'DE', label: 'Germany' },
+                { value: 'FR', label: 'France' },
+                { value: 'IN', label: 'India' },
+                { value: 'JP', label: 'Japan' }
+              ]}
               value={formData.country}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-            >
-              <option value="US">United States</option>
-              <option value="CA">Canada</option>
-              <option value="GB">United Kingdom</option>
-              <option value="AU">Australia</option>
-              <option value="DE">Germany</option>
-              <option value="FR">France</option>
-              <option value="IN">India</option>
-              <option value="JP">Japan</option>
-            </select>
+              className='!h-[50px]'
+              onChange={(value) => handleInputChange({ target: { name: 'country', value } })}
+              placeholder="Select country"
+              fontSize="text-sm"
+            />
           </div>
         </div>
       </div>
@@ -350,12 +318,12 @@ function StripePaymentForm({ onSubmit, onCancel, onSuccess }) {
   return (
     <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
       <div className="flex items-center mb-8 gap-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center">
+        {/* <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center">
           <FiCreditCard className="text-white text-xl" />
-        </div>
+        </div> */}
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Add Payment Method</h2>
-          <p className="text-gray-600 dark:text-gray-400">Securely add a new credit or debit card</p>
+          <h2 className="text-[24px] font-bold text-gray-900 dark:text-white">Add New Credit Card</h2>
+          {/* <p className="text-gray-600 dark:text-gray-400">Securely add a new credit or debit card</p> */}
         </div>
       </div>
 

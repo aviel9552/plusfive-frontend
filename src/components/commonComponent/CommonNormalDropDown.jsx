@@ -65,6 +65,7 @@ function CommonNormalDropDown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
+          ${className}
           flex items-center justify-between w-full px-2 p-[0.6rem] border
           ${bgColor}
           ${textColor}
