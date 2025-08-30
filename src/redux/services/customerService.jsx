@@ -34,6 +34,23 @@ export const getMyCustomers = async () => {
   }
 };
 
+// GET /api/customers - Get all customers of current business owner
+export const getTenCustomers = async () => {
+  try {
+    const response = await apiClient.get('/customers/ten');
+    return response.data;
+  } catch (error) {
+    console.error('Error in getMyCustomers:', error);
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to get customers');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
 // GET /api/customers/:id - Get customer by ID
 export const getCustomerById = async (customerId) => {
   try {

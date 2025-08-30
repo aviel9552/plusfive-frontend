@@ -18,7 +18,7 @@ const SearchInput = React.memo(({ value, onChange }) => (
       aria-label="Search table"
     />
     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
-      <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
     </span>
   </div>
 ));
@@ -39,7 +39,7 @@ const FilterDropdown = React.memo(({ value, options, onChange }) => {
         setIsOpen(false);
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClick);
     }
@@ -59,7 +59,7 @@ const FilterDropdown = React.memo(({ value, options, onChange }) => {
         <svg className={`ml-2 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
       </button>
       {isOpen && (
-        <div 
+        <div
           className="absolute right-0 mt-2 w-full bg-white dark:bg-[#232323] border-2 border-gray-200 dark:border-customBorderColor rounded-xl shadow-lg z-20 animate-fadeIn overflow-hidden"
           role="listbox"
         >
@@ -174,7 +174,8 @@ const CommonTable = ({
   currentPage = 1,
   pageSize = PAGE_SIZES[0],
   showPagination = true,
-  paginationProps = {}
+  paginationProps = {},
+  showCount = true
 }) => {
   const [sortConfig, setSortConfig] = useState(null);
   const actionBtnRefs = useRef([]);
@@ -183,7 +184,7 @@ const CommonTable = ({
 
   const handleSort = useCallback((key) => {
     if (!onSort) return;
-    
+
     const direction = sortConfig?.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
     setSortConfig({ key, direction });
     onSort(key, direction);
@@ -227,13 +228,12 @@ const CommonTable = ({
                     {col.label}
                     {col.sortable && (
                       <svg
-                        className={`w-4 h-4 transition-transform ${
-                          sortConfig?.key === col.key
+                        className={`w-4 h-4 transition-transform ${sortConfig?.key === col.key
                             ? sortConfig.direction === 'asc'
                               ? 'transform rotate-180'
                               : ''
                             : ''
-                        }`}
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -262,17 +262,13 @@ const CommonTable = ({
               </tr>
             ) : (
               data.map((row, idx) => (
-                <tr 
+                <tr
                   key={idx}
-                  className={
-                    idx % 2 === 0
-                    ? "border-b border-gray-200 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors dark:bg-[#181818] bg-gray-100"
-                    : "border-b border-gray-200 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors"
-                  }
+                  className={`border-b border-gray-200 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors`}
                   role="row"
                 >
                   {columns.map(col => (
-                    <td 
+                    <td
                       key={col.key}
                       className={`py-3 px-4 text-14 ${col.className || ''}`}
                       role="gridcell"
@@ -292,18 +288,23 @@ const CommonTable = ({
         </table>
       </div>
 
-      {showPagination && onPageChange && (
-        <div className="mt-6">
-          <CommonPagination
-            currentPage={currentPage}
-            pageSize={pageSize}
-            total={total}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
-            {...paginationProps}
-          />
-        </div>
+      {showCount && (
+        <span >
+          {showPagination && onPageChange && (
+            <div className="mt-6">
+              <CommonPagination
+                currentPage={currentPage}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={onPageChange}
+                onPageSizeChange={onPageSizeChange}
+                {...paginationProps}
+              />
+            </div>
+          )}
+        </span>
       )}
+
     </div>
   );
 };

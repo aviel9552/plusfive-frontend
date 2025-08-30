@@ -8,13 +8,32 @@ import { getUserSupportTranslations } from '../../utils/translations';
 import ChatIcon from '../../assets/Chat1.svg'
 import PhoneIcon from '../../assets/Call.svg'
 import MailIcon from '../../assets/Mail.svg'
+import { createSupportTicket, sendSupportEmail } from '../../redux/services/supportAndHelp';
 
 function ContactAndSubmitTicket() {
     const { language } = useLanguage();
     const t = getUserSupportTranslations(language);
+    
+    // Phone number variable - change here to update everywhere
+    const supportPhoneNumber = '+972523042776';
+    
+    // Support email variable - change here to update everywhere
+    const supportEmail = 'support@plusfive.io';
+    
+    // Format phone number for display
+    const formatPhoneNumber = (phone) => {
+        // Format: +972-52-304-2776
+        const cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length === 12) {
+            return `+${cleaned.slice(0, 3)}-${cleaned.slice(3, 5)}-${cleaned.slice(5, 8)}-${cleaned.slice(8)}`;
+        }
+        return phone;
+    };
+    
     const [ticketData, setTicketData] = useState({
         subject: '',
         description: '',
+        email: supportEmail,
     });
 
     const [errors, setErrors] = useState({});
@@ -35,13 +54,37 @@ function ContactAndSubmitTicket() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length === 0) {
-            console.log('Ticket Submitted:', ticketData);
-            // Handle submission logic
+            try {
+                // Create support ticket
+                const ticketResponse = await createSupportTicket({
+                    subject: ticketData.subject,
+                    description: ticketData.description,
+                    email: 'dev2.webbuildinfotech@gmail.com',
+                    priority: 'medium',
+                    category: 'general'
+                });
+                
+                
+                
+                // Reset form after successful submission
+                setTicketData({
+                    subject: '',
+                    description: '',
+                    email: supportEmail
+                });
+                
+                // Show success message or redirect
+                alert('Support ticket submitted successfully!');
+                
+            } catch (error) {
+                console.error('Error submitting ticket:', error);
+                alert('Failed to submit ticket. Please try again.');
+            }
         }
     };
 
@@ -50,17 +93,24 @@ function ContactAndSubmitTicket() {
             icon: <img src={ChatIcon} alt="Chat" className="text-24 text-pink-500" />,
             title: t.liveChat,
             detail: t.availableMondayToFriday,
-            action: <CommonButton text={t.startChat} className="!text-white rounded-lg md:px-6 md:py-2 md:text-14 text-sm px-4 py-2" />,
+            action: <CommonButton 
+                text={t.startChat} 
+                className="!text-white rounded-lg md:px-6 md:py-2 md:text-14 text-sm px-4 py-2"
+                onClick={() => {
+                    const whatsappURL = `https://wa.me/${supportPhoneNumber.replace('+', '')}`;
+                    window.open(whatsappURL, '_blank');
+                }}
+            />,
         },
         {
             icon: <img src={PhoneIcon} alt="Phone" className="text-24 text-pink-500" />,
             title: t.phone,
-            detail: '+103-1234567',
+            detail: formatPhoneNumber(supportPhoneNumber),
         },
         {
             icon: <img src={MailIcon} alt="Mail" className="text-24 text-pink-500" />,
             title: t.email,
-            detail: 'support@plusfive.io',
+            detail: supportEmail,
         },
     ];
 

@@ -11,6 +11,7 @@ import { IoMdDownload } from 'react-icons/io';
 import { toast } from 'react-toastify';
 import reviewService from '../../redux/services/reviewServices';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
+import CommonNormalDropDown from '../commonComponent/CommonNormalDropDown';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center text-14 whitespace-nowrap";
@@ -91,7 +92,7 @@ const RatingStars = ({ rating }) => {
     );
 };
 
-function CustomerTable({ customers = [], loading = false }) {
+function CustomerTable({ customers = [], loading = false, showFilter = true, showText = false, showCount = true }) {
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = getUserCustomerTranslations(language);
@@ -104,13 +105,37 @@ function CustomerTable({ customers = [], loading = false }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [customerToSendRating, setCustomerToSendRating] = useState(null);
 
-    const filterOptions = [t.allServices, ...new Set(customers.map(c => c.selectedServices).filter(Boolean))];
+    const filterOptions = [
+        { value: t.allServices, label: t.allServices },
+        { value: 'Active', label: 'Active' },
+        { value: 'At Risk', label: 'At Risk' },
+        { value: 'Lost', label: 'Lost' },
+        { value: 'Recovered', label: 'Recovered' }
+    ];
 
     const filteredData = useMemo(() => {
         let data = customers;
 
         if (filterValue && filterValue !== t.allServices) {
-            data = data.filter(item => item.selectedServices === filterValue);
+            data = data.filter(item => {
+                const itemStatus = item.customerStatus || item.status;
+                if (!itemStatus) return false;
+
+                const itemStatusLower = itemStatus.toLowerCase();
+
+                switch (filterValue) {
+                    case 'Active':
+                        return itemStatusLower === 'active' || itemStatusLower === 'פעיל';
+                    case 'At Risk':
+                        return itemStatusLower === 'at risk' || itemStatusLower === 'risk' || itemStatusLower === 'at_risk' || itemStatusLower === 'בסיכון';
+                    case 'Lost':
+                        return itemStatusLower === 'lost' || itemStatusLower === 'אבוד';
+                    case 'Recovered':
+                        return itemStatusLower === 'recovered' || itemStatusLower === 'התאושש';
+                    default:
+                        return true;
+                }
+            });
         }
 
         if (searchValue) {
@@ -135,7 +160,6 @@ function CustomerTable({ customers = [], loading = false }) {
 
     // Show confirmation modal before sending rating request
     const handleWhatsAppClick = (customer) => {
-        console.log('customer', customer);
 
         if (customer?.customerPhone) {
             // Format phone number for WhatsApp (remove + and add country code)
@@ -169,7 +193,6 @@ function CustomerTable({ customers = [], loading = false }) {
 
             if (result.success) {
                 toast.success(`${t.ratingRequestSentSuccessfully} ${customerToSendRating.customerFullName || customerToSendRating.firstName}!`);
-                console.log('Rating request response:', result.data);
             } else {
                 toast.error(result.error || t.failedToSendRatingRequest);
             }
@@ -283,22 +306,35 @@ function CustomerTable({ customers = [], loading = false }) {
     return (
         <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className='flex flex-col gap-[24px]'>
-                <div className="flex justify-between items-center">
-                    <h2 className="text-[24px] text-gray-900 dark:text-white font-ttcommons">{t.customers} ({filteredData.length})</h2>
-                    <div className="flex items-center">
-                        <select
-                            value={filterValue}
-                            onChange={(e) => {
-                                setFilterValue(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                            className="bg-gray-50 dark:bg-[#232323] text-gray-700 dark:text-white px-4 py-2.5 rounded-xl text-sm border-2 border-gray-200 dark:border-customBorderColor hover:border-pink-500 dark:hover:border-pink-500 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all duration-200 min-w-[180px]"
+                <div className={`flex ${showText ? 'justify-end' : 'justify-between'} items-center`}>
+                    {showCount && (
+                        <h2 className="text-[24px] text-gray-900 dark:text-white font-ttcommons">{t.customers} ({filteredData.length})</h2>
+                    )}
+                    {showFilter && (
+                        <div className="flex items-center">
+                            <CommonNormalDropDown
+                                options={filterOptions}
+                                value={filterValue}
+                                onChange={(value) => {
+                                    setFilterValue(value);
+                                    setCurrentPage(1);
+                                }}
+                                placeholder={t.allServices}
+                                className="min-w-[180px]"
+                                bgColor="bg-gray-50 dark:bg-[#232323]"
+                                textColor="text-gray-700 dark:text-white"
+                                fontSize="text-sm"
+                            />
+                        </div>
+                    )}
+                    {showText && (
+                        <h2
+                            className="text-[16px] text-[#675dff] text-right cursor-pointer hover:text-[#4f46e5] transition-colors"
+                            onClick={() => navigate('/app/customers')}
                         >
-                            {filterOptions.map(option => (
-                                <option key={option} value={option}>{option}</option>
-                            ))}
-                        </select>
-                    </div>
+                            View All
+                        </h2>
+                    )}
                 </div>
                 <CommonTable
                     columns={columns}
@@ -306,6 +342,7 @@ function CustomerTable({ customers = [], loading = false }) {
                     total={filteredData.length}
                     currentPage={currentPage}
                     pageSize={pageSize}
+                    showCount={showCount}
                     onPageChange={setCurrentPage}
                     onPageSizeChange={(size) => {
                         setPageSize(size);

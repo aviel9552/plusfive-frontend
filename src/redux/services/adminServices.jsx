@@ -62,3 +62,13 @@ export const getAdminDashboardOverview = async (month, year, months = 6) => {
     throw error;
   }
 };
+
+export const getQRCodeAnalytics = async () => {
+  try {
+    const response = await apiClient.get('/admin-dashboard/qr-analytics');
+    return response.data;
+  } catch (error) {
+    console.error('API Error - Dashboard Overview:', error);
+    throw error;
+  }
+};

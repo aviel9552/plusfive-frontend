@@ -15,7 +15,7 @@ function AdminHome() {
         <AdminMonthlyPerformance />
         <AdminRevenueImpactCustomerStatus />
       </div>
-      <AdminReferrals />
+      {/* <AdminReferrals /> */}
     </div>
   )
 }

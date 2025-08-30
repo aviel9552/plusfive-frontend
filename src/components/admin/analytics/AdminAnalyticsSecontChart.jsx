@@ -1,23 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CommonDropDown } from '../../index';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
+import { getQRCodeAnalytics } from '../../../redux/services/adminServices';
 
-const monthlyQrCodeData = [
-    { label: 'July', thisYear: 55, lastYear: 30 }, { label: 'Aug', thisYear: 40, lastYear: 25 }, { label: 'Sep', thisYear: 82, lastYear: 52 },
-    { label: 'Oct', thisYear: 58, lastYear: 50 }, { label: 'Nov', thisYear: 68, lastYear: 42 }, { label: 'Dec', thisYear: 92, lastYear: 55 },
-];
-const quarterlyQrCodeData = [
-    { label: 'Q1', thisYear: 120, lastYear: 110 }, { label: 'Q2', thisYear: 150, lastYear: 110 }, { label: 'Q3', thisYear: 180, lastYear: 140 }, { label: 'Q4', thisYear: 210, lastYear: 170 },
-];
-const yearlyQrCodeData = [
-    { label: '2023', thisYear: 600, lastYear: 450 }, { label: '2024', thisYear: 750, lastYear: 600 }, { label: '2025', thisYear: 900, lastYear: 720 },
-];
-const weeklyQrCodeData = [
-    { label: 'Mon', thisYear: 15, lastYear: 10 }, { label: 'Tue', thisYear: 20, lastYear: 12 }, { label: 'Wed', thisYear: 18, lastYear: 15 },
-    { label: 'Thu', thisYear: 25, lastYear: 20 }, { label: 'Fri', thisYear: 30, lastYear: 22 }, { label: 'Sat', thisYear: 28, lastYear: 25 }, { label: 'Sun', thisYear: 22, lastYear: 18 },
+// Default data structure (will be replaced by API data)
+const defaultQrCodeData = [
+    { label: 'Jan', scanCount: 0, shareCount: 0 },
+    { label: 'Feb', scanCount: 0, shareCount: 0 },
+    { label: 'Mar', scanCount: 0, shareCount: 0 },
+    { label: 'Apr', scanCount: 0, shareCount: 0 },
+    { label: 'May', scanCount: 0, shareCount: 0 },
+    { label: 'Jun', scanCount: 0, shareCount: 0 },
+    { label: 'Jul', scanCount: 0, shareCount: 0 },
+    { label: 'Aug', scanCount: 0, shareCount: 0 },
+    { label: 'Sep', scanCount: 0, shareCount: 0 },
+    { label: 'Oct', scanCount: 0, shareCount: 0 },
+    { label: 'Nov', scanCount: 0, shareCount: 0 },
+    { label: 'Dec', scanCount: 0, shareCount: 0 },
 ];
 
 const ratingData = [
@@ -31,7 +33,7 @@ const CustomYAxisTick = ({ x, y, payload }) => {
     const textColor = isDarkMode ? "#ffffff" : "#000000";
     return (
         <text x={x} y={y} dy={4} fill={textColor} fontSize={12} textAnchor="end">
-            {payload.value === 0 ? '0%' : `${payload.value}k`}
+            {payload.value}
         </text>
     );
 };
@@ -49,16 +51,39 @@ const CustomRatingYTick = ({ x, y, payload }) => {
 function AdminAnalyticsSecontChart() {
     const [filter, setFilter] = useState('Monthly');
     const [hoveredBar, setHoveredBar] = useState(null);
+    const [qrAnalyticsData, setQrAnalyticsData] = useState({
+        monthlyQrCodeData: defaultQrCodeData,
+        quarterlyQrCodeData: [],
+        yearlyQrCodeData: [],
+        weeklyQrCodeData: []
+    });
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
     const isRTL = language === 'he';
     const t = getAdminAnalyticsTranslations(language);
 
+    // Fetch QR Analytics data
+    useEffect(() => {
+        const fetchQRAnalytics = async () => {
+            try {
+                const response = await getQRCodeAnalytics();
+                console.log('QR Analytics Data:', response);
+                if (response.success && response.data) {
+                    setQrAnalyticsData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching QR Analytics:', error);
+            }
+        };
+
+        fetchQRAnalytics();
+    }, []);
+
     const qrCodeDataMap = {
-        'Monthly': monthlyQrCodeData,
-        'Quarterly': quarterlyQrCodeData,
-        'Yearly': yearlyQrCodeData,
-        'This Week': weeklyQrCodeData
+        'Monthly': qrAnalyticsData.monthlyQrCodeData || [],
+        'Quarterly': qrAnalyticsData.quarterlyQrCodeData || [],
+        'Yearly': qrAnalyticsData.yearlyQrCodeData || [],
+        'This Week': qrAnalyticsData.weeklyQrCodeData || []
     };
 
     const FILTER_OPTIONS = [
@@ -74,18 +99,13 @@ function AdminAnalyticsSecontChart() {
         if (active && payload && payload.length && hoveredBar) {
             const data = payload.find(p => p.dataKey === hoveredBar);
             if (data) {
-                let displayValue;
-                let year;
-                if (hoveredBar === 'thisYear') {
-                    displayValue = data.value * 1000 - 19674.5;
-                    year = filter === 'Yearly' ? '' : '2025';
-                } else {
-                    displayValue = data.value * 1000 - 15000;
-                    year = filter === 'Yearly' ? '' : '2024';
-                }
+                const currentYear = new Date().getFullYear();
+                let displayValue = data.value;
+                let year = filter === 'Yearly' ? '' : currentYear;
+                
                 return (
                     <div className="bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-white">
-                        <p className="font-bold text-lg">${displayValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        <p className="font-bold text-lg">{displayValue}</p>
                         <p className="text-xs text-gray-400">{label} {year}</p>
                     </div>
                 );
@@ -142,23 +162,23 @@ function AdminAnalyticsSecontChart() {
                                     tickLine={false}
                                     axisLine={false}
                                     tick={<CustomYAxisTick />}
-                                    domain={[0, 'dataMax']}
+                                    domain={[0, 'dataMax + 1']}
                                     orientation={isRTL ? "right" : "left"}
                                 />
                                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} isAnimationActive={false} />
                                 <Bar
-                                    dataKey="lastYear"
+                                    dataKey="shareCount"
                                     fill="url(#lastYearGradient)"
                                     radius={[4, 4, 0, 0]}
                                     barSize={12}
-                                    onMouseOver={() => setHoveredBar('lastYear')}
+                                    onMouseOver={() => setHoveredBar('shareCount')}
                                 />
                                 <Bar
-                                    dataKey="thisYear"
+                                    dataKey="scanCount"
                                     fill="url(#thisYearGradient)"
                                     radius={[4, 4, 0, 0]}
                                     barSize={12}
-                                    onMouseOver={() => setHoveredBar('thisYear')}
+                                    onMouseOver={() => setHoveredBar('scanCount')}
                                 />
                             </BarChart>
                         </ResponsiveContainer>
