@@ -247,20 +247,20 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                         <>
                             <div className="flex items-center gap-2">
                                 <RatingStars rating={row.reviewStatistics.averageRating} />
-                                <span className="dark:text-white font-bold text-lg">
+                                <span className="dark:text-white text-14">
                                     {row.reviewStatistics.averageRating.toFixed(1)}
                                 </span>
                             </div>
                             {row.reviews && row.reviews.length > 0 && (
                                 <div className="flex items-center gap-1 mt-1">
-                                    <span className="dark:text-white text-sm">{t.last}:</span>
-                                    <span className="dark:text-white text-sm font-bold">
+                                    <span className="dark:text-white text-14">{t.last}:</span>
+                                    <span className="dark:text-white text-14">
                                         {row.reviews[row.reviews.length - 1].rating}
                                     </span>
                                     <div className="relative">
-                                        <FaStar className="text-gray-300 dark:text-white text-sm" />
+                                        <FaStar className="text-gray-300 dark:text-white text-14" />
                                         <FaStar
-                                            className="text-[#FDB022] absolute top-0 left-0 text-sm"
+                                            className="text-[#FDB022] absolute top-0 left-0 text-14"
                                             style={{
                                                 clipPath: `inset(0 ${100 - (row.reviews[row.reviews.length - 1].rating / 5) * 100}% 0 0)`
                                             }}
@@ -270,7 +270,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                             )}
                         </>
                     ) : (
-                        <div className="text-sm font-medium text-gray-500 dark:text-white">
+                        <div className="text-sm text-gray-500 dark:text-white">
                             {t.noReviewsYet}
                         </div>
                     )}
@@ -282,10 +282,10 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
             label: t.lastVisit,
             render: (row) => (
                 <div className="flex flex-col gap-3">
-                    <div className="text-14 font-medium text-gray-900 dark:text-white">
+                    <div className="text-14 text-gray-900 dark:text-white">
                         {row.lastVisit ? new Date(row.lastVisit).toLocaleDateString('en-GB') : t.noDataAvailable}
                     </div>
-                    <div className="text-12 font-medium text-black dark:text-[#CECFD2]">
+                    <div className="text-12 text-black dark:text-[#CECFD2]">
                         {row.user?.businessName || t.noDataAvailable}
                     </div>
                 </div>
@@ -294,12 +294,12 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
         {
             key: 'lastPayment',
             label: t.lastPayment,
-            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
+            render: (row) => <span className="text-14 text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
         },
         {
             key: 'totalPaid',
             label: t.totalPaid,
-            render: (row) => <span className="text-sm font-medium text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
+            render: (row) => <span className="text-14 text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
         }
     ];
 
