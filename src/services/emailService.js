@@ -51,7 +51,6 @@ export const emailService = {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Password reset email sent to:', email);
       return { success: true, message: 'Password reset email sent successfully' };
     } catch (error) {
       console.error('Error sending password reset email:', error);
@@ -64,7 +63,6 @@ export const emailService = {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Verification email sent to:', email);
       return { success: true, message: 'Verification email sent successfully' };
     } catch (error) {
       console.error('Error sending verification email:', error);

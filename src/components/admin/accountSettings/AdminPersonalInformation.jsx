@@ -113,16 +113,12 @@ function AdminPersonalInformation() {
                 if (result && result.success === false) {
                     toast.error(result.error || 'Failed to update personal information');
                     // Keep form data unchanged on error
-                    console.log('Update failed, keeping existing form data');
                 } else {
                     toast.success('Personal information updated successfully!');
-                    console.log('Update successful');
                 }
             }).catch((error) => {
                 toast.error('Failed to update personal information');
                 console.error('Error updating user data:', error);
-                // Keep form data unchanged on error
-                console.log('Update failed with exception, keeping existing form data');
             });
         }
     };

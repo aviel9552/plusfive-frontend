@@ -61,12 +61,12 @@ function AdminCustomerTable({ users, loading, error }) {
 
   const handleView = (userData) => {
     // Implement view functionality
-    console.log('View user:', userData);
+    // console.log('View user:', userData);
   };
 
   const handleDelete = (userData) => {
     // Implement delete functionality
-    console.log('Delete user:', userData);
+    // console.log('Delete user:', userData);
   };
 
   const handleAddUser = () => {

@@ -4,7 +4,6 @@ import apiClient from '../../config/apiClient.jsx';
 export const createUser = async (userData) => {
   try {
     const response = await apiClient.post('/users', userData);
-    console.log("createUser response", response);
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -53,7 +52,6 @@ export const getUserById = async (userId) => {
 export const updateUserById = async (userId, userData) => {
   try {
     const response = await apiClient.put(`/users/${userId}`, userData);
-    console.log("updateUserById response", response);
     return response.data;
   } catch (error) {
     if (error.response) {

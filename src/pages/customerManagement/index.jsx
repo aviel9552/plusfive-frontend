@@ -28,7 +28,6 @@ function customerManagement() {
     const fetchStatusCounts = async () => {
       try {
         const statusData = await getCustomersStatusCount();
-        // console.log('Customer Status Counts:', statusData.data.statusCounts);
         setStatusCounts(statusData.data.statusCounts);
       } catch (error) {
         console.error('Error fetching status counts:', error);

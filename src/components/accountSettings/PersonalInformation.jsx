@@ -9,7 +9,6 @@ import { getAccountSettingTranslations, getValidationTranslations } from '../../
 function PersonalInformation() {
     const dispatch = useDispatch();
     const user = useSelector(state => state.auth.user);
-    console.log(user, 'user');
     
     const { language } = useLanguage();
     const t = getAccountSettingTranslations(language);

@@ -24,7 +24,6 @@ function AdminReferralsTable() {
 
   // Get referrals from Redux state
   const { allReferrals, loading } = useSelector(state => state.referral);
-  // console.log('allReferrals', allReferrals);
 
   // Fetch referrals on component mount
   useEffect(() => {

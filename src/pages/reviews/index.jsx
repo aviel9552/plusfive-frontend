@@ -144,8 +144,6 @@ const ReviewPage = () => {
                 message: formData.reviewText.trim()
             };
 
-            console.log('Submitting review data:', reviewData);
-
             // Call API service
             const result = await reviewService.addReview(reviewData);
 

@@ -68,7 +68,6 @@ function QRScanHandler() {
       
       if (response && response.data) {
         setQrData(response.data);
-        console.log('QR Data:', response.data);
         
         // If this is a scan event, record analytics
         if (isScanEvent) {
@@ -101,10 +100,6 @@ function QRScanHandler() {
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         }
       };
-
-      console.log('Scan data:', scanData);
-      console.log('QR Data structure:', qrData);
-      console.log('Using QR Code ID:', scanData.qrCodeId);
       
       await recordQRScan(scanData);
       // toast.success('Scan recorded! Analytics updated.');

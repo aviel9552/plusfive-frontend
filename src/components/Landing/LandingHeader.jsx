@@ -58,7 +58,6 @@ function LandingHeader() {
                 if (section) {
                     const sectionTop = section.offsetTop - headerHeight - 100; // 100px threshold
                     if (scrollTop >= sectionTop) {
-                        // console.log(`Setting active section to: ${sections[i]}`);
                         setActiveSection(sections[i]);
                         break;
                     }

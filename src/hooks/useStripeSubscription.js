@@ -25,13 +25,6 @@ export const useStripeSubscription = (slug) => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('userData');
     
-    console.log('🔍 Validating authentication state:', {
-      reduxUser: user,
-      localStorageToken: !!token,
-      localStorageUserData: !!userData,
-      tokenLength: token ? token.length : 0
-    });
-    
     if (!user || !token) {
       console.warn('⚠️ Authentication state incomplete:', { user: !!user, token: !!token });
       return false;
@@ -101,28 +94,18 @@ export const useStripeSubscription = (slug) => {
 
     try {
       setLoading(true);
-      
-      // Debug: Log user authentication state
-      console.log('🔐 User authentication state:', {
-        isAuthenticated,
-        user: user ? { id: user.id, email: user.email, role: user.role } : null,
-        hasToken: !!localStorage.getItem('token')
-      });
-      
+            
       const successUrl = `${window.location.origin}/subscription/success`;
       const cancelUrl = `${window.location.origin}/${slug}/subscription-and-billing`;
       
-      console.log('🚀 Starting subscription process for plan:', planName);
       const checkoutResponse = await createCheckoutSession(priceId, successUrl, cancelUrl, meterId);
       
-      console.log('✅ Checkout response received:', checkoutResponse);
       
       // Validate the checkout response
       if (!checkoutResponse || !checkoutResponse.url) {
         throw new Error('Invalid checkout response: Missing checkout URL');
       }
       
-      console.log('✅ Redirecting to Stripe Checkout:', checkoutResponse.url);
       // Redirect to Stripe Checkout
       window.location.href = checkoutResponse.url;
     } catch (error) {
@@ -159,12 +142,6 @@ export const useStripeSubscription = (slug) => {
         throw new Error('No subscription ID found');
       }
       
-      // Log cancellation attempt with reason
-      console.log('🚫 Cancelling subscription:', {
-        subscriptionId,
-        reason: cancellationReason || 'No reason provided',
-        timestamp: new Date().toISOString()
-      });
       
       await cancelSubscription(subscriptionId);
       

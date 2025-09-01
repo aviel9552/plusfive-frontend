@@ -66,8 +66,6 @@ function ContactSales({ language }) {
     setIsSubmitting(true);
 
     try {
-      // Handle form submission here
-      console.log('Form submitted:', formData);
 
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

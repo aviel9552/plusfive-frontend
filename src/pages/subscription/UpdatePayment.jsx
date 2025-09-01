@@ -139,14 +139,6 @@ function UpdatePayment() {
   const [useStripePortal, setUseStripePortal] = useState(true);
   const [showStripeForm, setShowStripeForm] = useState(false);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🔍 UpdatePayment Debug Info:');
-    console.log('paymentMethods:', paymentMethods);
-    console.log('paymentMethods type:', typeof paymentMethods);
-    console.log('paymentMethods isArray:', Array.isArray(paymentMethods));
-    console.log('paymentMethodsLoading:', paymentMethodsLoading);
-  }, [paymentMethods, paymentMethodsLoading]);
 
   const handleSecurePaymentMethod = async (paymentData) => {
     try {

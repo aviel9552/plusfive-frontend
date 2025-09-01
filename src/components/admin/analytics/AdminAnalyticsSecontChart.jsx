@@ -67,7 +67,6 @@ function AdminAnalyticsSecontChart() {
         const fetchQRAnalytics = async () => {
             try {
                 const response = await getQRCodeAnalytics();
-                console.log('QR Analytics Data:', response);
                 if (response.success && response.data) {
                     setQrAnalyticsData(response.data);
                 }

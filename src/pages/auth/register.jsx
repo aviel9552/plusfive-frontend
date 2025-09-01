@@ -35,7 +35,6 @@ function Register() {
     const urlParams = new URLSearchParams(location.search);
     const refCode = urlParams.get('ref');
     if (refCode) {
-      // console.log('Referral Code found:', refCode);
       setForm(prev => ({ ...prev, referralCode: refCode }));
     }
   }, [location]);
@@ -339,8 +338,6 @@ function Register() {
           console.error('Referral creation failed:', referralError);
           // Don't fail registration if referral fails
         }
-      } else {
-        console.log('Referral not created. Ref code:', refCode, 'User ID:', registeredUser.data?.user?.id);
       }
 
       // Success message

@@ -93,7 +93,6 @@ function ViewCustomer() {
 
             try {
                 const response = await getCustomerById(customerId);
-                console.log('Customer data:', response);
                 setCustomer(response.data.customer || response.data);
             } catch (error) {
                 console.error('Error fetching customer:', error);

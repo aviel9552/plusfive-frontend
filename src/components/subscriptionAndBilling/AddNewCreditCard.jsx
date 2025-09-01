@@ -275,7 +275,6 @@ function AddNewCreditCard({ onSubmit, onCancel }) {
                 };
                 onSubmit(sortedPaymentData);
             } else {
-                console.log('New card added:', paymentData);
                 navigate(-1);
             }
         }

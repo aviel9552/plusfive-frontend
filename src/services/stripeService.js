@@ -24,13 +24,6 @@ export const createCheckoutSession = async (priceId, successUrl, cancelUrl, mete
   try {
     // Debug: Log the request details
     const token = localStorage.getItem('token');
-    console.log('🔐 Creating checkout session with:', {
-      priceId,
-      successUrl,
-      cancelUrl,
-      hasToken: !!token,
-      tokenLength: token ? token.length : 0
-    });
 
     const response = await apiClient.post('/stripe/checkout', {
       priceId,
@@ -38,8 +31,6 @@ export const createCheckoutSession = async (priceId, successUrl, cancelUrl, mete
       cancelUrl,
       meterId
     });
-    
-    console.log('✅ Checkout session created successfully:', response.data);
     
     // Validate the response structure
     if (!response.data) {
@@ -54,15 +45,6 @@ export const createCheckoutSession = async (priceId, successUrl, cancelUrl, mete
     return response.data.data;
   } catch (error) {
     console.error('❌ Checkout session creation failed:', error);
-    
-    // Log detailed error information for debugging
-    console.log('🔍 Error details:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-      stack: error.stack
-    });
     
     // Handle specific error cases
     if (error.response?.status === 401) {

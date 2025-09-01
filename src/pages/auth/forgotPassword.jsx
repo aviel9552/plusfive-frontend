@@ -16,10 +16,6 @@ function ForgotPassword() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Track isLoading state changes
-    useEffect(() => {
-        console.log("isLoading changed to:", isLoading);
-    }, [isLoading]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

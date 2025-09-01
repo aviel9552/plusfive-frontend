@@ -218,19 +218,12 @@ function Pricing({ slug }) {
             try {
 
                 const response = await getAllWhatsAppMessagesData();
-                // console.log('====================================');
-                // console.log(" Responce :", response);
-                // console.log('====================================');
-
                 if (response.success && response.data) {
                     // setApiWhatsAppMessagesData(response.data);
                 } else {
                     // setApiError(response.message || 'Failed to fetch user data');
                 }
             } catch (error) {
-                // console.log('====================================');
-                // console.log(" ERROR :", error);
-                // console.log('====================================');
             }
         };
 

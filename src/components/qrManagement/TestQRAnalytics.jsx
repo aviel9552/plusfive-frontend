@@ -14,22 +14,14 @@ const TestQRAnalytics = () => {
   const [testResults, setTestResults] = useState({});
 
   useEffect(() => {
-    console.log('🔍 TestQRAnalytics mounted');
-    console.log('🔍 Current Redux state:', { qrAnalytics, qrPerformance, analyticsLoading, analyticsError });
     testAnalytics();
   }, []);
 
   const testAnalytics = async () => {
-    console.log('🧪 Testing QR Analytics...');
     
     // Check environment
     const apiUrl = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem('token');
-    
-    console.log('🌐 Environment check:');
-    console.log('  - VITE_API_URL:', apiUrl);
-    console.log('  - Token exists:', !!token);
-    console.log('  - Token length:', token ? token.length : 0);
     
     if (!apiUrl) {
       console.error('❌ VITE_API_URL is not configured!');
@@ -44,16 +36,12 @@ const TestQRAnalytics = () => {
     }
     
     try {
-      // Test QR Analytics
-      console.log('📊 Testing fetchQRCodesWithAnalytics...');
+        // Test QR Analytics
       const analyticsResult = await dispatch(fetchQRCodesWithAnalytics());
-      console.log('✅ Analytics Result:', analyticsResult);
       setTestResults(prev => ({ ...prev, analytics: analyticsResult }));
 
       // Test QR Performance
-      console.log('📈 Testing fetchQRPerformance...');
       const performanceResult = await dispatch(fetchQRPerformance());
-      console.log('✅ Performance Result:', performanceResult);
       setTestResults(prev => ({ ...prev, performance: performanceResult }));
 
     } catch (error) {
@@ -72,10 +60,6 @@ const TestQRAnalytics = () => {
       const token = localStorage.getItem('token');
       const apiUrl = import.meta.env.VITE_API_URL;
       
-      console.log('🧪 Testing direct API call...');
-      console.log('🔑 Token:', token ? 'Present' : 'Missing');
-      console.log('🌐 API URL:', apiUrl);
-      
       if (!apiUrl) {
         throw new Error('No API URL configured');
       }
@@ -93,7 +77,6 @@ const TestQRAnalytics = () => {
       });
       
       const data = await response.json();
-      console.log('🌐 Direct API Response:', data);
       
       setTestResults(prev => ({ 
         ...prev, 

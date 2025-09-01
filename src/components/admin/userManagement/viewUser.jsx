@@ -8,7 +8,6 @@ import { getUserById } from '../../../redux/services/userServices';
 
 const ViewUser = () => {
     const { userId } = useParams();
-    console.log("userId ", userId);
     const navigate = useNavigate();
     const { language } = useLanguage();
     const t = getAdminUserTranslations(language);
@@ -25,15 +24,11 @@ const ViewUser = () => {
                 setLoading(true);
                 setError(null);
                 
-                console.log('🔍 Fetching user data for ID:', userId);
                 const response = await getUserById(userId);
-                console.log('📡 API Response:', response);
                 
                 if (response.success && response.data) {
-                    console.log('✅ User data received:', response.data);
                     setUser(response.data);
                 } else {
-                    console.log('❌ API response error:', response.message);
                     setError(response.message || 'Failed to fetch user data');
                 }
             } catch (error) {

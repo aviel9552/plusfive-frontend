@@ -13,7 +13,6 @@ const Home = () => {
     const fetchStatusCounts = async () => {
       try {
         const tenCustomers = await getTenCustomers();
-        // console.log('Customer Status Counts:', tenCustomers.data.customers);
         setTenCustomers(tenCustomers.data.customers);
       } catch (error) {
         console.error('Error fetching status counts:', error);

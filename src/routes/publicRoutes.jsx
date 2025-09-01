@@ -35,8 +35,6 @@ function PublicRouteGuard({ children }) {
 
 function PublicRoutes() {
   const { language } = useLanguage();
-  // Demo: language ko console.log ya UI me dikha sakte hain
-  // console.log('Current language (context):', language);
   return (
     <>
       {/* Demo ke liye language show kar rahe hain */}

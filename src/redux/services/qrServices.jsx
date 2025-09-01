@@ -117,7 +117,6 @@ export const deleteQRCodeById = async (qrId) => {
 // Record QR code scan
 export const recordQRScan = async (scanData) => {
   try {
-    console.log('Scan data:', scanData);
     const response = await apiClient.post(`/qr/${scanData.qrCodeId}/scan`, {
       timestamp: scanData.timestamp,
       userAgent: scanData.userAgent,

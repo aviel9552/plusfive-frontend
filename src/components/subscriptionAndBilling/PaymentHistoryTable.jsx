@@ -98,8 +98,6 @@ const PaymentHistoryTable = () => {
                             window.open(item.hostedInvoiceUrl, '_blank');
                         } else if (item.invoicePdf) {
                             window.open(item.invoicePdf, '_blank');
-                        } else {
-                            console.log('No invoice URL available for:', item.id);
                         }
                     }}
                     className="!text-sm !py-1.5 !px-4 w-auto rounded-lg"

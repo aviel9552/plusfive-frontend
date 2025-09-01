@@ -25,7 +25,6 @@ function ReferralsTable() {
   
   // Get referrals from Redux state
   const { userReferrals, loading } = useSelector(state => state.referral);
-  // console.log('userReferrals', userReferrals);
     
   // Fetch referrals on component mount
   useEffect(() => {
