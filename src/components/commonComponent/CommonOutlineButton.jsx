@@ -2,20 +2,20 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { useTheme } from '../../context/ThemeContext';
 
-function CommonOutlineButton({ text, onClick, className = '', textClass = '', iconClassName = '', type = 'button', icon, lightBgColor = '#ffffff', darkBgColor = '#121212', bgColor }) {
+function CommonOutlineButton({ text, onClick, className = '', textClass = '', iconClassName = '', type = 'button', icon, lightBgColor = '#ffffff', darkBgColor = '#121212', bgColor, disabled = false }) {
   const { isDarkMode } = useTheme(); // ✅ dark mode from context
 
   return (
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`
         relative overflow-hidden
         px-8 py-2
         dark:text-white text-black font-ttcommons font-medium
         transition-all duration-300 ease-in-out
-        hover:shadow-lg hover:scale-[1.02]
-        active:scale-[0.98]
+        ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'}
         border-2 border-transparent
         ${className}
       `}
@@ -48,6 +48,7 @@ CommonOutlineButton.propTypes = {
   lightBgColor: PropTypes.string,
   darkBgColor: PropTypes.string,
   bgColor: PropTypes.string,
+  disabled: PropTypes.bool,
 }
 
 export default CommonOutlineButton

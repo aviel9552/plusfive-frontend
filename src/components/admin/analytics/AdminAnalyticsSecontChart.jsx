@@ -102,11 +102,12 @@ function AdminAnalyticsSecontChart() {
                 const currentYear = new Date().getFullYear();
                 let displayValue = data.value;
                 let year = filter === 'Yearly' ? '' : currentYear;
+                let metricType = hoveredBar === 'scanCount' ? 'Scans' : 'Shares';
                 
                 return (
                     <div className="bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-white">
-                        <p className="font-bold text-lg">{displayValue}</p>
-                        <p className="text-xs text-gray-400">{label} {year}</p>
+                        <p className="font-bold text-lg">{metricType}: {displayValue}</p>
+                        <p className="text-xs text-gray-400">{label} {year} Year</p>
                     </div>
                 );
             }

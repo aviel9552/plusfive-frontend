@@ -10,7 +10,7 @@ import {
 } from '../services/stripeService';
 import { toast } from 'react-toastify';
 
-export const useStripeSubscription = () => {
+export const useStripeSubscription = (slug) => {
   const [prices, setPrices] = useState([]);
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ export const useStripeSubscription = () => {
   }, [isAuthenticated]);
 
   // Create checkout session
-  const handleSubscribe = useCallback(async (priceId, planName) => {
+  const handleSubscribe = useCallback(async (priceId, planName, meterId) => {
     if (!isAuthenticated) {
       toast.error('Please login to subscribe');
       return;
@@ -110,10 +110,10 @@ export const useStripeSubscription = () => {
       });
       
       const successUrl = `${window.location.origin}/subscription/success`;
-      const cancelUrl = `${window.location.origin}/pricing`;
+      const cancelUrl = `${window.location.origin}/${slug}/subscription-and-billing`;
       
       console.log('🚀 Starting subscription process for plan:', planName);
-      const checkoutResponse = await createCheckoutSession(priceId, successUrl, cancelUrl);
+      const checkoutResponse = await createCheckoutSession(priceId, successUrl, cancelUrl, meterId);
       
       console.log('✅ Checkout response received:', checkoutResponse);
       

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { MdAutoAwesome } from 'react-icons/md';
 import { CommonButton, CommonOutlineButton } from '../index';
@@ -8,49 +8,55 @@ import { useStripeSubscription } from '../../hooks/useStripeSubscription';
 import StripeTest from './StripeTest';
 import AuthDebugger from './AuthDebugger';
 import CheckIcon from '../../assets/CheckIcon.svg';
+import { getAllWhatsAppMessagesData } from '../../redux/services/whatsAppMessagesData';
 
 // Helper function to format Stripe price data into plan objects
 const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
-    
     if (!Array.isArray(stripePrices) || stripePrices.length === 0) {
         return [];
     }
 
     const formattedPlans = stripePrices.map(price => {
-        
+
         const amount = price.unit_amount / 100; // Convert from cents
         const interval = price.recurring?.interval; // monthly or yearly
-        
+        const usageType = price.recurring?.usage_type;
+        const meterId = price.recurring?.meter;
+        const currency = price.currency || 'usd';
+
         // Only show plans that match the current billing interval
         if (interval !== (isYearly ? 'year' : 'month')) {
             return null;
         }
 
         const planName = price.product?.name || price.metadata?.planName || price.nickname || 'Premium Plan';
-        
+
         const plan = {
             name: planName,
             description: price.product?.description || price.metadata?.description || t.premiumDescription,
             monthlyPrice: interval === 'month' ? amount : null,
             yearlyPrice: interval === 'year' ? amount : null,
-            features: price.product?.marketing_features ? 
-                price.product.marketing_features.map(feature => feature.name) : 
+            features: price.product?.marketing_features ?
+                price.product.marketing_features.map(feature => feature.name) :
                 [t.basicReports, t.emailSupport],
             isPopular: planName.toLowerCase().includes('premium') || price.metadata?.isPopular === 'true',
             stripePriceId: price.id,
-            priceId: price.id
+            priceId: price.id,
+            isMetered: usageType === 'metered' || !!meterId,
+            meterId: meterId || null,
+            currency
         };
-        
+
         return plan;
     }).filter(Boolean); // Remove null values
-    
+
     // Sort plans by price from lowest to highest
     const sortedPlans = formattedPlans.sort((a, b) => {
         const priceA = isYearly ? a.yearlyPrice : a.monthlyPrice;
         const priceB = isYearly ? b.yearlyPrice : b.monthlyPrice;
         return priceA - priceB;
     });
-    
+
     return sortedPlans;
 };
 
@@ -79,16 +85,24 @@ const BillingToggle = ({ isYearly, onToggle, t, language }) => (
 
 // Pricing Card Component
 const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscription, onManageSubscription }) => {
-    const { name, description, monthlyPrice, yearlyPrice, features, isPopular, priceId, stripePriceId } = plan;
+    const { name, description, monthlyPrice, yearlyPrice, features, isPopular, priceId, stripePriceId, isMetered, currency, meterId } = plan;
     const price = isYearly ? yearlyPrice : monthlyPrice;
-    
+
     // Don't render if no price is available for the current billing interval
     if (price === null || price === undefined) {
         return null;
     }
-    
-    const isCurrentPlan = currentSubscription?.priceId === stripePriceId;
+
+    // Derive the active subscription and priceId similar to CurrentActiveSubscription
+    const activeSubscription = currentSubscription?.data?.stripe?.subscriptions?.[0];
+    const currentPlanPriceId = activeSubscription?.items?.data?.[0]?.price?.id
+        || activeSubscription?.items?.data?.[0]?.plan?.id
+        || currentSubscription?.priceId;
+
+    const isCurrentPlan = currentPlanPriceId === stripePriceId;
     const isSubscribed = !!currentSubscription;
+    const subscriptionStatus = activeSubscription?.status || currentSubscription?.status;
+    const isActiveCurrentPlan = isCurrentPlan && subscriptionStatus === 'active';
 
     const cardClasses = `
     bg-customGray2 dark:bg-[#1D1C20] p-[24px] rounded-2xl flex flex-col h-full
@@ -108,15 +122,19 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
 
     const handleAction = () => {
         if (isCurrentPlan) {
-            onManageSubscription();
+            if (!isActiveCurrentPlan) {
+                onManageSubscription();
+            }
+            return;
         } else if (stripePriceId) {
-            onSubscribe(stripePriceId, name);
+            onSubscribe(stripePriceId, name, meterId);
         }
     };
 
     const getButtonText = () => {
         if (isCurrentPlan) {
-            return currentSubscription?.status === 'active' ? 'Manage Subscription' : 'Reactivate';
+            if (isActiveCurrentPlan) return 'Current Plan';
+            return currentSubscription?.status === 'canceled' ? 'Reactivate' : 'Manage Subscription';
         }
         return `Upgrade to ${name}`;
     };
@@ -127,10 +145,10 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                 text: getButtonText(),
                 className: "w-full !py-3 !text-16 rounded-[8px]",
                 onClick: handleAction,
-                disabled: loading
+                disabled: loading || isActiveCurrentPlan
             };
         }
-        
+
         return {
             text: getButtonText(),
             className: "w-full !py-3 !text-16 rounded-[8px]",
@@ -148,11 +166,18 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                     <p className="text-gray-500 dark:text-[#FFFFFFCC] text-16">{description}</p>
                 </div>
 
-                <div className="mt-8">
-                    <span className="text-36 font-bold text-gray-900 dark:text-white font-ttcommons">${price}</span>
-                    <span className="text-gray-500 dark:text-white text-24 font-ttcommons">
-                        {isYearly ? t.perYear || '/year' : t.perMonth}
-                    </span>
+                <div className="mt-8 flex items-center gap-3">
+                    <div>
+                        <span className="text-36 font-bold text-gray-900 dark:text-white font-ttcommons">
+                            {new Intl.NumberFormat(undefined, { style: 'currency', currency: currency?.toUpperCase?.() || 'USD' }).format(price)}
+                        </span>
+                        <span className="text-gray-500 dark:text-white text-24 font-ttcommons">
+                            {isYearly ? t.perYear || '/year' : t.perMonth}
+                        </span>
+                    </div>
+                    {isMetered && (
+                        <span className="px-2 py-1 text-12 rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Usage-based</span>
+                    )}
                 </div>
 
                 <div className="border-t border-gray-300 dark:border-[#FFFFFF1A] my-8"></div>
@@ -182,25 +207,50 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
     );
 };
 
-function Pricing() {
+function Pricing({ slug }) {
     const [isYearly, setIsYearly] = useState(false); // Default to monthly since all plans are monthly
     const { language } = useLanguage();
     const t = getUserCardTranslations(language);
-    
-         // Stripe subscription hook
-     const {
-         prices,
-         currentSubscription,
-         loading,
-         pricesLoading,
-         subscriptionLoading,
-         isAuthenticated,
-         user,
-         handleSubscribe,
-         handleCancelSubscription,
-         handleReactivateSubscription,
-         handleOpenCustomerPortal
-     } = useStripeSubscription();
+
+    // Fetch user data from API
+    useEffect(() => {
+        const fetchWhatsAppMessagesData = async () => {
+            try {
+
+                const response = await getAllWhatsAppMessagesData();
+                // console.log('====================================');
+                // console.log(" Responce :", response);
+                // console.log('====================================');
+
+                if (response.success && response.data) {
+                    // setApiWhatsAppMessagesData(response.data);
+                } else {
+                    // setApiError(response.message || 'Failed to fetch user data');
+                }
+            } catch (error) {
+                // console.log('====================================');
+                // console.log(" ERROR :", error);
+                // console.log('====================================');
+            }
+        };
+
+        fetchWhatsAppMessagesData();
+    }, []);
+
+    // Stripe subscription hook
+    const {
+        prices,
+        currentSubscription,
+        loading,
+        pricesLoading,
+        subscriptionLoading,
+        isAuthenticated,
+        user,
+        handleSubscribe,
+        handleCancelSubscription,
+        handleReactivateSubscription,
+        handleOpenCustomerPortal
+    } = useStripeSubscription(slug);
 
     const handleToggle = () => {
         setIsYearly(prev => !prev);
@@ -213,14 +263,13 @@ function Pricing() {
     };
 
     const pricingPlans = getPricingPlans();
-    console.log("pricingPlans ", pricingPlans);
 
-    const handlePlanSubscribe = (priceId, planName) => {
+    const handlePlanSubscribe = (priceId, planName, meterId) => {
         if (!isAuthenticated) {
             // You can redirect to login or show login modal here
             return;
         }
-        handleSubscribe(priceId, planName);
+        handleSubscribe(priceId, planName, meterId);
     };
 
     const handleManageSubscription = () => {
@@ -233,13 +282,13 @@ function Pricing() {
 
     return (
         <div className="bg-white dark:bg-customBrown text-gray-900 dark:text-white font-ttcommons p-6 border border-gray-200 dark:border-customBorderColor rounded-2xl mt-7 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-                         <div className="md:flex justify-between items-center gap-6">
-                 <h1 className="text-24 font-ttcommons font-bold">{t.pricing}</h1>
-                 <BillingToggle isYearly={isYearly} onToggle={handleToggle} t={t} language={language} />
-             </div>
-             
-             {/* Authentication Status */}
-             {/* <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+            <div className="md:flex justify-between items-center gap-6">
+                <h1 className="text-24 font-ttcommons font-bold">{t.pricing}</h1>
+                <BillingToggle isYearly={isYearly} onToggle={handleToggle} t={t} language={language} />
+            </div>
+
+            {/* Authentication Status */}
+            {/* <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
                  <div className="flex items-center justify-between">
                      <div className="flex items-center gap-2">
                          <span className={`w-3 h-3 rounded-full ${isAuthenticated ? 'bg-green-500' : 'bg-red-500'}`}></span>
@@ -282,10 +331,10 @@ function Pricing() {
             {pricingPlans.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px] mt-[24px] items-stretch">
                     {pricingPlans.map(plan => (
-                        <PricingCard 
-                            key={plan.name} 
-                            plan={plan} 
-                            isYearly={isYearly} 
+                        <PricingCard
+                            key={plan.name}
+                            plan={plan}
+                            isYearly={isYearly}
                             t={t}
                             onSubscribe={handlePlanSubscribe}
                             loading={loading}
@@ -307,7 +356,7 @@ function Pricing() {
                                 No Pricing Plans Available
                             </h3>
                             <p className="text-gray-600 dark:text-gray-400">
-                                {Array.isArray(prices) && prices.length === 0 
+                                {Array.isArray(prices) && prices.length === 0
                                     ? 'No pricing plans have been configured yet.'
                                     : 'Unable to load pricing plans. Please try again later.'
                                 }
@@ -316,17 +365,17 @@ function Pricing() {
                     )}
                 </div>
             )}
-            
-                         {/* Stripe Integration Test - Remove this in production */}
-             {/* <div className="mt-8">
+
+            {/* Stripe Integration Test - Remove this in production */}
+            {/* <div className="mt-8">
                  <StripeTest />
              </div>
               */}
-             {/* Authentication Debugger - Remove this in production */}
-             {/* <div className="mt-8">
+            {/* Authentication Debugger - Remove this in production */}
+            {/* <div className="mt-8">
                  <AuthDebugger />
              </div> */}
-            
+
             {/* API Configuration Notice */}
             {pricesLoading === false && (!Array.isArray(prices) || prices.length === 0) && (
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -339,14 +388,14 @@ function Pricing() {
                                 API-Only Pricing Configuration
                             </h3>
                             <p className="text-sm text-blue-700 dark:text-blue-300">
-                                This pricing page only displays plans from the Stripe API. No default plans are shown. 
+                                This pricing page only displays plans from the Stripe API. No default plans are shown.
                                 Please ensure your backend has pricing plans configured in Stripe to display them here.
                             </p>
                         </div>
                     </div>
                 </div>
             )}
-            
+
             <div className="max-w-6xl mx-auto">
             </div>
         </div>

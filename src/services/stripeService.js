@@ -20,7 +20,7 @@ export const getStripePrices = async () => {
 };
 
 // Create checkout session (protected endpoint)
-export const createCheckoutSession = async (priceId, successUrl, cancelUrl) => {
+export const createCheckoutSession = async (priceId, successUrl, cancelUrl, meterId) => {
   try {
     // Debug: Log the request details
     const token = localStorage.getItem('token');
@@ -35,7 +35,8 @@ export const createCheckoutSession = async (priceId, successUrl, cancelUrl) => {
     const response = await apiClient.post('/stripe/checkout', {
       priceId,
       successUrl,
-      cancelUrl
+      cancelUrl,
+      meterId
     });
     
     console.log('✅ Checkout session created successfully:', response.data);

@@ -39,6 +39,10 @@ const StatusBadge = ({ status }) => {
         case 'התאושש':
             colorClasses = 'text-[#2C1C5F] bg-[#E9D7FE]';
             break;
+        case 'new':
+        case 'חדש':
+            colorClasses = 'text-[#2C1C5F] bg-[#E9D7FE]';
+            break;
         default:
             colorClasses = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }

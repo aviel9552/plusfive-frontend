@@ -9,7 +9,7 @@ const SubscriptionAndBilling = () => {
   return (
     <div className="space-y-8">
       <CurrentActiveSubscription slug={slug} />
-      <Pricing />
+      <Pricing slug={slug} />
       <PaymentHistoryTable />
     </div>
   );
