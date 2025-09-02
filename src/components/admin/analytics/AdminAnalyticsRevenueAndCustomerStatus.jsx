@@ -3,23 +3,41 @@ import { StatSingleBarChart, StatPieChart } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminTranslations } from '../../../utils/translations';
 import { useAdminData } from '../../../hooks/useAdminData';
+import { getRevenueImpacts } from '../../../redux/services/adminServices';
 
 function AdminAnalyticsRevenueAndCustomerStatus() {
   const { language } = useLanguage();
   const t = getAdminTranslations(language);
   const { revenueImpact, customerStatus, fetchRevenueImpact, fetchCustomerStatus } = useAdminData();
   const [selectedFilter, setSelectedFilter] = useState('monthly');
+  const [revenueImpactsData, setRevenueImpactsData] = useState({});
 
   useEffect(() => {
     fetchRevenueImpact();
     fetchCustomerStatus();
   }, [fetchRevenueImpact, fetchCustomerStatus]);
 
+    // Fetch QR Analytics data
+    useEffect(() => {
+      const fetchRevenueImpacts = async () => {
+          try {
+              const response = await getRevenueImpacts();
+              if (response.success && response.data) {
+                  setRevenueImpactsData(response.data);
+              }
+          } catch (error) {
+              console.error('Error fetching Revenue Impacts:', error);
+          }
+      };
+
+      fetchRevenueImpacts();
+  }, []);
+
   // Transform revenue impact data for the chart
   const transformRevenueData = (data) => {
     if (!data) return [];
     return data.map(item => ({
-      month: item.month.substring(0, 3), // Take first 3 letters of month
+      month: item.label,
       value: item.revenue
     }));
   };
@@ -39,14 +57,14 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
     { label: t.monthly, value: 'monthly' },
     { label: t.weekly, value: 'weekly' },
     { label: t.lastMonth, value: 'lastMonth' },
-    { label: t.thisMonth, value: 'thisMonth' },
+    { label: t.yearly, value: 'yearly' },
   ];
 
   const dataMap = {
-    monthly: transformRevenueData(revenueImpact.data),
-    weekly: transformRevenueData(revenueImpact.data)?.slice(0, 4) || [],
-    lastMonth: transformRevenueData(revenueImpact.data)?.slice(0, 4) || [],
-    thisMonth: transformRevenueData(revenueImpact.data)?.slice(0, 4) || [],
+    monthly: transformRevenueData(revenueImpactsData.monthly || []),
+    weekly: transformRevenueData(revenueImpactsData.weekly || []),
+    lastMonth: transformRevenueData(revenueImpactsData.lastMonth || []),
+    yearly: transformRevenueData(revenueImpactsData.yearly || []),
   };
 
   const pieChartData = transformCustomerData(customerStatus.data);
