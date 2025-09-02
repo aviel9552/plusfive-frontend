@@ -3,6 +3,7 @@ import { StatChartCard } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminTranslations } from '../../../utils/translations';
 import { useAdminData } from '../../../hooks/useAdminData';
+import { getRevenueCounts } from '../../../redux/services/adminServices';
 
 const timeOptions = [
   { value: 'monthly', label: 'Monthly' },
@@ -15,11 +16,26 @@ function AdminAnalyticsMonthlyPerformance() {
   const { language } = useLanguage();
   const t = getAdminTranslations(language);
   const { monthlyPerformance, fetchMonthlyPerformance } = useAdminData();
-
+  const [revenueCountsData, setRevenueCountsData] = useState({});
+  
   useEffect(() => {
     const currentDate = new Date();
     fetchMonthlyPerformance(currentDate.getMonth() + 1, currentDate.getFullYear());
   }, [fetchMonthlyPerformance]);
+
+  useEffect(() => {
+    // Fetch revenue counts API only (monthly performance is handled by parent)
+    const fetchRevenueCounts = async () => {
+      try {
+        const revenueCounts = await getRevenueCounts();
+        setRevenueCountsData(revenueCounts.data);
+      } catch (error) {
+        console.error('Error fetching revenue counts:', error);
+      }
+    };
+    
+    fetchRevenueCounts();
+  }, []); // Empty dependency array to call only once
 
   const formatValue = (value, type) => {
     if (type === 'revenue') {
@@ -87,14 +103,14 @@ function AdminAnalyticsMonthlyPerformance() {
           />
           <StatChartCard
             title={t.recoveredRevenue}
-            value={formatValue(fallbackData.recoveredRevenue.value, 'revenue')}
+            value={formatValue(revenueCountsData.totalRecoveredRevenue, 'revenue')}
             change={fallbackData.recoveredRevenue.change}
             trend={getTrendText(fallbackData.recoveredRevenue.trend)}
             color={getTrendColor(fallbackData.recoveredRevenue.trend)}
           />
           <StatChartCard
             title={t.lostRevenue}
-            value={formatValue(fallbackData.lostRevenue.value, 'revenue')}
+            value={formatValue(revenueCountsData.totalLostRevenue, 'revenue')}
             change={fallbackData.lostRevenue.change}
             trend={getTrendText(fallbackData.lostRevenue.trend)}
             color={getTrendColor(fallbackData.lostRevenue.trend)}
@@ -130,14 +146,14 @@ function AdminAnalyticsMonthlyPerformance() {
         />
         <StatChartCard
           title={t.recoveredRevenue}
-          value={formatValue(data?.recoveredRevenue?.value || 0, 'revenue')}
+          value={formatValue(revenueCountsData.totalRecoveredRevenue || 0, 'revenue')}
           change={data?.recoveredRevenue?.change || 0}
           trend={getTrendText(data?.recoveredRevenue?.trend)}
           color={getTrendColor(data?.recoveredRevenue?.trend)}
         />
         <StatChartCard
           title={t.lostRevenue}
-          value={formatValue(data?.lostRevenue?.value || 0, 'revenue')}
+          value={formatValue(revenueCountsData.totalLostRevenue || 0, 'revenue')}
           change={data?.lostRevenue?.change || 0}
           trend={getTrendText(data?.lostRevenue?.trend)}
           color={getTrendColor(data?.lostRevenue?.trend)}

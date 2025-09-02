@@ -11,7 +11,7 @@ export const getAdminMonthlyPerformance = async (month, year) => {
     const response = await apiClient.get('/admin-dashboard/monthly-performance', { params });
     return response.data;
   } catch (error) {
-    console.error('API Error - Monthly Performance:', error);
+    console.error('API Error - Admin Monthly Performance:', error);
     throw error;
   }
 };
@@ -34,7 +34,7 @@ export const getAdminCustomerStatus = async () => {
     const response = await apiClient.get('/admin-dashboard/customer-status');
     return response.data;
   } catch (error) {
-    console.error('API Error - Customer Status:', error);
+    console.error('API Error - Revenue Impact:', error);
     throw error;
   }
 };
@@ -44,7 +44,7 @@ export const getAdminSummary = async () => {
     const response = await apiClient.get('/admin-dashboard/admin-summary');
     return response.data;
   } catch (error) {
-    console.error('API Error - Admin Summary:', error);
+    console.error('API Error - Customer Status:', error);
     throw error;
   }
 };
@@ -58,7 +58,7 @@ export const getAdminDashboardOverview = async (month, year, months = 6) => {
     const response = await apiClient.get('/admin-dashboard/overview', { params });
     return response.data;
   } catch (error) {
-    console.error('API Error - Dashboard Overview:', error);
+    console.error('API Error - Admin Summary:', error);
     throw error;
   }
 };
@@ -68,7 +68,28 @@ export const getQRCodeAnalytics = async () => {
     const response = await apiClient.get('/admin-dashboard/qr-analytics');
     return response.data;
   } catch (error) {
-    console.error('API Error - Dashboard Overview:', error);
+    console.error('API Error - QR Code Analytics:', error);
     throw error;
   }
 };
+
+export const getRevenueImpacts = async () => {
+  try {
+    const response = await apiClient.get('/admin-dashboard/revenue-impacts');
+    return response.data;
+  } catch (error) {
+    console.error('API Error - Revenue Impacts:', error);
+    throw error;
+  }
+};
+
+export const getRevenueCounts = async () => {
+  try {
+    const response = await apiClient.get('/admin-dashboard/revenue-counts');
+    return response.data;
+  } catch (error) {
+    console.error('API Error - Revenue Counts:', error);
+    throw error;
+  }
+};
+

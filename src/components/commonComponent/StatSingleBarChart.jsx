@@ -47,6 +47,10 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
   const { language } = useLanguage();
   const isRTL = language === 'he';
 
+  const handleFilterChange = (value) => {
+    setSelectedFilter(value);
+  };
+
   const chartData = dataMap?.[selectedFilter] || [];
   const displayData = isRTL ? [...chartData].reverse() : chartData;
 
@@ -80,7 +84,9 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
           <CommonDropDown
             options={filters} 
             value={selectedFilter}   
-            fontSize="text-14"
+            onChange={handleFilterChange}
+            fontSize="text-12"
+            className="w-[110px] h-auto pb-2"
           />
         )}
       </div>

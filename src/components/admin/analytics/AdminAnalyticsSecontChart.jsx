@@ -121,7 +121,7 @@ function AdminAnalyticsSecontChart() {
                 <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                     <div className="flex justify-between items-center mb-[31px] text-center">
                         <h2 className="text-24 font-ttcommons text-gray-900 dark:text-white text-center">{t.qrCode}</h2>
-                        <CommonDropDown options={FILTER_OPTIONS} value={filter} onChange={setFilter} fontSize="text-12" className="w-[120px] h-auto pb-2" />
+                        <CommonDropDown options={FILTER_OPTIONS} value={filter} onChange={setFilter} fontSize="text-12" className="w-[110px] h-auto pb-2" />
                     </div>
                     <div className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
