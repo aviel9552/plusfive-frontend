@@ -134,13 +134,19 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
               onMouseOver={(_, idx) => setActiveIndex(idx)}
             />
             <Tooltip
-              active={false}
               content={({ active, payload }) => {
                 if (active && payload && payload.length > 0) {
-                  return getValueIndicator(payload[0].payload);
+                  const entry = payload[0].payload;
+                  // Don't show tooltip if value is 0
+                  if (entry.value === 0) {
+                    return null;
+                  }
+                  return getValueIndicator(entry);
                 }
                 return null;
               }}
+              cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+              isAnimationActive={false}
             />
           </BarChart>
         </ResponsiveContainer>

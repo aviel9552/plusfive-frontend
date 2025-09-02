@@ -4,7 +4,7 @@ import { CommonDropDown } from '../../index';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
-import { getQRCodeAnalytics } from '../../../redux/services/adminServices';
+import { getAverageRating, getQRCodeAnalytics } from '../../../redux/services/adminServices';
 
 // Default data structure (will be replaced by API data)
 const defaultQrCodeData = [
@@ -22,10 +22,11 @@ const defaultQrCodeData = [
     { label: 'Dec', scanCount: 0, shareCount: 0 },
 ];
 
-const ratingData = [
-    { month: 'Jan', rating: 4.0 }, { month: 'Feb', rating: 4.4 }, { month: 'Mar', rating: 4.05 }, { month: 'Apr', rating: 4.7 },
-    { month: 'May', rating: 4.2 }, { month: 'June', rating: 4.8 }, { month: 'July', rating: 4.4 }, { month: 'Aug', rating: 4.9 },
-    { month: 'Sep', rating: 4.6 }, { month: 'Oct', rating: 4.8 }, { month: 'Nov', rating: 4.5 }, { month: 'Dec', rating: 5.0 },
+// Default rating data (will be replaced by API data)
+const defaultRatingData = [
+    { month: 'Jan', rating: 0 }, { month: 'Feb', rating: 0 }, { month: 'Mar', rating: 0 }, { month: 'Apr', rating: 0 },
+    { month: 'May', rating: 0 }, { month: 'Jun', rating: 0 }, { month: 'Jul', rating: 0 }, { month: 'Aug', rating: 0 },
+    { month: 'Sep', rating: 0 }, { month: 'Oct', rating: 0 }, { month: 'Nov', rating: 0 }, { month: 'Dec', rating: 0 },
 ];
 
 const CustomYAxisTick = ({ x, y, payload }) => {
@@ -43,7 +44,7 @@ const CustomRatingYTick = ({ x, y, payload }) => {
     const textColor = isDarkMode ? "#ffffff" : "#000000";
     return (
         <text x={x} y={y} dy={4} fill={textColor} fontSize={12} textAnchor="end">
-            {payload.value.toFixed(1)}
+            {payload.value.toFixed(0)}
         </text>
     );
 };
@@ -57,6 +58,12 @@ function AdminAnalyticsSecontChart() {
         yearlyQrCodeData: [],
         weeklyQrCodeData: []
     });
+    const [averageRatingData, setAverageRatingData] = useState({
+        monthlyData: defaultRatingData,
+        overallStats: { totalReviews: 0, averageRating: 0, year: 2025 }
+    });
+    console.log(averageRatingData, 'averageRatingData');
+    
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
     const isRTL = language === 'he';
@@ -74,8 +81,19 @@ function AdminAnalyticsSecontChart() {
                 console.error('Error fetching QR Analytics:', error);
             }
         };
+        const fetchAverageRating = async () => {
+            try {
+                const response = await getAverageRating();
+                if (response.success && response.data) {
+                    setAverageRatingData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching Average Rating:', error);
+            }
+        };
 
         fetchQRAnalytics();
+        fetchAverageRating();
     }, []);
 
     const qrCodeDataMap = {
@@ -93,6 +111,17 @@ function AdminAnalyticsSecontChart() {
     ];
 
     const qrData = useMemo(() => qrCodeDataMap[filter], [filter]);
+    
+    // Transform API data for the rating chart
+    const ratingData = useMemo(() => {
+        if (averageRatingData.monthlyData && averageRatingData.monthlyData.length > 0) {
+            return averageRatingData.monthlyData.map(item => ({
+                month: item.month,
+                rating: item.averageRating
+            }));
+        }
+        return defaultRatingData;
+    }, [averageRatingData.monthlyData]);
 
     const CustomBarTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length && hoveredBar) {
@@ -104,12 +133,32 @@ function AdminAnalyticsSecontChart() {
                 let metricType = hoveredBar === 'scanCount' ? 'Scans' : 'Shares';
                 
                 return (
-                    <div className="bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-white">
+                    <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-800 dark:text-white">
                         <p className="font-bold text-lg">{metricType}: {displayValue}</p>
                         <p className="text-xs text-gray-400">{label} {year} Year</p>
                     </div>
                 );
             }
+        }
+        return null;
+    };
+
+    const CustomRatingTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            const currentYear = new Date().getFullYear();
+            const rating = payload[0].value;
+            
+            // Don't show tooltip if rating is 0
+            if (rating === 0) {
+                return null;
+            }
+            
+            return (
+                <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-800 dark:text-white">
+                    <p className="font-bold text-lg">Average Rating: {rating.toFixed(1)}</p>
+                    <p className="text-xs text-gray-600 dark:text-white">{label} {currentYear}</p>
+                </div>
+            );
         }
         return null;
     };
@@ -220,11 +269,12 @@ function AdminAnalyticsSecontChart() {
                                 <YAxis
                                     tickLine={false}
                                     axisLine={false}
-                                    domain={[1, 5]}
+                                    domain={[0, 5]}
+                                    tickCount={6}
                                     tick={<CustomRatingYTick />}
                                     orientation={isRTL ? "right" : "left"}
                                 />
-                                <Tooltip wrapperClassName="!hidden" />
+                                <Tooltip content={<CustomRatingTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} isAnimationActive={false} />
                                 <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="url(#ratingGradient)" />
                             </AreaChart>
                         </ResponsiveContainer>

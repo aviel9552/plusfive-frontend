@@ -71,13 +71,13 @@ const CommonConfirmModel = ({
         <div className={`px-8 py-6 bg-gray-50/80 dark:bg-customGray/80 flex justify-end gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <button
             onClick={handleCancel}
-            className={`px-6 pt-3 pb-2 text-sm font-medium rounded-lg transition-all duration-200 ${cancelButtonColor} ${cancelButtonTextColor}`}
+            className={`px-6 p-2 text-sm font-medium rounded-lg transition-all duration-200 ${cancelButtonColor} ${cancelButtonTextColor}`}
           >
             {cancelText}
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-6 pt-3 pb-2 text-sm font-semibold text-white rounded-lg shadow-lg transition-all duration-200 ${confirmButtonColor}`}
+            className={`px-6 p-2 text-sm font-semibold text-white rounded-lg shadow-lg transition-all duration-200 ${confirmButtonColor}`}
           >
             {confirmText}
           </button>

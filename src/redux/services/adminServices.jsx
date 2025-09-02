@@ -73,6 +73,16 @@ export const getQRCodeAnalytics = async () => {
   }
 };
 
+export const getAverageRating = async () => {
+  try {
+    const response = await apiClient.get('/admin-dashboard/average-rating-counts');
+    return response.data;
+  } catch (error) {
+    console.error('API Error - Average Rating:', error);
+    throw error;
+  }
+};
+
 export const getRevenueImpacts = async () => {
   try {
     const response = await apiClient.get('/admin-dashboard/revenue-impacts');
