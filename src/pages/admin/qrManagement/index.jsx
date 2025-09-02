@@ -9,11 +9,15 @@ import { getAdminQRTranslations } from '../../../utils/translations';
 import { toast } from 'react-toastify';
 import { fetchQRCodes } from '../../../redux/actions/qrActions';
 import { useDispatch, useSelector } from 'react-redux';
+import BlackQRIcon from '../../../assets/qr-large-black-icon.svg';
+import WhiteQRIcon from '../../../assets/qr-large-white-icon.svg';
+import { useTheme } from '../../../context/ThemeContext';
 
 function AdminQRManagement() {
   const { language } = useLanguage();
   const t = getAdminQRTranslations(language);
   const dispatch = useDispatch();
+  const { isDarkMode } = useTheme();
 
   // Get user data from auth reducer
   const { user } = useSelector(state => state.auth);
@@ -360,7 +364,8 @@ function AdminQRManagement() {
                   </div>
                 ) : (
                   <>
-                    <MdQrCode2 className="text-6xl dark:text-white text-black mb-4" />
+                    {/* <MdQrCode2 className="text-6xl dark:text-white text-black mb-4" /> */}
+                    <img src={isDarkMode ? WhiteQRIcon : BlackQRIcon} alt="QR Code" className=" mb-4" />
                     <p className="dark:text-white text-black text-14">
                       {t.generatedQRCodesWillAppearHere}
                     </p>
