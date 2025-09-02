@@ -142,7 +142,7 @@ function AdminReferralsTable() {
       className: 'min-w-[120px]',
       render: (row) => (
         <span className="font-medium text-black dark:text-white">
-          ${row.commission}
+          ₪{row.commission}
         </span>
       )
     },
@@ -301,7 +301,7 @@ function AdminReferralsTable() {
                   </div>
                   <div>
                     <p className="text-black dark:text-white text-sm">{t.commission}</p>
-                    <p className="text-black dark:text-white">${selectedReferral.commission}</p>
+                    <p className="text-black dark:text-white">₪{selectedReferral.commission}</p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-black dark:text-white text-sm">{t.date}</p>

@@ -144,7 +144,7 @@ function ReferralsTable() {
       className: 'min-w-[120px] text-16',
       render: (row) => (
         <span className="font-medium text-black dark:text-white text-14">
-          ${row.commission}
+          ₪{row.commission}
         </span>
       )
     },
@@ -277,7 +277,7 @@ function ReferralsTable() {
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.commission}</p>
-                    <p className="text-black dark:text-white">${selectedReferral.commission}</p>
+                    <p className="text-black dark:text-white">₪{selectedReferral.commission}</p>
                   </div>
                   <div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">{t.date}</p>

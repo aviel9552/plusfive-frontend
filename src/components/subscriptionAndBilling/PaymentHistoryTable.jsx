@@ -83,10 +83,10 @@ const PaymentHistoryTable = () => {
         };
 
         return paginated.map(item => ({
-            icon: <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">$</div>,
+            icon: <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">₪</div>,
             title: item.id,
             subtitle: formatDate(item.created),
-            value: `$${item.amount.toFixed(2)}`,
+            value: `₪${item.amount.toFixed(2)}`,
             statusInfo: {
                 text: item.status.charAt(0).toUpperCase() + item.status.slice(1),
                 className: getStatusClassName(item.status),

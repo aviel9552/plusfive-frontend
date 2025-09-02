@@ -149,7 +149,7 @@ function CurrentActiveSubscription({ slug }) {
     
     const amount = subscription.items?.data?.[0]?.plan?.amount;
     if (amount) {
-      return `$${(amount / 100).toFixed(2)}/month`;
+      return `₪${(amount / 100).toFixed(2)}/month`;
     }
     return 'N/A';
   };

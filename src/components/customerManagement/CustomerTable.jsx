@@ -298,12 +298,12 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
         {
             key: 'lastPayment',
             label: t.lastPayment,
-            render: (row) => <span className="text-14 text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
+            render: (row) => <span className="text-14 text-gray-900 dark:text-white">₪{row.appointmentCount || 0}</span>
         },
         {
             key: 'totalPaid',
             label: t.totalPaid,
-            render: (row) => <span className="text-14 text-gray-900 dark:text-white">${row.appointmentCount || 0}</span>
+            render: (row) => <span className="text-14 text-gray-900 dark:text-white">₪{row.appointmentCount || 0}</span>
         }
     ];
 

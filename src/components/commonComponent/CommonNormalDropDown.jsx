@@ -79,7 +79,8 @@ function CommonNormalDropDown({
           ${inputBorderRadius}
         `}
       >
-        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        {/* <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}> */}
+        <div className={`flex items-center gap-2 ${isRTL ? '' : ''}`}>
           {showIcon && (
             <FiGlobe className={`${fontSize} text-gray-500 dark:text-white text-20`} />
           )}

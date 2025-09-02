@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 
-const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [], isRTL = false, showHoverText = false }) => {
+const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [], isRTL = false, showHoverText = false, customIcon = null }) => {
     const location = useLocation();
+    const { isDarkMode } = useTheme();
 
     const isActive = () => {
         // Check exact match first
@@ -34,11 +36,25 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
         return `text-22 lg:text-20  ${isActive() ? 'text-gray-900 dark:text-white' : ''}`;
     }
 
+    const renderIcon = () => {
+        if (customIcon) {
+            // If customIcon is an object with dark and light variants
+            if (typeof customIcon === 'object' && customIcon.dark && customIcon.light) {
+                const iconSrc = isDarkMode ? customIcon.dark : customIcon.light;
+                return <img src={iconSrc} alt="" className="w-5 h-5" />;
+            }
+            // If customIcon is a single SVG string
+            return <img src={customIcon} alt="" className="w-5 h-5" />;
+        }
+        // Fallback to regular icon
+        return <Icon className={getIconClasses()} />;
+    };
+
     return (
         <li className="relative list-none">
             <Link to={to} className={getLinkClasses()}>
                 <span className='flex items-center gap-[8px]'>
-                    <Icon className={getIconClasses()} />
+                    {renderIcon()}
                     <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
                         {label}
                     </span>

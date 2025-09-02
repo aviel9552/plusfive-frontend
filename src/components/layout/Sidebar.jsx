@@ -15,6 +15,8 @@ import { PiPlusBold } from 'react-icons/pi';
 import DarkLogo from "../../assets/DarkLogo.png"
 import LightLogo from "../../assets/LightLogo.jpeg"
 import Sidebar_Toggle_Icon from "../../assets/Sidebar_Toggle_Icon.svg"
+import BlackLogoutIcon from "../../assets/log-out-black.svg"
+import WhiteLogoutIcon from "../../assets/log-out-white.svg"
 import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMobileMenuOpen, isRTL = false }) => {
@@ -140,6 +142,10 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
               label={t.logout}
               isCollapsed={effectiveCollapsed}
               isRTL={isRTL}
+              customIcon={{
+                light: BlackLogoutIcon,
+                dark: WhiteLogoutIcon
+              }}
             />
           </button>
         </div>

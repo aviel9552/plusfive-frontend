@@ -34,7 +34,7 @@ function AdminMonthlyPerformance() {
 
   const formatValue = (value, type) => {
     if (type === 'revenue') {
-      return value >= 1000 ? `$${(value / 1000).toFixed(0)}k` : `$${value}`;
+      return value >= 1000 ? `₪${(value / 1000).toFixed(0)}k` : `₪${value}`;
     }
     if (type === 'ltv') {
       return `${value}/m`;

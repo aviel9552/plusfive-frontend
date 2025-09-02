@@ -5,24 +5,108 @@ import {
 import { IoHomeOutline } from 'react-icons/io5';
 import React from 'react';
 import { getLayoutTranslations } from '../../utils/translations';
+import HomeBlackIcon from '../../assets/home-line-black.svg';
+import HomeWhiteIcon from '../../assets/home-line-white.svg';
+import QrBlackIcon from '../../assets/qr-code-black.svg';
+import QrWhiteIcon from '../../assets/qr-code-white.svg';
+import ShareBlackIcon from '../../assets/share-black.svg';
+import ShareWhiteIcon from '../../assets/share-white.svg';
+import userBlackIcon from '../../assets/users-black.svg';
+import userWhiteIcon from '../../assets/users-white.svg';
+import AnalyticsBlackIcon from '../../assets/bar-chart-black.svg';
+import AnalyticsWhiteIcon from '../../assets/bar-chart-white.svg';
+import SubscriptionAndBillingBlackIcon from '../../assets/card-black.svg';
+import SubscriptionAndBillingWhiteIcon from '../../assets/card-white.svg';
+import AccountSettingsBlackIcon from '../../assets/setting-black.svg';
+import AccountSettingsWhiteIcon from '../../assets/setting-white.svg';
+import SupportAndHelpBlackIcon from '../../assets/help-black.svg';
+import SupportAndHelpWhiteIcon from '../../assets/help-white.svg';
 
 const adminNavLinks = (language = 'en') => {
   const t = getLayoutTranslations(language);
   
   return [
-    { to: '/admin/dashboard', icon: IoHomeOutline, label: t.dashboard, specialPaths: ['/','/admin'] },
-    { to: '/admin/qr-management', icon: MdQrCode2, label: t.qrManagement, specialPaths: ['/admin/qr-management','/admin/qr-management/my-codes'] },
-    { to: '/admin/referral-management', icon: MdShare, label: t.referralProgram },
-    { to: '/admin/user-management', icon: MdPeople, label: t.userManagement, specialPaths: ['/admin/user-management/create', '/admin/user-management/edit', '/admin/user-management/edit/:userId', '/admin/user-management/view', '/admin/user-management/view/:userId']  },
+    { 
+      to: '/admin/dashboard', 
+      icon: IoHomeOutline, 
+      label: t.dashboard, 
+      specialPaths: ['/','/admin'],
+      customIcon: {
+        light: HomeBlackIcon,
+        dark: HomeWhiteIcon
+      }
+    },
+    { 
+      to: '/admin/qr-management', 
+      icon: MdQrCode2, 
+      label: t.qrManagement, 
+      specialPaths: ['/admin/qr-management','/admin/qr-management/my-codes'],
+      customIcon: {
+        light: QrBlackIcon,
+        dark: QrWhiteIcon
+      }
+    },
+    { 
+      to: '/admin/referral-management', 
+      icon: MdShare, 
+      label: t.referralProgram,
+      customIcon: {
+        light: ShareBlackIcon,
+        dark: ShareWhiteIcon
+      }
+    },
+    { 
+      to: '/admin/user-management', 
+      icon: MdPeople, 
+      label: t.userManagement, 
+      specialPaths: ['/admin/user-management/create', '/admin/user-management/edit', '/admin/user-management/edit/:userId', '/admin/user-management/view', '/admin/user-management/view/:userId'],
+      customIcon: {
+        light: userBlackIcon,
+        dark: userWhiteIcon
+      }
+    },
     // { to: '/admin/customer-management', icon: MdPeople, label: t.customerManagement, specialPaths: ['/admin/customer-management/create', '/admin/customer-management/edit', '/admin/customer-management/edit/:customerId']  },
-    { to: '/admin/analytics', icon: MdAnalytics, label: t.analytics },
-    { to: '/admin/subscription-and-billing', icon: MdCreditCard, label: <>
-      {t.subscriptionAndBilling}
-    </>, specialPaths: ['/admin/update-payment', '/admin/add-card'] },
-    { to: '/admin/account-settings', icon: MdSettings, label: t.accountSettings },
-    { to: '/admin/support-and-help', icon: MdHelp, label: <>
-      {t.supportAndHelp}
-    </> },
+    { 
+      to: '/admin/analytics', 
+      icon: MdAnalytics, 
+      label: t.analytics,
+      customIcon: {
+        light: AnalyticsBlackIcon,
+        dark: AnalyticsWhiteIcon
+      }
+    },
+    { 
+      to: '/admin/subscription-and-billing', 
+      icon: MdCreditCard, 
+      label: <>
+        {t.subscriptionAndBilling}
+      </>, 
+      specialPaths: ['/admin/update-payment', '/admin/add-card'],
+      customIcon: {
+        light: SubscriptionAndBillingBlackIcon,
+        dark: SubscriptionAndBillingWhiteIcon
+      }
+    },
+    { 
+      to: '/admin/account-settings', 
+      icon: MdSettings, 
+      label: t.accountSettings,
+      customIcon: {
+        light: AccountSettingsBlackIcon,
+        dark: AccountSettingsWhiteIcon
+      }
+    },
+    { 
+      to: '/admin/support-and-help', 
+      icon: MdHelp, 
+      label: <>
+        {t.supportAndHelp}
+      </>,
+      customIcon: {
+        light: SupportAndHelpBlackIcon,
+        dark: SupportAndHelpWhiteIcon
+      }
+    },
   ];
 };
 
