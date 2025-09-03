@@ -62,7 +62,6 @@ function AdminAnalyticsSecontChart() {
         monthlyData: defaultRatingData,
         overallStats: { totalReviews: 0, averageRating: 0, year: 2025 }
     });
-    console.log(averageRatingData, 'averageRatingData');
     
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
@@ -110,7 +109,7 @@ function AdminAnalyticsSecontChart() {
         { label: t.thisWeek, value: 'This Week' }
     ];
 
-    const qrData = useMemo(() => qrCodeDataMap[filter], [filter]);
+    const qrData = useMemo(() => qrCodeDataMap[filter], [filter, qrAnalyticsData]);
     
     // Transform API data for the rating chart
     const ratingData = useMemo(() => {

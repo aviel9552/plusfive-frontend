@@ -65,6 +65,7 @@ function ContactAndSubmitTicket() {
                     subject: ticketData.subject,
                     description: ticketData.description,
                     email: 'dev2.webbuildinfotech@gmail.com',
+                    // email: supportEmail,
                     priority: 'medium',
                     category: 'general'
                 });
