@@ -56,12 +56,8 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
 
   const getValueIndicator = (entry) => {
     const formatTooltipValue = (value) => {
-      if (value >= 1000000) {
-        return `${(value / 1000000).toFixed(0)}M`;
-      } else if (value >= 1000) {
-        return `${(value / 1000).toFixed(0)}k`;
-      }
-      return value.toString();
+      // Show exact value as requested by client
+      return new Intl.NumberFormat().format(value);
     };
 
     return (

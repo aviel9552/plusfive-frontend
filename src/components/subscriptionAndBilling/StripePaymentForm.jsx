@@ -8,8 +8,22 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
 import { toast } from 'react-toastify';
 
-// Load Stripe (you'll need to add your publishable key)
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+// Safely load Stripe with error handling
+const stripePromise = (() => {
+  const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  
+  if (!publishableKey || publishableKey === 'undefined') {
+    console.warn('⚠️ VITE_STRIPE_PUBLISHABLE_KEY is not set in environment variables');
+    return null;
+  }
+  
+  try {
+    return loadStripe(publishableKey);
+  } catch (error) {
+    console.error('❌ Failed to load Stripe:', error);
+    return null;
+  }
+})();
 
 // Card Element styling
 const cardElementOptions = {
@@ -319,6 +333,28 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
 
 // Wrapper component with Stripe Elements
 function StripePaymentForm({ onSubmit, onCancel, onSuccess }) {
+  // Show error message if Stripe is not properly configured
+  if (!stripePromise) {
+    return (
+      <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+        <div className="text-center py-8">
+          <FiAlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Stripe Configuration Error
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Stripe is not properly configured. Please contact support or check your environment variables.
+          </p>
+          <CommonCustomOutlineButton
+            text="Go Back"
+            onClick={onCancel}
+            className="px-6 py-2"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dark:bg-customBrown bg-white p-8 rounded-2xl text-black dark:text-white border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
       <div className="flex items-center mb-8 gap-4">

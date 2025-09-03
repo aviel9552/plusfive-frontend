@@ -49,20 +49,20 @@ const RatingStars = ({ rating }) => {
             {[...Array(fullStars)].map((_, i) => (
                 <FaStar key={`full-${i}`} className="text-[#FDB022]" />
             ))}
-            
+
             {/* Partial star (if there's a decimal) */}
             {partialStarFill > 0 && (
                 <div className="relative">
                     <FaStar className="text-gray-300 dark:text-white" />
-                    <FaStar 
-                        className="text-[#FDB022] absolute top-0 left-0" 
-                        style={{ 
-                            clipPath: `inset(0 ${100 - (partialStarFill * 100)}% 0 0)` 
-                        }} 
+                    <FaStar
+                        className="text-[#FDB022] absolute top-0 left-0"
+                        style={{
+                            clipPath: `inset(0 ${100 - (partialStarFill * 100)}% 0 0)`
+                        }}
                     />
                 </div>
             )}
-            
+
             {/* Empty stars */}
             {[...Array(emptyStars)].map((_, i) => (
                 <FaStar key={`empty-${i}`} className="text-gray-300 dark:text-white" />
@@ -219,8 +219,8 @@ function ViewCustomer() {
                         <button
                             onClick={() => setActiveTab('reviews')}
                             className={`px-4 md:px-6 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors ${activeTab === 'reviews'
-                                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                    : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
                             Reviews ({customer.reviews?.length || 0})
@@ -228,8 +228,8 @@ function ViewCustomer() {
                         <button
                             onClick={() => setActiveTab('appointments')}
                             className={`px-4 md:px-6 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors ${activeTab === 'appointments'
-                                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                    : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
                             Appointments ({customer.appointments?.length || 0})
@@ -295,8 +295,8 @@ function ViewCustomer() {
                                                             </span>
                                                         </div>
                                                         <span className={`px-3 p-1 text-xs font-semibold rounded-full ${review.status === 'received'
-                                                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                                             }`}>
                                                             {review.status || 'N/A'}
                                                         </span>
@@ -371,7 +371,7 @@ function ViewCustomer() {
                                     </div>
                                     <div className="text-center">
                                         <p className="text-2xl md:text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                            ${customer.totalSpent || 0}
+                                            ₪{customer.totalSpent || 0}
                                         </p>
                                         <p className="text-xs md:text-sm text-black dark:text-white">{t.totalSpent}</p>
                                     </div>

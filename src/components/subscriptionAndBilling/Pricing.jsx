@@ -16,38 +16,77 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
         return [];
     }
 
-    const formattedPlans = stripePrices.map(price => {
-
-        const amount = price.unit_amount / 100; // Convert from cents
-        const interval = price.recurring?.interval; // monthly or yearly
+    // Group prices by product to handle monthly/yearly variants
+    const productGroups = {};
+    
+    stripePrices.forEach(price => {
+        const productId = price.product?.id || price.product;
+        const planName = price.product?.name || price.metadata?.planName || price.nickname || 'Premium Plan';
+        
+        if (!productGroups[productId]) {
+            productGroups[productId] = {
+                productId,
+                planName,
+                description: price.product?.description || price.metadata?.description || t.premiumDescription,
+                features: price.product?.marketing_features ?
+                    price.product.marketing_features.map(feature => feature.name) :
+                    [t.basicReports, t.emailSupport],
+                isPopular: planName.toLowerCase().includes('premium') || price.metadata?.isPopular === 'true',
+                monthlyPrice: null,
+                yearlyPrice: null,
+                monthlyPriceId: null,
+                yearlyPriceId: null,
+                currency: price.currency || 'usd',
+                isMetered: false,
+                meterId: null
+            };
+        }
+        
+        const interval = price.recurring?.interval;
+        const amount = price.unit_amount / 100;
         const usageType = price.recurring?.usage_type;
         const meterId = price.recurring?.meter;
-        const currency = price.currency || 'usd';
+        
+        if (interval === 'month') {
+            productGroups[productId].monthlyPrice = amount;
+            productGroups[productId].monthlyPriceId = price.id;
+        } else if (interval === 'year') {
+            productGroups[productId].yearlyPrice = amount;
+            productGroups[productId].yearlyPriceId = price.id;
+        }
+        
+        // Set metered info from any price
+        if (usageType === 'metered' || !!meterId) {
+            productGroups[productId].isMetered = true;
+            productGroups[productId].meterId = meterId;
+        }
+    });
 
-        // Only show plans that match the current billing interval
-        if (interval !== (isYearly ? 'year' : 'month')) {
+    // Convert grouped data to plan objects
+    const formattedPlans = Object.values(productGroups).map(group => {
+        const currentPrice = isYearly ? group.yearlyPrice : group.monthlyPrice;
+        const currentPriceId = isYearly ? group.yearlyPriceId : group.monthlyPriceId;
+        
+        // Only include plans that have a price for the current interval
+        if (currentPrice === null || currentPrice === undefined) {
             return null;
         }
 
-        const planName = price.product?.name || price.metadata?.planName || price.nickname || 'Premium Plan';
-
-        const plan = {
-            name: planName,
-            description: price.product?.description || price.metadata?.description || t.premiumDescription,
-            monthlyPrice: interval === 'month' ? amount : null,
-            yearlyPrice: interval === 'year' ? amount : null,
-            features: price.product?.marketing_features ?
-                price.product.marketing_features.map(feature => feature.name) :
-                [t.basicReports, t.emailSupport],
-            isPopular: planName.toLowerCase().includes('premium') || price.metadata?.isPopular === 'true',
-            stripePriceId: price.id,
-            priceId: price.id,
-            isMetered: usageType === 'metered' || !!meterId,
-            meterId: meterId || null,
-            currency
+        return {
+            name: group.planName,
+            description: group.description,
+            monthlyPrice: group.monthlyPrice,
+            yearlyPrice: group.yearlyPrice,
+            features: group.features,
+            isPopular: group.isPopular,
+            stripePriceId: currentPriceId,
+            priceId: currentPriceId,
+            isMetered: group.isMetered,
+            meterId: group.meterId,
+            currency: group.currency,
+            // Add unique key for React
+            uniqueKey: `${group.productId}-${isYearly ? 'yearly' : 'monthly'}`
         };
-
-        return plan;
     }).filter(Boolean); // Remove null values
 
     // Sort plans by price from lowest to highest
@@ -325,7 +364,7 @@ function Pricing({ slug }) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px] mt-[24px] items-stretch">
                     {pricingPlans.map(plan => (
                         <PricingCard
-                            key={plan.name}
+                            key={plan.uniqueKey || `${plan.name}-${isYearly ? 'yearly' : 'monthly'}`}
                             plan={plan}
                             isYearly={isYearly}
                             t={t}

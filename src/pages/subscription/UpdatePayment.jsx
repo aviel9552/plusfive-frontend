@@ -9,9 +9,22 @@ import { toast } from 'react-toastify';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// Stripe configuration
-// Make sure to set VITE_STRIPE_PUBLISHABLE_KEY in your .env file
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+// Safely load Stripe with error handling
+const stripePromise = (() => {
+  const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  
+  if (!publishableKey || publishableKey === 'undefined') {
+    console.warn('⚠️ VITE_STRIPE_PUBLISHABLE_KEY is not set in environment variables');
+    return null;
+  }
+  
+  try {
+    return loadStripe(publishableKey);
+  } catch (error) {
+    console.error('❌ Failed to load Stripe:', error);
+    return null;
+  }
+})();
 
 // Stripe Card Form Component
 const StripeCardForm = ({ onSubmit, onCancel }) => {
@@ -385,12 +398,29 @@ function UpdatePayment() {
                   </button>
                 </div>
                 
-                <Elements stripe={stripePromise}>
-                  <StripeCardForm
-                    onSubmit={handleSecurePaymentMethod}
-                    onCancel={() => setShowStripeForm(false)}
-                  />
-                </Elements>
+                {stripePromise ? (
+                  <Elements stripe={stripePromise}>
+                    <StripeCardForm
+                      onSubmit={handleSecurePaymentMethod}
+                      onCancel={() => setShowStripeForm(false)}
+                    />
+                  </Elements>
+                ) : (
+                  <div className="text-center py-8">
+                    <MdWarning className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      Stripe Configuration Error
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Stripe is not properly configured. Please contact support.
+                    </p>
+                    <CommonCustomOutlineButton
+                      text="Go Back"
+                      onClick={() => setShowStripeForm(false)}
+                      className="px-6 py-2"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
