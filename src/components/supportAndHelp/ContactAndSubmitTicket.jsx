@@ -64,8 +64,8 @@ function ContactAndSubmitTicket() {
                 const ticketResponse = await createSupportTicket({
                     subject: ticketData.subject,
                     description: ticketData.description,
-                    email: 'dev2.webbuildinfotech@gmail.com',
-                    // email: supportEmail,
+                    // email: 'dev2.webbuildinfotech@gmail.com',
+                    email: supportEmail,
                     priority: 'medium',
                     category: 'general'
                 });
