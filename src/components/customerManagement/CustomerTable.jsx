@@ -217,10 +217,10 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
 
     const columns = [
         {
-            key: 'employeeId',
-            label: t.userId,
+            key: 'index',
+            label: 'S.No',
             className: 'text-sm text-gray-900 dark:text-white',
-            render: (row) => <span className="text-sm text-gray-900 dark:text-white">{row.employeeId}</span>
+            render: (row, index) => <span className="text-sm text-gray-900 dark:text-white">{(currentPage - 1) * pageSize + index + 1}</span>
         },
         {
             key: 'customer',
