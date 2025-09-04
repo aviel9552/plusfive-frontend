@@ -57,7 +57,7 @@ function LandingPage({ language }) {
         {showSupportButton && (
           <button 
             onClick={handleWhatsAppSupport}
-            className="fixed bottom-6 right-6 w-[150px] h-[45px] bg-white rounded-[40px] flex items-center justify-start cursor-pointer shadow-lg z-50"
+            className="fixed bottom-6 right-6 w-[170px] h-[45px] bg-white rounded-[40px] flex items-center justify-start cursor-pointer shadow-lg z-50"
           >
             <div className="w-[30%] flex items-center justify-center pl-5">
               <TbMessageCircleFilled className="w-7 h-7" />

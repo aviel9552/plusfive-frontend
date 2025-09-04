@@ -161,7 +161,7 @@ function ReferralsTable() {
             <HiDotsHorizontal className="w-5 h-5" />
           </button>
           {openAction === idx && (
-            <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-[#FFFFFF1A] rounded-lg shadow-lg z-20 py-1`}>
+            <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-commonBorder rounded-lg shadow-lg z-20 py-1`}>
               <button
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => { 
@@ -181,7 +181,7 @@ function ReferralsTable() {
 
   return (
     <div className="w-full mt-10">
-      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-[#FFFFFF1A] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-commonBorder rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className="p-[24px]">
           <div className="flex justify-between items-center mb-[24px]">
             <div className="flex items-center gap-4">
@@ -222,7 +222,7 @@ function ReferralsTable() {
       {/* Referral Details Modal */}
       {showModal && selectedReferral && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-[#FFFFFF1A] rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-commonBorder rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-black dark:text-white">{t.referralDetails}</h3>
               <button

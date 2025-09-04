@@ -123,16 +123,16 @@ function ContactAndSubmitTicket() {
                 <div className="space-y-6">
                     {contactMethods.map((method, index) => (
                         <div key={index} className="dark:bg-customBrown bg-customBody border border-gray-200 dark:border-customBorderColor p-6 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between">
-                            <div className="flex flex-row items-start flex-1 min-w-0 gap-4">
-                                <div className="md:text-2xl border border-gray-200 dark:border-customBorderColor rounded-lg md:p-3 p-2 bg-white dark:bg-customBrown flex-shrink-0">{method.icon}</div>
+                            <div className="flex flex-row items-start flex-1 min-w-0 gap-[16px]">
+                                <div className="md:text-2xl border-2 border-gray-200 dark:border-customBorderColor rounded-lg md:p-3 p-2 bg-white dark:bg-customBrown flex-shrink-0">{method.icon}</div>
                                 <div className="flex md:flex-row flex-col justify-between w-full">
-                                    <div>
+                                    <div className="flex flex-col gap-[4px]">
 
-                                        <h3 className="font-bold md:text-18 leading-tight">{method.title}</h3>
-                                        <p className="text-gray-500 dark:text-white md:text-14 leading-tight">{method.detail}</p>
+                                        <h3 className="font-bold text-18">{method.title}</h3>
+                                        <p className="text-gray-500 dark:text-white text-14">{method.detail}</p>
                                     </div>
                                     {method.action && (
-                                        <div className="mt-4">
+                                        <div className="md:mt-0 mt-4">
                                             {method.action}
                                         </div>
                                     )}

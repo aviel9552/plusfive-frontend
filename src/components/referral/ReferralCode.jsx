@@ -45,7 +45,7 @@ function ReferralCode() {
 
   return (
     <div className="">
-      <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-6 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white border border-gray-200 dark:border-commonBorder rounded-2xl p-6 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <h2 className="text-24 font-medium text-gray-900 dark:text-white font-ttcommons">
           {t.myReferralCode}
         </h2>
@@ -57,7 +57,7 @@ function ReferralCode() {
               {t.referralCode}
             </p>
             <div className="flex items-center gap-2 ">
-              <div className="border text-16 dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium">
+              <div className="border text-16 dark:border-commonBorder border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium">
                 {referralCode}
               </div>
               <button
@@ -66,7 +66,7 @@ function ReferralCode() {
                   p-3 bg-gray-50 dark:bg-[#1C1C1C] text-gray-700 dark:text-white rounded-lg
                   hover:bg-gray-100 dark:hover:bg-[#2C2C2C] transition-colors duration-200
                   active:scale-95
-                  border dark:border-customBorderColor border-gray-200
+                  border dark:border-commonBorder border-gray-200
                 "
                 title={t.copyReferralCode}
               >
@@ -81,7 +81,7 @@ function ReferralCode() {
               {t.referralLink}
             </p>
             <div className="flex items-center gap-2">
-              <div className="border text-16 dark:border-customBorderColor border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="border text-16 dark:border-commonBorder border-gray-200 flex-1 bg-gray-50 dark:bg-[#1C1C1C] rounded-lg px-4 py-3 text-gray-900 dark:text-white font-medium overflow-hidden text-ellipsis whitespace-nowrap">
                 {import.meta.env.VITE_APP_URL}/ref/{referralCode}
               </div>
               <button
@@ -90,7 +90,7 @@ function ReferralCode() {
                   p-3 bg-gray-50 dark:bg-[#1C1C1C] text-gray-700 dark:text-white rounded-lg
                   hover:bg-gray-100 dark:hover:bg-[#2C2C2C] transition-colors duration-200
                   active:scale-95
-                  border dark:border-customBorderColor border-gray-200
+                  border dark:border-commonBorder border-gray-200
                 "
                 title={t.copyReferralLink}
               >

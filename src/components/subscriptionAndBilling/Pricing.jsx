@@ -219,7 +219,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                     )}
                 </div>
 
-                <div className="border-t border-gray-300 dark:border-[#FFFFFF1A] my-8"></div>
+                <div className="border-t border-gray-300 dark:border-commonBorder my-8"></div>
 
                 <ul className="space-y-4 mb-10 flex-grow">
                     {features.map((feature, index) => (

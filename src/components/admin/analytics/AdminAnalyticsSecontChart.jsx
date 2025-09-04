@@ -166,7 +166,7 @@ function AdminAnalyticsSecontChart() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons mt-7">
 
             <div className="lg:col-span-5">
-                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                     <div className="flex justify-between items-center mb-[31px] text-center">
                         <h2 className="text-24 font-ttcommons text-gray-900 dark:text-white text-center">{t.qrCode}</h2>
                         <CommonDropDown options={FILTER_OPTIONS} value={filter} onChange={setFilter} fontSize="text-12" className="w-[110px] h-auto pb-2" />
@@ -235,13 +235,13 @@ function AdminAnalyticsSecontChart() {
             </div>
 
             <div className="lg:col-span-7">
-                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                     <h2 className="text-24 font-ttcommons text-gray-900 dark:text-white mb-[32px]">{t.averageRatingOverTime}</h2>
                     <div className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart
                                 data={isRTL ? [...ratingData].reverse() : ratingData}
-                                margin={isRTL ? { top: 5, right: -20, left: 20, bottom: 5 } : { top: 5, right: 0, left: -20, bottom: 5 }}
+                                margin={isRTL ? { top: 5, right: -40, left: 15, bottom: 5 } : { top: 5, right: 0, left: -40, bottom: 5 }}
                             >
                                 <defs>
                                     <linearGradient id="ratingGradient" x1="0" y1="0" x2="0" y2="1">

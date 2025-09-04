@@ -18,7 +18,7 @@ function AdminReferralCode() {
 
   return (
     <div className="">
-      <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-[24px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="flex flex-col gap-[24px] dark:bg-customBrown bg-white border border-gray-200 dark:border-commonBorder rounded-2xl p-[24px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <h2 className="text-24 font-medium text-gray-900 dark:text-white font-ttcommons">
           My Referral Code
         </h2>

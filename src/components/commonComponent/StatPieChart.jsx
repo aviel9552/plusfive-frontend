@@ -32,7 +32,7 @@ const StatPieChart = ({ title, data }) => {
   const displayData = isRTL ? [...customerData].reverse() : customerData;
 
   return (
-    <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-[#FFFFFF1A] dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+    <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
       <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
         <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
       </div>

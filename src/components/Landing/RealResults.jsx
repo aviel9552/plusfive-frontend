@@ -98,7 +98,7 @@ const RealResults = ({ language }) => {
                         icon={<FaArrowRight />}
                         iconPosition="right"
                         gap="gap-[10px]"
-                        className="ml-2 px-6 pt-3 pb-2 text-16 font-bold rounded-full"
+                        className="ml-2 px-[18px] p-[12px] text-16 font-bold rounded-full"
                       />
                     </div>
                   </div>

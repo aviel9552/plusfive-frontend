@@ -254,15 +254,15 @@ function AdminQRManagement() {
   return (
     <div className="">
       {/* Main content boxes */}
-      <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-[#FFFFFF1A] border-gray-200 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="dark:bg-customBrown bg-white rounded-[16px] border dark:border-commonBorder border-gray-200 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] p-[24px]">
           {/* QR Generator Section */}
-          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-customBody rounded-2xl md:border dark:border-[#FFFFFF1A] border-gray-200'>
+          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-customBody rounded-[16px] md:border dark:border-commonBorder border-gray-200'>
             <div className='flex flex-col gap-[36px] '>
 
               <div className='flex flex-col gap-[24px]'>
 
-                <h2 className="text-24 font-medium font-ttcommons">
+                <h2 className="text-24 font-medium font-ttcommons ">
                   {t.qrGenerator}
                 </h2>
                 <div className="flex flex-col gap-[24px]">
@@ -319,7 +319,7 @@ function AdminQRManagement() {
                 <CommonButton
                   text={hasExistingQR ? t.qrCodeAlreadyExists : (loading ? t.generating : t.generateQRCode)}
                   onClick={handleGenerateQR}
-                  className="rounded-xl w-full py-3 text-14"
+                  className="rounded-[8px] w-full py-[14px] text-14"
                   disabled={loading || hasExistingQR}
                 />
               </div>
@@ -327,13 +327,13 @@ function AdminQRManagement() {
           </div>
 
           {/* QR Code Display Section */}
-          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-white rounded-2xl md:border dark:border-[#FFFFFF1A] border-gray-200'>
+          <div className='md:p-[24px] p-0 dark:text-white text-black dark:bg-customBrown bg-white rounded-2xl md:border dark:border-commonBorder border-gray-200'>
             <div className='flex flex-col gap-[24px]'>
 
               <h2 className="text-24 font-medium font-ttcommons">
                 {t.myQRCodes}
               </h2>
-              <div className="md:p-0 p-10 flex flex-col items-center justify-center h-[260px] rounded-lg dark:bg-customBrown bg-customBody border dark:border-[#FFFFFF1A] border-gray-200 border-dashed">
+              <div className="md:p-0 p-10 flex flex-col items-center justify-center h-[260px] rounded-[8px] dark:bg-customBrown bg-customBody border dark:border-commonBorder border-gray-200 border-dashed">
                 {generatedQR ? (
                   <div className="text-center">
                     <img
@@ -381,7 +381,7 @@ function AdminQRManagement() {
           <div className="flex gap-3 md:flex-row flex-col">
             <CommonButton
               text={t.downloadQRCode}
-              className="py-2.5 w-auto rounded-xl px-4 text-14"
+              className="py-[8px] w-auto rounded-[8px] px-[12px] text-14"
               icon={<LuDownload className="text-lg font-bold" />}
               disabled={!generatedQR && !existingQRCode}
               onClick={handleDownloadQR}
@@ -396,7 +396,7 @@ function AdminQRManagement() {
           </div>
         </div>
       </div>
-      <div className="dark:bg-customBrown bg-white rounded-2xl border dark:border-[#FFFFFF1A] border-gray-200 p-[24px] mt-[32px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="dark:bg-customBrown bg-white rounded-[16px] border dark:border-commonBorder border-gray-200 p-[24px] mt-[32px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <AdminReportsandAnalyticsTitle
           scanCount={existingQRCode?.scanCount || 0}
           shareCount={existingQRCode?.shareCount || 0}

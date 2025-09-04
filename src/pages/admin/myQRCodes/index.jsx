@@ -554,14 +554,14 @@ function myQRCodes() {
                             <img
                               src={selectedQR.qrCodeImage}
                               alt={`QR Code for ${selectedQR.name}`}
-                              className="w-24 h-24 object-contain border-4 border-white dark:border-[#FFFFFF1A] rounded-2xl shadow-lg"
+                              className="w-24 h-24 object-contain border-4 border-white dark:border-commonBorder rounded-2xl shadow-lg"
                             />
                           ) : (
-                            <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-4 border-white dark:border-[#FFFFFF1A] rounded-2xl flex items-center justify-center shadow-lg">
+                            <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-4 border-white dark:border-commonBorder rounded-2xl flex items-center justify-center shadow-lg">
                               <MdQrCode2 className="w-12 h-12 text-gray-400 dark:text-gray-500" />
                             </div>
                           )}
-                          <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-3 border-white dark:border-[#FFFFFF1A] flex items-center justify-center ${qrDetails.isActive ? 'bg-green-500' : 'bg-red-500'
+                          <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-3 border-white dark:border-commonBorder flex items-center justify-center ${qrDetails.isActive ? 'bg-green-500' : 'bg-red-500'
                             }`}>
                             {qrDetails.isActive ? (
                               <MdCheckCircle className="w-4 h-4 text-white" />
@@ -838,7 +838,7 @@ function myQRCodes() {
                       </thead>
                       <tbody>
                             {qrDetails.scanDetails.map((scan, index) => (
-                              <tr key={index} className="border-b border-gray-100 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors">
+                              <tr key={index} className="border-b border-gray-100 dark:border-commonBorder hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors">
                                 <td className="py-4 px-4">
                                   <div className="space-y-1">
                                     <div className="text-sm font-medium text-gray-900 dark:text-white">

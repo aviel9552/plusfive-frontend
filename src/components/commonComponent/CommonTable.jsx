@@ -264,7 +264,7 @@ const CommonTable = ({
               data.map((row, idx) => (
                 <tr
                   key={idx}
-                  className={`border-b border-gray-200 dark:border-[#FFFFFF1A] hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors`}
+                  className={`border-b border-gray-200 dark:border-commonBorder hover:bg-gray-100 dark:hover:bg-[#181818] transition-colors`}
                   role="row"
                 >
                   {columns.map(col => (

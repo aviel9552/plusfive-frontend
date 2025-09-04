@@ -179,7 +179,7 @@ function AdminReferralsTable() {
 
   return (
     <div className="w-full mt-10">
-      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+      <div className="bg-white dark:bg-customBrown border border-gray-200 dark:border-customBorderColor rounded-[16px] dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">

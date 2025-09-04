@@ -535,6 +535,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterFirstName}
                   error={errors.firstName}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.lastName}
@@ -546,6 +547,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterLastName}
                   error={errors.lastName}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.email}
@@ -558,6 +560,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterEmail}
                   error={errors.email}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.phoneNumber}
@@ -569,6 +572,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterPhoneNumber}
                   error={errors.phoneNumber}
+                  labelFontSize="text-14"
                 />
               </div>
             </div>
@@ -589,6 +593,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterBusinessName}
                   error={errors.businessName}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.businessType}
@@ -597,6 +602,7 @@ function EditUserModel() {
                   onChange={handleChange}
                   placeholder={t.enterBusinessType}
                   error={errors.businessType}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.address}
@@ -608,6 +614,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterAddress}
                   error={errors.address}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.whatsappNumber}
@@ -619,6 +626,7 @@ function EditUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterWhatsappNumber}
                   error={errors.whatsappNumber}
+                  labelFontSize="text-14"
                 />
               </div>
             </div>
@@ -630,7 +638,7 @@ function EditUserModel() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-14 font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t.role}
                   </label>
                   <CommonNormalDropDown
@@ -646,7 +654,7 @@ function EditUserModel() {
                   {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-14 font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t.status}
                   </label>
                   <CommonNormalDropDown
@@ -662,7 +670,7 @@ function EditUserModel() {
                   {errors.accountStatus && <p className="text-red-500 text-sm mt-1">{errors.accountStatus}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-14 font-medium text-gray-700 dark:text-gray-300 mb-2">
                     {t.subscriptionPlan}
                   </label>
                   <CommonNormalDropDown
@@ -685,13 +693,13 @@ function EditUserModel() {
               <CommonButton
                 text={t.cancel}
                 onClick={handleBack}
-                className="px-8 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg"
+                className="px-8 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-[8px]"
               />
               <CommonButton
                 text={isLoading ? t.updating : t.updateUser}
                 type="submit"
                 onClick={handleSubmit}
-                className="px-8 py-3 rounded-lg"
+                className="px-8 py-3 rounded-[8px]"
                 disabled={isLoading}
               />
             </div>

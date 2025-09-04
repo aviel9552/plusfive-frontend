@@ -99,7 +99,7 @@ function BeforeVsAfter({ language }) {
         <CommonBorderButton
           text={t.button}
           onClick={() => navigate('/login')}
-          className="!text-white rounded-lg px-[18px] pt-[12px] pb-[10px] font-bold text-24 mx-auto mt-2"
+          className="!text-white rounded-lg px-[18px] p-[12px] font-bold text-16 mx-auto mt-2"
           icon={<GoArrowRight />}
           iconPosition="right"
         />

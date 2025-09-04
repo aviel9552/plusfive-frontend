@@ -7,7 +7,7 @@ function CommonBorderButton({ text, onClick, className = '', type = 'button', ic
       type={type}
       onClick={onClick}
       style={{
-        border: '2px solid transparent',
+        // border: '2px solid transparent',
         borderRadius: '8px',
         background: 'linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%)',
         backgroundClip: 'padding-box',

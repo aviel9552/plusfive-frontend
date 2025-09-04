@@ -46,7 +46,7 @@ function AiAgent({ language }) {
               onClick={() => navigate('/login')}
               icon={<GoArrowRight />}
               iconPosition="right"
-              className="!text-white rounded-lg px-[18px] pt-[12px] pb-[10px] font-bold text-20"
+              className="!text-white rounded-lg px-[18px] p-[12px] font-bold text-20"
             />
           </div>
         </div>

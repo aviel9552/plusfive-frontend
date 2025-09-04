@@ -55,7 +55,7 @@ function HeroComponent({ language }) {
           <CommonBorderButton
             text={buttonText}
             onClick={() => navigate('/login')}
-            className=" !text-white rounded-lg px-[18px] pt-[12px] pb-[10px] text-16"
+            className=" !text-white rounded-lg px-[18px] p-[12px] text-16"
             icon={<GoArrowRight />}
             iconPosition="right"
           />

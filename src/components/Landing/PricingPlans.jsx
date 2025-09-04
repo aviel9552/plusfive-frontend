@@ -152,7 +152,7 @@ function PricingPlans({ language }) {
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-[#FFFFFF1A] my-[24px]"></div>
+                <div className="border-t border-commonBorder my-[24px]"></div>
 
                 <ul className=" flex flex-col gap-[16px]">
                   {plan.features.map((feature, i) => (

@@ -185,7 +185,7 @@ function AdminReferrals() {
     };
 
     return (
-        <div className={`bg-white dark:bg-customBrown rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-[#FFFFFF1A] transition-all duration-200 font-ttcommons dark:hover:bg-customBlack shadow-md hover:shadow-sm ${isDark ? 'dark' : ''}`}>
+        <div className={`bg-white dark:bg-customBrown rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-commonBorder transition-all duration-200 font-ttcommons dark:hover:bg-customBlack shadow-md hover:shadow-sm ${isDark ? 'dark' : ''}`}>
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
@@ -224,7 +224,7 @@ function AdminReferrals() {
                                         <HiDotsHorizontal className="w-5 h-5" />
                                     </button>
                                     {openAction === idx && (
-                                        <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-[#FFFFFF1A] rounded-lg shadow-lg z-20 py-1`}>
+                                        <div className={`absolute ${isRTL ? 'left-12' : 'right-12'} -top-5 mt-2 w-36 bg-white dark:bg-gray-800 border border-gray-200 dark:border-commonBorder rounded-lg shadow-lg z-20 py-1`}>
                                             <button
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                 onClick={() => { setOpenAction(null); alert('View clicked!'); }}

@@ -42,7 +42,7 @@ function Banner({ language }) {
                 icon={<FaArrowRight />}
                 iconPosition="right"
                 gap="gap-[6px]"
-                className="px-[18px] pt-[12px] pb-[9px] text-16 font-bold rounded-[8px]"
+                className="px-[18px] p-[12px] text-16 font-bold rounded-[8px]"
               />
             </div>
           </div>

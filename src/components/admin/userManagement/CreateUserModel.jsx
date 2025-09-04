@@ -545,6 +545,7 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterFirstName}
                   error={errors.firstName}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.lastName}
@@ -556,6 +557,7 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterLastName}
                   error={errors.lastName}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.email}
@@ -568,6 +570,7 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterEmail}
                   error={errors.email}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.phoneNumber}
@@ -579,6 +582,7 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterPhoneNumber}
                   error={errors.phoneNumber}
+                  labelFontSize="text-14"
                 />
               </div>
             </div>
@@ -599,9 +603,10 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterBusinessName}
                   error={errors.businessName}
+                  labelFontSize="text-14"
                 />
                 <div>
-                  <label className="block text-xl font-medium text-black dark:text-white mb-2">
+                  <label className="block text-14 font-medium text-black dark:text-white mb-2">
                     {t.businessType}
                   </label>
                   <CommonNormalDropDown
@@ -613,6 +618,7 @@ function CreateUserModel() {
                     showIcon={false}
                     inputWidth="w-full"
                     anchor="right"
+                    labelFontSize="text-14"
                   />
                   {errors.businessType && <p className="text-red-500 text-sm mt-1">{errors.businessType}</p>}
                 </div>
@@ -626,6 +632,7 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterAddress}
                   error={errors.address}
+                  labelFontSize="text-14"
                 />
                 <CommonInput
                   label={t.whatsappNumber}
@@ -637,18 +644,19 @@ function CreateUserModel() {
                   showErrorOnFocus={true}
                   placeholder={t.enterWhatsappNumber}
                   error={errors.whatsappNumber}
+                  labelFontSize="text-14"
                 />
               </div>
             </div>
 
             {/* Account Settings */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
+              <h3 className="text-24 font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
                 {t.accountSettings}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xl font-medium text-black dark:text-white mb-2">
+                  <label className="block text-14 font-medium text-black dark:text-white mb-2">
                     {t.role}
                   </label>
                   <CommonNormalDropDown
@@ -660,11 +668,12 @@ function CreateUserModel() {
                     showIcon={false}
                     inputWidth="w-full"
                     anchor="right"
+                    labelFontSize="text-14"
                   />
                   {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
                 </div>
                 <div>
-                  <label className="block text-xl font-medium text-black dark:text-white mb-2">
+                  <label className="block text-14 font-medium text-black dark:text-white mb-2">
                     {t.subscriptionPlan}
                   </label>
                   <CommonNormalDropDown
@@ -676,6 +685,7 @@ function CreateUserModel() {
                     showIcon={false}
                     inputWidth="w-full"
                     anchor="right"
+                    labelFontSize="text-14"
                   />
                   {errors.subscriptionPlan && <p className="text-red-500 text-sm mt-1">{errors.subscriptionPlan}</p>}
                 </div>
@@ -684,7 +694,7 @@ function CreateUserModel() {
 
             {/* Password Information */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
+              <h3 className="text-24 font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
                 {t.passwordInformation}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -702,6 +712,7 @@ function CreateUserModel() {
                     error={errors.password}
                     showPasswordToggle={true}
                     showPasswordValidation={true}
+                    labelFontSize="text-14"
                   />
                 </div>
                 <div>
@@ -717,6 +728,7 @@ function CreateUserModel() {
                     placeholder={t.confirmPasswordPlaceholder}
                     error={errors.confirmPassword}
                     showPasswordToggle={true}
+                    labelFontSize="text-14"
                   />
                 </div>
               </div>

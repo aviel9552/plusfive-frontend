@@ -172,7 +172,7 @@ function LandingHeader() {
             {/* Desktop Nav */}
             <nav className="flex-1 justify-center hidden lg:flex" style={{ margin: '0px -20px 0 0' }}>
                 <ul className="flex xl:gap-7 lg:gap-3 md:gap-3 gap-2 bg-customGray rounded-full p-[12px] shadow-sm text-xl">
-                    {renderMenu('xl:p-[8px] rounded-full text-white font-medium text-16')}
+                    {renderMenu('p-[8px] px-[18px] whitespace-nowrap rounded-full text-white font-medium text-16')}
                 </ul>
             </nav>
 
@@ -191,7 +191,7 @@ function LandingHeader() {
                 */}
                 <CommonBorderButton
                     text={'Start Free Trial'}
-                    className="!text-white rounded-[8px] px-[16px] pt-[10px] pb-[8px] text-16"
+                    className="!text-white rounded-[8px] px-[18px] p-[12px] text-16"
                     type="submit"
                     onClick={() => window.location.href = '/login'}
                 />
