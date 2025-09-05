@@ -75,53 +75,24 @@ function AdminAnalyticsMonthlyPerformance() {
   }
 
   if (monthlyPerformance.error) {
-    // Show fallback data instead of error
-    const fallbackData = {
-      recoveredCustomers: { value: 95, change: 12, trend: 'up' },
-      recoveredRevenue: { value: 18000, change: -5, trend: 'down' },
-      lostRevenue: { value: 122, change: 3, trend: 'up' },
-      customerLTV: { value: 6.4, change: 3, trend: 'up' }
-    };
-    
     return (
       <div className="w-full">
-        <div className="flex items-center justify-between mb-4">
-          {/* <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-200">
-            {t.monthlyPerformance}
-          </h2> */}
-          <div className="text-orange-500 text-sm">
-            Showing fallback data (API Error: {monthlyPerformance.error})
+        <div className="flex flex-col items-center justify-center p-8 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+          <div className="text-red-600 dark:text-red-400 text-lg font-semibold mb-2">
+            Error Loading Monthly Performance Data
           </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatChartCard
-            title={t.recoveredCustomers}
-            value={fallbackData.recoveredCustomers.value}
-            change={fallbackData.recoveredCustomers.change}
-            trend={getTrendText(fallbackData.recoveredCustomers.trend)}
-            color={getTrendColor(fallbackData.recoveredCustomers.trend)}
-          />
-          <StatChartCard
-            title={t.recoveredRevenue}
-            value={formatValue(revenueCountsData.totalRecoveredRevenue, 'revenue')}
-            change={fallbackData.recoveredRevenue.change}
-            trend={getTrendText(fallbackData.recoveredRevenue.trend)}
-            color={getTrendColor(fallbackData.recoveredRevenue.trend)}
-          />
-          <StatChartCard
-            title={t.lostRevenue}
-            value={formatValue(revenueCountsData.totalLostRevenue, 'revenue')}
-            change={fallbackData.lostRevenue.change}
-            trend={getTrendText(fallbackData.lostRevenue.trend)}
-            color={getTrendColor(fallbackData.lostRevenue.trend)}
-          />
-          <StatChartCard
-            title={t.customersLTV}
-            value={formatValue(fallbackData.customerLTV.value, 'ltv')}
-            change={fallbackData.customerLTV.change}
-            trend={getTrendText(fallbackData.customerLTV.trend)}
-            color={getTrendColor(fallbackData.customerLTV.trend)}
-          />
+          <div className="text-red-500 dark:text-red-300 text-sm text-center">
+            {monthlyPerformance.error}
+          </div>
+          <button 
+            onClick={() => {
+              const currentDate = new Date();
+              fetchMonthlyPerformance(currentDate.getMonth() + 1, currentDate.getFullYear());
+            }}
+            className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -139,7 +110,7 @@ function AdminAnalyticsMonthlyPerformance() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[24px]">
         <StatChartCard
           title={t.recoveredCustomers}
-          value={data?.recoveredCustomers?.value || 0}
+          value={revenueCountsData.recoveredCustomersCount || 0}
           change={data?.recoveredCustomers?.change || 0}
           trend={getTrendText(data?.recoveredCustomers?.trend)}
           color={getTrendColor(data?.recoveredCustomers?.trend)}
@@ -160,7 +131,7 @@ function AdminAnalyticsMonthlyPerformance() {
         />
         <StatChartCard
           title={t.customersLTV}
-          value={formatValue(data?.customerLTV?.value || 0, 'ltv')}
+          value={formatValue(revenueCountsData.averageLTVCount || 0, 'ltv')}
           change={data?.customerLTV?.change || 0}
           trend={getTrendText(data?.customerLTV?.trend)}
           color={getTrendColor(data?.customerLTV?.trend)}
