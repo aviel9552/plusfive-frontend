@@ -1033,6 +1033,7 @@
     "atRisk": "Risk",
     "lost": "Lost",
     "recovered": "Recovered",
+    "new": "New",
     "reviewId": "Review ID",
     "customerId": "Customer ID",
     "userId": "User ID",

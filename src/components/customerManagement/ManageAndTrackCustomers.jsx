@@ -25,7 +25,12 @@ function ManageAndTrackCustomers({ statusCounts = {} }) {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-[24px]">
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-[24px]">
+                <StatIconCard
+                    image={Total_Customers_Icon}
+                    value={statusCounts.new || 0}
+                    label={t.new}
+                />
                 <StatIconCard
                     image={Total_Customers_Icon}
                     value={statusCounts.active || 0}

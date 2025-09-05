@@ -23,7 +23,7 @@ const Home = () => {
   }, [dispatch]);
   
   return (
-    <div className="space-y-12">
+    <div className="space-y-7">
       <div className="flex flex-col gap-[24px]">
         <AdminMonthlyPerformance />
         <AdminRevenueImpactCustomerStatus />

@@ -223,7 +223,7 @@ function ViewCustomer() {
                                 : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
-                            Reviews ({customer.reviews?.length || 0})
+                            Reviews ({customer.reviews?.filter(review => review.status !== 'sent').length || 0})
                         </button>
                         <button
                             onClick={() => setActiveTab('appointments')}
@@ -234,6 +234,15 @@ function ViewCustomer() {
                         >
                             Appointments ({customer.appointments?.length || 0})
                         </button>
+                        <button
+                            onClick={() => setActiveTab('payments')}
+                            className={`px-4 md:px-6 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition-colors ${activeTab === 'payments'
+                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                                : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                        >
+                            Payment History ({customer.paymentHistory?.length || 0})
+                        </button>
                     </div>
 
                     {/* Tab Content */}
@@ -242,49 +251,70 @@ function ViewCustomer() {
                     {activeTab === 'reviews' && (
                         <div className="space-y-4 md:space-y-6">
                             {/* Review Statistics */}
-                            {customer.reviewStatistics && (
-                                <div className="bg-gray-50 dark:bg-black p-4 md:p-6 rounded-lg">
-                                    <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">{t.reviewStatistics}</h2>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                                        <div className="text-center">
-                                            <p className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400">
-                                                {customer.reviewStatistics.averageRating.toFixed(1)}
-                                            </p>
-                                            <p className="text-xs md:text-sm text-black dark:text-white">{t.averageRating}</p>
-                                            <div className="flex justify-center mt-1 md:mt-2">
-                                                <RatingStars rating={customer.reviewStatistics.averageRating} />
+                            {(() => {
+                                const receivedReviews = customer.reviews?.filter(review => review.status !== 'sent') || [];
+                                if (receivedReviews.length === 0) return null;
+                                
+                                // Calculate statistics for received reviews only
+                                const ratingsOnly = receivedReviews.filter(review => review.rating > 0);
+                                const averageRating = ratingsOnly.length > 0 
+                                    ? ratingsOnly.reduce((sum, review) => sum + review.rating, 0) / ratingsOnly.length 
+                                    : 0;
+                                const maxRating = ratingsOnly.length > 0 
+                                    ? Math.max(...ratingsOnly.map(review => review.rating)) 
+                                    : 0;
+                                const minRating = ratingsOnly.length > 0 
+                                    ? Math.min(...ratingsOnly.map(review => review.rating)) 
+                                    : 0;
+                                
+                                return (
+                                    <div className="bg-gray-50 dark:bg-black p-4 md:p-6 rounded-lg">
+                                        <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">{t.reviewStatistics}</h2>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                                            <div className="text-center">
+                                                <p className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                                    {averageRating.toFixed(1)}
+                                                </p>
+                                                <p className="text-xs md:text-sm text-black dark:text-white">{t.averageRating}</p>
+                                                <div className="flex justify-center mt-1 md:mt-2">
+                                                    <RatingStars rating={averageRating} />
+                                                </div>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
+                                                    {receivedReviews.length}
+                                                </p>
+                                                <p className="text-xs md:text-sm text-black dark:text-white">{t.totalReviews}</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-2xl md:text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+                                                    {maxRating}
+                                                </p>
+                                                <p className="text-xs md:text-sm text-black dark:text-white">{t.highestRating}</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-2xl md:text-3xl font-bold text-red-600 dark:text-red-400">
+                                                    {minRating}
+                                                </p>
+                                                <p className="text-xs md:text-sm text-black dark:text-white">{t.lowestRating}</p>
                                             </div>
                                         </div>
-                                        <div className="text-center">
-                                            <p className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
-                                                {customer.reviewStatistics.totalReviews}
-                                            </p>
-                                            <p className="text-xs md:text-sm text-black dark:text-white">{t.totalReviews}</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-2xl md:text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                                                {customer.reviewStatistics.maxRating}
-                                            </p>
-                                            <p className="text-xs md:text-sm text-black dark:text-white">{t.highestRating}</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-2xl md:text-3xl font-bold text-red-600 dark:text-red-400">
-                                                {customer.reviewStatistics.minRating}
-                                            </p>
-                                            <p className="text-xs md:text-sm text-black dark:text-white">{t.lowestRating}</p>
-                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            })()}
 
                             {/* Individual Reviews */}
                             <div className="bg-gray-50 dark:bg-black p-4 md:p-6 rounded-lg">
-                                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">
-                                    {t.allReviews} ({customer.reviews?.length || 0})
-                                </h2>
-                                {customer.reviews && customer.reviews.length > 0 ? (
-                                    <div className="space-y-4">
-                                        {customer.reviews.map((review, index) => (
+                                {(() => {
+                                    const receivedReviews = customer.reviews?.filter(review => review.status !== 'sent') || [];
+                                    return (
+                                        <>
+                                            <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">
+                                                {t.allReviews} ({receivedReviews.length})
+                                            </h2>
+                                            {receivedReviews.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {receivedReviews.map((review, index) => (
                                             <div key={review.id || index} className="bg-white dark:bg-customBrown p-4 md:p-6 rounded-lg border dark:border-customBorderColor">
                                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
                                                     <div className="flex items-center gap-3 justify-between">
@@ -336,16 +366,19 @@ function ViewCustomer() {
                                                         </div>
                                                     )}
                                                 </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <div className="text-gray-400 text-6xl mb-4">⭐</div>
-                                        <p className="text-black dark:text-white text-lg">{t.noReviewsYet}</p>
-                                        <p className="text-black dark:text-white text-sm mt-2">{t.customerHasntLeftReviews}</p>
-                                    </div>
-                                )}
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <div className="text-gray-400 text-6xl mb-4">⭐</div>
+                                                    <p className="text-black dark:text-white text-lg">{t.noReviewsYet}</p>
+                                                    <p className="text-black dark:text-white text-sm mt-2">{t.customerHasntLeftReviews}</p>
+                                                </div>
+                                            )}
+                                        </>
+                                    );
+                                })()}
                             </div>
                         </div>
                     )}
@@ -466,6 +499,128 @@ function ViewCustomer() {
                                         <div className="text-gray-400 text-6xl mb-4">📅</div>
                                         <p className="text-black dark:text-white text-lg">{t.noAppointmentsFound}</p>
                                         <p className="text-black dark:text-white text-sm mt-2">{t.noAppointmentRecords}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Payment History Tab */}
+                    {activeTab === 'payments' && (
+                        <div className="space-y-4 md:space-y-6">
+                            {/* Payment Summary */}
+                            <div className="bg-gray-50 dark:bg-black p-4 md:p-6 rounded-lg">
+                                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">Payment Summary</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+                                    <div className="text-center">
+                                        <p className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
+                                            ₪{customer.totalSpent || 0}
+                                        </p>
+                                        <p className="text-xs md:text-sm text-black dark:text-white">Total Spent</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                            {customer.paymentHistory?.length || 0}
+                                        </p>
+                                        <p className="text-xs md:text-sm text-black dark:text-white">Total Transactions</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-2xl md:text-3xl font-bold text-purple-600 dark:text-purple-400">
+                                            ₪{customer.paymentHistory?.reduce((sum, payment) => sum + (payment.total || 0), 0) || 0}
+                                        </p>
+                                        <p className="text-xs md:text-sm text-black dark:text-white">Payment History Total</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Payment History List */}
+                            <div className="bg-gray-50 dark:bg-black p-4 md:p-6 rounded-lg">
+                                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-4 md:mb-6">
+                                    Payment Logs ({customer.paymentHistory?.length || 0})
+                                </h2>
+                                {customer.paymentHistory && customer.paymentHistory.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {customer.paymentHistory.map((payment, index) => (
+                                            <div key={payment.id || index} className="bg-white dark:bg-customBrown p-4 md:p-6 rounded-lg border dark:border-customBorderColor">
+                                                {/* Header Row */}
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
+                                                            <span className="text-green-600 dark:text-green-400 font-bold text-lg">#{index + 1}</span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 dark:text-white text-2xl">
+                                                                ₪{payment.total || 0}
+                                                            </p>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                                                {payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString('en-GB') : 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className={`px-4 py-2 text-sm font-semibold rounded-full ${payment.status === 'success'
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                                            : payment.status === 'pending'
+                                                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                                                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                                            }`}>
+                                                            {payment.status || 'N/A'}
+                                                        </span>
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                                                            {payment.paymentDate ? new Date(payment.paymentDate).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : ''}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Amount Details */}
+                                                <div className={`grid gap-6 mb-6 ${payment.revenuePaymentStatus ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'}`}>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">Amount (Without VAT)</p>
+                                                        <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                                            ₪{payment.totalWithoutVAT || 0}
+                                                        </p>
+                                                    </div>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">VAT Amount</p>
+                                                        <p className="text-lg font-bold text-gray-900 dark:text-white">
+                                                            ₪{payment.totalVAT || 0}
+                                                        </p>
+                                                    </div>
+                                                    {payment.revenuePaymentStatus && (
+                                                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">Revenue Status</p>
+                                                            <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                                {payment.revenuePaymentStatus}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* IDs Section */}
+                                                <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">Payment ID</p>
+                                                            <p className="font-mono text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded break-all">
+                                                                {payment.id}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300 font-medium mb-1">Business ID</p>
+                                                            <p className="font-mono text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 p-2 rounded">
+                                                                {payment.businessId}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12">
+                                        <div className="text-gray-400 text-6xl mb-4">💳</div>
+                                        <p className="text-black dark:text-white text-lg">No Payment History</p>
+                                        <p className="text-black dark:text-white text-sm mt-2">This customer has no payment records yet.</p>
                                     </div>
                                 )}
                             </div>
