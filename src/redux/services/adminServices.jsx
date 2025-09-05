@@ -93,6 +93,16 @@ export const getRevenueImpacts = async () => {
   }
 };
 
+export const getMonthlyLTVCount = async () => {
+  try {
+    const response = await apiClient.get('/admin-dashboard/monthly-ltv-count');
+    return response.data;
+  } catch (error) {
+    console.error('API Error - Monthly LTV Count:', error);
+    throw error;
+  }
+};
+
 export const getRevenueCounts = async () => {
   try {
     const response = await apiClient.get('/admin-dashboard/revenue-counts');

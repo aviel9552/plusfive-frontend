@@ -1,23 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
+import { getMonthlyLTVCount } from '../../../redux/services/adminServices';
 
-const ltvData = [
-    { month: 'Jan', ltv: 5.8, tooltipLTV: '5.8' },
-    { month: 'Feb', ltv: 6.0, tooltipLTV: '6.0' },
-    { month: 'Mar', ltv: 6.6, tooltipLTV: '6.6' },
-    { month: 'Apr', ltv: 5.9, tooltipLTV: '5.9' },
-    { month: 'May', ltv: 6.5, tooltipLTV: '6.5' },
-    { month: 'June', ltv: 6.0, tooltipLTV: '6.0' },
-    { month: 'July', ltv: 6.7, tooltipLTV: '6.4' },
-    { month: 'Aug', ltv: 6.8, tooltipLTV: '6.8' },
-    { month: 'Sep', ltv: 7.0, tooltipLTV: '7.0' },
-    { month: 'Oct', ltv: 6.5, tooltipLTV: '6.5' },
-    { month: 'Nov', ltv: 6.7, tooltipLTV: '6.7' },
-    { month: 'Dec', ltv: 7.5, tooltipLTV: '7.5' },
-];
 
 function AdminLTVGrothChart() {
     const { isDarkMode } = useTheme();
@@ -25,7 +12,35 @@ function AdminLTVGrothChart() {
     const t = getAdminAnalyticsTranslations(language);
     const isRTL = language === 'he';
 
-    const chartData = isRTL ? [...ltvData].reverse() : ltvData;
+    const [monthlyLTVCountData, setMonthlyLTVCountData] = useState({});
+    const [loading, setLoading] = useState(true);
+
+    // Transform API data for chart - only dynamic data
+    const transformedData = monthlyLTVCountData?.monthlyLTVData?.map(item => ({
+        month: item.month,
+        ltv: item.averageLTVCount || 0,
+        tooltipLTV: item.averageLTVCount ? item.averageLTVCount.toFixed(1) : '0.0'
+    })) || [];
+
+    const chartData = isRTL ? [...transformedData].reverse() : transformedData;
+    // Fetch QR Analytics data
+    useEffect(() => {
+        const fetchMonthlyLTVCount = async () => {
+            try {
+                setLoading(true);
+                const response = await getMonthlyLTVCount();
+                if (response.success && response.data) {
+                    setMonthlyLTVCountData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching Monthly LTV Count:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+  
+        fetchMonthlyLTVCount();
+    }, []);
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -71,6 +86,30 @@ function AdminLTVGrothChart() {
         );
     };
 
+    if (loading) {
+        return (
+            <div className='mt-10 flex flex-col gap-[16px]'>
+                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+                    <div className="h-[250px] flex items-center justify-center">
+                        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading LTV data...</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!chartData || chartData.length === 0) {
+        return (
+            <div className='mt-10 flex flex-col gap-[16px]'>
+                <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+                    <div className="h-[250px] flex items-center justify-center">
+                        <div className="text-gray-500 dark:text-gray-400">No LTV data available</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className='mt-10 flex flex-col gap-[16px]'>
             {/* <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center`}>
@@ -101,7 +140,7 @@ function AdminLTVGrothChart() {
                             <YAxis
                                 tickLine={false}
                                 axisLine={{ stroke: '#444' }}
-                                domain={[5.5, 7.5]}
+                                domain={[0, 'dataMax + 0.5']}
                                 tick={<CustomYAxisTick />}
                                 orientation={isRTL ? "right" : "left"}
                                 label={{ 
