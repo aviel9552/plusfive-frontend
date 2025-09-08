@@ -653,7 +653,7 @@
     "firstName": "First name",
     "lastName": "Last name",
     "email": "Email",
-    "phone": "Phone",
+    "phone": "Phone (WhatsApp Number)",
     "businessName": "Business Name",
     "businessType": "Business Type",
     "address": "Address",
