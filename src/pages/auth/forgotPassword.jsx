@@ -5,28 +5,67 @@ import { toast } from 'react-toastify';
 import LoginBG from '../../assets/LoginBG.png';
 import { forgotPassword } from '../../redux/services/authService';
 import { useLanguage } from '../../context/LanguageContext';
-import { getAuthTranslations } from '../../utils/translations';
+import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
 
 function ForgotPassword() {
-      const { language } = useLanguage();
-  const isRTL = language === 'he';
+    const { language } = useLanguage();
+    const isRTL = language === 'he';
     const t = getAuthTranslations(language);
+    const v = getValidationTranslations(language);
     
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Email validation function (same as login)
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) return v.emailRequired;
+        if (!emailRegex.test(email)) return v.validEmailAddress;
+        if (email.length > 50) return v.emailTooLong;
+        return "";
+    };
+
+    const handleChange = (e) => {
+        const { value } = e.target;
+        setEmail(value);
+        
+        // Real-time validation for email
+        if (value) {
+            const emailError = validateEmail(value);
+            setError(emailError);
+        } else {
+            setError("");
+        }
+    };
+
+    const handleFocus = (e) => {
+        // Show validation error immediately when user focuses on field
+        if (!email) {
+            setError(v.emailRequired);
+        } else {
+            const emailError = validateEmail(email);
+            if (emailError) {
+                setError(emailError);
+            }
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { value } = e.target;
+        // Validate on blur
+        const emailError = validateEmail(value);
+        setError(emailError);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!email) {
-            setError(v.pleaseEnterEmailAddress);
-            return;
-        }
-
-        if (!email.includes('@')) {
-            setError(v.pleaseEnterValidEmail);
+        // Use proper validation function
+        const emailError = validateEmail(email);
+        
+        if (emailError) {
+            setError(emailError);
             return;
         }
 
@@ -91,12 +130,15 @@ function ForgotPassword() {
                         name="email"
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
                         placeholder={t.enterEmailAddress}
                         error={error}
                         textColor="text-white"
                         labelColor="text-white"
                         inputBg="bg-white/10 backdrop-blur-sm"
+                        showErrorOnFocus={true}
                     />
 
                     <button

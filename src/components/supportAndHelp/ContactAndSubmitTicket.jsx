@@ -5,6 +5,7 @@ import { CommonButton, CommonInput } from '../index';
 import { LuMessageSquare } from 'react-icons/lu';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserSupportTranslations } from '../../utils/translations';
+import { toast } from 'react-toastify';
 import ChatIcon from '../../assets/Chat1.svg'
 import PhoneIcon from '../../assets/Call.svg'
 import MailIcon from '../../assets/Mail.svg'
@@ -37,6 +38,7 @@ function ContactAndSubmitTicket() {
     });
 
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const validate = () => {
@@ -58,19 +60,18 @@ function ContactAndSubmitTicket() {
         e.preventDefault();
         const validationErrors = validate();
         setErrors(validationErrors);
+        
         if (Object.keys(validationErrors).length === 0) {
+            setIsLoading(true);
             try {
                 // Create support ticket
                 const ticketResponse = await createSupportTicket({
                     subject: ticketData.subject,
                     description: ticketData.description,
-                    // email: 'dev2.webbuildinfotech@gmail.com',
                     email: supportEmail,
                     priority: 'medium',
                     category: 'general'
                 });
-                
-                
                 
                 // Reset form after successful submission
                 setTicketData({
@@ -79,12 +80,18 @@ function ContactAndSubmitTicket() {
                     email: supportEmail
                 });
                 
-                // Show success message or redirect
-                alert('Support ticket submitted successfully!');
+                // Clear any errors
+                setErrors({});
+                
+                // Show success toast
+                toast.success(t.ticketSubmittedSuccessfully || 'Support ticket submitted successfully!');
                 
             } catch (error) {
                 console.error('Error submitting ticket:', error);
-                alert('Failed to submit ticket. Please try again.');
+                // Show error toast
+                toast.error(error.message || t.failedToSubmitTicket || 'Failed to submit ticket. Please try again.');
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -172,9 +179,10 @@ function ContactAndSubmitTicket() {
 
                     <div>
                         <CommonButton
-                            text={t.submitTicketButton}
+                            text={isLoading ? (t.submitting || 'Submitting...') : t.submitTicketButton}
                             type="submit"
                             className="w-full !text-white rounded-lg py-3 text-14"
+                            disabled={isLoading}
                         />
                     </div>
                 </form>

@@ -50,7 +50,6 @@ function AdminUserTable({ users, loading, error }) {
 
   const handleDelete = (userData) => {
     // Implement delete functionality
-    console.log('Delete user:', userData);
   };
 
   const handleAddUser = () => {

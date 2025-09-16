@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { SquaresAnim } from '../../components/index';
@@ -14,9 +14,14 @@ function EmailVerify() {
   const t = getAuthTranslations(language);
   const [isVerifying, setIsVerifying] = useState(true);
   const [verificationStatus, setVerificationStatus] = useState('verifying'); // 'verifying', 'success', 'error'
+  const hasCalledAPI = useRef(false);
 
   useEffect(() => {
     const verifyEmailToken = async () => {
+      // Prevent multiple API calls
+      if (hasCalledAPI.current) return;
+      hasCalledAPI.current = true;
+
       if (!token) {
         setVerificationStatus('error');
         setIsVerifying(false);
@@ -24,7 +29,7 @@ function EmailVerify() {
       }
 
       try {
-        // Call the actual API
+        // Call the actual API only once
         await verifyEmail(token);
         
         setVerificationStatus('success');

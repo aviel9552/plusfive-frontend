@@ -278,7 +278,7 @@ function AdminQRManagement() {
                     placeholder={t.messageForCustomerPlaceholder}
                     error={errors.customerMessage}
                     labelFontSize="text-14"
-                    disabled={hasExistingQR}
+                    disabled={hasExistingQR || generatedQR}
                   />
 
                   <CommonInput
@@ -293,7 +293,7 @@ function AdminQRManagement() {
                     placeholder={t.directMessagePlaceholder}
                     error={errors.directMessage}
                     labelFontSize="text-14"
-                    disabled={hasExistingQR}
+                    disabled={hasExistingQR || generatedQR}
                   />
 
                   {/* <CommonInput
@@ -317,10 +317,10 @@ function AdminQRManagement() {
               <div>
 
                 <CommonButton
-                  text={hasExistingQR ? t.qrCodeAlreadyExists : (loading ? t.generating : t.generateQRCode)}
+                  text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading ? t.generating : t.generateQRCode)}
                   onClick={handleGenerateQR}
                   className="rounded-[8px] w-full py-[14px] text-14"
-                  disabled={loading || hasExistingQR}
+                  disabled={loading || hasExistingQR || generatedQR}
                 />
               </div>
             </div>
@@ -339,14 +339,8 @@ function AdminQRManagement() {
                     <img
                       src={generatedQR.qrCodeImage}
                       alt="Generated QR Code"
-                      className="w-48 h-48 mx-auto mb-4 border border-gray-300 rounded-lg"
+                      className="w-28 h-28 mx-auto mb-4 border border-gray-300 rounded-lg"
                     />
-                    <p className="dark:text-white text-black text-16 font-medium">
-                      {generatedQR.name}
-                    </p>
-                    <p className="dark:text-gray-400 text-gray-600 text-14 mt-2">
-                      {t.qrCodeGeneratedSuccessfully}
-                    </p>
                   </div>
                 ) : existingQRCode ? (
                   <div className="text-center">
@@ -355,12 +349,6 @@ function AdminQRManagement() {
                       alt="Existing QR Code"
                       className="w-28 h-28 mx-auto mb-4 border border-gray-300 rounded-lg"
                     />
-                    {/* <p className="dark:text-white text-black text-16 font-medium">
-                      {existingQRCode.name}
-                    </p>
-                    <p className="dark:text-gray-400 text-gray-600 text-14 mt-2">
-                      Your Existing QR Code
-                    </p> */}
                   </div>
                 ) : (
                   <>

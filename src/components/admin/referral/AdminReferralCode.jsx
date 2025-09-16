@@ -9,7 +9,6 @@ function AdminReferralCode() {
     navigator.clipboard.writeText(text)
       .then(() => {
         // You can add a toast notification here
-        console.log('Copied to clipboard')
       })
       .catch(err => {
         console.error('Failed to copy:', err)

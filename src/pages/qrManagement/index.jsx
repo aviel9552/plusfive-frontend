@@ -20,7 +20,6 @@ function QRManagement() {
   };
 
   const handleGenerateQR = () => {
-    console.log('Generating QR with:', formData);
     // TODO: Implement QR generation with URL support
     // The form now includes targetUrl field for future implementation
   };

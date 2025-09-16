@@ -54,7 +54,6 @@ function AdminChangePassword() {
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length === 0) {
-      console.log('Password changed successfully:', formData);
       // Handle password change logic here
     }
   };

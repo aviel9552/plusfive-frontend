@@ -63,7 +63,6 @@ export const updateUserProfile = (userData) => async (dispatch) => {
 };
 
 export const logoutUser = () => (dispatch) => {
-  console.log('Dispatching LOGOUT...');
   localStorage.removeItem('token');
   localStorage.removeItem('userData');
   localStorage.removeItem('userRole');

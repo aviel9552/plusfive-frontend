@@ -4,7 +4,6 @@ import { FaRegTrashAlt } from 'react-icons/fa';
 function AdminDeleteAccount() {
   const handleDelete = () => {
     // Handle account deletion logic here
-    console.log('Account deletion initiated');
   };
 
   return (
