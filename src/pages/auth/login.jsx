@@ -24,6 +24,13 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailVerificationBanner, setShowEmailVerificationBanner] = useState(false);
   const [isResendingEmail, setIsResendingEmail] = useState(false);
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    minLength: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,6 +42,21 @@ function Login() {
       setError(prev => ({ ...prev, email: emailError }));
     } else if (name === 'email' && !value) {
       setError(prev => ({ ...prev, email: "" }));
+    }
+
+    // Real-time validation for password
+    if (name === 'password') {
+      const passwordError = validatePassword(value);
+      setError(prev => ({ ...prev, password: passwordError }));
+      
+      // Update password requirements
+      setPasswordRequirements({
+        minLength: value.length >= 8,
+        hasUpperCase: /[A-Z]/.test(value),
+        hasLowerCase: /[a-z]/.test(value),
+        hasNumber: /\d/.test(value),
+        hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value)
+      });
     }
   };
 
@@ -50,6 +72,15 @@ function Login() {
           setError(prev => ({ ...prev, email: emailError }));
         }
       }
+    } else if (name === 'password') {
+      if (!form.password) {
+        setError(prev => ({ ...prev, password: v.passwordRequired }));
+      } else {
+        const passwordError = validatePassword(form.password);
+        if (passwordError) {
+          setError(prev => ({ ...prev, password: passwordError }));
+        }
+      }
     }
   };
 
@@ -59,6 +90,9 @@ function Login() {
     if (name === 'email') {
       const emailError = validateEmail(value);
       setError(prev => ({ ...prev, email: emailError }));
+    } else if (name === 'password') {
+      const passwordError = validatePassword(value);
+      setError(prev => ({ ...prev, password: passwordError }));
     }
   };
 
@@ -69,6 +103,35 @@ function Login() {
     if (!email) return v.emailRequired;
     if (!emailRegex.test(email)) return v.validEmailAddress;
     if (email.length > 50) return v.emailTooLong;
+    return "";
+  };
+
+
+  // Password validation function
+  const validatePassword = (password) => {
+    if (!password) {
+      return v.passwordRequired;
+    }
+    if (password.length < 8) {
+      return " ";
+      // return v.passwordMinLength;
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return " ";
+      // return v.passwordLowercase;
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return " ";
+      // return v.passwordUppercase;
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return " ";
+      // return v.passwordNumber;
+    }
+    if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password)) {
+      return " ";
+      // return v.passwordSpecialChar;
+    }
     return "";
   };
 
@@ -96,8 +159,10 @@ function Login() {
 
     // Use proper validation functions
     const emailError = validateEmail(form.email);
+    const passwordError = validatePassword(form.password);
 
     if (emailError) newError.email = emailError;
+    if (passwordError) newError.password = passwordError;
 
     if (Object.keys(newError).length > 0) {
       setError(newError);
@@ -223,6 +288,7 @@ function Login() {
             showPasswordValidation={true}
             required={true}
           />
+          
           <div className={`flex items-center justify-between ${isRTL ? 'text-left' : 'text-right'}`}>
             <Link to="/forgot-password" className="text-[#675DFF] hover:text-[#8B7FFF] hover:underline transition-all duration-200 font-semibold text-14">{t.forgotPassword}</Link>
           </div>
