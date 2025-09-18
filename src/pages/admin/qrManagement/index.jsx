@@ -279,6 +279,7 @@ function AdminQRManagement() {
                     error={errors.customerMessage}
                     labelFontSize="text-14"
                     disabled={hasExistingQR || generatedQR}
+                    required={true}
                   />
 
                   <CommonInput
@@ -294,6 +295,7 @@ function AdminQRManagement() {
                     error={errors.directMessage}
                     labelFontSize="text-14"
                     disabled={hasExistingQR || generatedQR}
+                    required={true}
                   />
 
                   {/* <CommonInput

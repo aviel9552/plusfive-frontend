@@ -16,7 +16,7 @@ function Login() {
   const isRTL = language === 'he';
   const t = getAuthTranslations(language);
   const v = getValidationTranslations(language);
-  
+
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState({});
   const dispatch = useDispatch();
@@ -28,7 +28,7 @@ function Login() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
-    
+
     // Real-time validation for email
     if (name === 'email' && value) {
       const emailError = validateEmail(value);
@@ -64,7 +64,8 @@ function Login() {
 
   // Email validation function
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Improved regex to ensure domain extension has 2-6 characters
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     if (!email) return v.emailRequired;
     if (!emailRegex.test(email)) return v.validEmailAddress;
     if (email.length > 50) return v.emailTooLong;
@@ -76,7 +77,7 @@ function Login() {
       toast.error(v.pleaseEnterEmailAddress);
       return;
     }
-    
+
     setIsResendingEmail(true);
     try {
       await resendVerificationEmail(form.email);
@@ -92,12 +93,12 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     let newError = {};
-    
+
     // Use proper validation functions
     const emailError = validateEmail(form.email);
-    
+
     if (emailError) newError.email = emailError;
-    
+
     if (Object.keys(newError).length > 0) {
       setError(newError);
       return;
@@ -118,10 +119,10 @@ function Login() {
     } catch (error) {
       // Check if error is related to email verification
       const errorMessage = error.message?.toLowerCase() || '';
-      if (errorMessage.includes('verify') || 
-          errorMessage.includes('verification') || 
-          errorMessage.includes('email') && errorMessage.includes('confirm') ||
-          errorMessage.includes('unverified')) {
+      if (errorMessage.includes('verify') ||
+        errorMessage.includes('verification') ||
+        errorMessage.includes('email') && errorMessage.includes('confirm') ||
+        errorMessage.includes('unverified')) {
         setShowEmailVerificationBanner(true);
       }
       toast.error(error.message || t.loginFailed);
@@ -174,13 +175,13 @@ function Login() {
                 ×
               </button>
             </div>
-                         <button
-               onClick={handleSendVerificationEmail}
-               className={`mt-4 w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] ${isResendingEmail ? 'opacity-50 cursor-not-allowed' : ''}`}
-               disabled={isResendingEmail}
-             >
-               {isResendingEmail ? t.sending : t.sendVerifyEmailLink}
-             </button>
+            <button
+              onClick={handleSendVerificationEmail}
+              className={`mt-4 w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] ${isResendingEmail ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isResendingEmail}
+            >
+              {isResendingEmail ? t.sending : t.sendVerifyEmailLink}
+            </button>
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
@@ -200,6 +201,7 @@ function Login() {
             labelColor="text-white"
             inputBg="bg-white/10 backdrop-blur-sm"
             showErrorOnFocus={true}
+            required={true}
           />
           <CommonInput
             label={t.password}
@@ -219,6 +221,7 @@ function Login() {
             showErrorOnFocus={true}
             showPasswordToggle={true}
             showPasswordValidation={true}
+            required={true}
           />
           <div className={`flex items-center justify-between ${isRTL ? 'text-left' : 'text-right'}`}>
             <Link to="/forgot-password" className="text-[#675DFF] hover:text-[#8B7FFF] hover:underline transition-all duration-200 font-semibold text-14">{t.forgotPassword}</Link>

@@ -19,7 +19,7 @@ function ForgotPassword() {
 
     // Email validation function (same as login)
     const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
         if (!email) return v.emailRequired;
         if (!emailRegex.test(email)) return v.validEmailAddress;
         if (email.length > 50) return v.emailTooLong;

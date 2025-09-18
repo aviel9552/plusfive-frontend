@@ -19,6 +19,9 @@ function CommonNormalDropDown({
   inputWidth = "w-full",
   inputBorderRadius = "rounded-lg",
   anchor = "left",
+  label = "",
+  required = false,
+  padding = "",
 }) {
   const { language } = useLanguage();
   const isRTL = language === 'he';
@@ -61,12 +64,19 @@ function CommonNormalDropDown({
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
+      {label && (
+        <label className={`block ${fontSize} font-medium mb-2 ${textColor}`}>
+          {label}
+          {required && <span className={`text-red-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>*</span>}
+        </label>
+      )}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
           ${className}
-          flex items-center justify-between w-full px-2 p-[0.6rem] border
+          ${padding}
+          flex items-center justify-between w-full border px-2 p-[0.6rem]
           ${bgColor}
           ${textColor}
           border-gray-200 dark:border-customBorderColor
@@ -153,6 +163,9 @@ CommonNormalDropDown.propTypes = {
   borderRadius: PropTypes.string,
   width: PropTypes.string,
   anchor: PropTypes.oneOf(['left', 'right']),
+  label: PropTypes.string,
+  required: PropTypes.bool,
+  padding: PropTypes.string,
 };
 
 export default CommonNormalDropDown;

@@ -40,19 +40,104 @@ function ContactAndSubmitTicket() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
 
+    // Validation functions
+    const validateSubject = (subject) => {
+        if (!subject.trim()) {
+            return t.subjectRequired;
+        }
+        if (subject.trim().length < 3) {
+            return t.subjectMinLength || "Subject must be at least 3 characters";
+        }
+        if (subject.trim().length > 100) {
+            return t.subjectTooLong || "Subject is too long";
+        }
+        return "";
+    };
+
+    const validateDescription = (description) => {
+        if (!description.trim()) {
+            return t.descriptionRequired;
+        }
+        if (description.trim().length < 10) {
+            return t.descriptionMinLength || "Description must be at least 10 characters";
+        }
+        if (description.trim().length > 1000) {
+            return t.descriptionTooLong || "Description is too long";
+        }
+        return "";
+    };
+
 
     const validate = () => {
         const newErrors = {};
-        if (!ticketData.subject) newErrors.subject = t.subjectRequired;
-        if (!ticketData.description) newErrors.description = t.descriptionRequired;
+        
+        // Subject validation
+        const subjectError = validateSubject(ticketData.subject);
+        if (subjectError) {
+            newErrors.subject = subjectError;
+        }
+        
+        // Description validation
+        const descriptionError = validateDescription(ticketData.description);
+        if (descriptionError) {
+            newErrors.description = descriptionError;
+        }
+        
         return newErrors;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setTicketData({ ...ticketData, [name]: value });
-        if (errors[name]) {
+        
+        // Real-time validation
+        if (name === 'subject') {
+            const subjectError = validateSubject(value);
+            setErrors(prev => ({ ...prev, subject: subjectError }));
+        } else if (name === 'description') {
+            const descriptionError = validateDescription(value);
+            setErrors(prev => ({ ...prev, description: descriptionError }));
+        }
+        
+        // Clear other errors
+        if (errors[name] && name !== 'subject' && name !== 'description') {
             setErrors({ ...errors, [name]: null });
+        }
+    };
+
+    const handleFocus = (e) => {
+        const { name } = e.target;
+        // Show validation error immediately when user focuses on field
+        if (name === 'subject') {
+            if (!ticketData.subject.trim()) {
+                setErrors(prev => ({ ...prev, subject: t.subjectRequired }));
+            } else {
+                const subjectError = validateSubject(ticketData.subject);
+                if (subjectError) {
+                    setErrors(prev => ({ ...prev, subject: subjectError }));
+                }
+            }
+        } else if (name === 'description') {
+            if (!ticketData.description.trim()) {
+                setErrors(prev => ({ ...prev, description: t.descriptionRequired }));
+            } else {
+                const descriptionError = validateDescription(ticketData.description);
+                if (descriptionError) {
+                    setErrors(prev => ({ ...prev, description: descriptionError }));
+                }
+            }
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        // Validate on blur
+        if (name === 'subject') {
+            const subjectError = validateSubject(value);
+            setErrors(prev => ({ ...prev, subject: subjectError }));
+        } else if (name === 'description') {
+            const descriptionError = validateDescription(value);
+            setErrors(prev => ({ ...prev, description: descriptionError }));
         }
     };
 
@@ -160,21 +245,29 @@ function ContactAndSubmitTicket() {
                         name="subject"
                         value={ticketData.subject}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        showErrorOnFocus={true}
                         error={errors.subject}
                         placeholder={t.enterIssuesSubject}
                         labelFontSize="text-14"
+                        required={true}
                     />
 
                     <CommonInput
                         as="textarea"
-                        label={t.ticketSubject}
+                        label={t.ticketDescription || "Description"}
                         id="description"
                         name="description"
                         value={ticketData.description}
                         onChange={handleChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        showErrorOnFocus={true}
                         error={errors.description}
                         placeholder={t.describeIssues}  
                         labelFontSize="text-14"
+                        required={true}
                     />
 
                     <div>

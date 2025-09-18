@@ -29,7 +29,7 @@ function Register() {
   const v = getValidationTranslations(language);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Check for ref parameter in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -58,7 +58,7 @@ function Register() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
-    
+
     // Real-time validation for email
     if (name === 'email') {
       if (!value) {
@@ -66,6 +66,21 @@ function Register() {
       } else {
         const emailError = validateEmail(value);
         setError(prev => ({ ...prev, email: emailError }));
+      }
+    }
+
+    // Real-time validation for password
+    if (name === 'password') {
+      const passwordError = validatePassword(value);
+      setError(prev => ({ ...prev, password: passwordError }));
+
+      // Also validate confirm password if it exists
+      if (form.confirmPassword) {
+        if (value !== form.confirmPassword) {
+          setError(prev => ({ ...prev, confirmPassword: v.passwordsDoNotMatch }));
+        } else {
+          setError(prev => ({ ...prev, confirmPassword: '' }));
+        }
       }
     }
 
@@ -84,7 +99,7 @@ function Register() {
     if (name === 'firstName') {
       if (!value.trim()) {
         setError(prev => ({ ...prev, firstName: "" }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+      } else if (!/^[a-zA-Z]+$/.test(value.trim())) {
         setError(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
       } else if (value.trim().length < 2) {
         setError(prev => ({ ...prev, firstName: v.firstNameMinLength }));
@@ -98,7 +113,7 @@ function Register() {
     if (name === 'lastName') {
       if (!value.trim()) {
         setError(prev => ({ ...prev, lastName: "" }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+      } else if (!/^[a-zA-Z]+$/.test(value.trim())) {
         setError(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
       } else if (value.trim().length < 2) {
         setError(prev => ({ ...prev, lastName: v.lastNameMinLength }));
@@ -124,8 +139,6 @@ function Register() {
     if (name === 'businessName') {
       if (!value.trim()) {
         setError(prev => ({ ...prev, businessName: "" }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
-        setError(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
       } else if (value.trim().length < 2) {
         setError(prev => ({ ...prev, businessName: v.businessNameMinLength }));
       } else if (value.trim().length > 100) {
@@ -170,6 +183,15 @@ function Register() {
       if (!form.businessName.trim()) {
         setError(prev => ({ ...prev, businessName: v.businessNameRequired }));
       }
+    } else if (name === 'password') {
+      if (!form.password) {
+        setError(prev => ({ ...prev, password: v.passwordRequired }));
+      } else {
+        const passwordError = validatePassword(form.password);
+        if (passwordError) {
+          setError(prev => ({ ...prev, password: passwordError }));
+        }
+      }
     }
   };
 
@@ -179,6 +201,9 @@ function Register() {
     if (name === 'email') {
       const emailError = validateEmail(value);
       setError(prev => ({ ...prev, email: emailError }));
+    } else if (name === 'password') {
+      const passwordError = validatePassword(value);
+      setError(prev => ({ ...prev, password: passwordError }));
     } else if (name === 'confirmPassword') {
       if (value && form.password !== value) {
         setError(prev => ({ ...prev, confirmPassword: v.passwordsDoNotMatch }));
@@ -188,20 +213,48 @@ function Register() {
 
   // Email validation function
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     if (!email) return v.emailRequired;
     if (!emailRegex.test(email)) return v.validEmailAddress;
     if (email.length > 50) return v.emailTooLong;
     return "";
   };
 
+  // Password validation function
+  const validatePassword = (password) => {
+    if (!password) {
+      return v.passwordRequired;
+    }
+    if (password.length < 8) {
+      return " ";
+      // return v.passwordMinLength;
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return " ";
+      // return v.passwordLowercase;
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return " ";
+      // return v.passwordUppercase;
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return " ";
+      // return v.passwordNumber;
+    }
+    if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password)) {
+      return " ";
+      // return v.passwordSpecialChar;
+    }
+    return "";
+  };
+
   const validate = () => {
     const newError = {};
-    
+
     // First Name validation
     if (!form.firstName.trim()) {
       newError.firstName = v.firstNameRequired;
-    } else if (!/^[a-zA-Z\s]+$/.test(form.firstName.trim())) {
+    } else if (!/^[a-zA-Z]+$/.test(form.firstName.trim())) {
       newError.firstName = v.firstNameLettersOnly;
     } else if (form.firstName.trim().length < 2) {
       newError.firstName = v.firstNameMinLength;
@@ -212,7 +265,7 @@ function Register() {
     // Last Name validation
     if (!form.lastName.trim()) {
       newError.lastName = v.lastNameRequired;
-    } else if (!/^[a-zA-Z\s]+$/.test(form.lastName.trim())) {
+    } else if (!/^[a-zA-Z]+$/.test(form.lastName.trim())) {
       newError.lastName = v.lastNameLettersOnly;
     } else if (form.lastName.trim().length < 2) {
       newError.lastName = v.lastNameMinLength;
@@ -235,6 +288,12 @@ function Register() {
       newError.phoneNumber = v.phoneExactDigits;
     }
 
+    // Password validation
+    const passwordError = validatePassword(form.password);
+    if (passwordError) {
+      newError.password = passwordError;
+    }
+
     // Confirm Password validation
     if (!form.confirmPassword) {
       newError.confirmPassword = v.pleaseConfirmPassword;
@@ -245,8 +304,6 @@ function Register() {
     // Business Name validation
     if (!form.businessName.trim()) {
       newError.businessName = v.businessNameRequired;
-    } else if (!/^[a-zA-Z\s]+$/.test(form.businessName.trim())) {
-      newError.businessName = v.businessNameLettersOnly;
     } else if (form.businessName.trim().length < 2) {
       newError.businessName = v.businessNameMinLength;
     } else if (form.businessName.trim().length > 100) {
@@ -271,7 +328,7 @@ function Register() {
       toast.error(v.pleaseEnterEmailAddress);
       return;
     }
-    
+
     setIsResendingEmail(true);
     try {
       await resendVerificationEmail(form.email);
@@ -286,24 +343,10 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let newError = {};
-    
-    // Use proper validation functions
-    const emailError = validateEmail(form.email);
-    
-    if (emailError) newError.email = emailError;
-    
-    // Additional validations
-    if (!form.firstName.trim()) newError.firstName = v.firstNameRequired;
-    if (!form.lastName.trim()) newError.lastName = v.lastNameRequired;
-    if (!form.phoneNumber.trim()) newError.phoneNumber = v.phoneRequired;
-    if (!form.confirmPassword) newError.confirmPassword = v.pleaseConfirmPassword;
-    else if (form.password !== form.confirmPassword) newError.confirmPassword = v.passwordsDoNotMatch;
-    if (!form.businessName.trim()) newError.businessName = v.businessNameRequired;
-    if (!form.businessType) newError.businessType = v.businessTypeRequired;
-    
-    if (Object.keys(newError).length > 0) {
-      setError(newError);
+    const validationErrors = validate();
+    setError(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
@@ -327,7 +370,7 @@ function Register() {
       // Check if referral code exists and create referral
       const urlParams = new URLSearchParams(location.search);
       const refCode = urlParams.get('ref');
-      
+
       if (refCode && registeredUser.data?.user?.id) {
         try {
           const referralResponse = await createReferral({
@@ -439,6 +482,7 @@ function Register() {
               labelColor="text-white"
               inputBg="bg-white/10 backdrop-blur-sm"
               labelFontSize="text-16"
+              required={true}
             />
             <CommonInput
               label={t.lastName}
@@ -455,6 +499,7 @@ function Register() {
               labelColor="text-white"
               inputBg="bg-white/10 backdrop-blur-sm"
               labelFontSize="text-16"
+              required={true}
             />
           </div>
 
@@ -476,6 +521,7 @@ function Register() {
               labelColor="text-white"
               inputBg="bg-white/10 backdrop-blur-sm"
               labelFontSize="text-16"
+              required={true}
             />
             <CommonInput
               label={t.phoneNumber}
@@ -492,6 +538,7 @@ function Register() {
               labelColor="text-white"
               inputBg="bg-white/10 backdrop-blur-sm"
               labelFontSize="text-16"
+              required={true}
             />
           </div>
 
@@ -515,6 +562,7 @@ function Register() {
               labelFontSize="text-16"
               showPasswordToggle={true}
               showPasswordValidation={true}
+              required={true}
             />
             <CommonInput
               label={t.confirmNewPassword}
@@ -533,6 +581,7 @@ function Register() {
               inputBg="bg-white/10 backdrop-blur-sm"
               labelFontSize="text-16"
               showPasswordToggle={true}
+              required={true}
             />
           </div>
 
@@ -553,9 +602,13 @@ function Register() {
               labelColor="text-white"
               inputBg="bg-white/10 backdrop-blur-sm"
               labelFontSize="text-16"
+              required={true}
             />
             <div>
-              <label className="block text-16 font-medium mb-2 text-white">{t.businessType}</label>
+              <label className="block text-16 font-medium mb-2 text-white">
+                {t.businessType}
+                <span className="text-red-500 ml-1">*</span>
+              </label>
               <CommonNormalDropDown
                 options={businessTypes}
                 value={form.businessType}
@@ -568,6 +621,8 @@ function Register() {
                 width="w-full"
                 inputWidth="w-full"
                 inputBorderRadius="rounded-lg"
+                padding="px-5 py-3"
+                placeholder="Select business type"
               />
               {error.businessType && <p className="text-customRed text-lg mt-1">{error.businessType}</p>}
             </div>
@@ -577,7 +632,7 @@ function Register() {
           <CommonButton
             text={isLoading ? t.signingUp : t.signUp}
             type="submit"
-            
+
             className="w-auto px-20 !text-white rounded-lg py-3 text-16 shadow-lg"
             disabled={isLoading}
           />

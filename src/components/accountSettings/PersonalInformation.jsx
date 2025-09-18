@@ -89,7 +89,7 @@ function PersonalInformation() {
         }
     }, [user]);
 
-    // Email validation function (same as register page)
+    // Email validation function (same as CreateUserModel)
     const validateEmail = (email) => {
         if (!email) {
             return v.emailRequired;
@@ -97,7 +97,7 @@ function PersonalInformation() {
         if (email.length > 50) {
             return v.emailTooLong;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
         if (!emailRegex.test(email)) {
             return v.validEmailAddress;
         }
@@ -107,10 +107,10 @@ function PersonalInformation() {
     const validate = () => {
         const newErrors = {};
 
-        // First Name validation (only letters and spaces)
+        // First Name validation (only letters, no spaces)
         if (!formData.firstName) {
             newErrors.firstName = v.firstNameRequired;
-        } else if (!/^[a-zA-Z\s]+$/.test(formData.firstName)) {
+        } else if (!/^[a-zA-Z]+$/.test(formData.firstName)) {
             newErrors.firstName = v.firstNameLettersOnly;
         } else if (formData.firstName.length < 2) {
             newErrors.firstName = v.firstNameMinLength;
@@ -118,10 +118,10 @@ function PersonalInformation() {
             newErrors.firstName = v.firstNameTooLong;
         }
 
-        // Last Name validation (only letters and spaces)
+        // Last Name validation (only letters, no spaces)
         if (!formData.lastName) {
             newErrors.lastName = v.lastNameRequired;
-        } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
+        } else if (!/^[a-zA-Z]+$/.test(formData.lastName)) {
             newErrors.lastName = v.lastNameLettersOnly;
         } else if (formData.lastName.length < 2) {
             newErrors.lastName = v.lastNameMinLength;
@@ -144,11 +144,9 @@ function PersonalInformation() {
             newErrors.phone = v.phoneExactDigits;
         }
 
-        // Business Name validation (only letters and spaces)
+        // Business Name validation (flexible - any characters)
         if (!formData.businessName) {
             newErrors.businessName = v.businessNameRequired;
-        } else if (!/^[a-zA-Z\s]+$/.test(formData.businessName)) {
-            newErrors.businessName = v.businessNameLettersOnly;
         } else if (formData.businessName.length < 2) {
             newErrors.businessName = v.businessNameMinLength;
         } else if (formData.businessName.length > 100) {
@@ -189,7 +187,7 @@ function PersonalInformation() {
         else if (name === 'firstName') {
             if (!value) {
                 setErrors(prev => ({ ...prev, firstName: "" }));
-            } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+            } else if (!/^[a-zA-Z]+$/.test(value)) {
                 setErrors(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
             } else if (value.length < 2) {
                 setErrors(prev => ({ ...prev, firstName: v.firstNameMinLength }));
@@ -204,7 +202,7 @@ function PersonalInformation() {
         else if (name === 'lastName') {
             if (!value) {
                 setErrors(prev => ({ ...prev, lastName: "" }));
-            } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+            } else if (!/^[a-zA-Z]+$/.test(value)) {
                 setErrors(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
             } else if (value.length < 2) {
                 setErrors(prev => ({ ...prev, lastName: v.lastNameMinLength }));
@@ -232,8 +230,6 @@ function PersonalInformation() {
         else if (name === 'businessName') {
             if (!value) {
                 setErrors(prev => ({ ...prev, businessName: "" }));
-            } else if (!/^[a-zA-Z\s]+$/.test(value)) {
-                setErrors(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
             } else if (value.length < 2) {
                 setErrors(prev => ({ ...prev, businessName: v.businessNameMinLength }));
             } else if (value.length > 100) {
@@ -277,13 +273,13 @@ function PersonalInformation() {
         if (name === 'firstName') {
             if (!formData.firstName) {
                 setErrors(prev => ({ ...prev, firstName: v.firstNameRequired }));
-            } else if (!/^[a-zA-Z\s]+$/.test(formData.firstName)) {
+            } else if (!/^[a-zA-Z]+$/.test(formData.firstName)) {
                 setErrors(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
             }
         } else if (name === 'lastName') {
             if (!formData.lastName) {
                 setErrors(prev => ({ ...prev, lastName: v.lastNameRequired }));
-            } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
+            } else if (!/^[a-zA-Z]+$/.test(formData.lastName)) {
                 setErrors(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
             }
         } else if (name === 'email') {
@@ -306,8 +302,6 @@ function PersonalInformation() {
         } else if (name === 'businessName') {
             if (!formData.businessName) {
                 setErrors(prev => ({ ...prev, businessName: v.businessNameRequired }));
-            } else if (!/^[a-zA-Z\s]+$/.test(formData.businessName)) {
-                setErrors(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
             }
         } else if (name === 'address') {
             if (!formData.address) {
@@ -322,13 +316,13 @@ function PersonalInformation() {
         if (name === 'firstName') {
             if (!value) {
                 setErrors(prev => ({ ...prev, firstName: v.firstNameRequired }));
-            } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+            } else if (!/^[a-zA-Z]+$/.test(value)) {
                 setErrors(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
             }
         } else if (name === 'lastName') {
             if (!value) {
                 setErrors(prev => ({ ...prev, lastName: v.lastNameRequired }));
-            } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+            } else if (!/^[a-zA-Z]+$/.test(value)) {
                 setErrors(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
             }
         } else if (name === 'email') {
@@ -341,9 +335,7 @@ function PersonalInformation() {
                 setErrors(prev => ({ ...prev, phone: v.phoneExactDigits }));
             }
         } else if (name === 'businessName') {
-            if (value && !/^[a-zA-Z\s]+$/.test(value)) {
-                setErrors(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
-            }
+            // No character restriction for business name - flexible validation
         } else if (name === 'address') {
             if (value && value.length < 10) {
                 setErrors(prev => ({ ...prev, address: v.addressMinLength }));
@@ -411,6 +403,7 @@ function PersonalInformation() {
                         error={errors.firstName}
                         placeholder={t.enterFirstName}
                         labelFontSize="text-14"
+                        required={true}
                     />
                     <CommonInput
                         label={t.lastName}
@@ -424,6 +417,7 @@ function PersonalInformation() {
                         error={errors.lastName}
                         placeholder={t.enterLastName}
                         labelFontSize="text-14"
+                        required={true}
                     />
                 </div>
 
@@ -441,6 +435,7 @@ function PersonalInformation() {
                         error={errors.email}
                         placeholder={t.enterEmail}
                         labelFontSize="text-14"
+                        required={true}
                     />
                 </div>
 
@@ -457,6 +452,7 @@ function PersonalInformation() {
                         error={errors.phone}
                         placeholder={t.enterPhone}
                         labelFontSize="text-14"
+                        required={true}
                     />
                 </div>
 
@@ -473,9 +469,13 @@ function PersonalInformation() {
                         error={errors.businessName}
                         placeholder={t.enterBusinessName}
                         labelFontSize="text-14"
+                        required={true}
                     />
                     <div>
-                        <label className="block text-16 font-medium mb-2 text-gray-900 dark:text-white">{t.businessType}</label>
+                        <label className="block text-16 font-medium mb-2 text-gray-900 dark:text-white">
+                            {t.businessType}
+                            <span className="text-red-500 ml-1">*</span>
+                        </label>
                         <CommonNormalDropDown
                             options={businessTypes}
                             value={formData.businessType}
@@ -488,6 +488,7 @@ function PersonalInformation() {
                             width="w-full"
                             inputWidth="w-full"
                             inputBorderRadius="rounded-lg"
+                            padding="px-5 py-3"
                         />
                         {errors.businessType && <p className="text-customRed text-lg mt-1">{errors.businessType}</p>}
                     </div>
@@ -506,6 +507,7 @@ function PersonalInformation() {
                         error={errors.address}
                         placeholder={t.enterAddress}
                         labelFontSize="text-14"
+                        required={true}
                     />
                 </div>
 

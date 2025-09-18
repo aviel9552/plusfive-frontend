@@ -14,7 +14,7 @@ function CreateUserModel() {
   const { language } = useLanguage();
   const t = getAdminUserTranslations(language);
   const v = getValidationTranslations(language);
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -25,7 +25,6 @@ function CreateUserModel() {
     role: '',
     subscriptionPlan: '',
     address: '',
-    whatsappNumber: '',
     password: '',
     confirmPassword: ''
   });
@@ -39,7 +38,7 @@ function CreateUserModel() {
     hasSpecialChar: false,
     hasMinLength: false
   });
-  
+
   // Password visibility states
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -79,7 +78,7 @@ function CreateUserModel() {
     if (email.length > 50) {
       return v.emailTooLong;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     if (!emailRegex.test(email)) {
       return v.validEmailAddress;
     }
@@ -92,54 +91,59 @@ function CreateUserModel() {
       return v.passwordRequired;
     }
     if (password.length < 8) {
-      return v.passwordMinLength;
+      return " ";
+      // return v.passwordMinLength;
     }
     if (!/(?=.*[a-z])/.test(password)) {
-      return v.passwordLowercase;
+      return " ";
+      // return v.passwordLowercase;
     }
     if (!/(?=.*[A-Z])/.test(password)) {
-      return v.passwordUppercase;
+      return " ";
+      // return v.passwordUppercase;
     }
     if (!/(?=.*\d)/.test(password)) {
-      return v.passwordNumber;
+      return " ";
+      // return v.passwordNumber;
     }
     if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password)) {
-      return v.passwordSpecialChar;
+      return " ";
+      // return v.passwordSpecialChar;
     }
     return "";
   };
 
   const validate = () => {
     const newErrors = {};
-    
-    // First Name validation (only letters and spaces)
+
+    // First Name validation (only letters, no spaces)
     if (!formData.firstName) {
       newErrors.firstName = v.firstNameRequired;
-    } else if (!/^[a-zA-Z\s]+$/.test(formData.firstName)) {
+    } else if (!/^[a-zA-Z]+$/.test(formData.firstName)) {
       newErrors.firstName = v.firstNameLettersOnly;
     } else if (formData.firstName.length < 2) {
       newErrors.firstName = v.firstNameMinLength;
     } else if (formData.firstName.length > 50) {
       newErrors.firstName = v.firstNameTooLong;
     }
-    
-    // Last Name validation (only letters and spaces)
+
+    // Last Name validation (only letters, no spaces)
     if (!formData.lastName) {
       newErrors.lastName = v.lastNameRequired;
-    } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
+    } else if (!/^[a-zA-Z]+$/.test(formData.lastName)) {
       newErrors.lastName = v.lastNameLettersOnly;
     } else if (formData.lastName.length < 2) {
       newErrors.lastName = v.lastNameMinLength;
     } else if (formData.lastName.length > 50) {
       newErrors.lastName = v.lastNameTooLong;
     }
-    
+
     // Email validation
     const emailError = validateEmail(formData.email);
     if (emailError) {
       newErrors.email = emailError;
     }
-    
+
     // Phone validation (exactly 10 digits)
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = v.phoneRequired;
@@ -148,42 +152,32 @@ function CreateUserModel() {
     } else if (formData.phoneNumber.length !== 10) {
       newErrors.phoneNumber = v.phoneExactDigits;
     }
-    
-    // WhatsApp Number validation (exactly 10 digits)
-    if (!formData.whatsappNumber) {
-      newErrors.whatsappNumber = v.whatsappRequired;
-    } else if (!/^[0-9]+$/.test(formData.whatsappNumber)) {
-      newErrors.whatsappNumber = v.whatsappNumbersOnly;
-    } else if (formData.whatsappNumber.length !== 10) {
-      newErrors.whatsappNumber = v.whatsappExactDigits;
-    }
-    
-    // Business Name validation (only letters and spaces)
+
+
+    // Business Name validation (flexible - any characters)
     if (!formData.businessName) {
       newErrors.businessName = v.businessNameRequired;
-    } else if (!/^[a-zA-Z\s]+$/.test(formData.businessName)) {
-      newErrors.businessName = v.businessNameLettersOnly;
     } else if (formData.businessName.length < 2) {
       newErrors.businessName = v.businessNameMinLength;
     } else if (formData.businessName.length > 100) {
       newErrors.businessName = v.businessNameTooLong;
     }
-    
+
     // Business Type validation
     if (!formData.businessType) {
       newErrors.businessType = v.businessTypeRequired;
     }
-    
+
     // Role validation
     if (!formData.role) {
       newErrors.role = v.roleRequired;
     }
-    
+
     // Subscription Plan validation
     if (!formData.subscriptionPlan) {
       newErrors.subscriptionPlan = v.planRequired;
     }
-    
+
     // Address validation
     if (!formData.address) {
       newErrors.address = v.addressRequired;
@@ -192,20 +186,20 @@ function CreateUserModel() {
     } else if (formData.address.length > 200) {
       newErrors.address = v.addressTooLong;
     }
-    
+
     // Password validation
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
       newErrors.password = passwordError;
     }
-    
+
     // Confirm Password validation
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = v.confirmPasswordRequired;
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = v.passwordsDoNotMatch;
     }
-    
+
     return newErrors;
   };
 
@@ -221,12 +215,12 @@ function CreateUserModel() {
       const emailError = validateEmail(value);
       setErrors(prev => ({ ...prev, email: emailError }));
     }
-    
+
     // Real-time validation for password
     else if (name === 'password') {
       const passwordError = validatePassword(value);
       setErrors(prev => ({ ...prev, password: passwordError }));
-      
+
       // Update password requirements for display
       const passwordRequirements = {
         hasLowerCase: /[a-z]/.test(value),
@@ -236,7 +230,7 @@ function CreateUserModel() {
         hasMinLength: value.length >= 8
       };
       setPasswordRequirements(passwordRequirements);
-      
+
       // Also validate confirm password if it exists
       if (formData.confirmPassword) {
         if (value !== formData.confirmPassword) {
@@ -246,7 +240,7 @@ function CreateUserModel() {
         }
       }
     }
-    
+
     // Real-time validation for confirm password
     else if (name === 'confirmPassword') {
       if (!value) {
@@ -257,12 +251,12 @@ function CreateUserModel() {
         setErrors(prev => ({ ...prev, confirmPassword: '' }));
       }
     }
-    
+
     // Real-time validation for first name
     else if (name === 'firstName') {
       if (!value) {
         setErrors(prev => ({ ...prev, firstName: "" }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+      } else if (!/^[a-zA-Z]+$/.test(value)) {
         setErrors(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
       } else if (value.length < 2) {
         setErrors(prev => ({ ...prev, firstName: v.firstNameMinLength }));
@@ -272,12 +266,12 @@ function CreateUserModel() {
         setErrors(prev => ({ ...prev, firstName: "" }));
       }
     }
-    
+
     // Real-time validation for last name
     else if (name === 'lastName') {
       if (!value) {
         setErrors(prev => ({ ...prev, lastName: "" }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+      } else if (!/^[a-zA-Z]+$/.test(value)) {
         setErrors(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
       } else if (value.length < 2) {
         setErrors(prev => ({ ...prev, lastName: v.lastNameMinLength }));
@@ -287,7 +281,7 @@ function CreateUserModel() {
         setErrors(prev => ({ ...prev, lastName: "" }));
       }
     }
-    
+
     // Real-time validation for phone
     else if (name === 'phoneNumber') {
       if (!value) {
@@ -300,26 +294,12 @@ function CreateUserModel() {
         setErrors(prev => ({ ...prev, phoneNumber: "" }));
       }
     }
-    
-    // Real-time validation for WhatsApp number
-    else if (name === 'whatsappNumber') {
-      if (!value) {
-        setErrors(prev => ({ ...prev, whatsappNumber: "" }));
-      } else if (!/^[0-9]+$/.test(value)) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappNumbersOnly }));
-      } else if (value.length !== 10) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappExactDigits }));
-      } else {
-        setErrors(prev => ({ ...prev, whatsappNumber: "" }));
-      }
-    }
-    
+
+
     // Real-time validation for business name
     else if (name === 'businessName') {
       if (!value) {
         setErrors(prev => ({ ...prev, businessName: "" }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value)) {
-        setErrors(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
       } else if (value.length < 2) {
         setErrors(prev => ({ ...prev, businessName: v.businessNameMinLength }));
       } else if (value.length > 100) {
@@ -328,7 +308,7 @@ function CreateUserModel() {
         setErrors(prev => ({ ...prev, businessName: "" }));
       }
     }
-    
+
     // Real-time validation for address
     else if (name === 'address') {
       if (!value) {
@@ -341,7 +321,7 @@ function CreateUserModel() {
         setErrors(prev => ({ ...prev, address: "" }));
       }
     }
-    
+
     // Clear other field errors
     else if (errors[name]) {
       setErrors(prev => ({
@@ -363,13 +343,13 @@ function CreateUserModel() {
     if (name === 'firstName') {
       if (!formData.firstName) {
         setErrors(prev => ({ ...prev, firstName: v.firstNameRequired }));
-      } else if (!/^[a-zA-Z\s]+$/.test(formData.firstName)) {
+      } else if (!/^[a-zA-Z]+$/.test(formData.firstName)) {
         setErrors(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
       }
     } else if (name === 'lastName') {
       if (!formData.lastName) {
         setErrors(prev => ({ ...prev, lastName: v.lastNameRequired }));
-      } else if (!/^[a-zA-Z\s]+$/.test(formData.lastName)) {
+      } else if (!/^[a-zA-Z]+$/.test(formData.lastName)) {
         setErrors(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
       }
     } else if (name === 'email') {
@@ -389,19 +369,10 @@ function CreateUserModel() {
       } else if (formData.phoneNumber.length !== 10) {
         setErrors(prev => ({ ...prev, phoneNumber: v.phoneExactDigits }));
       }
-    } else if (name === 'whatsappNumber') {
-      if (!formData.whatsappNumber) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappRequired }));
-      } else if (!/^[0-9]+$/.test(formData.whatsappNumber)) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappNumbersOnly }));
-      } else if (formData.whatsappNumber.length !== 10) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappExactDigits }));
-      }
     } else if (name === 'businessName') {
       if (!formData.businessName) {
         setErrors(prev => ({ ...prev, businessName: v.businessNameRequired }));
-      } else if (!/^[a-zA-Z\s]+$/.test(formData.businessName)) {
-        setErrors(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
+      } else {
       }
     } else if (name === 'address') {
       if (!formData.address) {
@@ -431,13 +402,13 @@ function CreateUserModel() {
     if (name === 'firstName') {
       if (!value) {
         setErrors(prev => ({ ...prev, firstName: v.firstNameRequired }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+      } else if (!/^[a-zA-Z]+$/.test(value)) {
         setErrors(prev => ({ ...prev, firstName: v.firstNameLettersOnly }));
       }
     } else if (name === 'lastName') {
       if (!value) {
         setErrors(prev => ({ ...prev, lastName: v.lastNameRequired }));
-      } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+      } else if (!/^[a-zA-Z]+$/.test(value)) {
         setErrors(prev => ({ ...prev, lastName: v.lastNameLettersOnly }));
       }
     } else if (name === 'email') {
@@ -449,16 +420,8 @@ function CreateUserModel() {
       } else if (value && value.length !== 10) {
         setErrors(prev => ({ ...prev, phoneNumber: v.phoneExactDigits }));
       }
-    } else if (name === 'whatsappNumber') {
-      if (value && !/^[0-9]+$/.test(value)) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappNumbersOnly }));
-      } else if (value && value.length !== 10) {
-        setErrors(prev => ({ ...prev, whatsappNumber: v.whatsappExactDigits }));
-      }
     } else if (name === 'businessName') {
-      if (value && !/^[a-zA-Z\s]+$/.test(value)) {
-        setErrors(prev => ({ ...prev, businessName: v.businessNameLettersOnly }));
-      }
+      // No character restriction for business name
     } else if (name === 'address') {
       if (value && value.length < 10) {
         setErrors(prev => ({ ...prev, address: v.addressMinLength }));
@@ -477,14 +440,14 @@ function CreateUserModel() {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
-    
+
     if (Object.keys(validationErrors).length === 0) {
       setIsLoading(true);
-      
+
       try {
         // Use Redux action to create user
         const result = await dispatch(createUser(formData));
-        
+
         if (result.success) {
           // Show API response message in toast
           if (result.data && result.data.message) {
@@ -546,6 +509,7 @@ function CreateUserModel() {
                   placeholder={t.enterFirstName}
                   error={errors.firstName}
                   labelFontSize="text-14"
+                  required={true}
                 />
                 <CommonInput
                   label={t.lastName}
@@ -558,6 +522,7 @@ function CreateUserModel() {
                   placeholder={t.enterLastName}
                   error={errors.lastName}
                   labelFontSize="text-14"
+                  required={true}
                 />
                 <CommonInput
                   label={t.email}
@@ -571,9 +536,10 @@ function CreateUserModel() {
                   placeholder={t.enterEmail}
                   error={errors.email}
                   labelFontSize="text-14"
+                  required={true}
                 />
                 <CommonInput
-                  label={t.phoneNumber}
+                  label={t.phoneNumber + " (" + t.whatsappNumber + ")"}
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
@@ -583,6 +549,7 @@ function CreateUserModel() {
                   placeholder={t.enterPhoneNumber}
                   error={errors.phoneNumber}
                   labelFontSize="text-14"
+                  required={true}
                 />
               </div>
             </div>
@@ -604,12 +571,11 @@ function CreateUserModel() {
                   placeholder={t.enterBusinessName}
                   error={errors.businessName}
                   labelFontSize="text-14"
+                  required={true}
                 />
                 <div>
-                  <label className="block text-14 font-medium text-black dark:text-white mb-2">
-                    {t.businessType}
-                  </label>
                   <CommonNormalDropDown
+                    label={t.businessType}
                     options={businessTypeOptions}
                     value={formData.businessType}
                     onChange={(value) => handleDropDownChange('businessType', value)}
@@ -619,6 +585,8 @@ function CreateUserModel() {
                     inputWidth="w-full"
                     anchor="right"
                     labelFontSize="text-14"
+                    padding="px-5 py-3"
+                    required={true}
                   />
                   {errors.businessType && <p className="text-red-500 text-sm mt-1">{errors.businessType}</p>}
                 </div>
@@ -633,18 +601,7 @@ function CreateUserModel() {
                   placeholder={t.enterAddress}
                   error={errors.address}
                   labelFontSize="text-14"
-                />
-                <CommonInput
-                  label={t.whatsappNumber}
-                  name="whatsappNumber"
-                  value={formData.whatsappNumber}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                  showErrorOnFocus={true}
-                  placeholder={t.enterWhatsappNumber}
-                  error={errors.whatsappNumber}
-                  labelFontSize="text-14"
+                  required={true}
                 />
               </div>
             </div>
@@ -656,10 +613,8 @@ function CreateUserModel() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-14 font-medium text-black dark:text-white mb-2">
-                    {t.role}
-                  </label>
                   <CommonNormalDropDown
+                    label={t.role}
                     options={roleOptions}
                     value={formData.role}
                     onChange={(value) => handleDropDownChange('role', value)}
@@ -669,14 +624,14 @@ function CreateUserModel() {
                     inputWidth="w-full"
                     anchor="right"
                     labelFontSize="text-14"
+                    padding="px-5 py-3"
+                    required={true}
                   />
                   {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
                 </div>
                 <div>
-                  <label className="block text-14 font-medium text-black dark:text-white mb-2">
-                    {t.subscriptionPlan}
-                  </label>
                   <CommonNormalDropDown
+                    label={t.subscriptionPlan}
                     options={planOptions}
                     value={formData.subscriptionPlan}
                     onChange={(value) => handleDropDownChange('subscriptionPlan', value)}
@@ -686,6 +641,8 @@ function CreateUserModel() {
                     inputWidth="w-full"
                     anchor="right"
                     labelFontSize="text-14"
+                    padding="px-5 py-3"
+                    required={true}
                   />
                   {errors.subscriptionPlan && <p className="text-red-500 text-sm mt-1">{errors.subscriptionPlan}</p>}
                 </div>
@@ -713,6 +670,7 @@ function CreateUserModel() {
                     showPasswordToggle={true}
                     showPasswordValidation={true}
                     labelFontSize="text-14"
+                    required={true}
                   />
                 </div>
                 <div>
@@ -729,6 +687,7 @@ function CreateUserModel() {
                     error={errors.confirmPassword}
                     showPasswordToggle={true}
                     labelFontSize="text-14"
+                    required={true}
                   />
                 </div>
               </div>

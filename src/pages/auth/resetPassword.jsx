@@ -21,6 +21,34 @@ function ResetPassword() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // Password validation function
+  const validatePassword = (password) => {
+    if (!password) {
+      return v.passwordRequired;
+    }
+    if (password.length < 8) {
+      return " ";
+      // return v.passwordMinLength;
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return " ";
+      // return v.passwordLowercase;
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return " ";
+      // return v.passwordUppercase;
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return " ";
+      // return v.passwordNumber;
+    }
+    if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(password)) {
+      return " ";
+      // return v.passwordSpecialChar;
+    }
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -28,6 +56,21 @@ function ResetPassword() {
       [name]: value
     }));
     
+    // Real-time validation for password
+    if (name === 'password') {
+      const passwordError = validatePassword(value);
+      setErrors(prev => ({ ...prev, password: passwordError }));
+      
+      // Also validate confirm password if it exists
+      if (formData.confirmPassword) {
+        if (value !== formData.confirmPassword) {
+          setErrors(prev => ({ ...prev, confirmPassword: v.passwordsDoNotMatch }));
+        } else {
+          setErrors(prev => ({ ...prev, confirmPassword: '' }));
+        }
+      }
+    }
+
     // Real-time validation for confirm password
     if (name === 'confirmPassword') {
       if (!value) {
@@ -43,7 +86,16 @@ function ResetPassword() {
   const handleFocus = (e) => {
     const { name } = e.target;
     // Show validation error immediately when user focuses on field
-    if (name === 'confirmPassword') {
+    if (name === 'password') {
+      if (!formData.password) {
+        setErrors(prev => ({ ...prev, password: v.passwordRequired }));
+      } else {
+        const passwordError = validatePassword(formData.password);
+        if (passwordError) {
+          setErrors(prev => ({ ...prev, password: passwordError }));
+        }
+      }
+    } else if (name === 'confirmPassword') {
       if (!formData.confirmPassword) {
         setErrors(prev => ({ ...prev, confirmPassword: v.pleaseConfirmPassword }));
       } else if (formData.password !== formData.confirmPassword) {
@@ -55,7 +107,10 @@ function ResetPassword() {
   const handleBlur = (e) => {
     const { name, value } = e.target;
     // Validate on blur
-    if (name === 'confirmPassword') {
+    if (name === 'password') {
+      const passwordError = validatePassword(value);
+      setErrors(prev => ({ ...prev, password: passwordError }));
+    } else if (name === 'confirmPassword') {
       if (value && formData.password !== value) {
         setErrors(prev => ({ ...prev, confirmPassword: v.passwordsDoNotMatch }));
       }
@@ -64,6 +119,12 @@ function ResetPassword() {
 
   const validateForm = () => {
     const newErrors = {};
+
+    // Password validation
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      newErrors.password = passwordError;
+    }
 
     // Confirm Password validation
     if (!formData.confirmPassword) {
@@ -153,6 +214,7 @@ function ResetPassword() {
             inputBg="bg-white/10 backdrop-blur-sm"
             showPasswordToggle={true}
             showPasswordValidation={true}
+            required={true}
           />
 
           <CommonInput
@@ -172,6 +234,7 @@ function ResetPassword() {
             labelColor="text-white"
             inputBg="bg-white/10 backdrop-blur-sm"
             showPasswordToggle={true}
+            required={true}
           />
 
           <CommonButton

@@ -24,6 +24,7 @@ function CommonInput({
   showErrorOnFocus = false, // NEW PROP for real-time validation
   showPasswordToggle = false, // NEW PROP for password toggle
   showPasswordValidation = false, // NEW PROP for password validation
+  required = false, // NEW PROP for required asterisk
 }) {
   const { language } = useLanguage();
   const isRTL = language === 'he';
@@ -130,6 +131,7 @@ function CommonInput({
     <div>
       <label htmlFor={id} className={labelClasses}>
         {label}
+        {required && <span className={`text-red-500 ${isRTL ? 'mr-1' : 'ml-1'}`}>*</span>}
       </label>
       <div className="relative">
         {as === 'textarea' ? (
@@ -182,7 +184,7 @@ function CommonInput({
           </div>
         )}
       </div>
-      {shouldShowError && <p className="text-customRed text-lg mt-1">{error}</p>}
+      {shouldShowError && <p className="text-customRed text-16 mt-1">{error}</p>}
       
       {/* Password Requirements Display */}
       {showPasswordValidation && type === 'password' && safeValue && (
@@ -236,6 +238,7 @@ CommonInput.propTypes = {
   showErrorOnFocus: PropTypes.bool, // NEW
   showPasswordToggle: PropTypes.bool, // NEW
   showPasswordValidation: PropTypes.bool, // NEW
+  required: PropTypes.bool, // NEW PROP for required asterisk
 };
 
 export default CommonInput
