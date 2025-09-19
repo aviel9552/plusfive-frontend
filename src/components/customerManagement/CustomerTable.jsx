@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import reviewService from '../../redux/services/reviewServices';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import CommonNormalDropDown from '../commonComponent/CommonNormalDropDown';
+import CommonLoader from '../commonComponent/CommonLoader';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center text-14 whitespace-nowrap";
@@ -306,6 +307,16 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
             render: (row) => <span className="text-14 text-gray-900 dark:text-white">₪{row.totalPaidAmount || 0}</span>
         }
     ];
+
+    if (loading) {
+        return (
+            <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
+                <div className="flex justify-center items-center py-16">
+                    <CommonLoader />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">

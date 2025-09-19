@@ -104,3 +104,5 @@ export { default as CommonGradientText } from "./commonComponent/CommonGradientT
 export { default as CommonConfirmModel } from "./commonComponent/CommonConfirmModel";
 export { default as CommonBorderButton } from "./commonComponent/CommonBorderButton";
 export { default as CommonOutlineGradintButton } from "./commonComponent/CommonOutlineGradintButton";
+export { default as CommonLoader } from "./commonComponent/CommonLoader";
+export { default as PageLoader } from "./commonComponent/PageLoader";

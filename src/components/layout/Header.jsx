@@ -263,7 +263,7 @@ const Header = ({ onMobileMenuToggle }) => {
             className="flex items-center space-x-2"
             onClick={toggleProfileMenu}
           >
-            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-8 h-8 rounded-full bg-[#ff257c] flex items-center justify-center text-white font-bold text-lg">
               {userName.charAt(0).toUpperCase()}
             </div>
           </button>

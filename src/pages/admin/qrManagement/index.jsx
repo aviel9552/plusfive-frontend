@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CommonButton, CommonOutlineButton, AdminReportsandAnalyticsTitle, CommonInput } from "../../../components";
+import { CommonButton, CommonOutlineButton, AdminReportsandAnalyticsTitle, CommonInput, CommonLoader } from "../../../components";
 import { createQRCodeWithUserInfo } from '../../../redux/services/qrServices';
 import { PiShareFatBold } from 'react-icons/pi';
 import { MdQrCode2 } from 'react-icons/md';
@@ -31,6 +31,7 @@ function AdminQRManagement() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [generatedQR, setGeneratedQR] = useState(null);
+  const [showLoader, setShowLoader] = useState(true);
 
   // Get QR codes from Redux store
   const { qrCodes, loading: qrCodesLoading, error: qrCodesError } = useSelector(state => state.qr);
@@ -39,6 +40,15 @@ function AdminQRManagement() {
   useEffect(() => {
     dispatch(fetchQRCodes());
   }, [dispatch]);
+
+  // Hide loader after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoader(false);
+    }, 2000); // 2 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Update formData when businessName changes
   useEffect(() => {
@@ -319,7 +329,7 @@ function AdminQRManagement() {
               <div>
 
                 <CommonButton
-                  text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading ? t.generating : t.generateQRCode)}
+                  text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading ? <div className="flex items-center justify-center gap-2"><CommonLoader /> {t.generating}</div> : t.generateQRCode)}
                   onClick={handleGenerateQR}
                   className="rounded-[8px] w-full py-[14px] text-14"
                   disabled={loading || hasExistingQR || generatedQR}
@@ -336,7 +346,9 @@ function AdminQRManagement() {
                 {t.myQRCodes}
               </h2>
               <div className="md:p-0 p-10 flex flex-col items-center justify-center h-[260px] rounded-[8px] dark:bg-customBrown bg-customBody border dark:border-commonBorder border-gray-200 border-dashed">
-                {generatedQR ? (
+                {showLoader || qrCodesLoading ? (
+                  <CommonLoader />
+                ) : generatedQR ? (
                   <div className="text-center">
                     <img
                       src={generatedQR.qrCodeImage}
