@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { RouteLoader } from '../components';
 import AdminHome from '../pages/admin/home';
 import UserManagement from '../pages/admin/userManagement';
 import AdminQRManagement from '../pages/admin/qrManagement';
@@ -20,29 +21,31 @@ import SupportAndHelp from '../pages/supportAndHelp';
 
 function AdminRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<AdminHome />} />
-      <Route path="/dashboard" element={<AdminHome />} />
-      {/* <Route path="/customer-management" element={<AdminCustomerManagement />} /> */}
-      {/* <Route path="/customer-management/create" element={<CreateAdminCustomer />} /> */}
-      {/* <Route path="/customer-management/edit/:customerId" element={<EditUserModel />} /> */}
-      {/* <Route path="/customer-management/edit" element={<EditUserModel />} /> */}
-      <Route path="/user-management" element={<UserManagement />} />
-      <Route path="/user-management/create" element={<CreateUserModel />} />
-      <Route path="/user-management/view/:userId" element={<ViewUser />} />
-      <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
-      <Route path="/qr-management" element={<AdminQRManagement />} />
-      {/* <Route path="/qr-management/listing" element={<AdminQRManagementListing />} /> */}
-      {/* <Route path="/qr-management/my-codes" element={<MyQRCodes />} /> */}
-      <Route path="/referral-management" element={<AdminReferralManagement />} />
-      <Route path="/analytics" element={<Analytics />} />
-      <Route path="/account-settings" element={<AccountSettings />} />
-      <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} />
-      <Route path="/update-payment" element={<UpdatePaymentPage />} />
-      <Route path="/add-card" element={<AddCard />} />
-      <Route path="/support-and-help" element={<SupportAndHelp />} />
-      {/* Add more admin routes here in the future */}
-    </Routes>
+    <RouteLoader loadTime={800}>
+      <Routes>
+        <Route path="/" element={<AdminHome />} />
+        <Route path="/dashboard" element={<AdminHome />} />
+        {/* <Route path="/customer-management" element={<AdminCustomerManagement />} /> */}
+        {/* <Route path="/customer-management/create" element={<CreateAdminCustomer />} /> */}
+        {/* <Route path="/customer-management/edit/:customerId" element={<EditUserModel />} /> */}
+        {/* <Route path="/customer-management/edit" element={<EditUserModel />} /> */}
+        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/user-management/create" element={<CreateUserModel />} />
+        <Route path="/user-management/view/:userId" element={<ViewUser />} />
+        <Route path="/user-management/edit/:userId" element={<EditUserModel />} />
+        <Route path="/qr-management" element={<AdminQRManagement />} />
+        {/* <Route path="/qr-management/listing" element={<AdminQRManagementListing />} /> */}
+        {/* <Route path="/qr-management/my-codes" element={<MyQRCodes />} /> */}
+        <Route path="/referral-management" element={<AdminReferralManagement />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} />
+        <Route path="/update-payment" element={<UpdatePaymentPage />} />
+        <Route path="/add-card" element={<AddCard />} />
+        <Route path="/support-and-help" element={<SupportAndHelp />} />
+        {/* Add more admin routes here in the future */}
+      </Routes>
+    </RouteLoader>
   );
 }
 

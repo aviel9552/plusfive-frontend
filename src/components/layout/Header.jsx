@@ -313,7 +313,7 @@ const Header = ({ onMobileMenuToggle }) => {
           className={`absolute ${isRTL ? 'md:left-10 left-2' : 'md:right-10 right-2'} mt-2 w-auto sm:w-72 bg-white dark:bg-customBlack rounded-2xl shadow-2xl border border-gray-200 dark:border-customBorderColor z-[1200] p-0 overflow-hidden`}
         >
           <div className="flex flex-col items-center py-5 px-6 bg-white dark:bg-customBlack">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-orange-500 text-white mb-2 shadow">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-[#ff257c] text-white mb-2 shadow">
               {userName.charAt(0).toUpperCase()}
             </div>
             <div className="font-semibold text-gray-900 dark:text-white text-lg">{userName}</div>

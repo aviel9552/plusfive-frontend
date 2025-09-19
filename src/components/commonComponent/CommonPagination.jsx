@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FaAngleRight, FaAngleLeft } from 'react-icons/fa';
+import { useLanguage } from '../../context/LanguageContext';
 
 const PAGE_SIZES = [7, 10, 20, 30, 50];
 
@@ -28,6 +29,8 @@ const CommonPagination = ({
   showPageSizeSelector = true,
   showPageInfo = true
 }) => {
+  const { language } = useLanguage();
+  const isRTL = language === 'he';
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const paginationNumbers = getPagination(currentPage, totalPages);
   const [showPageSizeDropdown, setShowPageSizeDropdown] = React.useState(false);
@@ -45,7 +48,7 @@ const CommonPagination = ({
                 onClick={() => setShowPageSizeDropdown(o => !o)}
               >
                 <span>{pageSize}</span>
-                <svg className={`ml-2 transform transition-transform ${showPageSizeDropdown ? 'rotate-180' : ''}`} width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+                <svg className={`${isRTL ? 'mr-2' : 'ml-2'} transform transition-transform ${showPageSizeDropdown ? 'rotate-180' : ''}`} width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
               </button>
               {showPageSizeDropdown && (
                 <div className="absolute right-0 bottom-full mb-2 w-full bg-white dark:bg-[#232323] border-2 border-gray-200 dark:border-customBorderColor rounded-xl shadow-lg z-20 animate-fadeIn overflow-hidden">
@@ -81,7 +84,11 @@ const CommonPagination = ({
           className="p-1.5 border rounded-full border-gray-200 dark:border-customBorderColor text-gray-500 dark:text-gray-400 hover:border-pink-500 hover:text-pink-500 disabled:opacity-50 transition-all duration-200"
           aria-label="Previous page"
         >
-          <FaAngleLeft className="w-4 h-4" />
+          {isRTL ? (
+            <FaAngleRight className="w-4 h-4" />
+          ) : (
+            <FaAngleLeft className="w-4 h-4" />
+          )}
         </button>
         
         <div className="flex items-center gap-1">
@@ -94,8 +101,8 @@ const CommonPagination = ({
                 type="button"
                 className={`w-8 h-8 flex items-center justify-center rounded-full border ${
                   currentPage === num
-                    ? 'bg-customRed text-white border-customRed font-bold '
-                    : 'border-gray-200 dark:border-customBorderColor text-gray-700 dark:text-gray-300 hover:border-customRed hover:text-customRed font-bold'
+                    ? 'bg-customPink text-white border-customPink font-bold '
+                    : 'border-gray-200 dark:border-customBorderColor text-gray-700 dark:text-gray-300 hover:border-customPink hover:text-customPink font-bold'
                 } transition-all duration-200 text-sm`}
                 onClick={() => onPageChange?.(Number(num))}
                 aria-label={`Go to page ${num}`}
@@ -114,7 +121,11 @@ const CommonPagination = ({
           className="p-1.5 rounded-full border border-gray-200 dark:border-customBorderColor text-gray-500 dark:text-gray-400 hover:border-pink-500 hover:text-pink-500 disabled:opacity-50 transition-all duration-200"
           aria-label="Next page"
         >
-          <FaAngleRight className="w-4 h-4" />
+          {isRTL ? (
+            <FaAngleLeft className="w-4 h-4" />
+          ) : (
+            <FaAngleRight className="w-4 h-4" />
+          )}
         </button>
       </nav>
     </div>

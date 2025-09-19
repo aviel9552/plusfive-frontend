@@ -28,7 +28,6 @@ function EditUserModel() {
     businessName: '',
     businessType: '',
     role: '',
-    accountStatus: '',
     subscriptionPlan: '',
     address: '',
     whatsappNumber: ''
@@ -47,7 +46,6 @@ function EditUserModel() {
     businessName: '',
     businessType: '',
     role: '',
-    accountStatus: '',
     subscriptionPlan: '',
     address: ''
   });
@@ -62,11 +60,6 @@ function EditUserModel() {
     { value: 'manager', label: 'Manager', code: 'manager' }
   ];
 
-  const statusOptions = [
-    { value: 'active', label: 'Active', code: 'active' },
-    { value: 'suspended', label: 'Suspended', code: 'suspended' },
-    { value: 'inactive', label: 'Inactive', code: 'inactive' }
-  ];
 
   const businessTypeOptions = [
     { value: '', label: 'Select business type' },
@@ -156,7 +149,6 @@ function EditUserModel() {
         businessName: safeGetValue(apiUserData, 'businessName'),
         businessType: safeGetValue(apiUserData, 'businessType'),
         role: safeGetValue(apiUserData, 'role'),
-        accountStatus: safeGetValue(apiUserData, 'accountStatus'),
         subscriptionPlan: safeGetValue(apiUserData, 'subscriptionPlan'),
         address: safeGetValue(apiUserData, 'address')
       };
@@ -223,11 +215,6 @@ function EditUserModel() {
     // Role validation
     if (!formData.role) {
       newErrors.role = v.roleRequired;
-    }
-
-    // Account Status validation
-    if (!formData.accountStatus) {
-      newErrors.accountStatus = v.statusRequired;
     }
 
     // Address validation
@@ -611,7 +598,7 @@ function EditUserModel() {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
                 {t.accountSettings}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <CommonNormalDropDown
                     label={t.role}
@@ -627,22 +614,6 @@ function EditUserModel() {
                     required={true}
                   />
                   {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
-                </div>
-                <div>
-                  <CommonNormalDropDown
-                    label={t.status}
-                    options={statusOptions}
-                    value={formData.accountStatus}
-                    onChange={(value) => handleDropDownChange('accountStatus', value)}
-                    placeholder={t.selectStatus}
-                    className="w-full"
-                    showIcon={false}
-                    inputWidth="w-full"
-                    anchor="right"
-                    padding="px-5 py-3"
-                    required={true}
-                  />
-                  {errors.accountStatus && <p className="text-red-500 text-sm mt-1">{errors.accountStatus}</p>}
                 </div>
                 <div>
                   <label className="block text-14 font-medium text-gray-700 dark:text-gray-300 mb-2">

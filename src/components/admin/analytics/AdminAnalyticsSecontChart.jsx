@@ -68,32 +68,30 @@ function AdminAnalyticsSecontChart() {
     const isRTL = language === 'he';
     const t = getAdminAnalyticsTranslations(language);
 
-    // Fetch QR Analytics data
+    // Fetch all analytics data together
     useEffect(() => {
-        const fetchQRAnalytics = async () => {
+        const fetchAllAnalyticsData = async () => {
             try {
-                const response = await getQRCodeAnalytics();
-                if (response.success && response.data) {
-                    setQrAnalyticsData(response.data);
+                // Fetch both APIs in parallel
+                const [qrAnalyticsResponse, averageRatingResponse] = await Promise.all([
+                    getQRCodeAnalytics(),
+                    getAverageRating()
+                ]);
+                
+                if (qrAnalyticsResponse.success && qrAnalyticsResponse.data) {
+                    setQrAnalyticsData(qrAnalyticsResponse.data);
+                }
+                
+                if (averageRatingResponse.success && averageRatingResponse.data) {
+                    setAverageRatingData(averageRatingResponse.data);
                 }
             } catch (error) {
-                console.error('Error fetching QR Analytics:', error);
-            }
-        };
-        const fetchAverageRating = async () => {
-            try {
-                const response = await getAverageRating();
-                if (response.success && response.data) {
-                    setAverageRatingData(response.data);
-                }
-            } catch (error) {
-                console.error('Error fetching Average Rating:', error);
+                console.error('Error fetching analytics data:', error);
             }
         };
 
-        fetchQRAnalytics();
-        fetchAverageRating();
-    }, []);
+        fetchAllAnalyticsData();
+    }, []); // Empty dependency array - run only once on mount
 
     const qrCodeDataMap = {
         'Monthly': qrAnalyticsData.monthlyQrCodeData || [],
@@ -185,9 +183,10 @@ function AdminAnalyticsSecontChart() {
                                         <stop offset="100%" stopColor="#BDC4D2" />
                                     </linearGradient>
                                     <linearGradient id="thisYearGradient" x1="0" y1="0" x2="0" y2="1" gradientTransform="rotate(259)">
-                                        <stop offset="3.28%" stopColor="#FE5D39" />
+                                        {/* <stop offset="3.28%" stopColor="#FE5D39" />
                                         <stop offset="49.86%" stopColor="#FF2380" />
-                                        <stop offset="100.32%" stopColor="#DF64CC" />
+                                        <stop offset="100.32%" stopColor="#DF64CC" /> */}
+                                        <stop offset="100.32%" stopColor="#ff257c" />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid

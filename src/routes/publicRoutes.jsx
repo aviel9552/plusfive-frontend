@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useLanguage } from '../context/LanguageContext';
+import { RouteLoader } from '../components';
 import Login from '../pages/auth/login';
 import Register from '../pages/auth/register';
 import ThankYou from '../pages/auth/thankYou';
@@ -36,7 +37,7 @@ function PublicRouteGuard({ children }) {
 function PublicRoutes() {
   const { language } = useLanguage();
   return (
-    <>
+    <RouteLoader loadTime={2000}>
       {/* Demo ke liye language show kar rahe hain */}
       {/* <div>Current language: {language}</div> */}
       <Routes>
@@ -69,7 +70,7 @@ function PublicRoutes() {
         {/* Add more public routes here in the future */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </RouteLoader>
   );
 }
 

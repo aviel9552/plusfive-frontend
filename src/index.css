@@ -27,22 +27,8 @@
 }
 
 @font-face {
-  font-family: 'TestTiemposFineLightItalic';
-  src: url('/public/fonts/TestTiemposFine-LightItalic.otf');
-  font-weight: 600;
-  font-style: normal;
-}
-
-@font-face {
   font-family: 'AktivGrotesk_Trial_SBd';
   src: url('/public/fonts/AktivGrotesk_Trial_SBd.ttf');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'AktivGrotesk_Trial_Hair';
-  src: url('/public/fonts/AktivGrotesk_Trial_Hair.ttf');
   font-weight: 400;
   font-style: normal;
 }
@@ -63,6 +49,9 @@
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-style: normal;
+}
+:lang(he) {
+  font-family: 'Nunito', sans-serif;
 }
 
 /* Smooth transitions for theme switching */
@@ -312,12 +301,20 @@ input[type=number] {
 
 
 /* HTML: <div class="loader"></div> */
+:root {
+  --loader-color: #000; /* default light mode */
+}
+
+.dark {
+  --loader-color: #fff; /* dark mode override */
+}
 .loader {
   position: relative;
   width: 120px;
   height: 90px;
   margin: 0 auto;
 }
+
 .loader:before {
   content: "";
   position: absolute;
@@ -329,6 +326,7 @@ input[type=number] {
   background: #ff257c;
   animation: loading-bounce 0.5s ease-in-out infinite alternate;
 }
+
 .loader:after {
   content: "";
   position: absolute;
@@ -337,7 +335,9 @@ input[type=number] {
   height: 7px;
   width: 45px;
   border-radius: 4px;
-  box-shadow: 0 5px 0 #fff, -35px 50px 0 #fff, -70px 95px 0 #fff;
+  box-shadow: 0 5px 0 var(--loader-color),
+              -35px 50px 0 var(--loader-color),
+              -70px 95px 0 var(--loader-color);
   animation: loading-step 1s ease-in-out infinite;
 }
 
@@ -347,17 +347,18 @@ input[type=number] {
   60% { transform: scale(1, 1)}
   100% { bottom: 140px }
 }
+
 @keyframes loading-step {
   0% {
     box-shadow: 0 10px 0 rgba(0,0,0,0),
-                0 10px 0 #fff,
-              -35px 50px 0 #fff,
-              -70px 90px 0 #fff;
+                0 10px 0 var(--loader-color),
+              -35px 50px 0 var(--loader-color),
+              -70px 90px 0 var(--loader-color);
   }
   100% {
-    box-shadow: 0 10px 0 #fff,
-              -35px 50px 0 #fff,
-              -70px 90px 0 #fff,
+    box-shadow: 0 10px 0 var(--loader-color),
+              -35px 50px 0 var(--loader-color),
+              -70px 90px 0 var(--loader-color),
               -70px 90px 0 rgba(0,0,0,0);
   }
 }

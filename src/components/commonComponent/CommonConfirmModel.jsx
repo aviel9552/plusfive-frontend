@@ -10,7 +10,7 @@ const CommonConfirmModel = ({
   message = "Are you sure you want to proceed?", 
   confirmText = "Confirm", 
   cancelText = "Cancel",
-  confirmButtonColor = "bg-gradient-to-r from-customRed to-orange-500 hover:from-orange-500 hover:to-customRed focus:ring-2 focus:ring-orange-400",
+  confirmButtonColor = "bg-[#ff257c] focus:ring-2 focus:ring-[#ff257c]",
   cancelButtonColor = "bg-customGray2 dark:bg-customIconBgColor hover:bg-gray-400 dark:hover:bg-customBorderColor focus:ring-2 focus:ring-gray-400",
   confirmButtonTextColor = "text-white",
   cancelButtonTextColor = "text-gray-700 dark:text-white"
@@ -42,7 +42,7 @@ const CommonConfirmModel = ({
         {/* Header with Icon */}
         <div className={`px-8 pt-6 pb-4 flex items-center justify-between `}>
           <div className={`flex items-center ${isRTL ? 'gap-3' : 'gap-3'}`}>
-            <div className="flex-shrink-0 w-11 h-11 bg-gradient-to-br from-customRed to-orange-400 dark:from-customRed dark:to-orange-500 rounded-full flex items-center justify-center shadow-md">
+            <div className="flex-shrink-0 w-11 h-11 bg-[#ff257c] rounded-full flex items-center justify-center shadow-md">
               <MdWarning className="text-white" size={24} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">

@@ -109,6 +109,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
     const [sendingRating, setSendingRating] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [customerToSendRating, setCustomerToSendRating] = useState(null);
+    const [isDataLoading, setIsDataLoading] = useState(false);
 
     const filterOptions = [
         { value: t.allServices, label: t.allServices },
@@ -308,11 +309,15 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
         }
     ];
 
-    if (loading) {
+    // Enhanced loading state handling
+    if (loading || isDataLoading) {
         return (
             <div className="bg-white dark:bg-customBrown p-[24px] rounded-2xl dark:hover:bg-customBlack shadow-md hover:shadow-sm">
-                <div className="flex justify-center items-center py-16">
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
                     <CommonLoader />
+                    {/* <div className="text-14 text-gray-600 dark:text-gray-400 font-ttcommons">
+                        {t.loadingCustomers || 'Loading customers...'}
+                    </div> */}
                 </div>
             </div>
         );
@@ -331,8 +336,13 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                                 options={filterOptions}
                                 value={filterValue}
                                 onChange={(value) => {
+                                    setIsDataLoading(true);
                                     setFilterValue(value);
                                     setCurrentPage(1);
+                                    // Simulate filtering delay for better UX
+                                    setTimeout(() => {
+                                        setIsDataLoading(false);
+                                    }, 300);
                                 }}
                                 placeholder={t.allServices}
                                 className="min-w-[180px]"
@@ -367,14 +377,25 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                         <div className="flex gap-2">
                             <CommonOutlineButton
                                 text={t.view}
-                                onClick={() => navigate(`/app/customers/view/${row.id}`)}
+                                onClick={() => {
+                                    setIsDataLoading(true);
+                                    setTimeout(() => {
+                                        navigate(`/app/customers/view/${row.id}`);
+                                        setIsDataLoading(false);
+                                    }, 200);
+                                }}
                                 className="!text-sm pt-2 !px-4 w-auto rounded-lg"
                             />
                             <CommonOutlineButton
-                                text={sendingRating === row.id ? t.sending : t.whatsapp}
+                                text={sendingRating === row.id ? (
+                                    <div className="flex items-center gap-1">
+                                        <CommonLoader />
+                                        <span>{t.sending}</span>
+                                    </div>
+                                ) : t.whatsapp}
                                 onClick={() => handleWhatsAppClick(row)}
                                 disabled={sendingRating === row.id}
-                                icon={<PiChatsCircleBold />}
+                                icon={sendingRating === row.id ? null : <PiChatsCircleBold />}
                                 iconClassName="mb-1"
                                 className="!text-sm pt-2 !px-4 w-auto rounded-lg"
                             />

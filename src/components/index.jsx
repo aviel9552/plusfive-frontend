@@ -106,3 +106,4 @@ export { default as CommonBorderButton } from "./commonComponent/CommonBorderBut
 export { default as CommonOutlineGradintButton } from "./commonComponent/CommonOutlineGradintButton";
 export { default as CommonLoader } from "./commonComponent/CommonLoader";
 export { default as PageLoader } from "./commonComponent/PageLoader";
+export { default as RouteLoader } from "./commonComponent/RouteLoader";

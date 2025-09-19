@@ -108,7 +108,7 @@ const BillingToggle = ({ isYearly, onToggle, t, language }) => (
                 onClick={onToggle}
                 className={`relative inline-flex items-center h-7 rounded-full w-12 transition-colors focus:outline-none ${isYearly ? 'dark:bg-[#675DFF]' : 'bg-gray-700'}`}
             >
-                <span className={` ${language === 'he' ? 'block' : 'hidden'}`}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span className={` ${language === 'he' ? 'block' : 'hidden'}`}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                 <span className={`inline-block w-5 h-5 transform bg-white rounded-full transition-transform ${isYearly ? 'translate-x-6 bg-indigo-500' : 'translate-x-1'}`} />
             </button>
         </div>
@@ -124,6 +124,7 @@ const BillingToggle = ({ isYearly, onToggle, t, language }) => (
 
 // Pricing Card Component
 const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscription, onManageSubscription }) => {
+    const { language } = useLanguage(); // Add language hook
     const { name, description, monthlyPrice, yearlyPrice, features, isPopular, priceId, stripePriceId, isMetered, currency, meterId } = plan;
     const price = isYearly ? yearlyPrice : monthlyPrice;
 
@@ -149,7 +150,8 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
   `;
 
     const popularBadge = isPopular ? (
-        <div className="absolute top-6 right-6 bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]">
+        // <div className="absolute top-6 right-6 bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]">
+        <div className={`absolute top-6 ${language === 'he' ? 'left-6' : 'right-6'} bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]`}>
             <MdAutoAwesome className="text-purple-500 dark:text-purple-400 text-16" />
             <span className="font-bold bg-gradient-to-br from-[#FF2380] to-[#675DFF] text-transparent bg-clip-text text-14">
                 {t.popular}
@@ -315,49 +317,9 @@ function Pricing({ slug }) {
     return (
         <div className="bg-white dark:bg-customBrown text-gray-900 dark:text-white font-ttcommons p-6 border border-gray-200 dark:border-customBorderColor rounded-2xl mt-7 dark:hover:bg-customBlack shadow-md hover:shadow-sm">
             <div className="md:flex justify-between items-center gap-6">
-                <h1 className="text-24 font-ttcommons font-bold">{t.pricing}</h1>
+                <h1 className="text-24 font-ttcommons">{t.pricing}</h1>
                 <BillingToggle isYearly={isYearly} onToggle={handleToggle} t={t} language={language} />
             </div>
-
-            {/* Authentication Status */}
-            {/* <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
-                 <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2">
-                         <span className={`w-3 h-3 rounded-full ${isAuthenticated ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                         <span className="text-sm text-gray-600 dark:text-gray-400">
-                             {isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}
-                         </span>
-                     </div>
-                     {isAuthenticated && user && (
-                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                             Logged in as: {user.email} ({user.role})
-                         </span>
-                     )}
-                 </div>
-             </div> */}
-
-            {/* Current Subscription Status */}
-            {/* {currentSubscription && (
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="font-semibold text-blue-900 dark:text-blue-100">
-                                Current Plan: {currentSubscription.planName || 'Active Subscription'}
-                            </h3>
-                            <p className="text-sm text-blue-700 dark:text-blue-300">
-                                Status: {currentSubscription.status} • 
-                                Next billing: {currentSubscription.currentPeriodEnd ? 
-                                    new Date(currentSubscription.currentPeriodEnd * 1000).toLocaleDateString() : 'N/A'}
-                            </p>
-                        </div>
-                        <CommonButton
-                            text="Manage Subscription"
-                            onClick={handleOpenCustomerPortal}
-                            className="!py-2 !px-4"
-                        />
-                    </div>
-                </div>
-            )} */}
 
             {/* Pricing Plans Grid */}
             {pricingPlans.length > 0 ? (

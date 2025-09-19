@@ -21,6 +21,7 @@ export default {
         customGreen: '#099250',
         customSuccessGreen: '#095C37',
         customRed: '#FF542A',
+        customPink: '#ff257c',
         customErrorRed: '#D92D20',
         customViolet: '#7E3AF2',
         commonBorder: '#ffffff1a',
@@ -30,6 +31,7 @@ export default {
         testtiemposfine: ['"TestTiemposFineLight"', 'sans-serif'],
         aktivgrotesk: ['"AktivGrotesk_Trial_SBd"', 'sans-serif'],
         inter: ['"Inter"', 'sans-serif'],
+        nunito: ['"Nunito"', 'sans-serif'],
       },
       fontSize: {
         // Custom font sizes only

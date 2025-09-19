@@ -13,25 +13,25 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   const [revenueImpactsData, setRevenueImpactsData] = useState({});
 
   useEffect(() => {
-    fetchRevenueImpact();
-    fetchCustomerStatus();
-  }, [fetchRevenueImpact, fetchCustomerStatus]);
+    const fetchAllData = async () => {
+      try {
+        // Fetch all APIs together
+        const [revenueImpactsResponse] = await Promise.all([
+          getRevenueImpacts(),
+          fetchRevenueImpact(),
+          fetchCustomerStatus()
+        ]);
+        
+        if (revenueImpactsResponse.success && revenueImpactsResponse.data) {
+          setRevenueImpactsData(revenueImpactsResponse.data);
+        }
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+      }
+    };
 
-    // Fetch QR Analytics data
-    useEffect(() => {
-      const fetchRevenueImpacts = async () => {
-          try {
-              const response = await getRevenueImpacts();
-              if (response.success && response.data) {
-                  setRevenueImpactsData(response.data);
-              }
-          } catch (error) {
-              console.error('Error fetching Revenue Impacts:', error);
-          }
-      };
-
-      fetchRevenueImpacts();
-  }, []);
+    fetchAllData();
+  }, []); // Empty dependency array - run only once on mount
 
   // Transform revenue impact data for the chart
   const transformRevenueData = (data) => {

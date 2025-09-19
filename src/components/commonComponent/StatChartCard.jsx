@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const StatChartCard = ({ title, value, change, trend, color, chartColor = "#675DFF" }) => {
+const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff257c" }) => {
   const { language } = useLanguage();
   const isRTL = language === 'he';
   const gradientId = React.useId();

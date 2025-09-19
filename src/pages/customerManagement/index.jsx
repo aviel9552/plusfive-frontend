@@ -13,6 +13,7 @@ function customerManagement() {
     recovered: 0,
     new: 0
   });
+  const [statusLoading, setStatusLoading] = React.useState(true);
   
   // Get customers from Redux state
   const { customers, loading } = useSelector(state => state.customer);
@@ -28,10 +29,13 @@ function customerManagement() {
     // Call status count API and console the data
     const fetchStatusCounts = async () => {
       try {
+        setStatusLoading(true);
         const statusData = await getCustomersStatusCount();
         setStatusCounts(statusData.data.statusCounts);
       } catch (error) {
         console.error('Error fetching status counts:', error);
+      } finally {
+        setStatusLoading(false);
       }
     };
     
@@ -41,7 +45,7 @@ function customerManagement() {
   return (
     <div>
       <div className='border border-gray-200 dark:border-customBorderColor rounded-2xl p-[24px] dark:bg-customBrown bg-white dark:hover:bg-customBlack shadow-md hover:shadow-sm'>
-        <ManageAndTrackCustomers statusCounts={statusCounts} />
+        <ManageAndTrackCustomers statusCounts={statusCounts} loading={statusLoading} />
       </div>
       <div className='mt-7 border border-gray-200 dark:border-customBorderColor rounded-2xl dark:bg-customBrown dark:hover:bg-customBlack shadow-md hover:shadow-sm'>
         <CustomerTable customers={customersList} loading={loading} />

@@ -19,23 +19,23 @@ function AdminAnalyticsMonthlyPerformance() {
   const [revenueCountsData, setRevenueCountsData] = useState({});
   
   useEffect(() => {
-    const currentDate = new Date();
-    fetchMonthlyPerformance(currentDate.getMonth() + 1, currentDate.getFullYear());
-  }, [fetchMonthlyPerformance]);
-
-  useEffect(() => {
-    // Fetch revenue counts API only (monthly performance is handled by parent)
-    const fetchRevenueCounts = async () => {
+    const fetchData = async () => {
       try {
-        const revenueCounts = await getRevenueCounts();
-        setRevenueCountsData(revenueCounts.data);
+        // Fetch both APIs together
+        const currentDate = new Date();
+        const [revenueCountsResponse] = await Promise.all([
+          getRevenueCounts(),
+          fetchMonthlyPerformance(currentDate.getMonth() + 1, currentDate.getFullYear())
+        ]);
+        
+        setRevenueCountsData(revenueCountsResponse.data);
       } catch (error) {
-        console.error('Error fetching revenue counts:', error);
+        console.error('Error fetching data:', error);
       }
     };
     
-    fetchRevenueCounts();
-  }, []); // Empty dependency array to call only once
+    fetchData();
+  }, []); // Empty dependency array - run only once on mount
 
   const formatValue = (value, type) => {
     if (type === 'revenue') {

@@ -3,7 +3,7 @@ import { HiTrendingUp } from 'react-icons/hi'
 import { LuUsers } from 'react-icons/lu'
 import { RiLoopRightLine } from 'react-icons/ri'
 import { RxExclamationTriangle } from 'react-icons/rx'
-import { StatIconCard } from '../index'
+import { StatIconCard, CommonLoader } from '../index'
 import { useLanguage } from '../../context/LanguageContext'
 import { getUserCustomerTranslations } from '../../utils/translations'
 import Total_Customers_Icon from '../../assets/Total_Customers_Icon.svg'
@@ -11,15 +11,23 @@ import Active_Customers_Icon from '../../assets/Active_Customers_Icon.svg'
 import At_Risk_Customers_Icon from '../../assets/At_Risk_Customers_Icon.svg'
 import Total_Revenue_Icon from '../../assets/Total_Revenue_Icon.svg'
 
-function ManageAndTrackCustomers({ statusCounts = {} }) {
+function ManageAndTrackCustomers({ statusCounts = {}, loading = false }) {
     const { language } = useLanguage();
     const t = getUserCustomerTranslations(language);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-16">
+                <CommonLoader />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full gap-[24px] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h2 className="text-20 text-gray-900 dark:text-white transition-colors duration-200">
+                <h2 className="text-20 text-gray-900 dark:text-white transition-colors duration-200 ">
                     {t.manageAndTrackCustomers}
                 </h2>
             </div>

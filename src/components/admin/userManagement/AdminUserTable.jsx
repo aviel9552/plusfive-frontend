@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { CommonAdminTable } from '../../index';
+import { CommonAdminTable, CommonLoader } from '../../index';
 import { format } from 'date-fns';
 import { FiEye, FiEdit, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from 'react-router-dom';
@@ -378,13 +378,15 @@ function AdminUserTable({ users, loading, error }) {
     ? `${format(dateRange.startDate, 'dd MMM yy')} - ${format(dateRange.endDate, 'dd MMM yy')}`
     : t.joiningDate;
 
-  // Loading state - only show if no data and loading is true
+  // Enhanced loading state with CommonLoader
   if (loading && (!data || data.length === 0)) {
     return (
-      <div className="p-4 md:p-6 dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl text-white">
-        <div className="flex items-center justify-center h-64">
-          <div className="loader"></div>
-          <span className="ml-3 text-gray-300">{t.loadingUsers}</span>
+      <div className="p-4 md:p-6 dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl">
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <CommonLoader />
+          {/* <div className="text-14 text-gray-600 dark:text-gray-400 font-ttcommons">
+            {t.loadingUsers || 'Loading users...'}
+          </div> */}
         </div>
       </div>
     );

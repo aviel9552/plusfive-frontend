@@ -4,6 +4,7 @@ import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
 import { getMonthlyLTVCount } from '../../../redux/services/adminServices';
+import { CommonLoader } from '../../index';
 
 
 function AdminLTVGrothChart() {
@@ -14,6 +15,7 @@ function AdminLTVGrothChart() {
 
     const [monthlyLTVCountData, setMonthlyLTVCountData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [hasApiCalled, setHasApiCalled] = useState(false);
 
     // Transform API data for chart - only dynamic data
     const transformedData = monthlyLTVCountData?.monthlyLTVData?.map(item => ({
@@ -23,24 +25,31 @@ function AdminLTVGrothChart() {
     })) || [];
 
     const chartData = isRTL ? [...transformedData].reverse() : transformedData;
-    // Fetch QR Analytics data
+    // Fetch Monthly LTV data - ensure it runs only once
     useEffect(() => {
         const fetchMonthlyLTVCount = async () => {
+            // Prevent multiple API calls
+            if (hasApiCalled) return;
+            
             try {
                 setLoading(true);
+                setHasApiCalled(true);
+                
                 const response = await getMonthlyLTVCount();
                 if (response.success && response.data) {
                     setMonthlyLTVCountData(response.data);
                 }
             } catch (error) {
                 console.error('Error fetching Monthly LTV Count:', error);
+                // Reset flag on error to allow retry
+                setHasApiCalled(false);
             } finally {
                 setLoading(false);
             }
         };
   
         fetchMonthlyLTVCount();
-    }, []);
+    }, []); // Empty dependency array ensures this runs only once
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -91,7 +100,7 @@ function AdminLTVGrothChart() {
             <div className='mt-10 flex flex-col gap-[16px]'>
                 <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                     <div className="h-[250px] flex items-center justify-center">
-                        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading LTV data...</div>
+                        <CommonLoader />
                     </div>
                 </div>
             </div>
