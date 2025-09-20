@@ -23,14 +23,23 @@ function DirectMessageSend() {
       return;
     }
 
-    // Check global flag first
+    // Check global flag first - if already called and we have an error or success, don't call again
     if (globalDirectAPICallFlag[qrId]) {
-      console.log('🚫 Direct Message API already called for this QR ID:', qrId);
+      setLoading(false);
+      // If we don't have error or data, set a generic error
+      if (!error && !qrData) {
+        setError('Failed to load QR code');
+      }
       return;
     }
 
     // Prevent multiple calls using ref
     if (hasCalledAPI.current) {
+      setLoading(false);
+      // If we don't have error or data, set a generic error
+      if (!error && !qrData) {
+        setError('Failed to load QR code');
+      }
       return;
     }
 
@@ -59,9 +68,14 @@ function DirectMessageSend() {
       setLoading(true);
       setError(null);
 
-      console.log('🔥 Direct Message API Call Started for ID:', qrId);
       // Get QR code details using getQRCodeByCode API
       const response = await getQRCodeByCode(qrId);
+      
+      // Check if response has success flag
+      if (response && response.success === false) {
+        setError(response.message || response.error || 'QR code not found');
+        return;
+      }
       
       if (response && response.data) {
         setQrData(response.data);
@@ -74,8 +88,8 @@ function DirectMessageSend() {
     } catch (err) {
       // Only set error if request wasn't aborted
       if (err.name !== 'AbortError') {
+        // The API service already formats the error message, so use it directly
         setError(err.message || 'Failed to load QR code');
-        console.error('QR Code Load Error:', err);
       }
     } finally {
       setLoading(false);
@@ -97,8 +111,6 @@ function DirectMessageSend() {
         }, 1000);
         
       } catch (shareError) {
-        console.error('Failed to increment share count:', shareError);
-        
         // Continue with redirect even if share count fails
         setTimeout(() => {
           window.location.href = directUrl;
