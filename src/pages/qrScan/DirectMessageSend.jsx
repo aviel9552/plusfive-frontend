@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getQRCodeByCode, shareQRCode } from '../../redux/services/qrServices';
 
+// Global flag to prevent multiple API calls across all instances
+let globalDirectAPICallFlag = {};
+
 function DirectMessageSend() {
   const { qrId } = useParams();
   const [qrData, setQrData] = useState(null);
@@ -20,6 +23,12 @@ function DirectMessageSend() {
       return;
     }
 
+    // Check global flag first
+    if (globalDirectAPICallFlag[qrId]) {
+      console.log('🚫 Direct Message API already called for this QR ID:', qrId);
+      return;
+    }
+
     // Prevent multiple calls using ref
     if (hasCalledAPI.current) {
       return;
@@ -27,6 +36,7 @@ function DirectMessageSend() {
 
     // Mark as called immediately to prevent any race conditions
     hasCalledAPI.current = true;
+    globalDirectAPICallFlag[qrId] = true;
     
     // Cleanup previous request if exists
     if (abortControllerRef.current) {

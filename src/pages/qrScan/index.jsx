@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getQRCodeByCode, scanQRCode } from '../../redux/services/qrServices';
 
+// Global flag to prevent multiple API calls across all instances
+let globalAPICallFlag = {};
+
 export default function QRScanHandler() {
   const { qrId } = useParams();
   const [qrData, setQrData] = useState(null);
@@ -22,6 +25,12 @@ export default function QRScanHandler() {
       return;
     }
 
+    // Check global flag first
+    if (globalAPICallFlag[qrId]) {
+      console.log('🚫 API already called for this QR ID:', qrId);
+      return;
+    }
+
     // Prevent multiple calls using ref
     if (hasCalledAPI.current) {
       return;
@@ -29,6 +38,7 @@ export default function QRScanHandler() {
 
     // Mark as called immediately to prevent any race conditions
     hasCalledAPI.current = true;
+    globalAPICallFlag[qrId] = true;
     
     // Cleanup previous request if exists
     if (abortControllerRef.current) {
