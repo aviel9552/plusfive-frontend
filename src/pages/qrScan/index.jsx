@@ -12,33 +12,35 @@ export default function QRScanHandler() {
   
   // Use useRef to prevent multiple API calls
   const hasCalledAPI = useRef(false);
+  const abortControllerRef = useRef(null);
   
-  // API Call Count Tracking
-  const [apiCallCounts, setApiCallCounts] = useState({
-    getQRCodeByCode: 0,
-    scanQRCode: 0
-  });
-
   useEffect(() => {
+    // Cleanup previous request if component re-renders
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
     if (qrId && !hasCalledAPI.current) {
       hasCalledAPI.current = true; // Mark as called immediately
+      abortControllerRef.current = new AbortController();
       handleQRCodeLoad();
     } else if (!qrId) {
       setError('Invalid QR code');
       setLoading(false);
     }
-  }, [qrId]); // Remove hasRedirected dependency
+
+    // Cleanup on unmount
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []); // Empty dependency array - only run once
 
   const handleQRCodeLoad = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Track getQRCodeByCode API call
-      setApiCallCounts(prev => ({
-        ...prev,
-        getQRCodeByCode: prev.getQRCodeByCode + 1
-      }));
 
       // Get QR code details using getQRCodeByCode API
       const response = await getQRCodeByCode(qrId);
@@ -52,8 +54,11 @@ export default function QRScanHandler() {
         setError('QR code not found');
       }
     } catch (err) {
-      setError(err.message || 'Failed to load QR code');
-      console.error('QR Code Load Error:', err);
+      // Only set error if request wasn't aborted
+      if (err.name !== 'AbortError') {
+        setError(err.message || 'Failed to load QR code');
+        console.error('QR Code Load Error:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -67,12 +72,6 @@ export default function QRScanHandler() {
     // Only redirect if we have both message and URL
     if (customerMessage && messageUrl) {
       try {
-        // Track scanQRCode API call
-        setApiCallCounts(prev => ({
-          ...prev,
-          scanQRCode: prev.scanQRCode + 1
-        }));
-        
         // First, call scanQRCode service to increment scan count
         await scanQRCode(qrId);
         
