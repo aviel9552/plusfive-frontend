@@ -13,19 +13,28 @@ function DirectMessageSend() {
   const abortControllerRef = useRef(null);
 
   useEffect(() => {
-    // Cleanup previous request if component re-renders
+    // Only run if we haven't called the API yet and we have a qrId
+    if (!qrId) {
+      setError('Invalid QR code');
+      setLoading(false);
+      return;
+    }
+
+    // Prevent multiple calls using ref
+    if (hasCalledAPI.current) {
+      return;
+    }
+
+    // Mark as called immediately to prevent any race conditions
+    hasCalledAPI.current = true;
+    
+    // Cleanup previous request if exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     
-    if (qrId && !hasCalledAPI.current) {
-      hasCalledAPI.current = true; // Mark as called immediately
-      abortControllerRef.current = new AbortController();
-      handleQRCodeLoad();
-    } else if (!qrId) {
-      setError('Invalid QR code');
-      setLoading(false);
-    }
+    abortControllerRef.current = new AbortController();
+    handleQRCodeLoad();
 
     // Cleanup on unmount
     return () => {
@@ -33,13 +42,14 @@ function DirectMessageSend() {
         abortControllerRef.current.abort();
       }
     };
-  }, []); // Empty dependency array - only run once
+  }, [qrId]); // Include qrId in dependencies but use ref to prevent multiple calls
 
   const handleQRCodeLoad = async () => {
     try {
       setLoading(true);
       setError(null);
 
+      console.log('🔥 Direct Message API Call Started for ID:', qrId);
       // Get QR code details using getQRCodeByCode API
       const response = await getQRCodeByCode(qrId);
       
