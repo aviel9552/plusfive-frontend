@@ -4,6 +4,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminTranslations } from '../../../utils/translations';
 import { useAdminData } from '../../../hooks/useAdminData';
 import { getRevenueImpacts } from '../../../redux/services/adminServices';
+import CommonLoader from '../../../components/commonComponent/CommonLoader';
 
 function AdminRevenueImpactCustomerStatus() {
   const { language } = useLanguage();
@@ -11,6 +12,7 @@ function AdminRevenueImpactCustomerStatus() {
   const { revenueImpact, customerStatus, fetchRevenueImpact, fetchCustomerStatus } = useAdminData();
   const [selectedFilter, setSelectedFilter] = useState('monthly');
   const [revenueImpactsData, setRevenueImpactsData] = useState({});
+  const [revenueImpactsLoading, setRevenueImpactsLoading] = useState(true);
 
   useEffect(() => {
     fetchRevenueImpact();
@@ -21,12 +23,15 @@ function AdminRevenueImpactCustomerStatus() {
     useEffect(() => {
       const fetchRevenueImpacts = async () => {
           try {
+              setRevenueImpactsLoading(true);
               const response = await getRevenueImpacts();
               if (response.success && response.data) {
                   setRevenueImpactsData(response.data);
               }
           } catch (error) {
               console.error('Error fetching Revenue Impacts:', error);
+          } finally {
+              setRevenueImpactsLoading(false);
           }
       };
 
@@ -69,46 +74,44 @@ function AdminRevenueImpactCustomerStatus() {
 
   const pieChartData = transformCustomerData(customerStatus.data);
 
-  if (revenueImpact.loading || customerStatus.loading) {
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons">
-        <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-lg"></div>
-        </div>
-        <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-lg"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (revenueImpact.error || customerStatus.error) {
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons">
-        <div className="text-red-500 text-center py-8">
-          {revenueImpact.error && `Revenue Error: ${revenueImpact.error}`}
-        </div>
-        <div className="text-red-500 text-center py-8">
-          {customerStatus.error && `Customer Status Error: ${customerStatus.error}`}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
       <div className="lg:col-span-7">
-        <StatSingleBarChart
-          title={t.revenueImpact}
-          dataMap={dataMap}
-          filters={FILTERS}
-        />
+        {(revenueImpact.loading || revenueImpactsLoading) ? (
+          <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
+            <CommonLoader />
+          </div>
+        ) : revenueImpact.error ? (
+          <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
+            <div className="text-red-500 text-center py-8">
+              Revenue Error: {revenueImpact.error}
+            </div>
+          </div>
+        ) : (
+          <StatSingleBarChart
+            title={t.revenueImpact}
+            dataMap={dataMap}
+            filters={FILTERS}
+          />
+        )}
       </div>
       <div className="lg:col-span-5">
-        <StatPieChart
-          title={t.customerStatusBreakdown}
-          data={pieChartData}
-        />
+        {customerStatus.loading ? (
+          <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
+            <CommonLoader />
+          </div>
+        ) : customerStatus.error ? (
+          <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
+            <div className="text-red-500 text-center py-8">
+              Customer Status Error: {customerStatus.error}
+            </div>
+          </div>
+        ) : (
+          <StatPieChart
+            title={t.customerStatusBreakdown}
+            data={pieChartData}
+          />
+        )}
       </div>
     </div>
   );

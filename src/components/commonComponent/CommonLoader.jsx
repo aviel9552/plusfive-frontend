@@ -2,7 +2,7 @@ import React from 'react'
 
 function CommonLoader() {
   return (
-    <span class="loader"></span>
+    <span className="loader"></span>
   )
 }
 

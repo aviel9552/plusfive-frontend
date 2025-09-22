@@ -84,7 +84,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           </div>
 
           {/* Centered P for collapsed state */}
-          <span className={`text-24 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'block group-hover:hidden' : 'hidden'}`} onClick={handleLogoClick}>
+          <span className={`text-24 !font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'block group-hover:hidden' : 'hidden'}`} onClick={handleLogoClick}>
             P
           </span>
 

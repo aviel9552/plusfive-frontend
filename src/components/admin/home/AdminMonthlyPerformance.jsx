@@ -4,6 +4,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminTranslations } from '../../../utils/translations';
 import { useAdminData } from '../../../hooks/useAdminData';
 import { getRevenueCounts } from '../../../redux/services/adminServices';
+import CommonLoader from '../../../components/commonComponent/CommonLoader';
 
 const timeOptions = [
   { value: 'monthly', label: 'Monthly' },
@@ -17,15 +18,19 @@ function AdminMonthlyPerformance() {
   const t = getAdminTranslations(language);
   const { monthlyPerformance, fetchMonthlyPerformance } = useAdminData();
   const [revenueCountsData, setRevenueCountsData] = useState({});
+  const [revenueCountsLoading, setRevenueCountsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch revenue counts API only (monthly performance is handled by parent)
     const fetchRevenueCounts = async () => {
       try {
+        setRevenueCountsLoading(true);
         const revenueCounts = await getRevenueCounts();
         setRevenueCountsData(revenueCounts.data);
       } catch (error) {
         console.error('Error fetching revenue counts:', error);
+      } finally {
+        setRevenueCountsLoading(false);
       }
     };
     
@@ -50,20 +55,11 @@ function AdminMonthlyPerformance() {
     return trend === 'up' ? 'green' : 'red';
   };
 
-  if (monthlyPerformance.loading) {
+  if (monthlyPerformance.loading || revenueCountsLoading) {
     return (
-      <div className="w-full">
-        {/* <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-200">
-            {t.monthlyPerformance}
-          </h2>
-        </div> */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-24 bg-gray-200 rounded-lg"></div>
-            </div>
-          ))}
+      <div className="w-full h-[100px]">
+        <div className="flex justify-center items-center">
+          <CommonLoader />
         </div>
       </div>
     );

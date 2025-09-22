@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -15,7 +15,7 @@ function AdminLTVGrothChart() {
 
     const [monthlyLTVCountData, setMonthlyLTVCountData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [hasApiCalled, setHasApiCalled] = useState(false);
+    const hasApiCalled = useRef(false);
 
     // Transform API data for chart - only dynamic data
     const transformedData = monthlyLTVCountData?.monthlyLTVData?.map(item => ({
@@ -29,11 +29,11 @@ function AdminLTVGrothChart() {
     useEffect(() => {
         const fetchMonthlyLTVCount = async () => {
             // Prevent multiple API calls
-            if (hasApiCalled) return;
+            if (hasApiCalled.current) return;
             
             try {
                 setLoading(true);
-                setHasApiCalled(true);
+                hasApiCalled.current = true;
                 
                 const response = await getMonthlyLTVCount();
                 if (response.success && response.data) {
@@ -42,7 +42,7 @@ function AdminLTVGrothChart() {
             } catch (error) {
                 console.error('Error fetching Monthly LTV Count:', error);
                 // Reset flag on error to allow retry
-                setHasApiCalled(false);
+                hasApiCalled.current = false;
             } finally {
                 setLoading(false);
             }
