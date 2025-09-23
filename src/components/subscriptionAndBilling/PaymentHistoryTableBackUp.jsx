@@ -12,8 +12,6 @@ const PaymentHistoryTable = () => {
     const [filterValue, setFilterValue] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(7);
-    const [paymentHistoryData, setPaymentHistoryData] = useState(null);
-    const [paymentHistoryLoading, setPaymentHistoryLoading] = useState(true);
     const { language } = useLanguage();
     const t = getUserCardTranslations(language);
     
@@ -26,15 +24,9 @@ const PaymentHistoryTable = () => {
     useEffect(() => {
         const fetchPaymentHistory = async () => {
             try {
-                setPaymentHistoryLoading(true);
-                const result = await getPaymentHistory();
-                if (result.success) {
-                    setPaymentHistoryData(result.data);
-                }
+                await getPaymentHistory();
             } catch (error) {
                 // Silent error handling
-            } finally {
-                setPaymentHistoryLoading(false);
             }
         };
 
@@ -57,55 +49,20 @@ const PaymentHistoryTable = () => {
         }));
     };
 
-    // Get payment history data
-    const getPaymentHistoryData = () => {
-        if (!paymentHistoryData?.payments) return [];
-        
-        return paymentHistoryData.payments.map(payment => ({
-            id: payment.id,
-            amount: payment.amount,
-            currency: payment.currency,
-            status: payment.status,
-            created: payment.createdAt,
-            description: payment.description,
-            paymentType: payment.paymentType,
-            stripeSessionId: payment.stripeSessionId,
-            stripePaymentId: payment.stripePaymentId,
-            stripeSubscriptionId: payment.stripeSubscriptionId,
-            paymentMethod: payment.paymentMethod,
-            source: payment.source,
-            metadata: payment.metadata,
-            receiptUrl: payment.receiptUrl,
-            invoiceUrl: payment.invoiceUrl
-        }));
-    };
-
     const filteredData = useMemo(() => {
-        // Only show payment history data (not Stripe invoices)
-        let data = getPaymentHistoryData();
+        let data = getInvoiceData();
         
         if (filterValue !== 'All') {
-            data = data.filter(item => {
-                const itemStatus = item.status?.toLowerCase();
-                const filterStatus = filterValue.toLowerCase();
-                
-                // Map filter values to actual status values
-                if (filterStatus === 'paid') return itemStatus === 'succeeded';
-                if (filterStatus === 'pending') return itemStatus === 'pending';
-                if (filterStatus === 'failed') return itemStatus === 'failed';
-                return itemStatus === filterStatus;
-            });
+            data = data.filter(item => item.status === filterValue.toLowerCase());
         }
 
         if (searchValue) {
             data = data.filter(item => 
-                item.id.toLowerCase().includes(searchValue.toLowerCase()) ||
-                item.description?.toLowerCase().includes(searchValue.toLowerCase())
+                item.id.toLowerCase().includes(searchValue.toLowerCase())
             );
         }
-        
         return data;
-    }, [searchValue, filterValue, paymentHistoryData]);
+    }, [searchValue, filterValue, currentSubscription]);
 
     const paginatedAndMappedData = useMemo(() => {
         const start = (currentPage - 1) * pageSize;
@@ -114,8 +71,7 @@ const PaymentHistoryTable = () => {
 
         const getStatusClassName = (status) => {
             switch (status?.toLowerCase()) {
-                case 'paid': 
-                case 'succeeded': return 'text-[#675DFF]';
+                case 'paid': return 'text-[#675DFF]';
                 case 'failed': return 'text-[#D92D20]';
                 case 'pending': return 'text-yellow-500';
                 case 'open': return 'text-blue-500';
@@ -126,8 +82,7 @@ const PaymentHistoryTable = () => {
 
         const getStatusBarClassName = (status) => {
             switch (status?.toLowerCase()) {
-                case 'paid': 
-                case 'succeeded': return 'bg-gradient-to-r from-[#DF64CC] to-[#FE5D39]';
+                case 'paid': return 'bg-gradient-to-r from-[#DF64CC] to-[#FE5D39]';
                 case 'failed': return 'bg-red-500';
                 case 'pending': return 'bg-yellow-500';
                 case 'open': return 'bg-blue-500';
@@ -138,9 +93,7 @@ const PaymentHistoryTable = () => {
 
         const formatDate = (timestamp) => {
             if (!timestamp) return 'N/A';
-            // Handle both Unix timestamp and ISO string
-            const date = typeof timestamp === 'number' ? new Date(timestamp * 1000) : new Date(timestamp);
-            return date.toLocaleDateString();
+            return new Date(timestamp * 1000).toLocaleDateString();
         };
 
         return paginated.map(item => ({
@@ -159,16 +112,10 @@ const PaymentHistoryTable = () => {
                             window.open(item.hostedInvoiceUrl, '_blank');
                         } else if (item.invoicePdf) {
                             window.open(item.invoicePdf, '_blank');
-                        } else if (item.invoiceUrl) {
-                            // Use invoice URL from backend
-                            window.open(item.invoiceUrl, '_blank');
-                        } else if (item.receiptUrl) {
-                            // Fallback to receipt URL
-                            window.open(item.receiptUrl, '_blank');
                         }
                     }}
                     className="!text-sm !py-1.5 !px-4 w-auto rounded-lg"
-                    text={item.hostedInvoiceUrl || item.invoicePdf ? 'View' : (item.invoiceUrl ? 'Invoice' : (item.receiptUrl ? 'Receipt' : 'N/A'))}
+                    text={item.hostedInvoiceUrl || item.invoicePdf ? 'View' : 'N/A'}
                     icon={<IoMdDownload />}
                 />
             )
@@ -176,7 +123,7 @@ const PaymentHistoryTable = () => {
     }, [filteredData, currentPage, pageSize, t]);
     
     // Show loading state
-    if (paymentHistoryLoading) {
+    if (subscriptionLoading) {
         return (
             <div className="bg-white dark:bg-customBrown p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
                 <h2 className="text-24 font-ttcommons mb-6 text-gray-900 dark:text-white">{t.paymentHistory}</h2>
@@ -188,10 +135,8 @@ const PaymentHistoryTable = () => {
         );
     }
 
-    // Show empty state if no payment history data
-    const hasPaymentHistory = paymentHistoryData?.payments && paymentHistoryData.payments.length > 0;
-    
-    if (!hasPaymentHistory) {
+    // Show empty state if no invoices
+    if (!currentSubscription?.data?.stripe?.invoices || currentSubscription.data.stripe.invoices.length === 0) {
         return (
             <div className="bg-white dark:bg-customBrown p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack shadow-md hover:shadow-sm">
                 <h2 className="text-24 font-ttcommons mb-6 text-gray-900 dark:text-white">{t.paymentHistory}</h2>
@@ -200,7 +145,7 @@ const PaymentHistoryTable = () => {
                         No payment history found.
                         <br />
                         <span className="text-blue-600 dark:text-blue-400">
-                            Your payment history will appear here once you have payments.
+                            Your payment history will appear here once you have active subscriptions.
                         </span>
                     </p>
                 </div>

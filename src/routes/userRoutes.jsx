@@ -12,6 +12,9 @@ import SupportAndHelp from '../pages/supportAndHelp'
 import UpdatePaymentPage from '../pages/updatePayment'
 import AddCard from '../pages/addCard'
 import Notifications from '../pages/notifications'
+import SimplePayment from '../pages/simplePayment/SimplePayment'
+import PaymentSuccess from '../pages/simplePayment/PaymentSuccess'
+import PaymentCancel from '../pages/simplePayment/PaymentCancel'
 import AdminQRManagement from '../pages/admin/qrManagement'
 import AdminQRManagementListing from '../pages/admin/qrManagementListing'
 import MyQRCodes from '../pages/admin/myQRCodes'
@@ -42,6 +45,9 @@ function UserRoutes() {
         <Route path="/update-payment" element={<UpdatePaymentPage />} />
         <Route path="/add-card" element={<AddCard />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/simple-payment" element={<SimplePayment />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
       </Routes>
     </RouteLoader>
   )

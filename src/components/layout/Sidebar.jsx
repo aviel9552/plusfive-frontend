@@ -28,6 +28,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
 
   const dispatch = useDispatch();
   const userRole = useSelector(state => state.auth?.user?.role);
+  const userSubscriptionStatus = useSelector(state => state.auth?.user?.subscriptionStatus);
+  const userSubscriptionStartDate = useSelector(state => state.auth?.user?.subscriptionStartDate);
   const [showUpgradeCard, setShowUpgradeCard] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { language } = useLanguage();
@@ -64,6 +66,24 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   `;
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
+
+  // Check if upgrade card should be shown
+  const shouldShowUpgradeCard = () => {
+    // Don't show for admin
+    if (userRole === 'admin') return false;
+    
+    // Don't show if user has active subscription
+    if (userSubscriptionStatus === 'active') return false;
+    
+    // Don't show if subscription start date is in the future (user already subscribed)
+    if (userSubscriptionStartDate) {
+      const startDate = new Date(userSubscriptionStartDate);
+      const now = new Date();
+      if (startDate > now) return false;
+    }
+    
+    return true;
+  };
 
   return (
     <span>
@@ -123,8 +143,8 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           </ul>
         </nav>
 
-        {/* Upgrade Plan Card - only for user role and if not closed */}
-        {userRole !== 'admin' && showUpgradeCard && (
+        {/* Upgrade Plan Card - only for non-subscribed users */}
+        {shouldShowUpgradeCard() && showUpgradeCard && (
           <div className={`text-gray-700 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'block'} p-4`}>
             <UpgradeCard onClose={() => setShowUpgradeCard(false)} />
           </div>

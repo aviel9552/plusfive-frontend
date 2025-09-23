@@ -4,6 +4,8 @@ import { FaCheckCircle, FaArrowRight } from 'react-icons/fa';
 import { CommonButton } from '../../components';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
+import { getCurrentSubscription } from '../../services/stripeService';
+import apiClient from '../../config/apiClient';
 
 function SubscriptionSuccess() {
   const [countdown, setCountdown] = useState(5);
@@ -14,6 +16,31 @@ function SubscriptionSuccess() {
 
   const sessionId = searchParams.get('session_id');
   const planName = searchParams.get('plan_name') || 'Premium Plan';
+
+  // Update user table after payment success
+  useEffect(() => {
+    const updateUserAfterPayment = async () => {
+      try {
+        // Get latest subscription data
+        const data = await getCurrentSubscription();
+        
+        // Find active subscription
+        const activeSubscription = data.data?.stripe?.subscriptions?.find(sub => sub.status === 'active');
+        
+        if (activeSubscription) {
+          // Update user table with latest Stripe data
+          await apiClient.post('/stripe/direct-update-subscription', {
+            subscriptionId: activeSubscription.id,
+            userEmail: data.data.user.email
+          });
+        }
+      } catch (error) {
+        console.error('Update failed:', error);
+      }
+    };
+
+    updateUserAfterPayment();
+  }, []);
 
   useEffect(() => {
     if (countdown > 0) {
