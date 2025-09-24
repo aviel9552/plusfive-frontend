@@ -38,7 +38,8 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
                 yearlyPriceId: null,
                 currency: price.currency || 'usd',
                 isMetered: false,
-                meterId: null
+                meterId: null,
+                isDaily: false
             };
         }
         
@@ -53,6 +54,11 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
         } else if (interval === 'year') {
             productGroups[productId].yearlyPrice = amount;
             productGroups[productId].yearlyPriceId = price.id;
+        } else if (interval === 'day') {
+            // For daily plans, treat them as monthly plans for display purposes
+            productGroups[productId].monthlyPrice = amount;
+            productGroups[productId].monthlyPriceId = price.id;
+            productGroups[productId].isDaily = true;
         }
         
         // Set metered info from any price
@@ -84,6 +90,7 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
             isMetered: group.isMetered,
             meterId: group.meterId,
             currency: group.currency,
+            isDaily: group.isDaily,
             // Add unique key for React
             uniqueKey: `${group.productId}-${isYearly ? 'yearly' : 'monthly'}`
         };
@@ -125,7 +132,7 @@ const BillingToggle = ({ isYearly, onToggle, t, language }) => (
 // Pricing Card Component
 const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscription, onManageSubscription }) => {
     const { language } = useLanguage(); // Add language hook
-    const { name, description, monthlyPrice, yearlyPrice, features, isPopular, priceId, stripePriceId, isMetered, currency, meterId } = plan;
+    const { name, description, monthlyPrice, yearlyPrice, features, isPopular, priceId, stripePriceId, isMetered, currency, meterId, isDaily } = plan;
     const price = isYearly ? yearlyPrice : monthlyPrice;
 
     // Don't render if no price is available for the current billing interval
@@ -213,7 +220,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                             {new Intl.NumberFormat(undefined, { style: 'currency', currency: currency?.toUpperCase?.() || 'USD' }).format(price)}
                         </span>
                         <span className="text-gray-500 dark:text-white text-24 font-ttcommons">
-                            {isYearly ? t.perYear || '/year' : t.perMonth}
+                            {isYearly ? t.perYear || '/year' : (isDaily ? '/day' : t.perMonth)}
                         </span>
                     </div>
                     {isMetered && (
