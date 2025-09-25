@@ -16,6 +16,7 @@ function AdminUserTable({ users, loading, error }) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = getAdminUserTranslations(language);
+  console.log("users :", users);
 
   // Ensure users is always an array
   const safeUsers = Array.isArray(users) ? users : [];
@@ -266,18 +267,22 @@ function AdminUserTable({ users, loading, error }) {
         // Determine the display status and styling
         let displayStatus, statusClass;
 
-        if (isActive === true) {
+        // First check subscriptionStatus, then isActive
+        if (subscriptionStatus === 'pending') {
+          displayStatus = 'Pending';
+          statusClass = 'bg-yellow-100 text-yellow-600';
+        } else if (subscriptionStatus === 'suspended') {
+          displayStatus = 'Suspended';
+          statusClass = 'bg-red-200 text-red-600';
+        } else if (subscriptionStatus === 'active') {
           displayStatus = 'Active';
           statusClass = 'bg-[#D0E2FF] text-[#2537A5]';
         } else if (isActive === false) {
           displayStatus = 'Inactive';
           statusClass = 'bg-[#FEE2E2] text-[#991B1B]';
-        } else if (subscriptionStatus === 'suspended') {
-          displayStatus = 'Suspended';
-          statusClass = 'bg-red-200 text-red-600';
-        } else if (subscriptionStatus === 'pending') {
-          displayStatus = 'Pending';
-          statusClass = 'bg-yellow-100 text-yellow-600';
+        } else if (isActive === true) {
+          displayStatus = 'Active';
+          statusClass = 'bg-[#D0E2FF] text-[#2537A5]';
         } else {
           displayStatus = 'Active';
           statusClass = 'bg-[#D0E2FF] text-[#2537A5]';
