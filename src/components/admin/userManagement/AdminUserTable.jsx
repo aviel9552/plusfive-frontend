@@ -16,7 +16,6 @@ function AdminUserTable({ users, loading, error }) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const t = getAdminUserTranslations(language);
-  console.log("users :", users);
 
   // Ensure users is always an array
   const safeUsers = Array.isArray(users) ? users : [];
