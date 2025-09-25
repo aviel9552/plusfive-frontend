@@ -26,6 +26,7 @@ function CommonNormalDropDown({
   const { language } = useLanguage();
   const isRTL = language === 'he';
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({});
   
   // Safe value handling
   const safeValue = (() => {
@@ -45,6 +46,38 @@ function CommonNormalDropDown({
   const selectedOption = options.find(opt => opt.value === safeValue);
   const dropdownRef = useRef(null);
   
+  // Calculate dropdown position for responsive behavior
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // Calculate available space
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const spaceRight = viewportWidth - rect.left;
+      const spaceLeft = rect.left;
+      
+      // Determine if dropdown should open upward
+      const shouldOpenUpward = spaceBelow < 200 && spaceAbove > spaceBelow;
+      
+      // Determine horizontal alignment
+      const shouldAlignRight = spaceRight < 200 && spaceLeft > spaceRight;
+      
+      setDropdownPosition({
+        top: shouldOpenUpward ? 'auto' : '100%',
+        bottom: shouldOpenUpward ? '100%' : 'auto',
+        left: shouldAlignRight ? 'auto' : '0',
+        right: shouldAlignRight ? '0' : 'auto',
+        maxHeight: shouldOpenUpward ? `${Math.min(spaceAbove - 10, 200)}px` : `${Math.min(spaceBelow - 10, 200)}px`,
+        width: '100%',
+        minWidth: '200px',
+        maxWidth: `${Math.min(viewportWidth - 20, 300)}px`
+      });
+    }
+  }, [isOpen]);
+
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event) {
@@ -103,15 +136,15 @@ function CommonNormalDropDown({
       {isOpen && (
         <div
           className={`
-            absolute ${anchor === 'right' ? 'right-0' : 'left-0'} top-full mt-1
-            ${width}
+            absolute mt-1
             bg-white dark:bg-customBlack
             border border-gray-200 dark:border-customBorderColor
-            shadow-xl z-50 py-1
+            shadow-xl z-[9999] py-1
             rounded-lg
             backdrop-blur-sm
-            max-h-60 overflow-y-auto
+            overflow-y-auto
           `}
+          style={dropdownPosition}
         >
           {options.map(option => (
             <button
