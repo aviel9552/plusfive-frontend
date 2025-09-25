@@ -48,7 +48,7 @@ function Login() {
     if (name === 'password') {
       const passwordError = validatePassword(value);
       setError(prev => ({ ...prev, password: passwordError }));
-      
+
       // Update password requirements
       setPasswordRequirements({
         minLength: value.length >= 8,
@@ -288,7 +288,7 @@ function Login() {
             showPasswordValidation={true}
             required={true}
           />
-          
+
           <div className={`flex items-center justify-between ${isRTL ? 'text-left' : 'text-right'}`}>
             <Link to="/forgot-password" className="text-[#675DFF] hover:text-[#8B7FFF] hover:underline transition-all duration-200 font-semibold text-14">{t.forgotPassword}</Link>
           </div>
@@ -325,14 +325,13 @@ function Login() {
         </p>
       </div>
       {/* Test credentials box */}
-      <div className={`mt-8 w-full max-w-md bg-white/80 dark:bg-customGray/50 border border-gray-200/50 dark:border-customBorderColor/50 rounded-2xl p-5 text-sm text-gray-700 dark:text-gray-200 shadow-lg backdrop-blur-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+      {/* <div className={`mt-8 w-full max-w-md bg-white/80 dark:bg-customGray/50 border border-gray-200/50 dark:border-customBorderColor/50 rounded-2xl p-5 text-sm text-gray-700 dark:text-gray-200 shadow-lg backdrop-blur-sm ${isRTL ? 'text-right' : 'text-left'}`}>
         <div><b>{t.testAdmin}</b> <span className="font-mono">admin@plusfive.com / Admin123#</span></div>
         <div><b>{t.testUser}</b> <span className="font-mono">user@plusfive.com / User123#</span></div>
         <div className="mt-2 text-xs text-gray-500">
           <b>{t.passwordRequirements}</b> {t.passwordRequirementsDesc}
         </div>
-        {/* <div><b>API Endpoint:</b> <span className="font-mono">http://localhost:3000/api/auth/login</span></div> */}
-      </div>
+      </div> */}
     </div>
   );
 }
