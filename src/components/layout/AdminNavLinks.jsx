@@ -46,15 +46,15 @@ const adminNavLinks = (language = 'en') => {
         dark: QrWhiteIcon
       }
     },
-    { 
-      to: '/admin/referral-management', 
-      icon: MdShare, 
-      label: t.referralProgram,
-      customIcon: {
-        light: ShareBlackIcon,
-        dark: ShareWhiteIcon
-      }
-    },
+    // { 
+    //   to: '/admin/referral-management', 
+    //   icon: MdShare, 
+    //   label: t.referralProgram,
+    //   customIcon: {
+    //     light: ShareBlackIcon,
+    //     dark: ShareWhiteIcon
+    //   }
+    // },
     { 
       to: '/admin/user-management', 
       icon: MdPeople, 

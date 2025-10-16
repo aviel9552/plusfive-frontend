@@ -149,7 +149,10 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
     const isCurrentPlan = currentPlanPriceId === stripePriceId;
     const isSubscribed = !!currentSubscription;
     const subscriptionStatus = activeSubscription?.status || currentSubscription?.status;
-    const isActiveCurrentPlan = isCurrentPlan && subscriptionStatus === 'active';
+    const databaseSubscriptionStatus = currentSubscription?.data?.user?.subscriptionStatus;
+    const isCanceledAtPeriodEnd = activeSubscription?.cancel_at_period_end === true;
+    const isCanceledInDatabase = databaseSubscriptionStatus === 'canceled';
+    const isActiveCurrentPlan = isCurrentPlan && subscriptionStatus === 'active' && !isCanceledAtPeriodEnd;
 
     const cardClasses = `
     bg-customGray2 dark:bg-[#1D1C20] p-[24px] rounded-2xl flex flex-col h-full
@@ -313,11 +316,11 @@ function Pricing({ slug }) {
         handleSubscribe(priceId, planName, meterId);
     };
 
-    const handleManageSubscription = () => {
+    const handleManageSubscription = async () => {
         if (currentSubscription?.status === 'active') {
             handleOpenCustomerPortal();
         } else if (currentSubscription?.status === 'canceled') {
-            handleReactivateSubscription();
+            await handleReactivateSubscription();
         }
     };
 

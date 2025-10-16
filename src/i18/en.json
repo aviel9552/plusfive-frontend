@@ -1027,6 +1027,7 @@
     "errorLoadingAppointments": "Error loading appointments",
     "filterByServices": "Filter by Services",
     "allServices": "All Services",
+    "allStatus": "All Status",
     "searchAppointments": "Search appointments...",
     "searchByCustomerName": "Search by customer name, email, or phone",
     "rowsPerPage": "Rows per page",

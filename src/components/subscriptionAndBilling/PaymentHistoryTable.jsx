@@ -84,6 +84,9 @@ const PaymentHistoryTable = () => {
         // Only show payment history data (not Stripe invoices)
         let data = getPaymentHistoryData();
         
+        // Filter to show only "simple" payment type
+        data = data.filter(item => item.paymentType === 'simple');
+        
         if (filterValue !== 'All') {
             data = data.filter(item => {
                 const itemStatus = item.status?.toLowerCase();

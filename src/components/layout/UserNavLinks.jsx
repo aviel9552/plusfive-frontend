@@ -47,15 +47,15 @@ import {
           dark: QrWhiteIcon
         }
       },
-      { 
-        to: '/app/referral', 
-        icon: MdShare, 
-        label: t.referralProgram,
-        customIcon: {
-          light: ShareBlackIcon,
-          dark: ShareWhiteIcon
-        }
-      },
+      // { 
+      //   to: '/app/referral', 
+      //   icon: MdShare, 
+      //   label: t.referralProgram,
+      //   customIcon: {
+      //     light: ShareBlackIcon,
+      //     dark: ShareWhiteIcon
+      //   }
+      // },
       { 
         to: '/app/customers', 
         icon: MdPeople, 

@@ -103,7 +103,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
     const t = getUserCustomerTranslations(language);
 
     const [searchValue, setSearchValue] = useState('');
-    const [filterValue, setFilterValue] = useState(t.allServices);
+    const [filterValue, setFilterValue] = useState(t.allStatus);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(7);
     const [sendingRating, setSendingRating] = useState(null);
@@ -112,7 +112,8 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
     const [isDataLoading, setIsDataLoading] = useState(false);
 
     const filterOptions = [
-        { value: t.allServices, label: t.allServices },
+        { value: t.allStatus, label: t.allStatus },
+        { value: 'New', label: 'New' },
         { value: 'Active', label: 'Active' },
         { value: 'At Risk', label: 'At Risk' },
         { value: 'Lost', label: 'Lost' },
@@ -122,7 +123,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
     const filteredData = useMemo(() => {
         let data = customers;
 
-        if (filterValue && filterValue !== t.allServices) {
+        if (filterValue && filterValue !== t.allStatus) {
             data = data.filter(item => {
                 const itemStatus = item.customerStatus || item.status;
                 if (!itemStatus) return false;
@@ -132,6 +133,8 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                 switch (filterValue) {
                     case 'Active':
                         return itemStatusLower === 'active' || itemStatusLower === 'פעיל';
+                    case 'New':
+                        return itemStatusLower === 'new' || itemStatusLower === 'חדש';
                     case 'At Risk':
                         return itemStatusLower === 'at risk' || itemStatusLower === 'risk' || itemStatusLower === 'at_risk' || itemStatusLower === 'בסיכון';
                     case 'Lost':
@@ -291,9 +294,9 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                     <div className="text-14 text-gray-900 dark:text-white">
                         {row.lastVisit ? new Date(row.lastVisit).toLocaleDateString('en-GB') : t.noDataAvailable}
                     </div>
-                    <div className="text-12 text-black dark:text-[#CECFD2]">
+                    {/* <div className="text-12 text-black dark:text-[#CECFD2]">
                         {row.user?.businessName || t.noDataAvailable}
-                    </div>
+                    </div> */}
                 </div>
             )
         },
@@ -344,7 +347,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                                         setIsDataLoading(false);
                                     }, 300);
                                 }}
-                                placeholder={t.allServices}
+                                placeholder={t.allStatus}
                                 className="min-w-[180px]"
                                 bgColor="bg-gray-50 dark:bg-[#232323]"
                                 textColor="text-gray-700 dark:text-white"

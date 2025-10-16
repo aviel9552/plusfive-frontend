@@ -36,7 +36,7 @@ function AdminRoutes() {
         <Route path="/qr-management" element={<AdminQRManagement />} />
         {/* <Route path="/qr-management/listing" element={<AdminQRManagementListing />} /> */}
         {/* <Route path="/qr-management/my-codes" element={<MyQRCodes />} /> */}
-        <Route path="/referral-management" element={<AdminReferralManagement />} />
+        {/* <Route path="/referral-management" element={<AdminReferralManagement />} /> */}
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} />

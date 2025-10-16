@@ -145,6 +145,9 @@ export const useStripeSubscription = (slug) => {
       
       await cancelSubscription(subscriptionId);
       
+      // Immediately update state to show no subscription
+      setCurrentSubscription(null);
+      
       // Show success message with next steps
       toast.success(
         'Subscription Cancelled Successfully! You\'ll have access until the end of your billing period.',

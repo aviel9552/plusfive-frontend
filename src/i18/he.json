@@ -1015,6 +1015,7 @@
     "errorLoadingAppointments": "שגיאה בטעינת ת appointments",
     "filterByServices": "סנן לפי שירותים",
     "allServices": "כל השירותים",
+    "allStatus": "כל הסטטוסים",
     "searchAppointments": "חפש ת appointments...",
     "searchByCustomerName": "חפש לפי שם לקוח, אימייל או טלפון",
     "rowsPerPage": "שורות בעמוד",
