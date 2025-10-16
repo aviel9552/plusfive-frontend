@@ -158,7 +158,16 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
             );
         }
 
-        return data;
+        // Sort by Last Visit date (newest first) - Create new array to avoid mutation
+        const sortedData = [...data].sort((a, b) => {
+            const dateA = a.lastVisit ? new Date(a.lastVisit) : new Date(0); // Use epoch for null dates
+            const dateB = b.lastVisit ? new Date(b.lastVisit) : new Date(0);
+            
+            // Sort newest first (descending order)
+            return dateB - dateA;
+        });
+
+        return sortedData;
     }, [customers, searchValue, filterValue]);
 
     const paginatedData = useMemo(() => {
