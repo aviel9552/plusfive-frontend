@@ -24,8 +24,9 @@ function AdminQRManagement() {
   const businessName = user?.businessName || 'Your Business';
 
   const [formData, setFormData] = useState({
-    customerMessage: `היי אח הסתפרתי הרגע אצל ${businessName}, הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז..`,
-    directMessage: 'לחץ על הלינק כדיי לדבר איתם ישירות',
+   customerMessage: ` היי אח הסתפרתי הרגע אצל ${businessName},
+הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז.. לחץ על הלינק כדיי לדבר איתם ישירות:`,
+    directMessage: `היי קבלתי מתנה דרך חבר, אשמח לקבוע תור`
     // targetUrl: ''
   });
   const [errors, setErrors] = useState({});
@@ -54,7 +55,8 @@ function AdminQRManagement() {
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      customerMessage: `היי אח הסתפרתי הרגע אצל ${businessName}, הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז..`
+      customerMessage: ` היי אח הסתפרתי הרגע אצל ${businessName},
+      הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז.. לחץ על הלינק כדיי לדבר איתם ישירות:`,
     }));
   }, [businessName]);
 
@@ -203,8 +205,9 @@ function AdminQRManagement() {
         setGeneratedQR(response.data);
         // Clear form after successful generation
         setFormData({
-          customerMessage: `היי אח הסתפרתי הרגע אצל ${businessName}, הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז..`,
-          directMessage: 'לחץ על הלינק כדיי לדבר איתם ישירות',
+          customerMessage: ` היי אח הסתפרתי הרגע אצל ${businessName},
+          הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז.. לחץ על הלינק כדיי לדבר איתם ישירות:`,
+              directMessage: `היי קבלתי מתנה דרך חבר, אשמח לקבוע תור`
           // targetUrl: ''
         });
         setErrors({});
