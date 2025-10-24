@@ -244,8 +244,8 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                     <div className="font-semibold text-black dark:text-white text-14 whitespace-nowrap">
                         {row.customerFullName || `${row.firstName} ${row.lastName}`}
                     </div>
-                    <div className="text-black dark:text-[#CECFD2] text-12">{row.email || t.noDataAvailable}</div>
-                    <div className="text-black dark:text-[#CECFD2] text-12">{row.customerPhone || t.noDataAvailable}</div>
+                    <div className="text-black dark:text-[#CECFD2] text-12">{row.email}</div>
+                    <div className="text-black dark:text-[#CECFD2] text-12">{row.customerPhone}</div>
                 </div>
             )
         },
