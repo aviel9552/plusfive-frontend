@@ -53,7 +53,7 @@ function LTVGrothChart() {
                             axisLine={{ stroke: '#444' }}
                             domain={[5.5, 7.5]}
                             tick={<CustomYAxisTick />}
-                            label={{ value: 'LTD - Monthly', angle: -90, position: 'insideLeft', fill: '#fff', fontSize: 14, dx: 5, dy: 50 }}
+                            label={{ value: 'Life Time Value', angle: -90, position: 'insideLeft', fill: '#fff', fontSize: 14, dx: 5, dy: 50 }}
                         />
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                         <Line

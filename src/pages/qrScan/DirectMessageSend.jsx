@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { getQRCodeByCode, shareQRCode } from '../../redux/services/qrServices';
 
-// Global flag to prevent multiple API calls across all instances
-let globalDirectAPICallFlag = {};
+// Global cache to store QR data and prevent multiple API calls
+let globalDirectQRCache = {};
 
 function DirectMessageSend() {
   const { qrId } = useParams();
@@ -16,36 +16,36 @@ function DirectMessageSend() {
   const abortControllerRef = useRef(null);
 
   useEffect(() => {
-    // Only run if we haven't called the API yet and we have a qrId
+    // Only run if we have a qrId
     if (!qrId) {
       setError('Invalid QR code');
       setLoading(false);
       return;
     }
 
-    // Check global flag first - if already called and we have an error or success, don't call again
-    if (globalDirectAPICallFlag[qrId]) {
-      setLoading(false);
-      // If we don't have error or data, set a generic error
-      // if (!error && !qrData) {
-      //   setError('Failed to load QR code');
-      // }
-      return;
+    // Check if we already have cached data for this QR ID
+    if (globalDirectQRCache[qrId]) {
+      const cachedData = globalDirectQRCache[qrId];
+      if (cachedData.success) {
+        setQrData(cachedData.data);
+        setLoading(false);
+        // Redirect to WhatsApp with cached data
+        redirectToWhatsApp(cachedData.data);
+        return;
+      } else {
+        setError(cachedData.error);
+        setLoading(false);
+        return;
+      }
     }
 
     // Prevent multiple calls using ref
     if (hasCalledAPI.current) {
-      setLoading(false);
-      // If we don't have error or data, set a generic error
-      if (!error && !qrData) {
-        setError('Failed to load QR code');
-      }
       return;
     }
 
     // Mark as called immediately to prevent any race conditions
     hasCalledAPI.current = true;
-    globalDirectAPICallFlag[qrId] = true;
     
     // Cleanup previous request if exists
     if (abortControllerRef.current) {
@@ -73,23 +73,49 @@ function DirectMessageSend() {
       
       // Check if response has success flag
       if (response && response.success === false) {
-        setError(response.message || response.error || 'QR code not found');
+        const errorMessage = response.message || response.error || 'QR code not found';
+        setError(errorMessage);
+        
+        // Cache the error result
+        globalDirectQRCache[qrId] = {
+          success: false,
+          error: errorMessage
+        };
         return;
       }
       
       if (response && response.data) {
         setQrData(response.data);
         
+        // Cache the successful result
+        globalDirectQRCache[qrId] = {
+          success: true,
+          data: response.data
+        };
+        
         // After getting data, redirect to WhatsApp using directUrl
         await redirectToWhatsApp(response.data);
       } else {
-        setError('QR code not found');
+        const errorMessage = 'QR code not found';
+        setError(errorMessage);
+        
+        // Cache the error result
+        globalDirectQRCache[qrId] = {
+          success: false,
+          error: errorMessage
+        };
       }
     } catch (err) {
       // Only set error if request wasn't aborted
       if (err.name !== 'AbortError') {
-        // The API service already formats the error message, so use it directly
-        setError(err.message || 'Failed to load QR code');
+        const errorMessage = err.message || 'Failed to load QR code';
+        setError(errorMessage);
+        
+        // Cache the error result
+        globalDirectQRCache[qrId] = {
+          success: false,
+          error: errorMessage
+        };
       }
     } finally {
       setLoading(false);
@@ -124,8 +150,9 @@ function DirectMessageSend() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-xl">
-        Loading QR Code...
+      <div className="flex flex-col justify-center items-center h-screen text-xl">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <div>Loading QR Code...</div>
       </div>
     );
   }

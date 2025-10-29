@@ -645,7 +645,7 @@
     "qrCode": "QR Code",
     "averageRatingOverTime": "Average Rating Over Time",
     "ltvGrowthOverTime": "LTV Growth Over Time",
-    "ltdMonthly": "LTD - Monthly",
+    "ltdMonthly": "Life Time Value",
     "monthCustomersLTD": "Month Customers LTD"
   },
   "accountSetting": {
