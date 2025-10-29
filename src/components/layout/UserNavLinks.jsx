@@ -85,24 +85,24 @@ import {
           dark: SubscriptionAndBillingWhiteIcon
         }
       },
-      { 
-        to: '/app/account-settings', 
-        icon: MdSettings, 
-        label: t.accountSettings,
-        customIcon: {
-          light: AccountSettingsBlackIcon,
-          dark: AccountSettingsWhiteIcon
-        }
-      },
-      { 
-        to: '/app/support-and-help', 
-        icon: MdHelp, 
-        label: <>{t.supportAndHelp}</>,
-        customIcon: {
-          light: SupportAndHelpBlackIcon,
-          dark: SupportAndHelpWhiteIcon
-        }
-      },
+      // { 
+      //   to: '/app/account-settings', 
+      //   icon: MdSettings, 
+      //   label: t.accountSettings,
+      //   customIcon: {
+      //     light: AccountSettingsBlackIcon,
+      //     dark: AccountSettingsWhiteIcon
+      //   }
+      // },
+      // { 
+      //   to: '/app/support-and-help', 
+      //   icon: MdHelp, 
+      //   label: <>{t.supportAndHelp}</>,
+      //   customIcon: {
+      //     light: SupportAndHelpBlackIcon,
+      //     dark: SupportAndHelpWhiteIcon
+      //   }
+      // },
     ];
   };
 

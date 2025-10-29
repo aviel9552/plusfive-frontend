@@ -238,9 +238,9 @@ function CurrentActiveSubscription({ slug }) {
               <p className="text-black dark:text-white text-16">
                 No active subscription found. 
                 <br />
-                <span className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" onClick={() => navigate('/pricing')}>
+                {/* <span className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" onClick={() => navigate('/pricing')}>
                   View available plans
-                </span>
+                </span> */}
               </p>
             </div>
           </div>

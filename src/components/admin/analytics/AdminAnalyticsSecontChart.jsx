@@ -65,7 +65,7 @@ function AdminAnalyticsSecontChart() {
     });
     const [qrAnalyticsLoading, setQrAnalyticsLoading] = useState(true);
     const [averageRatingLoading, setAverageRatingLoading] = useState(true);
-    
+
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
     const isRTL = language === 'he';
@@ -77,18 +77,18 @@ function AdminAnalyticsSecontChart() {
             try {
                 setQrAnalyticsLoading(true);
                 setAverageRatingLoading(true);
-                
+
                 // Fetch both APIs in parallel
                 const [qrAnalyticsResponse, averageRatingResponse] = await Promise.all([
                     getQRCodeAnalytics(),
                     getAverageRating()
                 ]);
-                
+
                 if (qrAnalyticsResponse.success && qrAnalyticsResponse.data) {
                     setQrAnalyticsData(qrAnalyticsResponse.data);
                 }
                 setQrAnalyticsLoading(false);
-                
+
                 if (averageRatingResponse.success && averageRatingResponse.data) {
                     setAverageRatingData(averageRatingResponse.data);
                 }
@@ -118,7 +118,7 @@ function AdminAnalyticsSecontChart() {
     ];
 
     const qrData = useMemo(() => qrCodeDataMap[filter], [filter, qrAnalyticsData]);
-    
+
     // Transform API data for the rating chart
     const ratingData = useMemo(() => {
         if (averageRatingData.monthlyData && averageRatingData.monthlyData.length > 0) {
@@ -138,7 +138,7 @@ function AdminAnalyticsSecontChart() {
                 let displayValue = data.value;
                 let year = filter === 'Yearly' ? '' : currentYear;
                 let metricType = hoveredBar === 'scanCount' ? 'Scans' : 'Shares';
-                
+
                 return (
                     <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-800 dark:text-white">
                         <p className="font-bold text-lg">{metricType}: {displayValue}</p>
@@ -154,12 +154,12 @@ function AdminAnalyticsSecontChart() {
         if (active && payload && payload.length) {
             const currentYear = new Date().getFullYear();
             const rating = payload[0].value;
-            
+
             // Don't show tooltip if rating is 0
             if (rating === 0) {
                 return null;
             }
-            
+
             return (
                 <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-800 dark:text-white">
                     <p className="font-bold text-lg">Average Rating: {rating.toFixed(1)}</p>
@@ -229,18 +229,18 @@ function AdminAnalyticsSecontChart() {
                                     />
                                     <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} isAnimationActive={false} />
                                     <Bar
-                                        dataKey="shareCount"
-                                        fill="url(#lastYearGradient)"
-                                        radius={[4, 4, 0, 0]}
-                                        barSize={12}
-                                        onMouseOver={() => setHoveredBar('shareCount')}
-                                    />
-                                    <Bar
                                         dataKey="scanCount"
                                         fill="url(#thisYearGradient)"
                                         radius={[4, 4, 0, 0]}
                                         barSize={12}
                                         onMouseOver={() => setHoveredBar('scanCount')}
+                                    />
+                                    <Bar
+                                        dataKey="shareCount"
+                                        fill="url(#lastYearGradient)"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={12}
+                                        onMouseOver={() => setHoveredBar('shareCount')}
                                     />
                                 </BarChart>
                             </ResponsiveContainer>

@@ -227,7 +227,7 @@ const Header = ({ onMobileMenuToggle }) => {
                 {t.notifications}
               </div>
               <div className="divide-y divide-gray-100 dark:divide-customBorderColor">
-                {notifications.slice(0, visibleCount).map(n => (
+                {/* {notifications.slice(0, visibleCount).map(n => (
                   <div key={n.id} className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} gap-3 px-4 py-3`}>
                     <img src={n.avatar} className="w-11 h-11 rounded-full object-cover" alt="" />
                     <div className="flex-1">
@@ -238,7 +238,7 @@ const Header = ({ onMobileMenuToggle }) => {
                       <div className="text-sm text-gray-500 dark:text-gray-300">{n.message}</div>
                     </div>
                   </div>
-                ))}
+                ))} */}
               </div>
               {visibleCount < notifications.length && (
                 <button

@@ -87,26 +87,26 @@ const adminNavLinks = (language = 'en') => {
         dark: SubscriptionAndBillingWhiteIcon
       }
     },
-    { 
-      to: '/admin/account-settings', 
-      icon: MdSettings, 
-      label: t.accountSettings,
-      customIcon: {
-        light: AccountSettingsBlackIcon,
-        dark: AccountSettingsWhiteIcon
-      }
-    },
-    { 
-      to: '/admin/support-and-help', 
-      icon: MdHelp, 
-      label: <>
-        {t.supportAndHelp}
-      </>,
-      customIcon: {
-        light: SupportAndHelpBlackIcon,
-        dark: SupportAndHelpWhiteIcon
-      }
-    },
+    // { 
+    //   to: '/admin/account-settings', 
+    //   icon: MdSettings, 
+    //   label: t.accountSettings,
+    //   customIcon: {
+    //     light: AccountSettingsBlackIcon,
+    //     dark: AccountSettingsWhiteIcon
+    //   }
+    // },
+    // { 
+    //   to: '/admin/support-and-help', 
+    //   icon: MdHelp, 
+    //   label: <>
+    //     {t.supportAndHelp}
+    //   </>,
+    //   customIcon: {
+    //     light: SupportAndHelpBlackIcon,
+    //     dark: SupportAndHelpWhiteIcon
+    //   }
+    // },
   ];
 };
 

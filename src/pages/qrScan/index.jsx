@@ -29,9 +29,9 @@ export default function QRScanHandler() {
     if (globalAPICallFlag[qrId]) {
       setLoading(false);
       // If we don't have error or data, set a generic error
-      if (!error && !qrData) {
-        setError('Failed to load QR code');
-      }
+      // if (!error && !qrData) {
+      //   setError('Failed to load QR code');
+      // }
       return;
     }
 

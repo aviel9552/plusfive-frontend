@@ -184,6 +184,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
 
     const getButtonText = () => {
         if (isCurrentPlan) {
+            if (isCanceledInDatabase) return 'Subscription Canceled';
             if (isActiveCurrentPlan) return 'Current Plan';
             return currentSubscription?.status === 'canceled' ? 'Reactivate' : 'Manage Subscription';
         }
@@ -196,7 +197,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                 text: getButtonText(),
                 className: "w-full !py-3 !text-16 rounded-[8px]",
                 onClick: handleAction,
-                disabled: loading || isActiveCurrentPlan
+                disabled: loading || isActiveCurrentPlan || isCanceledInDatabase
             };
         }
 

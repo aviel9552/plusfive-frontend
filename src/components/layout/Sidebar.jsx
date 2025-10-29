@@ -151,7 +151,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         )}
 
         {/* Logout */}
-        <div className="relative m-3">
+        {/* <div className="relative m-3">
           <button onClick={handleLogoutClick} className="w-full">
             <SidebarNavItem
               onClick={handleLogoutClick}
@@ -165,7 +165,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
               }}
             />
           </button>
-        </div>
+        </div> */}
       </aside>
       <CommonConfirmModel
         isOpen={showLogoutModal}
