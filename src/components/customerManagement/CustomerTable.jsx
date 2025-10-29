@@ -13,6 +13,7 @@ import reviewService from '../../redux/services/reviewServices';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import CommonNormalDropDown from '../commonComponent/CommonNormalDropDown';
 import CommonLoader from '../commonComponent/CommonLoader';
+import { formatDate } from '../../utils/dateFormatter';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center text-14 whitespace-nowrap";
@@ -24,25 +25,25 @@ const StatusBadge = ({ status }) => {
     switch (statusLower) {
         case 'active':
         case 'פעיל':
-            colorClasses = 'text-[#2537A5] bg-[#D0E2FF]';
+            colorClasses = 'text-statusActiveText bg-statusActiveBg';
             break;
         case 'at risk':
         case 'risk':
         case 'at_risk':
         case 'בסיכון':
-            colorClasses = 'text-[#AD3D02] bg-[#FFE8E3]';
+            colorClasses = 'text-statusRiskText bg-statusRiskBg';
             break;
         case 'lost':
         case 'אבוד':
-            colorClasses = 'text-[#55160C] bg-[#FDA29B]';
+            colorClasses = 'text-statusLostText bg-statusLostBg';
             break;
         case 'recovered':
         case 'התאושש':
-            colorClasses = 'text-[#2C1C5F] bg-[#E9D7FE]';
+            colorClasses = 'text-statusRecoveredText bg-statusRecoveredBg';
             break;
         case 'new':
         case 'חדש':
-            colorClasses = 'text-[#2C1C5F] bg-[#E9D7FE]';
+            colorClasses = 'text-statusRecoveredText bg-statusRecoveredBg';
             break;
         default:
             colorClasses = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
@@ -73,7 +74,7 @@ const RatingStars = ({ rating }) => {
         <div className="flex items-center">
             {/* Full stars */}
             {[...Array(fullStars)].map((_, i) => (
-                <FaStar key={`full-${i}`} className="text-[#FDB022]" />
+                <FaStar key={`full-${i}`} className="text-ratingStar" />
             ))}
 
             {/* Partial star (if there's a decimal) */}
@@ -81,7 +82,7 @@ const RatingStars = ({ rating }) => {
                 <div className="relative">
                     <FaStar className="text-gray-300 dark:text-white" />
                     <FaStar
-                        className="text-[#FDB022] absolute top-0 left-0"
+                        className="text-ratingStar absolute top-0 left-0"
                         style={{
                             clipPath: `inset(0 ${100 - (partialStarFill * 100)}% 0 0)`
                         }}
@@ -278,7 +279,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                                     <div className="relative">
                                         <FaStar className="text-gray-300 dark:text-white text-14" />
                                         <FaStar
-                                            className="text-[#FDB022] absolute top-0 left-0 text-14"
+                                            className="text-ratingStar absolute top-0 left-0 text-14"
                                             style={{
                                                 clipPath: `inset(0 ${100 - (row.reviews[row.reviews.length - 1].rating / 5) * 100}% 0 0)`
                                             }}
@@ -301,7 +302,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
             render: (row) => (
                 <div className="flex flex-col gap-3">
                     <div className="text-14 text-gray-900 dark:text-white">
-                        {row.lastVisit ? new Date(row.lastVisit).toLocaleDateString('en-GB') : t.noDataAvailable}
+                        {row.lastVisit ? formatDate(row.lastVisit) : t.noDataAvailable}
                     </div>
                     {/* <div className="text-12 text-black dark:text-[#CECFD2]">
                         {row.user?.businessName || t.noDataAvailable}
@@ -366,7 +367,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                     )}
                     {showText && (
                         <h2
-                            className="text-[16px] text-[#675dff] text-right cursor-pointer hover:text-[#4f46e5] transition-colors"
+                            className="text-[16px] text-linkPrimary text-right cursor-pointer hover:text-linkPrimaryHover transition-colors"
                             onClick={() => navigate('/app/customers')}
                         >
                             View All

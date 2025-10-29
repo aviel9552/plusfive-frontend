@@ -25,6 +25,20 @@ export default {
         customErrorRed: '#D92D20',
         customViolet: '#7E3AF2',
         commonBorder: '#ffffff1a',
+        // Status colors
+        statusActiveText: '#2537A5',
+        statusActiveBg: '#D0E2FF',
+        statusRiskText: '#AD3D02',
+        statusRiskBg: '#FFE8E3',
+        statusLostText: '#55160C',
+        statusLostBg: '#FDA29B',
+        statusRecoveredText: '#2C1C5F',
+        statusRecoveredBg: '#E9D7FE',
+        // Rating star color
+        ratingStar: '#FDB022',
+        // Link colors
+        linkPrimary: '#675dff',
+        linkPrimaryHover: '#4f46e5',
       },
       fontFamily: {
         ttcommons: ['"TT Commons"', 'sans-serif'],

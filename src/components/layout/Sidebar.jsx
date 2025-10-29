@@ -7,7 +7,7 @@ import { logoutUser } from '../../redux/actions/authActions';
 import { useNavigate } from 'react-router-dom';
 import userNavLinks from './UserNavLinks';
 import adminNavLinks from './AdminNavLinks';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getLayoutTranslations } from '../../utils/translations';
@@ -20,6 +20,13 @@ import WhiteLogoutIcon from "../../assets/log-out-white.svg"
 import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMobileMenuOpen, isRTL = false }) => {
+  // Automatically set collapsed to false on mobile
+  useEffect(() => {
+    if (isMobile && isCollapsed) {
+      onCollapse(false);
+    }
+  }, [isMobile, isCollapsed, onCollapse]);
+
   const toggleDesktopSidebar = () => {
     onCollapse(!isCollapsed);
   };
