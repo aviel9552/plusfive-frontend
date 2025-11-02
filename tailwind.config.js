@@ -35,7 +35,7 @@ export default {
         statusRecoveredText: '#2C1C5F',
         statusRecoveredBg: '#E9D7FE',
         // Rating star color
-        ratingStar: '#FDB022',
+        ratingStar: '#ff257c',
         // Link colors
         linkPrimary: '#675dff',
         linkPrimaryHover: '#4f46e5',
