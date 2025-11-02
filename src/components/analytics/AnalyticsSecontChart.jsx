@@ -109,7 +109,7 @@ function AnalyticsSecontChart() {
                             <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
                             <YAxis tickLine={false} axisLine={false} domain={[1, 5]} tick={<CustomRatingYTick />} />
                             <Tooltip wrapperClassName="!hidden" />
-                            <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="url(#ratingGradient)" />
+                            <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="none" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
