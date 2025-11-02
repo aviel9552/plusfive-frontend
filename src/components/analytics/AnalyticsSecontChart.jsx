@@ -92,21 +92,38 @@ function AnalyticsSecontChart() {
             <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Average Rating Over Time</h2>
                 <div className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={ratingData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                    
-                            <CartesianGrid
-                                strokeDasharray="6 6"
-                                vertical={true}
-                                stroke={isDarkMode ? "#D1D5DB" : "#000"}
-                                strokeOpacity={0.15}
-                            />
-                            <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: 'none', fontSize: 12 }} dy={10} />
-                            <YAxis tickLine={false} axisLine={false} domain={[1, 5]} tick={<CustomRatingYTick />} />
-                            <Tooltip wrapperClassName="!hidden" />
-                            <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="none" />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                   <ResponsiveContainer width="100%" height="100%">
+  <AreaChart
+    data={ratingData}
+    margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+    style={{ filter: 'none' }}              // מבטל כל פילטר/צל
+  >
+    {/* אין defs בכלל */}
+
+    <CartesianGrid
+      strokeDasharray="6 6"
+      vertical={true}
+      stroke={isDarkMode ? "#D1D5DB" : "#000"}
+      strokeOpacity={0.15}
+    />
+    <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
+    <YAxis tickLine={false} axisLine={false} domain={[1, 5]} tick={<CustomRatingYTick />} />
+    <Tooltip wrapperClassName="!hidden" cursor={false} />
+
+    <Area
+      type="monotone"
+      dataKey="rating"
+      stroke="#FF2380"
+      strokeWidth={3}
+      fill="transparent"         // <- בלי מילוי
+      fillOpacity={0}            // <- ביטול מוחלט
+      isAnimationActive={false}  // אופציונלי
+      dot={false}                // אופציונלי
+      activeDot={false}          // אופציונלי
+    />
+  </AreaChart>
+</ResponsiveContainer>
+
                 </div>
             </div>
         </div>
