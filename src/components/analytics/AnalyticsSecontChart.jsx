@@ -95,11 +95,7 @@ function AnalyticsSecontChart() {
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={ratingData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
                             <defs>
-                                <linearGradient id="ratingGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#FF2380" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#FF2380" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
+                    
                             <CartesianGrid
                                 strokeDasharray="6 6"
                                 vertical={true}
