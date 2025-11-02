@@ -46,18 +46,7 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
         <div className="w-24 h-12">
           <ResponsiveContainer width="100%" height={88}>
             <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="6.34%" stopColor={chartColor} stopOpacity={0.56} />
-                  <stop offset="60.92%" stopColor={chartColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke={chartColor}
-                strokeWidth={1.12}
-                fill={`url(#${gradientId})`}
+        
               />
               <Tooltip
                 content={<CustomTooltip />}
