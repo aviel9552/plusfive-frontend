@@ -101,7 +101,7 @@ function AnalyticsSecontChart() {
                                 stroke={isDarkMode ? "#D1D5DB" : "#000"}
                                 strokeOpacity={0.15}
                             />
-                            <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
+                            <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: 'none', fontSize: 12 }} dy={10} />
                             <YAxis tickLine={false} axisLine={false} domain={[1, 5]} tick={<CustomRatingYTick />} />
                             <Tooltip wrapperClassName="!hidden" />
                             <Area type="monotone" dataKey="rating" stroke="#FF2380" strokeWidth={3} fill="none" />
