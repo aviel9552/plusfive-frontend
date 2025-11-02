@@ -9,7 +9,7 @@ export default {
     extend: {
       colors: {
         customBlack: '#000000',
-        customBrown: '#121212',
+        customBrown: '#050505',
         customGray: '#1D1C20',
         customGray2: '#E9E9E9',
         customLightTextColor: '#181D27',
