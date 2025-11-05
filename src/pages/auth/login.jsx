@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CommonInput, CommonButton, SquaresAnim } from '../../components/index';
+import { CommonInput, CommonButton, } from '../../components/index';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import LoginBG from '../../assets/LoginBG.png';
@@ -199,16 +199,6 @@ function Login() {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center dark:bg-customBlack bg-white px-4 py-8">
-      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-        <SquaresAnim speed={3.5} squareSize={20} direction='up' />
-        {/* Left-bottom focused bubble/gradient */}
-        <div className="
-          absolute inset-0
-          from-pink-200/60 via-white/60 to-purple-200/80
-          dark:from-[#232136]/80 dark:via-[#232136]/60 dark:to-[#232136]/0
-          pointer-events-none"
-        />
-      </div>
       <div
         className="w-full max-w-md rounded-3xl shadow-2xl border border-gray-200/20 dark:border-customBorderColor/50 backdrop-blur-xl p-8 bg-cover bg-center bg-white/10 dark:bg-black/20"
         style={{
