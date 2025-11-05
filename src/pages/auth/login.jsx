@@ -204,7 +204,6 @@ function Login() {
         {/* Left-bottom focused bubble/gradient */}
         <div className="
           absolute inset-0
-          bg-[radial-gradient(ellipse_at_left_bottom,_var(--tw-gradient-stops))]
           from-pink-200/60 via-white/60 to-purple-200/80
           dark:from-[#232136]/80 dark:via-[#232136]/60 dark:to-[#232136]/0
           pointer-events-none"
