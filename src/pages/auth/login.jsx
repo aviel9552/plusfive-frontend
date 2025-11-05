@@ -200,7 +200,7 @@ function Login() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center dark:bg-customBlack bg-white px-4 py-8">
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-        <SquaresAnim speed={3.5} squareSize={20} direction='down' />
+        <SquaresAnim speed={3.5} squareSize={20} direction='up' />
         {/* Left-bottom focused bubble/gradient */}
         <div className="
           absolute inset-0
