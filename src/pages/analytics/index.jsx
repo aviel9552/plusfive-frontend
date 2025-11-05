@@ -14,9 +14,9 @@ function Analytics() {
       {/* <div className='flex flex-col gap-[16px]'>
         <h2 className='text-[24px] font-bold mt-10 dark:text-white'>{t.analytics}</h2>
       </div> */}
-      <div className='mt-10' />
+      <div className='mt-10' />...>
       <AdminAnalyticsRevenueAndCustomerStatus />
-      <AdminAnalyticsSecondChart />
+      <AdminAnalyticsSecontChart />
       <AdminLTVGrothChart />
     </div>
   );
