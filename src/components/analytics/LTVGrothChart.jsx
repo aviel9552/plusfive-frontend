@@ -59,10 +59,10 @@ function LTVGrothChart() {
                         <Line
                             type="monotone"
                             dataKey="ltv"
-                            stroke="#8A3FFC"
+                            stroke="#ff257c"
                             strokeWidth={2}
-                            dot={{ r: 4, stroke: '#FF8A00', strokeWidth: 2, fill: '#1F1F1F' }}
-                            activeDot={{ r: 6, stroke: '#FF8A00', strokeWidth: 2, fill: '#1F1F1F' }}
+                            dot={{ r: 4, stroke: '#ff257c', strokeWidth: 2, fill: '#1F1F1F' }}
+                            activeDot={{ r: 6, stroke: '#ff257c', strokeWidth: 2, fill: '#1F1F1F' }}
                         />
                     </LineChart>
                 </ResponsiveContainer>
