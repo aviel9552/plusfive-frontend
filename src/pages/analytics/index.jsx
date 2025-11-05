@@ -4,30 +4,20 @@ import {
   AdminAnalyticsRevenueAndCustomerStatus,
   AdminAnalyticsSecontChart,
   AdminLTVGrothChart,
-} from '../../components/analytics'; // שים לב לנתיב המדויק אצלך
+} from '../../components/analytics';
 import PageLoader from '../../components/commonComponent/PageLoader';
-import { useLanguage } from '../../context/LanguageContext';
-import { getAdminAnalyticsTranslations } from '../../utils/translations';
 
-function Analytics() {
-  const { language } = useLanguage();
-  const t = getAdminAnalyticsTranslations(language);
-
-  // דגל מוכנות של כל הדף
+export default function Analytics() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // כאן טוענים את כל הדאטה הדרוש לדף במקביל.
-    // החלף ל-fetchים האמיתיים שלך (או לקריאות services).
     async function loadAll() {
       try {
-        await Promise.allSettled([
-          // fetch('/api/analytics/revenue').then(r => r.json()),
-          // fetch('/api/analytics/ratings').then(r => r.json()),
-          // fetch('/api/analytics/ltv').then(r => r.json()),
-        ]);
+        // שים כאן את ה-fetchים האמיתיים (אם יש),
+        // או השאר ריק אם אין כרגע קריאות
+        await Promise.allSettled([]);
       } finally {
-        setIsReady(true); // מציג את הדף רק כשכולם סיימו
+        setIsReady(true);
       }
     }
     loadAll();
@@ -35,14 +25,16 @@ function Analytics() {
 
   return (
     <PageLoader isReady={isReady} minLoadTime={600}>
-      <div className="space-y-10">
-        <AdminAnalyticsRevenueAndCustomerStatus />
-        <AdminAnalyticsSecontChart />
-        <AdminLTVGrothChart />
-        <AdminAnalyticsMonthlyPerformance />
-      </div>
+      {/* הילדים יופיעו רק כשהכול מוכן */}
+      {isReady && (
+        <div className="space-y-10">
+          <AdminAnalyticsRevenueAndCustomerStatus />
+          <AdminAnalyticsSecontChart />
+          <AdminLTVGrothChart />
+          <AdminAnalyticsMonthlyPerformance />
+        </div>
+      )}
     </PageLoader>
   );
 }
 
-export default Analytics;
