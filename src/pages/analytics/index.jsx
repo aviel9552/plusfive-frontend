@@ -1,25 +1,48 @@
-import React from 'react'
-import { AdminAnalyticsMonthlyPerformance, AdminAnalyticsRevenueAndCustomerStatus, AdminAnalyticsSecontChart, AdminLTVGrothChart, AnalyticsMonthlyPerformance, AnalyticsRevenueAndCustomerStatus, AnalyticsSecontChart, LTVGrothChart } from '../../components'
+import React, { useEffect, useState } from 'react';
+import {
+  AdminAnalyticsMonthlyPerformance,
+  AdminAnalyticsRevenueAndCustomerStatus,
+  AdminAnalyticsSecontChart,
+  AdminLTVGrothChart,
+} from '../../components/analytics'; // שים לב לנתיב המדויק אצלך
+import PageLoader from '../../components/commonComponent/PageLoader';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../utils/translations';
-import EnhancedQRAnalyticsDashboard from '../../components/qrManagement/EnhancedQRAnalyticsDashboard';
-import TestQRAnalytics from '../../components/qrManagement/TestQRAnalytics';
 
 function Analytics() {
   const { language } = useLanguage();
   const t = getAdminAnalyticsTranslations(language);
+
+  // דגל מוכנות של כל הדף
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // כאן טוענים את כל הדאטה הדרוש לדף במקביל.
+    // החלף ל-fetchים האמיתיים שלך (או לקריאות services).
+    async function loadAll() {
+      try {
+        await Promise.allSettled([
+          // fetch('/api/analytics/revenue').then(r => r.json()),
+          // fetch('/api/analytics/ratings').then(r => r.json()),
+          // fetch('/api/analytics/ltv').then(r => r.json()),
+        ]);
+      } finally {
+        setIsReady(true); // מציג את הדף רק כשכולם סיימו
+      }
+    }
+    loadAll();
+  }, []);
+
   return (
-    <div>
-      <AdminAnalyticsRevenueAndCustomerStatus />
-      <AdminAnalyticsSecontChart />
-      <AdminLTVGrothChart />
-      <div className='mt-6' />
-       <AdminAnalyticsMonthlyPerformance />
-      {/* <div className='flex flex-col gap-[16px]'>
-        <h2 className='text-[24px] font-bold mt-10 dark:text-white'>{t.analytics}</h2>
-      </div> */}
-    </div>
+    <PageLoader isReady={isReady} minLoadTime={600}>
+      <div className="space-y-10">
+        <AdminAnalyticsRevenueAndCustomerStatus />
+        <AdminAnalyticsSecontChart />
+        <AdminLTVGrothChart />
+        <AdminAnalyticsMonthlyPerformance />
+      </div>
+    </PageLoader>
   );
 }
-export default Analytics;
 
+export default Analytics;
