@@ -22,7 +22,6 @@ function Analytics() {
       <AdminAnalyticsRevenueAndCustomerStatus />
       <AdminAnalyticsSecontChart />
       <AdminLTVGrothChart />
-
     </div>
 
     </div>
