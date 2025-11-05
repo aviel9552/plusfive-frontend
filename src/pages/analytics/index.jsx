@@ -13,7 +13,7 @@ function Analytics() {
       <AdminAnalyticsRevenueAndCustomerStatus />
       <AdminAnalyticsSecontChart />
       <AdminLTVGrothChart />
-      <div className='mt-1' />
+      <div className='mt-5' />
        <AdminAnalyticsMonthlyPerformance />
       {/* <div className='flex flex-col gap-[16px]'>
         <h2 className='text-[24px] font-bold mt-10 dark:text-white'>{t.analytics}</h2>
