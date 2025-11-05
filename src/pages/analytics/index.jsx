@@ -9,32 +9,34 @@ import PageLoader from '../../components/commonComponent/PageLoader';
 
 export default function Analytics() {
   const [isReady, setIsReady] = useState(false);
+  const [data, setData] = useState({ revenue: null, rating: null, ltv: null, cards: null });
 
   useEffect(() => {
-    async function loadAll() {
+    (async () => {
       try {
-        // שים כאן את ה-fetchים האמיתיים (אם יש),
-        // או השאר ריק אם אין כרגע קריאות
-        await Promise.allSettled([]);
+        const [revenue, rating, ltv, cards] = await Promise.all([
+          fetch('/api/analytics/revenue').then(r => r.json()),
+          fetch('/api/analytics/rating').then(r => r.json()),
+          fetch('/api/analytics/ltv').then(r => r.json()),
+          fetch('/api/analytics/cards').then(r => r.json()),
+        ]);
+        setData({ revenue, rating, ltv, cards });
       } finally {
         setIsReady(true);
       }
-    }
-    loadAll();
+    })();
   }, []);
 
   return (
     <PageLoader isReady={isReady} minLoadTime={600}>
-      {/* הילדים יופיעו רק כשהכול מוכן */}
       {isReady && (
         <div className="space-y-10">
-          <AdminAnalyticsRevenueAndCustomerStatus />
-          <AdminAnalyticsSecontChart />
-          <AdminLTVGrothChart />
-          <AdminAnalyticsMonthlyPerformance />
+          <AdminAnalyticsRevenueAndCustomerStatus data={data.revenue} />
+          <AdminAnalyticsSecontChart data={data.rating} />
+          <AdminLTVGrothChart data={data.ltv} />
+          <AdminAnalyticsMonthlyPerformance data={data.cards} />
         </div>
       )}
     </PageLoader>
   );
 }
-
