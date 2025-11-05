@@ -9,20 +9,17 @@ function Analytics() {
   const { language } = useLanguage();
   const t = getAdminAnalyticsTranslations(language);
   return (
-  <div>
-    {/* הגרפים למעלה */}
-    <div className="mt-10">
+    <div>
+      <AdminAnalyticsMonthlyPerformance />
+      {/* <div className='flex flex-col gap-[16px]'>
+        <h2 className='text-[24px] font-bold mt-10 dark:text-white'>{t.analytics}</h2>
+      </div> */}
+      <div className='mt-10' />
       <AdminAnalyticsRevenueAndCustomerStatus />
       <AdminAnalyticsSecondChart />
       <AdminLTVGrothChart />
     </div>
+  );
+}
+export default Analytics;
 
-    {/* הכרטיסיות למטה */}
-    <div className="mt-10">
-      <AdminAnalyticsMonthlyPerformance />
-    </div>
-  </div>
-);
-
-
-export default Analytics
