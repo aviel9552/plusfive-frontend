@@ -4,6 +4,10 @@ import { getQRCodeByCode, shareQRCode } from '../../redux/services/qrServices';
 
 // Global cache to store QR data and prevent multiple API calls
 let globalDirectQRCache = {};
+// Global lock to prevent multiple API calls for same QR ID
+let globalDirectAPILocks = {};
+// Global lock to prevent multiple share calls
+let globalShareLocks = {};
 
 function DirectMessageSend() {
   const { qrId } = useParams();
@@ -14,6 +18,7 @@ function DirectMessageSend() {
   // Use useRef to prevent multiple API calls
   const hasCalledAPI = useRef(false);
   const abortControllerRef = useRef(null);
+  const hasSharedRef = useRef(false);
 
   useEffect(() => {
     // Only run if we have a qrId
@@ -39,6 +44,12 @@ function DirectMessageSend() {
       }
     }
 
+    // Check global lock - if API call is already in progress for this QR ID, don't make another call
+    if (globalDirectAPILocks[qrId]) {
+      console.log('API call already in progress for QR ID:', qrId);
+      return;
+    }
+
     // Prevent multiple calls using ref
     if (hasCalledAPI.current) {
       return;
@@ -46,6 +57,8 @@ function DirectMessageSend() {
 
     // Mark as called immediately to prevent any race conditions
     hasCalledAPI.current = true;
+    // Set global lock for this QR ID
+    globalDirectAPILocks[qrId] = true;
     
     // Cleanup previous request if exists
     if (abortControllerRef.current) {
@@ -59,6 +72,10 @@ function DirectMessageSend() {
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
+      }
+      // Release lock on unmount
+      if (globalDirectAPILocks[qrId]) {
+        globalDirectAPILocks[qrId] = false;
       }
     };
   }, [qrId]); // Include qrId in dependencies but use ref to prevent multiple calls
@@ -81,6 +98,8 @@ function DirectMessageSend() {
           success: false,
           error: errorMessage
         };
+        // Release global lock after error
+        globalDirectAPILocks[qrId] = false;
         return;
       }
       
@@ -93,6 +112,9 @@ function DirectMessageSend() {
           data: response.data
         };
         
+        // Release global lock after successful API call
+        globalDirectAPILocks[qrId] = false;
+        
         // After getting data, redirect to WhatsApp using directUrl
         await redirectToWhatsApp(response.data);
       } else {
@@ -104,6 +126,8 @@ function DirectMessageSend() {
           success: false,
           error: errorMessage
         };
+        // Release global lock after error
+        globalDirectAPILocks[qrId] = false;
       }
     } catch (err) {
       // Only set error if request wasn't aborted
@@ -116,6 +140,8 @@ function DirectMessageSend() {
           success: false,
           error: errorMessage
         };
+        // Release global lock after error
+        globalDirectAPILocks[qrId] = false;
       }
     } finally {
       setLoading(false);
@@ -128,8 +154,17 @@ function DirectMessageSend() {
 
     if (directUrl) {
       try {
-        // First, call shareQRCode service to increment share count
-        await shareQRCode(qrId);
+        // Prevent multiple share calls - check global lock
+        if (!globalShareLocks[qrId] && !hasSharedRef.current) {
+          globalShareLocks[qrId] = true;
+          hasSharedRef.current = true;
+          
+          // First, call shareQRCode service to increment share count
+          await shareQRCode(qrId);
+          
+          // Release lock after share call completes
+          globalShareLocks[qrId] = false;
+        }
         
         // Then redirect to WhatsApp
         setTimeout(() => {

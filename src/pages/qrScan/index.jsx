@@ -6,6 +6,10 @@ import { getQRCodeByCode, scanQRCode } from '../../redux/services/qrServices';
 
 // Global cache to store QR data and prevent multiple API calls
 let globalQRCache = {};
+// Global lock to prevent multiple API calls for same QR ID
+let globalAPILocks = {};
+// Global lock to prevent multiple scan calls
+let globalScanLocks = {};
 
 export default function QRScanHandler() {
   const { qrId } = useParams();
@@ -16,6 +20,7 @@ export default function QRScanHandler() {
   // Use useRef to prevent multiple API calls
   const hasCalledAPI = useRef(false);
   const abortControllerRef = useRef(null);
+  const hasScannedRef = useRef(false);
   
   useEffect(() => {
     // Only run if we have a qrId
@@ -41,6 +46,12 @@ export default function QRScanHandler() {
       }
     }
 
+    // Check global lock - if API call is already in progress for this QR ID, don't make another call
+    if (globalAPILocks[qrId]) {
+      console.log('API call already in progress for QR ID:', qrId);
+      return;
+    }
+
     // Prevent multiple calls using ref
     if (hasCalledAPI.current) {
       return;
@@ -48,6 +59,8 @@ export default function QRScanHandler() {
 
     // Mark as called immediately to prevent any race conditions
     hasCalledAPI.current = true;
+    // Set global lock for this QR ID
+    globalAPILocks[qrId] = true;
     
     // Cleanup previous request if exists
     if (abortControllerRef.current) {
@@ -61,6 +74,10 @@ export default function QRScanHandler() {
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
+      }
+      // Release lock on unmount
+      if (globalAPILocks[qrId]) {
+        globalAPILocks[qrId] = false;
       }
     };
   }, [qrId]); // Include qrId in dependencies but use ref to prevent multiple calls
@@ -83,6 +100,8 @@ export default function QRScanHandler() {
           success: false,
           error: errorMessage
         };
+        // Release global lock after error
+        globalAPILocks[qrId] = false;
         return;
       }
       
@@ -95,6 +114,9 @@ export default function QRScanHandler() {
           data: response.data
         };
         
+        // Release global lock after successful API call
+        globalAPILocks[qrId] = false;
+        
         // After getting data, redirect to WhatsApp
         await redirectToWhatsApp(response.data);
       } else {
@@ -106,6 +128,8 @@ export default function QRScanHandler() {
           success: false,
           error: errorMessage
         };
+        // Release global lock after error
+        globalAPILocks[qrId] = false;
       }
     } catch (err) {
       // Only set error if request wasn't aborted
@@ -118,6 +142,8 @@ export default function QRScanHandler() {
           success: false,
           error: errorMessage
         };
+        // Release global lock after error
+        globalAPILocks[qrId] = false;
       }
     } finally {
       setLoading(false);
@@ -132,8 +158,17 @@ export default function QRScanHandler() {
     // Only redirect if we have both message and URL
     if (customerMessage && messageUrl) {
       try {
-        // First, call scanQRCode service to increment scan count
-        await scanQRCode(qrId);
+        // Prevent multiple scan calls - check global lock
+        if (!globalScanLocks[qrId] && !hasScannedRef.current) {
+          globalScanLocks[qrId] = true;
+          hasScannedRef.current = true;
+          
+          // First, call scanQRCode service to increment scan count
+          await scanQRCode(qrId);
+          
+          // Release lock after scan call completes
+          globalScanLocks[qrId] = false;
+        }
         
         // Create message in simple text format (WhatsApp will auto-detect and make URL clickable)
         const message = `${customerMessage}: ${messageUrl}`;
