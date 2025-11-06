@@ -4,7 +4,7 @@ import {
   AdminAnalyticsRevenueAndCustomerStatus,
   AdminAnalyticsSecontChart,
   AdminLTVGrothChart,
-} from '../../components/analytics';
+} from '../../components';
 import PageLoader from '../../components/commonComponent/PageLoader';
 
 export default function Analytics() {
