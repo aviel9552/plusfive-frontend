@@ -1,26 +1,42 @@
-import React from 'react'
-import { AdminAnalyticsMonthlyPerformance, AdminAnalyticsRevenueAndCustomerStatus, AdminAnalyticsSecontChart, AdminLTVGrothChart, AnalyticsMonthlyPerformance, AnalyticsRevenueAndCustomerStatus, AnalyticsSecontChart, LTVGrothChart } from '../../components'
-import { useLanguage } from '../../context/LanguageContext';
-import { getAdminAnalyticsTranslations } from '../../utils/translations';
-import EnhancedQRAnalyticsDashboard from '../../components/qrManagement/EnhancedQRAnalyticsDashboard';
-import TestQRAnalytics from '../../components/qrManagement/TestQRAnalytics';
+import React, { useEffect, useState } from 'react';
+import {
+  AdminAnalyticsMonthlyPerformance,
+  AdminAnalyticsRevenueAndCustomerStatus,
+  AdminAnalyticsSecontChart,
+  AdminLTVGrothChart,
+} from '../../components/analytics';
+import PageLoader from '../../components/commonComponent/PageLoader';
 
-function Analytics() {
-  const { language } = useLanguage();
-  const t = getAdminAnalyticsTranslations(language);
+export default function Analytics() {
+  const [isReady, setIsReady] = useState(false);
+  const [data, setData] = useState({ revenue: null, rating: null, ltv: null, cards: null });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [revenue, rating, ltv, cards] = await Promise.all([
+          fetch('/api/analytics/revenue').then(r => r.json()),
+          fetch('/api/analytics/rating').then(r => r.json()),
+          fetch('/api/analytics/ltv').then(r => r.json()),
+          fetch('/api/analytics/cards').then(r => r.json()),
+        ]);
+        setData({ revenue, rating, ltv, cards });
+      } finally {
+        setIsReady(true);
+      }
+    })();
+  }, []);
+
   return (
-    <div>
-      <AdminAnalyticsMonthlyPerformance />
-      {/* <div className='flex flex-col gap-[16px]'>
-        <h2 className='text-[24px] font-bold mt-10 dark:text-white'>{t.analytics}</h2>
-      </div> */}
-      <div className='mt-10' />
-      <AdminAnalyticsRevenueAndCustomerStatus />
-      <AdminAnalyticsSecontChart />
-      <AdminLTVGrothChart />
-
-    </div>
-  )
+    <PageLoader isReady={isReady} minLoadTime={600}>
+      {isReady && (
+        <div className="space-y-10">
+          <AdminAnalyticsRevenueAndCustomerStatus data={data.revenue} />
+          <AdminAnalyticsSecontChart data={data.rating} />
+          <AdminLTVGrothChart data={data.ltv} />
+          <AdminAnalyticsMonthlyPerformance data={data.cards} />
+        </div>
+      )}
+    </PageLoader>
+  );
 }
-
-export default Analytics

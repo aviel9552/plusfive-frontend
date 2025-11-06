@@ -8,8 +8,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        customBlack: '#0B0B0B',
-        customBrown: '#121212',
+        customBlack: '#000000',
+        customBrown: '#050505',
         customGray: '#1D1C20',
         customGray2: '#E9E9E9',
         customLightTextColor: '#181D27',
@@ -35,7 +35,7 @@ export default {
         statusRecoveredText: '#2C1C5F',
         statusRecoveredBg: '#E9D7FE',
         // Rating star color
-        ratingStar: '#FDB022',
+        ratingStar: '#ff257c',
         // Link colors
         linkPrimary: '#675dff',
         linkPrimaryHover: '#4f46e5',
