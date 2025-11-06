@@ -303,12 +303,14 @@ input[type=number] {
 /* HTML: <div class="loader"></div> */
 :root {
   --loader-color: #000; /* default light mode */
+  --loader-color--2: #0002; /* default light mode */
 }
 
 .dark {
   --loader-color: #fff; /* dark mode override */
+  --loader-color--2: #fff2; /* dark mode override */
 }
-.loader {
+/* .loader {
   position: relative;
   width: 120px;
   height: 90px;
@@ -361,7 +363,22 @@ input[type=number] {
               -70px 90px 0 var(--loader-color),
               -70px 90px 0 rgba(0,0,0,0);
   }
+} */
+
+
+.loader {
+  width: 15px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  animation: l5 1s infinite linear alternate;
 }
+@keyframes l5 {
+    0%  {box-shadow: 20px 0 var(--loader-color), -20px 0 var(--loader-color--2);background: var(--loader-color) }
+    33% {box-shadow: 20px 0 var(--loader-color), -20px 0 var(--loader-color--2);background: var(--loader-color--2)}
+    66% {box-shadow: 20px 0 var(--loader-color--2),-20px 0 var(--loader-color); background: var(--loader-color--2)}
+    100%{box-shadow: 20px 0 var(--loader-color--2),-20px 0 var(--loader-color); background: var(--loader-color) }
+}
+
 
 
 .active-border {

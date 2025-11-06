@@ -93,10 +93,16 @@ function CurrentActiveSubscription({ slug }) {
     return new Date(timestamp * 1000).toLocaleDateString();
   };
 
-  // Extract subscription data from the nested structure
+  // Extract subscription data from the nested structure - Only active/trialing subscriptions
   const getActiveSubscription = () => {
     if (!currentSubscription?.data?.stripe?.subscriptions) return null;
-    return currentSubscription.data.stripe.subscriptions[0];
+    
+    // Filter out canceled subscriptions - only show active, trialing, or past_due
+    const activeSubscriptions = currentSubscription.data.stripe.subscriptions.filter(
+      sub => sub.status && !['canceled', 'unpaid', 'incomplete', 'incomplete_expired'].includes(sub.status.toLowerCase())
+    );
+    
+    return activeSubscriptions.length > 0 ? activeSubscriptions[0] : null;
   };
 
   const getPlanName = () => {
@@ -154,8 +160,17 @@ function CurrentActiveSubscription({ slug }) {
     return 'N/A';
   };
 
-  // Check if there are any active subscriptions
-  const hasActiveSubscription = currentSubscription?.data?.stripe?.subscriptions?.length > 0;
+  // Check if there are any active subscriptions (exclude canceled)
+  const hasActiveSubscription = () => {
+    if (!currentSubscription?.data?.stripe?.subscriptions) return false;
+    
+    // Filter out canceled subscriptions
+    const activeSubscriptions = currentSubscription.data.stripe.subscriptions.filter(
+      sub => sub.status && !['canceled', 'unpaid', 'incomplete', 'incomplete_expired'].includes(sub.status.toLowerCase())
+    );
+    
+    return activeSubscriptions.length > 0;
+  };
 
   // Professional Cancel Subscription Confirmation Dialog
   const CancelConfirmationDialog = () => (
@@ -228,7 +243,7 @@ function CurrentActiveSubscription({ slug }) {
   );
   
   // Don't render if no subscription and not loading
-  if (!subscriptionLoading && !hasActiveSubscription) {
+  if (!subscriptionLoading && !hasActiveSubscription()) {
     return (
       <div className="font-ttcommons dark:bg-customBrown bg-white border border-gray-200 dark:border-customBorderColor rounded-2xl p-[24px] dark:text-white dark:hover:bg-customBlack shadow-md hover:shadow-sm">
         <div className='flex flex-col gap-[24px]'>

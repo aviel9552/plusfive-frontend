@@ -259,7 +259,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
     );
 };
 
-function Pricing({ slug }) {
+function Pricing({ slug, subscriptionLoading: subscriptionLoadingProp }) {
     const [isYearly, setIsYearly] = useState(false); // Default to monthly since all plans are monthly
     const { language } = useLanguage();
     const t = getUserCardTranslations(language);
@@ -332,8 +332,15 @@ function Pricing({ slug }) {
                 <BillingToggle isYearly={isYearly} onToggle={handleToggle} t={t} language={language} />
             </div>
 
-            {/* Pricing Plans Grid */}
-            {pricingPlans.length > 0 ? (
+            {/* Pricing Plans Grid - Show only after subscription loading is complete */}
+            {subscriptionLoadingProp ? (
+                <div className="mt-7 text-center">
+                    <div className="flex items-center justify-center gap-3">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Waiting for subscription data...</span>
+                    </div>
+                </div>
+            ) : pricingPlans.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px] mt-[24px] items-stretch">
                     {pricingPlans.map(plan => (
                         <PricingCard
