@@ -31,10 +31,10 @@ export default function Analytics() {
     <PageLoader isReady={isReady} minLoadTime={600}>
       {isReady && (
         <div className="space-y-10">
-          <AdminAnalyticsMonthlyPerformance data={data.cards} />
           <AdminAnalyticsRevenueAndCustomerStatus data={data.revenue} />
           <AdminAnalyticsSecontChart data={data.rating} />
           <AdminLTVGrothChart data={data.ltv} />
+                    <AdminAnalyticsMonthlyPerformance data={data.cards} />
         </div>
       )}
     </PageLoader>
