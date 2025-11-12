@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import React, { useMemo, useState, useEffect } from 'react';
 import { CommonDropDown } from '../index';
 import { useTheme } from '../../context/ThemeContext';
+import CommonLoader from '../commonComponent/CommonLoader';
 
 const monthlyQrCodeData = [
   { label: 'July', thisYear: 55, lastYear: 30 }, { label: 'Aug', thisYear: 40, lastYear: 25 }, { label: 'Sep', thisYear: 82, lastYear: 52 },
@@ -49,8 +49,39 @@ function AnalyticsSecontChart({ isReady = true }) {
 
   const [filter, setFilter] = useState('Monthly');
   const [hoveredBar, setHoveredBar] = useState(null);
+  const [Recharts, setRecharts] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { isDarkMode } = useTheme();
   const qrData = useMemo(() => qrCodeDataMap[filter], [filter]);
+
+  // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadRecharts = async () => {
+      try {
+        const rechartsModule = await import('recharts');
+        if (isMounted) {
+          setRecharts(rechartsModule);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading Recharts:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRecharts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Extract Recharts components
+  const { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } = Recharts || {};
 
   const CustomBarTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length && hoveredBar) {
@@ -77,6 +108,24 @@ function AnalyticsSecontChart({ isReady = true }) {
     }
     return null;
   };
+
+  // Show loader while Recharts is loading
+  if (loading || !Recharts) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-ttcommons mt-7">
+        <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+          <div className="h-[250px] flex items-center justify-center">
+            <CommonLoader />
+          </div>
+        </div>
+        <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+          <div className="h-[250px] flex items-center justify-center">
+            <CommonLoader />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-ttcommons mt-7">

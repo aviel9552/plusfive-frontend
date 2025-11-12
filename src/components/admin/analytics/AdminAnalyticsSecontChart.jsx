@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { CommonDropDown } from '../../index';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -65,11 +64,39 @@ function AdminAnalyticsSecontChart() {
     });
     const [qrAnalyticsLoading, setQrAnalyticsLoading] = useState(true);
     const [averageRatingLoading, setAverageRatingLoading] = useState(true);
+    const [Recharts, setRecharts] = useState(null);
+    const [loadingRecharts, setLoadingRecharts] = useState(true);
 
     const { isDarkMode } = useTheme();
     const { language } = useLanguage();
     const isRTL = language === 'he';
     const t = getAdminAnalyticsTranslations(language);
+
+    // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
+    useEffect(() => {
+        let isMounted = true;
+        
+        const loadRecharts = async () => {
+            try {
+                const rechartsModule = await import('recharts');
+                if (isMounted) {
+                    setRecharts(rechartsModule);
+                    setLoadingRecharts(false);
+                }
+            } catch (error) {
+                console.error('Error loading Recharts:', error);
+                if (isMounted) {
+                    setLoadingRecharts(false);
+                }
+            }
+        };
+
+        loadRecharts();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     // Fetch all analytics data together
     useEffect(() => {
@@ -169,6 +196,27 @@ function AdminAnalyticsSecontChart() {
         }
         return null;
     };
+
+    // Extract Recharts components
+    const { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } = Recharts || {};
+
+    // Show loader while Recharts or API data is loading
+    if (loadingRecharts || !Recharts) {
+        return (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons mt-7">
+                <div className="lg:col-span-5">
+                    <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-[16px] shadow-md">
+                        <CommonLoader />
+                    </div>
+                </div>
+                <div className="lg:col-span-7">
+                    <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-[16px] shadow-md">
+                        <CommonLoader />
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons mt-7">
