@@ -7,7 +7,7 @@ import { HiDotsHorizontal } from 'react-icons/hi';
 import { FiEye, FiEdit, FiTrash2, FiSearch, FiCalendar, FiDownload, FiPlus } from 'react-icons/fi';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAdminUserTranslations } from '../../utils/translations';
-import * as XLSX from 'xlsx';
+// XLSX removed from static import - will be lazy-loaded when export is clicked (saves ~200KB)
 import CommonDateRange from './CommonDateRange';
 
 const PAGE_SIZES = [7, 10, 20, 30, 50];
@@ -233,15 +233,21 @@ const CommonAdminTable = ({
   const actionBtnRefs = useRef([]);
   const [openAction, setOpenAction] = useState(null);
   const [openUpward, setOpenUpward] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
-  // Excel export function
-  const exportToExcel = useCallback(() => {
+  // 🧩 Lazy-load XLSX - Only load when export button is clicked (saves ~200KB from CommonAdminTable)
+  const exportToExcel = useCallback(async () => {
     if (!data || data.length === 0) {
       alert('No data to export');
       return;
     }
 
     try {
+      setIsExporting(true);
+
+      // Dynamic import of XLSX - creates a separate chunk, only loads when export is clicked
+      const XLSX = await import('xlsx');
+
       // Prepare data for export - exclude actions column and format data
       const exportData = data.map(row => {
         const exportRow = {};
@@ -297,6 +303,7 @@ const CommonAdminTable = ({
 
       if (cleanExportData.length === 0) {
         alert('No valid data to export');
+        setIsExporting(false);
         return;
       }
 
@@ -319,9 +326,12 @@ const CommonAdminTable = ({
 
       // Download the file
       XLSX.writeFile(workbook, filename);
+      
+      setIsExporting(false);
     } catch (error) {
       console.error('Export failed:', error);
       alert('Export failed. Please try again.');
+      setIsExporting(false);
     }
   }, [data, columns]);
 
@@ -400,12 +410,13 @@ const CommonAdminTable = ({
             {/* Export Button */}
             <div className="w-full sm:w-auto">
               <button
-                className="w-full sm:w-auto flex items-center justify-center rounded-lg gap-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition"
+                className="w-full sm:w-auto flex items-center justify-center rounded-lg gap-2 border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-transparent px-4 py-2.5 text-gray-900 dark:text-white hover:border-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={exportToExcel}
+                disabled={isExporting || !data || data.length === 0}
               >
-                <FiDownload className="text-lg" />
+                <FiDownload className={`text-lg ${isExporting ? 'animate-spin' : ''}`} />
                 <p className=''>
-                  {t.export}
+                  {isExporting ? (t.exporting || 'Exporting...') : t.export}
                 </p>
               </button>
             </div>

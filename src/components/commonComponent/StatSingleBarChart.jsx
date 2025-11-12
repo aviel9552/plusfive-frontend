@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { BarChart, Bar, ResponsiveContainer, YAxis, CartesianGrid, XAxis, Tooltip } from 'recharts';
+import React, { useState, useEffect } from 'react';
 import { CommonDropDown } from '../index';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import CommonLoader from './CommonLoader';
 
 const CustomYAxisTick = ({ x, y, payload }) => {
   const { isDarkMode } = useTheme();
@@ -43,9 +43,37 @@ const CustomXAxisTick = ({ x, y, payload }) => {
 const StatSingleBarChart = ({ title, dataMap, filters }) => {
   const [selectedFilter, setSelectedFilter] = useState(filters?.[0]?.value || '');
   const [activeIndex, setActiveIndex] = useState(null);
+  const [Recharts, setRecharts] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { isDarkMode } = useTheme();
   const { language } = useLanguage();
   const isRTL = language === 'he';
+
+  // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadRecharts = async () => {
+      try {
+        const rechartsModule = await import('recharts');
+        if (isMounted) {
+          setRecharts(rechartsModule);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading Recharts:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRecharts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleFilterChange = (value) => {
     setSelectedFilter(value);
@@ -53,6 +81,9 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
 
   const chartData = dataMap?.[selectedFilter] || [];
   const displayData = isRTL ? [...chartData].reverse() : chartData;
+
+  // Extract Recharts components
+  const { BarChart, Bar, ResponsiveContainer, YAxis, CartesianGrid, XAxis, Tooltip } = Recharts || {};
 
   const getValueIndicator = (entry) => {
     const formatTooltipValue = (value) => {
@@ -87,65 +118,71 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
         )}
       </div>
       <div className="h-[250px] md:w-full ">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={displayData}
-            margin={isRTL ? { top: 5, right: -20, left: 30, bottom: 5 } : { top: 5, right: 30, left: -20, bottom: 5 }}
-            // margin={{
-            //   top: 5,
-            //   right: 30,
-            //   left: 20,
-            //   bottom: 5,
-            // }}
-            barSize={35}
-            onMouseLeave={() => setActiveIndex(null)}
-          >
-            <CartesianGrid 
-              strokeDasharray="8 12" 
-              vertical={false} 
-              stroke={isDarkMode ? "#D1D5DB" : "#000"}
-              opacity={0.4}
-            />
-            <XAxis 
-              dataKey="month" 
-              scale="point"
-              padding={{ left: 25, right: 10 }}
-              axisLine={false}
-              tickLine={false}
-              tick={<CustomXAxisTick />}
-              dy={10}
-            />
-            <YAxis 
-              axisLine={false}
-              tickLine={false}
-              tick={<CustomYAxisTick />}
-              tickCount={5}
-              orientation={isRTL ? "right" : "left"}
-            />
-            <Bar 
-              dataKey="value" 
-              fill="#6166F1"
-              radius={[8, 8, 0, 0]}
-              maxBarSize={35}
-              onMouseOver={(_, idx) => setActiveIndex(idx)}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length > 0) {
-                  const entry = payload[0].payload;
-                  // Don't show tooltip if value is 0
-                  if (entry.value === 0) {
-                    return null;
+        {loading || !Recharts ? (
+          <div className="flex items-center justify-center h-full">
+            <CommonLoader />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={displayData}
+              margin={isRTL ? { top: 5, right: -20, left: 30, bottom: 5 } : { top: 5, right: 30, left: -20, bottom: 5 }}
+              // margin={{
+              //   top: 5,
+              //   right: 30,
+              //   left: 20,
+              //   bottom: 5,
+              // }}
+              barSize={35}
+              onMouseLeave={() => setActiveIndex(null)}
+            >
+              <CartesianGrid 
+                strokeDasharray="8 12" 
+                vertical={false} 
+                stroke={isDarkMode ? "#D1D5DB" : "#000"}
+                opacity={0.4}
+              />
+              <XAxis 
+                dataKey="month" 
+                scale="point"
+                padding={{ left: 25, right: 10 }}
+                axisLine={false}
+                tickLine={false}
+                tick={<CustomXAxisTick />}
+                dy={10}
+              />
+              <YAxis 
+                axisLine={false}
+                tickLine={false}
+                tick={<CustomYAxisTick />}
+                tickCount={5}
+                orientation={isRTL ? "right" : "left"}
+              />
+              <Bar 
+                dataKey="value" 
+                fill="#6166F1"
+                radius={[8, 8, 0, 0]}
+                maxBarSize={35}
+                onMouseOver={(_, idx) => setActiveIndex(idx)}
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length > 0) {
+                    const entry = payload[0].payload;
+                    // Don't show tooltip if value is 0
+                    if (entry.value === 0) {
+                      return null;
+                    }
+                    return getValueIndicator(entry);
                   }
-                  return getValueIndicator(entry);
-                }
-                return null;
-              }}
-              cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-              isAnimationActive={false}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+                  return null;
+                }}
+                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                isAnimationActive={false}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

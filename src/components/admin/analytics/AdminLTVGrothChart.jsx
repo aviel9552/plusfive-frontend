@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
@@ -15,7 +14,35 @@ function AdminLTVGrothChart() {
 
     const [monthlyLTVCountData, setMonthlyLTVCountData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [loadingRecharts, setLoadingRecharts] = useState(true);
+    const [Recharts, setRecharts] = useState(null);
     const hasApiCalled = useRef(false);
+
+    // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
+    useEffect(() => {
+        let isMounted = true;
+        
+        const loadRecharts = async () => {
+            try {
+                const rechartsModule = await import('recharts');
+                if (isMounted) {
+                    setRecharts(rechartsModule);
+                    setLoadingRecharts(false);
+                }
+            } catch (error) {
+                console.error('Error loading Recharts:', error);
+                if (isMounted) {
+                    setLoadingRecharts(false);
+                }
+            }
+        };
+
+        loadRecharts();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     // Transform API data for chart - only dynamic data
     const transformedData = monthlyLTVCountData?.monthlyLTVData?.map(item => ({
@@ -95,7 +122,10 @@ function AdminLTVGrothChart() {
         );
     };
 
-    if (loading) {
+    // Extract Recharts components
+    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts || {};
+
+    if (loading || loadingRecharts || !Recharts) {
         return (
             <div className='mt-10 flex flex-col gap-[16px]'>
                 <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">

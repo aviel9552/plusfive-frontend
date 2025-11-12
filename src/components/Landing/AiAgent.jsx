@@ -2,7 +2,7 @@ import React from 'react'
 import aiImg from '../../assets/AiBg.svg'
 import { GoArrowRight } from 'react-icons/go'
 import { useNavigate } from 'react-router-dom'
-import { CommonBorderButton, CommonButton, CommonGradientText } from '../index'
+import { CommonBorderButton, CommonGradientText } from '../index'
 import en from '../../i18/en.json'
 import he from '../../i18/he.json'
 

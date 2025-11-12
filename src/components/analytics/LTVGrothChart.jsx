@@ -1,6 +1,6 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
+import CommonLoader from '../commonComponent/CommonLoader';
 
 const ltvData = [
   { month: 'Jan', ltv: 5.8, tooltipLTV: '5.8' },
@@ -42,6 +42,37 @@ function LTVGrothChart({ isReady = true }) {
   if (!isReady) return null;
 
   const { isDarkMode } = useTheme();
+  const [Recharts, setRecharts] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadRecharts = async () => {
+      try {
+        const rechartsModule = await import('recharts');
+        if (isMounted) {
+          setRecharts(rechartsModule);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading Recharts:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRecharts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Extract Recharts components
+  const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts || {};
 
   return (
     <div className="mt-10">
@@ -50,49 +81,55 @@ function LTVGrothChart({ isReady = true }) {
       </h2>
       <div className="bg-white dark:bg-customBrown rounded-2xl p-6 border border-gray-200 dark:border-customBorderColor font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
         <div className="h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={ltvData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid
-                strokeDasharray="6 6"
-                stroke={isDarkMode ? "#D1D5DB" : "#000"}
-                strokeOpacity={0.15}
-              />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={{ stroke: '#444' }}
-                tick={{ fill: '#888', fontSize: 12 }}
-                dy={10}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={{ stroke: '#444' }}
-                domain={[5.5, 7.5]}
-                tick={<CustomYAxisTick />}
-                label={{
-                  value: 'Life Time Value',
-                  angle: -90,
-                  position: 'insideLeft',
-                  fill: '#fff',
-                  fontSize: 14,
-                  dx: 5,
-                  dy: 50,
-                }}
-              />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="ltv"
-                stroke="#ff257c"
-                strokeWidth={2}
-                dot={{ r: 4, stroke: '#ff257c', strokeWidth: 2, fill: '#1F1F1F' }}
-                activeDot={{ r: 6, stroke: '#ff257c', strokeWidth: 2, fill: '#1F1F1F' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {loading || !Recharts ? (
+            <div className="flex items-center justify-center h-full">
+              <CommonLoader />
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={ltvData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid
+                  strokeDasharray="6 6"
+                  stroke={isDarkMode ? "#D1D5DB" : "#000"}
+                  strokeOpacity={0.15}
+                />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={{ stroke: '#444' }}
+                  tick={{ fill: '#888', fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={{ stroke: '#444' }}
+                  domain={[5.5, 7.5]}
+                  tick={<CustomYAxisTick />}
+                  label={{
+                    value: 'Life Time Value',
+                    angle: -90,
+                    position: 'insideLeft',
+                    fill: '#fff',
+                    fontSize: 14,
+                    dx: 5,
+                    dy: 50,
+                  }}
+                />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="ltv"
+                  stroke="#ff257c"
+                  strokeWidth={2}
+                  dot={{ r: 4, stroke: '#ff257c', strokeWidth: 2, fill: '#1F1F1F' }}
+                  activeDot={{ r: 6, stroke: '#ff257c', strokeWidth: 2, fill: '#1F1F1F' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>

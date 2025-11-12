@@ -1,6 +1,20 @@
-import React, { useState, useEffect } from 'react'
-import { HeroComponent, GrowthComponent, AiAgent, WhatHappens, BeforeVsAfter, HowItWorks, Trusted, PricingPlans, RealResults, FAQ, LandingFooter, Banner } from '../../components'
+import React, { useState, useEffect, Suspense, lazy } from 'react'
 import { TbMessageCircleFilled } from "react-icons/tb";
+import CommonLoader from '../../components/commonComponent/CommonLoader';
+
+// 🧩 Lazy-loaded Landing Components - Har component alag chunk banayega
+const HeroComponent = lazy(() => import('../../components/Landing/HeroComponent'));
+const GrowthComponent = lazy(() => import('../../components/Landing/GrowthComponent'));
+const AiAgent = lazy(() => import('../../components/Landing/AiAgent'));
+const WhatHappens = lazy(() => import('../../components/Landing/WhatHappens'));
+const BeforeVsAfter = lazy(() => import('../../components/Landing/BeforeVsAfter'));
+const HowItWorks = lazy(() => import('../../components/Landing/HowItWorks'));
+const Trusted = lazy(() => import('../../components/Landing/Trusted'));
+const PricingPlans = lazy(() => import('../../components/Landing/PricingPlans'));
+const RealResults = lazy(() => import('../../components/Landing/RealResults'));
+const FAQ = lazy(() => import('../../components/Landing/FAQ'));
+const Banner = lazy(() => import('../../components/Landing/Banner'));
+const LandingFooter = lazy(() => import('../../components/Landing/LandingFooter'));
 
 function LandingPage({ language }) {
   const [showSupportButton, setShowSupportButton] = useState(false);
@@ -38,20 +52,21 @@ function LandingPage({ language }) {
         dark:from-[#232136]/80 dark:via-[#232136]/60 dark:to-[#232136]/0
         pointer-events-none
       " />
-        <HeroComponent language={language} />
-        <GrowthComponent language={language} /> 
-        <AiAgent language={language} />
-        <WhatHappens language={language} />
-        <BeforeVsAfter language={language} />
-        {/*
-          */}
-        <HowItWorks language={language} />
-        <Trusted language={language} />
-        <PricingPlans language={language} />
-        <RealResults language={language} />
-        <FAQ language={language} />
-        <Banner language={language} />
-        <LandingFooter language={language} />
+        {/* Lazy-loaded components with Suspense - All components load as separate chunks */}
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><CommonLoader /></div>}>
+          <HeroComponent language={language} />
+          <GrowthComponent language={language} /> 
+          <AiAgent language={language} />
+          <WhatHappens language={language} />
+          <BeforeVsAfter language={language} />
+          <HowItWorks language={language} />
+          <Trusted language={language} />
+          <PricingPlans language={language} />
+          <RealResults language={language} />
+          <FAQ language={language} />
+          <Banner language={language} />
+          <LandingFooter language={language} />
+        </Suspense>
         
         {/* Get Support Button - Fixed Position */}
         {showSupportButton && (

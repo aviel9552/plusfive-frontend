@@ -83,7 +83,6 @@ export { default as RecentNotifications } from "./Notifications/RecentNotificati
 // Admin Customer Management Components
 export { default as AdminUserTable } from "./admin/userManagement/AdminUserTable";
 export { default as CustomerAdminTable } from "./admin/customerManagement/CustomerAdminTable";
-
 // Common Components
 export { default as CommonTable } from "./commonComponent/CommonTable";
 export { default as CommonAdminTable } from "./commonComponent/CommonAdminTable";

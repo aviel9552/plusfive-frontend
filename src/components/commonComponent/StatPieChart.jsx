@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import CommonLoader from './CommonLoader';
 
 const getPieChartTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -25,11 +25,57 @@ const getPieChartTooltip = ({ active, payload }) => {
 
 const StatPieChart = ({ title, data }) => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const [Recharts, setRecharts] = useState(null);
+  const [loading, setLoading] = useState(true);
   const customerData = data || [];
   const { isRTL } = useLanguage();
 
+  // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadRecharts = async () => {
+      try {
+        // Dynamic import of Recharts - creates a separate chunk
+        const rechartsModule = await import('recharts');
+        if (isMounted) {
+          setRecharts(rechartsModule);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error loading Recharts:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadRecharts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Reverse data for Hebrew to show legend in correct RTL order
   const displayData = isRTL ? [...customerData].reverse() : customerData;
+
+  // Show loader while Recharts is loading
+  if (loading || !Recharts) {
+    return (
+      <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
+        <div className={`flex ${isRTL ? 'flex-row-reverse' : ''} justify-between items-center mb-6`}>
+          <h2 className="text-24 text-gray-900 dark:text-white font-ttcommons">{title}</h2>
+        </div>
+        <div className="flex justify-center items-center min-h-[250px]">
+          <CommonLoader />
+        </div>
+      </div>
+    );
+  }
+
+  // Extract Recharts components
+  const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } = Recharts;
 
   return (
     <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
