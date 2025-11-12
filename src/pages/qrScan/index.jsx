@@ -10,6 +10,8 @@ let globalQRCache = {};
 let globalAPILocks = {};
 // Global lock to prevent multiple scan calls
 let globalScanLocks = {};
+// Global lock to prevent multiple redirects
+let globalRedirectLocks = {};
 
 export default function QRScanHandler() {
   const { qrId } = useParams();
@@ -21,6 +23,9 @@ export default function QRScanHandler() {
   const hasCalledAPI = useRef(false);
   const abortControllerRef = useRef(null);
   const hasScannedRef = useRef(false);
+  const hasRedirectedRef = useRef(false);
+  const redirectTimeoutRef = useRef(null);
+  const isMountedRef = useRef(true);
   
   useEffect(() => {
     // Only run if we have a qrId
@@ -36,8 +41,10 @@ export default function QRScanHandler() {
       if (cachedData.success) {
         setQrData(cachedData.data);
         setLoading(false);
-        // Redirect to WhatsApp with cached data
-        redirectToWhatsApp(cachedData.data);
+        // Only redirect if not already redirected
+        if (!hasRedirectedRef.current && !globalRedirectLocks[qrId]) {
+          redirectToWhatsApp(cachedData.data);
+        }
         return;
       } else {
         setError(cachedData.error);
@@ -70,14 +77,26 @@ export default function QRScanHandler() {
     abortControllerRef.current = new AbortController();
     handleQRCodeLoad();
 
+    // Set mounted flag
+    isMountedRef.current = true;
+
     // Cleanup on unmount
     return () => {
+      isMountedRef.current = false;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      // Release lock on unmount
+      // Cancel pending redirect
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+        redirectTimeoutRef.current = null;
+      }
+      // Release locks on unmount
       if (globalAPILocks[qrId]) {
         globalAPILocks[qrId] = false;
+      }
+      if (globalRedirectLocks[qrId]) {
+        globalRedirectLocks[qrId] = false;
       }
     };
   }, [qrId]); // Include qrId in dependencies but use ref to prevent multiple calls
@@ -117,8 +136,11 @@ export default function QRScanHandler() {
         // Release global lock after successful API call
         globalAPILocks[qrId] = false;
         
-        // After getting data, redirect to WhatsApp
-        await redirectToWhatsApp(response.data);
+        // Only redirect if component is still mounted and not already redirected
+        if (isMountedRef.current && !hasRedirectedRef.current && !globalRedirectLocks[qrId]) {
+          // After getting data, redirect to WhatsApp
+          await redirectToWhatsApp(response.data);
+        }
       } else {
         const errorMessage = 'QR code not found';
         setError(errorMessage);
@@ -151,45 +173,73 @@ export default function QRScanHandler() {
   };
 
   const redirectToWhatsApp = async (data) => {
+    // Prevent multiple redirects - check if already redirected or redirect in progress
+    if (hasRedirectedRef.current || globalRedirectLocks[qrId] || !isMountedRef.current) {
+      return;
+    }
+
+    // Set redirect lock immediately
+    globalRedirectLocks[qrId] = true;
+    hasRedirectedRef.current = true;
+
     // Use only dynamic data from API response - no static fallbacks
     const customerMessage = data.messageForCustomer;
     const messageUrl = data.messageUrl;
 
     // Only redirect if we have both message and URL
-    if (customerMessage && messageUrl) {
-      try {
-        // Prevent multiple scan calls - check global lock
-        if (!globalScanLocks[qrId] && !hasScannedRef.current) {
-          globalScanLocks[qrId] = true;
-          hasScannedRef.current = true;
-          
+    if (!customerMessage || !messageUrl) {
+      setError('Required data not available for WhatsApp redirect');
+      globalRedirectLocks[qrId] = false;
+      hasRedirectedRef.current = false;
+      return;
+    }
+
+    try {
+      // Prevent multiple scan calls - check global lock
+      if (!globalScanLocks[qrId] && !hasScannedRef.current) {
+        globalScanLocks[qrId] = true;
+        hasScannedRef.current = true;
+        
+        try {
           // First, call scanQRCode service to increment scan count
           await scanQRCode(qrId);
-          
-          // Release lock after scan call completes
+        } catch (scanError) {
+          console.error('Scan count error:', scanError);
+          // Continue with redirect even if scan count fails
+        } finally {
+          // Release scan lock after call completes
           globalScanLocks[qrId] = false;
         }
-        
-        // Create message in simple text format (WhatsApp will auto-detect and make URL clickable)
-        const message = `${customerMessage}: ${messageUrl}`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-
-        // 1 sec delay so page load ho sake, then redirect
-        setTimeout(() => {
-          window.location.href = whatsappUrl;
-        }, 1000);
-        
-      } catch (scanError) {
-        // Continue with redirect even if scan count fails
-        const message = `${customerMessage}: ${messageUrl}`;
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        
-        setTimeout(() => {
-          window.location.href = whatsappUrl;
-        }, 1000);
       }
-    } else {
-      setError('Required data not available for WhatsApp redirect');
+      
+      // Create message in simple text format (WhatsApp will auto-detect and make URL clickable)
+      const message = `${customerMessage}: ${messageUrl}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+      // Check if component is still mounted before redirecting
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      // Clear any existing redirect timeout
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+
+      // Set redirect timeout - shorter delay for faster redirect
+      redirectTimeoutRef.current = setTimeout(() => {
+        // Double check if component is still mounted
+        if (isMountedRef.current && hasRedirectedRef.current) {
+          // Use window.location.replace to prevent back button navigation
+          window.location.replace(whatsappUrl);
+        }
+      }, 500); // Reduced from 1000ms to 500ms for faster redirect
+      
+    } catch (error) {
+      console.error('Redirect error:', error);
+      // Reset redirect flags on error
+      globalRedirectLocks[qrId] = false;
+      hasRedirectedRef.current = false;
     }
   };
 

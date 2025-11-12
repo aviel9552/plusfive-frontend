@@ -8,6 +8,8 @@ let globalDirectQRCache = {};
 let globalDirectAPILocks = {};
 // Global lock to prevent multiple share calls
 let globalShareLocks = {};
+// Global lock to prevent multiple redirects
+let globalDirectRedirectLocks = {};
 
 function DirectMessageSend() {
   const { qrId } = useParams();
@@ -19,6 +21,9 @@ function DirectMessageSend() {
   const hasCalledAPI = useRef(false);
   const abortControllerRef = useRef(null);
   const hasSharedRef = useRef(false);
+  const hasRedirectedRef = useRef(false);
+  const redirectTimeoutRef = useRef(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     // Only run if we have a qrId
@@ -34,8 +39,10 @@ function DirectMessageSend() {
       if (cachedData.success) {
         setQrData(cachedData.data);
         setLoading(false);
-        // Redirect to WhatsApp with cached data
-        redirectToWhatsApp(cachedData.data);
+        // Only redirect if not already redirected
+        if (!hasRedirectedRef.current && !globalDirectRedirectLocks[qrId]) {
+          redirectToWhatsApp(cachedData.data);
+        }
         return;
       } else {
         setError(cachedData.error);
@@ -68,14 +75,26 @@ function DirectMessageSend() {
     abortControllerRef.current = new AbortController();
     handleQRCodeLoad();
 
+    // Set mounted flag
+    isMountedRef.current = true;
+
     // Cleanup on unmount
     return () => {
+      isMountedRef.current = false;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      // Release lock on unmount
+      // Cancel pending redirect
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+        redirectTimeoutRef.current = null;
+      }
+      // Release locks on unmount
       if (globalDirectAPILocks[qrId]) {
         globalDirectAPILocks[qrId] = false;
+      }
+      if (globalDirectRedirectLocks[qrId]) {
+        globalDirectRedirectLocks[qrId] = false;
       }
     };
   }, [qrId]); // Include qrId in dependencies but use ref to prevent multiple calls
@@ -115,8 +134,11 @@ function DirectMessageSend() {
         // Release global lock after successful API call
         globalDirectAPILocks[qrId] = false;
         
-        // After getting data, redirect to WhatsApp using directUrl
-        await redirectToWhatsApp(response.data);
+        // Only redirect if component is still mounted and not already redirected
+        if (isMountedRef.current && !hasRedirectedRef.current && !globalDirectRedirectLocks[qrId]) {
+          // After getting data, redirect to WhatsApp using directUrl
+          await redirectToWhatsApp(response.data);
+        }
       } else {
         const errorMessage = 'QR code not found';
         setError(errorMessage);
@@ -149,37 +171,67 @@ function DirectMessageSend() {
   };
 
   const redirectToWhatsApp = async (data) => {
+    // Prevent multiple redirects - check if already redirected or redirect in progress
+    if (hasRedirectedRef.current || globalDirectRedirectLocks[qrId] || !isMountedRef.current) {
+      return;
+    }
+
+    // Set redirect lock immediately
+    globalDirectRedirectLocks[qrId] = true;
+    hasRedirectedRef.current = true;
+
     // Use directUrl from API response for WhatsApp redirect
     const directUrl = data.directUrl;
 
-    if (directUrl) {
-      try {
-        // Prevent multiple share calls - check global lock
-        if (!globalShareLocks[qrId] && !hasSharedRef.current) {
-          globalShareLocks[qrId] = true;
-          hasSharedRef.current = true;
-          
+    if (!directUrl) {
+      setError('WhatsApp redirect URL not available');
+      globalDirectRedirectLocks[qrId] = false;
+      hasRedirectedRef.current = false;
+      return;
+    }
+
+    try {
+      // Prevent multiple share calls - check global lock
+      if (!globalShareLocks[qrId] && !hasSharedRef.current) {
+        globalShareLocks[qrId] = true;
+        hasSharedRef.current = true;
+        
+        try {
           // First, call shareQRCode service to increment share count
           await shareQRCode(qrId);
-          
-          // Release lock after share call completes
+        } catch (shareError) {
+          console.error('Share count error:', shareError);
+          // Continue with redirect even if share count fails
+        } finally {
+          // Release share lock after call completes
           globalShareLocks[qrId] = false;
         }
-        
-        // Then redirect to WhatsApp
-        setTimeout(() => {
-          window.location.href = directUrl;
-        }, 1000);
-        
-      } catch (shareError) {
-        // Continue with redirect even if share count fails
-        setTimeout(() => {
-          window.location.href = directUrl;
-        }, 1000);
       }
       
-    } else {
-      setError('WhatsApp redirect URL not available');
+      // Check if component is still mounted before redirecting
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      // Clear any existing redirect timeout
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+
+      // Set redirect timeout - shorter delay for faster redirect
+      redirectTimeoutRef.current = setTimeout(() => {
+        // Double check if component is still mounted
+        if (isMountedRef.current && hasRedirectedRef.current) {
+          // Use window.location.replace to prevent back button navigation
+          window.location.replace(directUrl);
+        }
+      }, 500); // Reduced from 1000ms to 500ms for faster redirect
+      
+    } catch (error) {
+      console.error('Redirect error:', error);
+      // Reset redirect flags on error
+      globalDirectRedirectLocks[qrId] = false;
+      hasRedirectedRef.current = false;
     }
   };
 
