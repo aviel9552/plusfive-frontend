@@ -15,15 +15,35 @@ export default defineConfig({
   },
   build: {
     outDir: "dist", // Default output directory for Vite, ensure this matches your deployment setup
-    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
+    chunkSizeWarningLimit: 1500, // Increase chunk size warning limit (main bundle is ~1.2MB)
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks: (id) => {
           // Separate vendor chunks for better caching
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'redux-vendor': ['@reduxjs/toolkit', 'react-redux', 'redux-persist'],
-          'stripe-vendor': ['@stripe/react-stripe-js', '@stripe/stripe-js'],
-          'chart-vendor': ['recharts'],
+          if (id.includes('node_modules')) {
+            // React core
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            // Redux
+            if (id.includes('redux') || id.includes('@reduxjs')) {
+              return 'redux-vendor';
+            }
+            // Stripe
+            if (id.includes('stripe')) {
+              return 'stripe-vendor';
+            }
+            // Charts
+            if (id.includes('recharts')) {
+              return 'chart-vendor';
+            }
+            // Other large libraries
+            if (id.includes('xlsx') || id.includes('date-fns')) {
+              return 'utils-vendor';
+            }
+            // All other node_modules
+            return 'vendor';
+          }
         },
       },
     },

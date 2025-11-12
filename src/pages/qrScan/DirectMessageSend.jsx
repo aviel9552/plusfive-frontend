@@ -191,26 +191,30 @@ function DirectMessageSend() {
     }
 
     try {
-      // Prevent multiple share calls - check global lock
+      // Check if component is still mounted before proceeding
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      // Attempt share count API call (non-blocking - don't wait for it)
+      // This runs in background and won't block redirect if it fails
       if (!globalShareLocks[qrId] && !hasSharedRef.current) {
         globalShareLocks[qrId] = true;
         hasSharedRef.current = true;
         
-        try {
-          // First, call shareQRCode service to increment share count
-          await shareQRCode(qrId);
-        } catch (shareError) {
-          console.error('Share count error:', shareError);
-          // Continue with redirect even if share count fails
-        } finally {
-          // Release share lock after call completes
-          globalShareLocks[qrId] = false;
-        }
-      }
-      
-      // Check if component is still mounted before redirecting
-      if (!isMountedRef.current) {
-        return;
+        // Fire and forget - don't await, let it run in background
+        shareQRCode(qrId)
+          .then(() => {
+            console.log('✅ Share count updated successfully');
+          })
+          .catch((shareError) => {
+            // Silent fail - just log, don't block redirect
+            console.warn('⚠️ Share count update failed (continuing with redirect):', shareError.message || shareError);
+          })
+          .finally(() => {
+            // Release share lock after call completes (success or failure)
+            globalShareLocks[qrId] = false;
+          });
       }
 
       // Clear any existing redirect timeout
@@ -218,20 +222,28 @@ function DirectMessageSend() {
         clearTimeout(redirectTimeoutRef.current);
       }
 
-      // Set redirect timeout - shorter delay for faster redirect
+      // Immediate redirect - don't wait for share API
+      // This ensures WhatsApp redirect works even if backend is unreachable
       redirectTimeoutRef.current = setTimeout(() => {
         // Double check if component is still mounted
         if (isMountedRef.current && hasRedirectedRef.current) {
           // Use window.location.replace to prevent back button navigation
           window.location.replace(directUrl);
         }
-      }, 500); // Reduced from 1000ms to 500ms for faster redirect
+      }, 300); // Reduced delay for faster redirect
       
     } catch (error) {
       console.error('Redirect error:', error);
-      // Reset redirect flags on error
+      // Reset redirect flags on error, but still try to redirect
       globalDirectRedirectLocks[qrId] = false;
       hasRedirectedRef.current = false;
+      
+      // Even on error, try to redirect if we have the URL
+      if (directUrl) {
+        setTimeout(() => {
+          window.location.replace(directUrl);
+        }, 500);
+      }
     }
   };
 

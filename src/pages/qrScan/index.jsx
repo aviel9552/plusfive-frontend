@@ -195,51 +195,65 @@ export default function QRScanHandler() {
     }
 
     try {
-      // Prevent multiple scan calls - check global lock
-      if (!globalScanLocks[qrId] && !hasScannedRef.current) {
-        globalScanLocks[qrId] = true;
-        hasScannedRef.current = true;
-        
-        try {
-          // First, call scanQRCode service to increment scan count
-          await scanQRCode(qrId);
-        } catch (scanError) {
-          console.error('Scan count error:', scanError);
-          // Continue with redirect even if scan count fails
-        } finally {
-          // Release scan lock after call completes
-          globalScanLocks[qrId] = false;
-        }
-      }
-      
       // Create message in simple text format (WhatsApp will auto-detect and make URL clickable)
       const message = `${customerMessage}: ${messageUrl}`;
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
-      // Check if component is still mounted before redirecting
+      // Check if component is still mounted before proceeding
       if (!isMountedRef.current) {
         return;
       }
 
+      // Attempt scan count API call (non-blocking - don't wait for it)
+      // This runs in background and won't block redirect if it fails
+      if (!globalScanLocks[qrId] && !hasScannedRef.current) {
+        globalScanLocks[qrId] = true;
+        hasScannedRef.current = true;
+        
+        // Fire and forget - don't await, let it run in background
+        scanQRCode(qrId)
+          .then(() => {
+            console.log('✅ Scan count updated successfully');
+          })
+          .catch((scanError) => {
+            // Silent fail - just log, don't block redirect
+            console.warn('⚠️ Scan count update failed (continuing with redirect):', scanError.message || scanError);
+          })
+          .finally(() => {
+            // Release scan lock after call completes (success or failure)
+            globalScanLocks[qrId] = false;
+          });
+      }
+      
       // Clear any existing redirect timeout
       if (redirectTimeoutRef.current) {
         clearTimeout(redirectTimeoutRef.current);
       }
 
-      // Set redirect timeout - shorter delay for faster redirect
+      // Immediate redirect - don't wait for scan API
+      // This ensures WhatsApp redirect works even if backend is unreachable
       redirectTimeoutRef.current = setTimeout(() => {
         // Double check if component is still mounted
         if (isMountedRef.current && hasRedirectedRef.current) {
           // Use window.location.replace to prevent back button navigation
           window.location.replace(whatsappUrl);
         }
-      }, 500); // Reduced from 1000ms to 500ms for faster redirect
+      }, 300); // Reduced delay for faster redirect
       
     } catch (error) {
       console.error('Redirect error:', error);
-      // Reset redirect flags on error
+      // Reset redirect flags on error, but still try to redirect
       globalRedirectLocks[qrId] = false;
       hasRedirectedRef.current = false;
+      
+      // Even on error, try to redirect if we have the data
+      if (customerMessage && messageUrl) {
+        const message = `${customerMessage}: ${messageUrl}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        setTimeout(() => {
+          window.location.replace(whatsappUrl);
+        }, 500);
+      }
     }
   };
 
