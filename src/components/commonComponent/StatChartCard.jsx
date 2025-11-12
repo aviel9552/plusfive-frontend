@@ -46,8 +46,6 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
         <div className="w-24 h-12">
           <ResponsiveContainer width="100%" height={88}>
             <AreaChart data={chartData}>
-        
-              />
               <Tooltip
                 content={<CustomTooltip />}
                 cursor={false}
