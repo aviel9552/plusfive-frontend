@@ -15,66 +15,62 @@ export default defineConfig({
   },
   build: {
     outDir: "dist", // Default output directory for Vite, ensure this matches your deployment setup
-    chunkSizeWarningLimit: 2000, // increases the warning limit, safe for Vercel
+    chunkSizeWarningLimit: 2000, // Increased limit to suppress warnings for large chunks (Vercel can handle them)
     sourcemap: false, // Disable source maps for production (smaller build)
     rollupOptions: {
       output: {
         // Manual chunks for better vendor code splitting
-        // NOTE: We're NOT including 'recharts' or 'xlsx' here - they're lazy-loaded via dynamic imports
-        // This ensures they're loaded only when needed, not in the initial bundle
+        // Strategy: Split vendor code into smaller chunks for better caching and loading
         manualChunks: (id) => {
           // Only chunk node_modules (vendor code)
           if (id.includes('node_modules')) {
-            // CRITICAL: Exclude recharts and xlsx from manual chunks
-            // They're lazy-loaded via dynamic imports (await import('recharts'))
-            // Returning undefined lets Vite create separate chunks for them
+            // IMPORTANT: Recharts and xlsx are lazy-loaded via dynamic imports
+            // Don't include them in manual chunks - let Vite handle them automatically
+            // This ensures they're loaded only when needed, not in the initial bundle
             if (id.includes('recharts')) {
-              return undefined;
+              return undefined; // Dynamic import will create its own chunk
             }
             if (id.includes('xlsx')) {
-              return undefined;
+              return undefined; // Dynamic import will create its own chunk
             }
             
-            // React core - check for exact package paths
-            // Vite normalizes paths, so we check for 'node_modules/react/' and 'node_modules/react-dom/'
-            if (id.includes('node_modules/react/') || id.includes('node_modules\\react\\')) {
-              // Exclude react-redux, react-router, etc. - they have their own chunks
-              if (!id.includes('react-redux') && !id.includes('react-router') && 
-                  !id.includes('react-slick') && !id.includes('react-toastify') && 
-                  !id.includes('react-icons')) {
-                return 'react-vendor';
-              }
+            // React core - exact package matching
+            if ((id.includes('node_modules/react/') || id.includes('node_modules\\react\\')) &&
+                !id.includes('react-redux') && !id.includes('react-router') && 
+                !id.includes('react-slick') && !id.includes('react-toastify') && 
+                !id.includes('react-icons')) {
+              return 'react-vendor';
             }
             if (id.includes('node_modules/react-dom/') || id.includes('node_modules\\react-dom\\')) {
               return 'react-vendor';
             }
             
-            // Redux - state management
+            // Redux ecosystem
             if (id.includes('@reduxjs') || id.includes('react-redux') || id.includes('redux-persist')) {
               return 'redux-vendor';
             }
             
-            // React Router - routing
+            // React Router
             if (id.includes('react-router')) {
               return 'router-vendor';
             }
             
-            // Stripe - payment processing
+            // Stripe - large library, lazy-loaded on payment pages
             if (id.includes('@stripe') || id.includes('stripe-js')) {
               return 'stripe-vendor';
             }
             
-            // React Slick - carousel
+            // React Slick - carousel library
             if (id.includes('react-slick') || id.includes('slick-carousel')) {
               return 'slick-vendor';
             }
             
-            // React Toastify - notifications
+            // React Toastify - notification library
             if (id.includes('react-toastify')) {
               return 'toastify-vendor';
             }
             
-            // React Icons - icon library (tree-shakeable, but large)
+            // React Icons - large icon library (tree-shakeable)
             if (id.includes('react-icons')) {
               return 'icons-vendor';
             }
@@ -89,14 +85,22 @@ export default defineConfig({
               return 'date-vendor';
             }
             
-            // Other vendor libraries - group into a common vendor chunk
+            // Vite and build tools (should be minimal in production)
+            if (id.includes('vite') || id.includes('@vitejs')) {
+              return 'vendor';
+            }
+            
+            // Other vendor libraries - group into common vendor chunk
             return 'vendor';
           }
           
-          // Return undefined for source files - let Vite handle code splitting automatically
+          // Source files - let Vite handle code splitting automatically
           // This allows React.lazy() and dynamic imports to work correctly
           return undefined;
         },
+        // Standard chunk and asset file naming (Vite default)
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
     },
   },
