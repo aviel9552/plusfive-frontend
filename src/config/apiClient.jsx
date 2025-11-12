@@ -4,19 +4,27 @@ import axios from 'axios';
 let API_URL = import.meta.env.VITE_API_URL;
 
 // Auto-detect API URL for network access (development only)
-if (import.meta.env.DEV && !API_URL) {
-  // Detect if running on network IP (phone access)
+if (import.meta.env.DEV) {
   const hostname = window.location.hostname;
-  const isNetworkIP = hostname !== 'localhost' && hostname !== '127.0.0.1';
+  const isNetworkIP = hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.includes('127.0.0.1');
   
   if (isNetworkIP) {
-    // Auto-use network IP for backend
-    API_URL = `http://${hostname}:3000`;
-    console.log('🔗 Auto-detected API URL for network access:', API_URL);
+    // Phone access detected - use network IP for backend
+    // Override VITE_API_URL if it's set to localhost
+    if (!API_URL || API_URL.includes('localhost') || API_URL.includes('127.0.0.1')) {
+      API_URL = `http://${hostname}:3000`;
+      console.log('🔗 Auto-detected API URL for network access (phone):', API_URL);
+    } else {
+      console.log('🔗 Using VITE_API_URL from env:', API_URL);
+    }
   } else {
-    // Default to localhost for desktop
-    API_URL = 'http://localhost:3000';
-    console.log('🔗 Using default localhost API URL:', API_URL);
+    // Desktop access - use localhost
+    if (!API_URL) {
+      API_URL = 'http://localhost:3000';
+      console.log('🔗 Using default localhost API URL:', API_URL);
+    } else {
+      console.log('🔗 Using VITE_API_URL from env:', API_URL);
+    }
   }
 }
 
@@ -25,14 +33,11 @@ if (import.meta.env.DEV) {
   console.log('🔗 Final API URL:', API_URL || '❌ NOT SET');
   console.log('🌐 Current hostname:', window.location.hostname);
   
-  // Warn if using localhost but accessing from network IP
-  const hostname = window.location.hostname;
-  const isNetworkIP = hostname !== 'localhost' && hostname !== '127.0.0.1';
-  if (isNetworkIP && API_URL && API_URL.includes('localhost')) {
-    console.warn('⚠️ WARNING: Running on network IP but API URL is localhost!');
-    console.warn('📱 Phone access requires network IP in VITE_API_URL');
-    console.warn('💡 Solution: Create .env.local file with: VITE_API_URL=http://' + hostname + ':3000');
-    console.warn('💡 Or set: VITE_API_URL=http://192.168.29.73:3000 (replace with your IP)');
+  // Additional debug info
+  if (API_URL) {
+    console.log('✅ API Client initialized with URL:', API_URL);
+  } else {
+    console.error('❌ API URL is not set! Check VITE_API_URL environment variable.');
   }
 }
 
@@ -42,8 +47,12 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add timeout for network requests
-  timeout: 10000, // 10 seconds
+  // Add timeout for network requests (increased for mobile networks)
+  timeout: 30000, // 30 seconds for slower mobile networks
+  // Validate status to handle network errors better
+  validateStatus: function (status) {
+    return status < 500; // Consider status codes less than 500 as success for retry logic
+  },
 });
 
 // Add request interceptor to automatically add token
