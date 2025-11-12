@@ -165,7 +165,7 @@ function Referrals() {
     const paginationNumbers = getPagination(page, Math.ceil(filteredAndSortedData.length / pageSize));
 
     return (
-        <div className={`bg-white dark:bg-customBrown rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-commonBorder shadow-sm transition-all duration-200 font-ttcommons dark:hover:bg-customBlack shadow-md hover:shadow-sm`}>
+        <div className={`bg-white dark:bg-customBrown rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-commonBorder shadow-sm transition-all duration-200 font-ttcommons dark:hover:bg-customBlack hover:shadow-sm`}>
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
