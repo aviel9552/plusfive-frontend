@@ -14,91 +14,87 @@ export default defineConfig({
     alias: [{ find: "@", replacement: "/src" }],
   },
   build: {
-    outDir: "dist", // Default output directory for Vite, ensure this matches your deployment setup
-    chunkSizeWarningLimit: 2000, // Increased limit to suppress warnings for large chunks (Vercel can handle them)
-    sourcemap: false, // Disable source maps for production (smaller build)
+    outDir: "dist",
+    // ⚡ Use esbuild minifier for faster builds (2-3x faster than terser)
+    minify: 'esbuild',
+    // Disable source maps for faster builds
+    sourcemap: false,
+    // Increase chunk size warning limit
+    chunkSizeWarningLimit: 2000,
+    // ⚡ Enable CSS code splitting
+    cssCodeSplit: true,
+    // ⚡ Disable compressed size reporting for faster builds
+    reportCompressedSize: false,
+    // Optimize rollup options for faster builds
     rollupOptions: {
       output: {
-        // Manual chunks for better vendor code splitting
-        // Strategy: Split vendor code into smaller chunks for better caching and loading
+        // Simplified manual chunks strategy for faster processing
         manualChunks: (id) => {
-          // Only chunk node_modules (vendor code)
-          if (id.includes('node_modules')) {
-            // IMPORTANT: Recharts and xlsx are lazy-loaded via dynamic imports
-            // Don't include them in manual chunks - let Vite handle them automatically
-            // This ensures they're loaded only when needed, not in the initial bundle
-            if (id.includes('recharts')) {
-              return undefined; // Dynamic import will create its own chunk
-            }
-            if (id.includes('xlsx')) {
-              return undefined; // Dynamic import will create its own chunk
-            }
-            
-            // React core - exact package matching
-            if ((id.includes('node_modules/react/') || id.includes('node_modules\\react\\')) &&
-                !id.includes('react-redux') && !id.includes('react-router') && 
-                !id.includes('react-slick') && !id.includes('react-toastify') && 
-                !id.includes('react-icons')) {
-              return 'react-vendor';
-            }
-            if (id.includes('node_modules/react-dom/') || id.includes('node_modules\\react-dom\\')) {
-              return 'react-vendor';
-            }
-            
-            // Redux ecosystem
-            if (id.includes('@reduxjs') || id.includes('react-redux') || id.includes('redux-persist')) {
-              return 'redux-vendor';
-            }
-            
-            // React Router
-            if (id.includes('react-router')) {
-              return 'router-vendor';
-            }
-            
-            // Stripe - large library, lazy-loaded on payment pages
-            if (id.includes('@stripe') || id.includes('stripe-js')) {
-              return 'stripe-vendor';
-            }
-            
-            // React Slick - carousel library
-            if (id.includes('react-slick') || id.includes('slick-carousel')) {
-              return 'slick-vendor';
-            }
-            
-            // React Toastify - notification library
-            if (id.includes('react-toastify')) {
-              return 'toastify-vendor';
-            }
-            
-            // React Icons - large icon library (tree-shakeable)
-            if (id.includes('react-icons')) {
-              return 'icons-vendor';
-            }
-            
-            // Axios - HTTP client
-            if (id.includes('node_modules/axios/') || id.includes('node_modules\\axios\\')) {
-              return 'axios-vendor';
-            }
-            
-            // Date-fns - date utilities
-            if (id.includes('date-fns')) {
-              return 'date-vendor';
-            }
-            
-            // Vite and build tools (should be minimal in production)
-            if (id.includes('vite') || id.includes('@vitejs')) {
-              return 'vendor';
-            }
-            
-            // Other vendor libraries - group into common vendor chunk
-            return 'vendor';
+          // Skip recharts and xlsx - they're lazy-loaded via dynamic imports
+          if (id.includes('recharts') || id.includes('xlsx')) {
+            return undefined;
           }
           
-          // Source files - let Vite handle code splitting automatically
-          // This allows React.lazy() and dynamic imports to work correctly
-          return undefined;
+          // Only process node_modules (vendor code)
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+          
+          // React core - exact package matching for faster processing
+          if ((id.includes('node_modules/react/') || id.includes('node_modules\\react\\')) &&
+              !id.includes('react-redux') && !id.includes('react-router') && 
+              !id.includes('react-slick') && !id.includes('react-toastify') && 
+              !id.includes('react-icons')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/react-dom/') || id.includes('node_modules\\react-dom\\')) {
+            return 'react-vendor';
+          }
+          
+          // Redux ecosystem - group together
+          if (id.includes('@reduxjs') || id.includes('react-redux') || id.includes('redux-persist')) {
+            return 'redux-vendor';
+          }
+          
+          // React Router - separate chunk
+          if (id.includes('react-router')) {
+            return 'router-vendor';
+          }
+          
+          // Stripe - separate chunk (lazy-loaded on payment pages)
+          if (id.includes('@stripe') || id.includes('stripe-js')) {
+            return 'stripe-vendor';
+          }
+          
+          // React Slick - separate chunk
+          if (id.includes('react-slick') || id.includes('slick-carousel')) {
+            return 'slick-vendor';
+          }
+          
+          // React Toastify - separate chunk
+          if (id.includes('react-toastify')) {
+            return 'toastify-vendor';
+          }
+          
+          // React Icons - separate chunk
+          if (id.includes('react-icons')) {
+            return 'icons-vendor';
+          }
+          
+          // Axios - exact package matching
+          if (id.includes('node_modules/axios/') || id.includes('node_modules\\axios\\')) {
+            return 'axios-vendor';
+          }
+          
+          // Date-fns - separate chunk
+          if (id.includes('date-fns')) {
+            return 'date-vendor';
+          }
+          
+          // All other vendors - single chunk for faster processing
+          return 'vendor';
         },
-        // Standard chunk and asset file naming (Vite default)
+        // Optimized chunk naming
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
       },
