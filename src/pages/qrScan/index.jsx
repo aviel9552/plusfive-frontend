@@ -10,6 +10,8 @@ let globalQRCache = {};
 let globalAPILocks = {};
 // Global lock to prevent multiple scan calls
 let globalScanLocks = {};
+// Global tracker to ensure scan is called only once per QR ID
+let globalScannedQRs = {};
 
 export default function QRScanHandler() {
   const { qrId } = useParams();
@@ -36,7 +38,7 @@ export default function QRScanHandler() {
       if (cachedData.success) {
         setQrData(cachedData.data);
         setLoading(false);
-        // Redirect to WhatsApp with cached data
+        // Redirect to WhatsApp with cached data (scan already done, won't call again)
         redirectToWhatsApp(cachedData.data);
         return;
       } else {
@@ -75,8 +77,9 @@ export default function QRScanHandler() {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      // Release lock on unmount
-      if (globalAPILocks[qrId]) {
+      // Don't release lock on unmount if we have cached data - prevent duplicate calls in StrictMode
+      // Only release if there's no cache (meaning API call failed or was aborted)
+      if (globalAPILocks[qrId] && !globalQRCache[qrId]) {
         globalAPILocks[qrId] = false;
       }
     };
@@ -158,16 +161,18 @@ export default function QRScanHandler() {
     // Only redirect if we have both message and URL
     if (customerMessage && messageUrl) {
       try {
-        // Prevent multiple scan calls - check global lock
-        if (!globalScanLocks[qrId] && !hasScannedRef.current) {
+        // Prevent multiple scan calls - check if already scanned for this QR ID
+        // Use global tracker to ensure scan happens only once per QR ID (even in StrictMode)
+        if (!globalScannedQRs[qrId] && !globalScanLocks[qrId] && !hasScannedRef.current) {
           globalScanLocks[qrId] = true;
+          globalScannedQRs[qrId] = true; // Mark as scanned permanently
           hasScannedRef.current = true;
           
           // First, call scanQRCode service to increment scan count
           await scanQRCode(qrId);
           
-          // Release lock after scan call completes
-          globalScanLocks[qrId] = false;
+          // Don't release lock - keep it locked to prevent duplicate calls
+          // globalScanLocks[qrId] remains true permanently
         }
         
         // Create message in simple text format (WhatsApp will auto-detect and make URL clickable)

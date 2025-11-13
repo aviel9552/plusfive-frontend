@@ -8,6 +8,8 @@ let globalDirectQRCache = {};
 let globalDirectAPILocks = {};
 // Global lock to prevent multiple share calls
 let globalShareLocks = {};
+// Global tracker to ensure share is called only once per QR ID
+let globalSharedQRs = {};
 
 function DirectMessageSend() {
   const { qrId } = useParams();
@@ -34,7 +36,7 @@ function DirectMessageSend() {
       if (cachedData.success) {
         setQrData(cachedData.data);
         setLoading(false);
-        // Redirect to WhatsApp with cached data
+        // Redirect to WhatsApp with cached data (share already done, won't call again)
         redirectToWhatsApp(cachedData.data);
         return;
       } else {
@@ -73,8 +75,9 @@ function DirectMessageSend() {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      // Release lock on unmount
-      if (globalDirectAPILocks[qrId]) {
+      // Don't release lock on unmount if we have cached data - prevent duplicate calls in StrictMode
+      // Only release if there's no cache (meaning API call failed or was aborted)
+      if (globalDirectAPILocks[qrId] && !globalDirectQRCache[qrId]) {
         globalDirectAPILocks[qrId] = false;
       }
     };
@@ -154,16 +157,18 @@ function DirectMessageSend() {
 
     if (directUrl) {
       try {
-        // Prevent multiple share calls - check global lock
-        if (!globalShareLocks[qrId] && !hasSharedRef.current) {
+        // Prevent multiple share calls - check if already shared for this QR ID
+        // Use global tracker to ensure share happens only once per QR ID (even in StrictMode)
+        if (!globalSharedQRs[qrId] && !globalShareLocks[qrId] && !hasSharedRef.current) {
           globalShareLocks[qrId] = true;
+          globalSharedQRs[qrId] = true; // Mark as shared permanently
           hasSharedRef.current = true;
           
           // First, call shareQRCode service to increment share count
           await shareQRCode(qrId);
           
-          // Release lock after share call completes
-          globalShareLocks[qrId] = false;
+          // Don't release lock - keep it locked to prevent duplicate calls
+          // globalShareLocks[qrId] remains true permanently
         }
         
         // Then redirect to WhatsApp
