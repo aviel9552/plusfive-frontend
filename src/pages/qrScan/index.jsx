@@ -207,20 +207,13 @@ export default function QRScanHandler() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen text-xl text-red-600">
-        Error: {error}
-      </div>
-    );
-  }
-
-    return (
+  // Don't show error, just show loading/redirecting message
+  return (
     <div className="flex justify-center items-center h-screen text-xl">
       Redirecting to WhatsApp...
-      </div>
-    );
-  }
+    </div>
+  );
+}
 
 
 
