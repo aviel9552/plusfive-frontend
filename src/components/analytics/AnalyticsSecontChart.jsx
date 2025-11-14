@@ -92,8 +92,8 @@ function AnalyticsSecontChart({ isReady = true }) {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: '#888', fontSize: 12 }} dy={10} />
               <YAxis tickLine={false} axisLine={false} tick={<CustomYAxisTick />} domain={[0, 'dataMax']} />
               <Tooltip content={<CustomBarTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} isAnimationActive={false} />
-              <Bar dataKey="lastYear" fill="#4A4A4A" radius={[4, 4, 0, 0]} barSize={12} onMouseOver={() => setHoveredBar('lastYear')} />
-              <Bar dataKey="thisYear" fill="#FF2380" radius={[4, 4, 0, 0]} barSize={12} onMouseOver={() => setHoveredBar('thisYear')} />
+              <Bar dataKey="lastYear" fill="#ffb7d4" radius={[4, 4, 0, 0]} barSize={12} onMouseOver={() => setHoveredBar('lastYear')} />
+              <Bar dataKey="thisYear" fill="#ff257c" radius={[4, 4, 0, 0]} barSize={12} onMouseOver={() => setHoveredBar('thisYear')} />
             </BarChart>
           </ResponsiveContainer>
         </div>
