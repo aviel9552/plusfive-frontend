@@ -341,7 +341,7 @@ function CurrentActiveSubscription({ slug }) {
                 <CommonButton
                   text={t.updatePayment}
                   icon={<CgCreditCard className='rotate-180' />}
-                  className="w-full md:w-auto px-6 py-3 !text-white rounded-lg text-14 bg-blue-600 hover:bg-blue-700"
+                  className="w-full md:w-auto px-6 py-3 !text-white rounded-lg text-14 bg-customPink hover:bg-customPink/90"
                   onClick={handleUpdatePayment}
                 />
                 <CommonCustomOutlineButton 

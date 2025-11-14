@@ -1,4 +1,4 @@
-import { AdminMonthlyPerformance, AdminRevenueImpactCustomerStatus, CustomerTable } from "../../components";
+import { AdminAnalyticsMonthlyPerformance, AdminMonthlyPerformance, AdminRevenueImpactCustomerStatus, CustomerTable } from "../../components";
 import { useDispatch, useSelector } from 'react-redux'
 import { getCustomersStatusCount, getTenCustomers } from '../../redux/services/customerService'
 import { useEffect, useState } from "react";
@@ -37,7 +37,8 @@ const Home = () => {
   return (
     <div className="space-y-7">
       <div className="flex flex-col gap-[24px]">
-        <AdminMonthlyPerformance />
+        {/* <AdminMonthlyPerformance /> */}
+        <AdminAnalyticsMonthlyPerformance />
         <AdminRevenueImpactCustomerStatus />
       </div>
       {/* <AdminReferrals /> */}

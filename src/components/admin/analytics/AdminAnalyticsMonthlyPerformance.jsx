@@ -44,7 +44,8 @@ function AdminAnalyticsMonthlyPerformance() {
 
   const formatValue = (value, type) => {
     if (type === 'revenue') {
-      return value >= 1000 ? `₪${(value / 1000).toFixed(0)}k` : `₪${value}`;
+      // Show actual value with comma formatting for better readability
+      return `₪${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
     }
     if (type === 'ltv') {
       return `${value}/m`;

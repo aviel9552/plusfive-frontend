@@ -52,6 +52,7 @@
 }
 :lang(he) {
   font-family: 'Nunito', sans-serif;
+  font-weight: bold;
 }
 
 /* Smooth transitions for theme switching */
