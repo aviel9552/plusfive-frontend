@@ -153,7 +153,7 @@ function LandingHeader() {
 
     return (
         // Header wrapper with transparent background, margin, and flex layout
-        <header className="lg:w-[100%] w-[95%] lg:min-w-[632px] flex items-center justify-between py-3 px-6 mx-2 lg:py-[18px] lg:px-[80px] lg:mx-0 fixed top-0 left-0 z-50 bg-customGray lg:bg-black rounded-full shadow-md border border-[#0000001A] lg:rounded-none lg:shadow-none lg:border-none transition-all duration-300 ease-in-out" 
+        <header className="lg:w-[100%] w-[95%] lg:min-w-[632px] flex items-center justify-between py-3 px-6 mx-2 lg:py-[18px] lg:px-[80px] lg:mx-0 fixed top-0 left-0 z-50 bg-black lg:bg-black rounded-full shadow-md border border-[#0000001A] lg:rounded-none lg:shadow-none lg:border-none transition-all duration-300 ease-in-out" 
         style={{ marginTop: isScrolled ? '0px' : '0px' }}
         >
             {/* Left: Logo and Brand Name */}
@@ -171,7 +171,7 @@ function LandingHeader() {
 
             {/* Desktop Nav */}
             <nav className="flex-1 justify-center hidden lg:flex" style={{ margin: '0px -20px 0 0' }}>
-                <ul className="flex xl:gap-7 lg:gap-3 md:gap-3 gap-2 bg-customGray rounded-full p-[12px] shadow-sm text-xl">
+                <ul className="flex xl:gap-7 lg:gap-3 md:gap-3 gap-2 bg-black rounded-full p-[12px] shadow-sm text-xl">
                     {renderMenu('p-[8px] px-[18px] whitespace-nowrap rounded-full text-white font-medium text-16')}
                 </ul>
             </nav>
@@ -207,7 +207,7 @@ function LandingHeader() {
             {/* Mobile Menu Drawer */}
             {menuOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-end lg:hidden">
-                    <div className="w-3/4 max-w-xs bg-customGray h-full shadow-lg p-6 flex flex-col gap-6 relative animate-slide-in">
+                    <div className="w-3/4 max-w-xs bg-black h-full shadow-lg p-6 flex flex-col gap-6 relative animate-slide-in">
                         {/* Close button absolute top-right */}
                         <button onClick={() => setMenuOpen(false)} className="absolute top-4 right-4 text-3xl text-white focus:outline-none z-10">
                             <HiX />
