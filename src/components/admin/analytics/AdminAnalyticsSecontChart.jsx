@@ -194,8 +194,8 @@ function AdminAnalyticsSecontChart() {
                                 >
                                     <defs>
                                         <linearGradient id="lastYearGradient" x1="0" y1="1" x2="0" y2="0">
-                                            <stop offset="0%" stopColor="#61656C" />
-                                            <stop offset="100%" stopColor="#BDC4D2" />
+                                            <stop offset="0%" stopColor="#ffb7d4" />
+                                            <stop offset="100%" stopColor="#ffb7d4" />
                                         </linearGradient>
                                         <linearGradient id="thisYearGradient" x1="0" y1="0" x2="0" y2="1" gradientTransform="rotate(259)">
                                             {/* <stop offset="3.28%" stopColor="#FE5D39" />
