@@ -9,7 +9,13 @@ import CommonLoader from '../../../components/commonComponent/CommonLoader';
 function AdminAnalyticsRevenueAndCustomerStatus() {
   const { language } = useLanguage();
   const t = getAdminTranslations(language);
-  const { revenueImpact, customerStatus, fetchRevenueImpact, fetchCustomerStatus } = useAdminData();
+  const {
+    revenueImpact,
+    customerStatus,
+    fetchRevenueImpact,
+    fetchCustomerStatus,
+  } = useAdminData();
+
   const [selectedFilter, setSelectedFilter] = useState('monthly');
   const [revenueImpactsData, setRevenueImpactsData] = useState({});
   const [revenueImpactsLoading, setRevenueImpactsLoading] = useState(true);
@@ -18,14 +24,14 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
     const fetchAllData = async () => {
       try {
         setRevenueImpactsLoading(true);
-        
+
         // Fetch all APIs together
         const [revenueImpactsResponse] = await Promise.all([
           getRevenueImpacts(),
           fetchRevenueImpact(),
-          fetchCustomerStatus()
+          fetchCustomerStatus(),
         ]);
-        
+
         if (revenueImpactsResponse.success && revenueImpactsResponse.data) {
           setRevenueImpactsData(revenueImpactsResponse.data);
         }
@@ -37,9 +43,18 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
     };
 
     fetchAllData();
-  }, []); // Empty dependency array - run only once on mount
+  }, []); // run only once on mount
 
-   // Colors for each status in the pie chart
+  // Transform revenue impact data for the bar chart
+  const transformRevenueData = (data) => {
+    if (!data) return [];
+    return data.map((item) => ({
+      month: item.label,
+      value: item.revenue,
+    }));
+  };
+
+  // Colors for each status in the pie chart
   const STATUS_COLORS = {
     New: '#ff257c',
     Active: '#ff4e94',
@@ -51,25 +66,15 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   // Transform customer status data for the pie chart
   const transformCustomerData = (data) => {
     if (!data) return [];
-    return data.breakdown?.map(item => ({
-      name: item.status,
-      value: item.count,
-      percentage: `${item.percentage}%`,
-      // משתמשים בצבעים שלנו לפי הסטטוס, ואם אין – לוקחים מה־API
-      color: STATUS_COLORS[item.status] || item.color,
-    })) || [];
-  };
-
-
-  // Transform customer status data for the pie chart
-  const transformCustomerData = (data) => {
-    if (!data) return [];
-    return data.breakdown?.map(item => ({
-      name: item.status,
-      value: item.count,
-      percentage: `${item.percentage}%`,
-      color: item.color
-    })) || [];
+    return (
+      data.breakdown?.map((item) => ({
+        name: item.status,
+        value: item.count,
+        percentage: `${item.percentage}%`,
+        // קודם ננסה צבע לפי סטטוס, ואם אין – נ fallback לצבע שמגיע מה־API
+        color: STATUS_COLORS[item.status] || item.color,
+      })) || []
+    );
   };
 
   const FILTERS = [
@@ -91,9 +96,9 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
       <div className="lg:col-span-7">
-        {(revenueImpact.loading || revenueImpactsLoading) ? (
+        {revenueImpact.loading || revenueImpactsLoading ? (
           <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
-              <CommonLoader />
+            <CommonLoader />
           </div>
         ) : revenueImpact.error ? (
           <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
@@ -112,7 +117,7 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
       <div className="lg:col-span-5">
         {customerStatus.loading ? (
           <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
-              <CommonLoader />
+            <CommonLoader />
           </div>
         ) : customerStatus.error ? (
           <div className="flex justify-center items-center h-[360px] bg-white dark:bg-customBrown rounded-lg shadow">
@@ -132,4 +137,3 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
 }
 
 export default AdminAnalyticsRevenueAndCustomerStatus;
-
