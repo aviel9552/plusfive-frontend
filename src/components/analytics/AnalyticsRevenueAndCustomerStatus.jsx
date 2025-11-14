@@ -40,10 +40,11 @@ const DEFAULT_DATA_MAP = {
 };
 
 const DEFAULT_PIE = [
-  { name: 'Active',    value: 680, percentage: '22%', color: '#6366F1' },
-  { name: 'At Risk',   value: 75,  percentage: '10%', color: '#F97316' },
-  { name: 'Lost',      value: 58,  percentage: '8%',  color: '#EF4444' },
-  { name: 'Recovered', value: 240, percentage: '15%', color: '#EC4899' },
+  { name: 'New',       value: 120, percentage: '20%', color: '#ff257c' },
+  { name: 'Active',    value: 680, percentage: '22%', color: '#ff4e94' },
+  { name: 'At Risk',   value: 75,  percentage: '10%', color: '#ff7db1' },
+  { name: 'Lost',      value: 58,  percentage: '8%',  color: '#ffb7d4' },
+  { name: 'Recovered', value: 240, percentage: '15%', color: '#ffd5e6' },
 ];
 
 function AnalyticsRevenueAndCustomerStatus({
