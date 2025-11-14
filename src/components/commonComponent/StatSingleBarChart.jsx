@@ -124,7 +124,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
             />
             <Bar 
               dataKey="value" 
-              fill="#6166F1"
+              fill="#ff257c"
               radius={[8, 8, 0, 0]}
               maxBarSize={35}
               onMouseOver={(_, idx) => setActiveIndex(idx)}
