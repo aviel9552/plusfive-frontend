@@ -54,7 +54,7 @@ function AdminLTVGrothChart() {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-900 dark:text-white font-ttcommons">
+                <div className="bg-gray-100 dark:bg-[ffb7d4] px-3 py-2 rounded-lg shadow-lg text-gray-900 dark:text-white font-ttcommons">
                     <p className="font-semibold text-14">{label}</p>
                     <p className="text-16 dark:text-white text-gray-600">{payload[0].payload.tooltipLTV} {t.monthCustomersLTD}</p>
                 </div>
@@ -89,7 +89,7 @@ function AdminLTVGrothChart() {
                     cx={cx}
                     cy={cy}
                     r={3}
-                    fill="ffb7d4"
+                    fill="#ffb7d4"
                 />
             </g>
         );
@@ -133,7 +133,7 @@ function AdminLTVGrothChart() {
                         >
                             <CartesianGrid
                                 strokeDasharray="6 6"
-                                stroke={isDarkMode ? "#D1D5DB" : "#000"}
+                                stroke={isDarkMode ? "#ffb7d4" : "#000"}
                                 strokeOpacity={0.15}
                             />
                             <XAxis 
