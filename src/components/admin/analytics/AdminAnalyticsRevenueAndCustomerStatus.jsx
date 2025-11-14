@@ -83,6 +83,7 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
   };
 
   const pieChartData = transformCustomerData(customerStatus.data);
+  console.log('PIE DATA DEBUG:', pieChartData);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
