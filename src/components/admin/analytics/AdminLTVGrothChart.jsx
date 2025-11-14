@@ -89,7 +89,7 @@ function AdminLTVGrothChart() {
                     cx={cx}
                     cy={cy}
                     r={3}
-                    fill="#FE7503"
+                    fill="ffb7d4"
                 />
             </g>
         );
@@ -166,9 +166,9 @@ function AdminLTVGrothChart() {
                             <Line
                                 type="monotone"
                                 dataKey="ltv"
-                                stroke="#675DFF"
+                                stroke="#ff257c"
                                 strokeWidth={2.5}
-                                dot={{ r: 6, stroke: '#FE7503', strokeWidth: 2, fill: isDarkMode ? '#000000' : '#ffffff' }}
+                                dot={{ r: 6, stroke: 'ffb7d4', strokeWidth: 2, fill: isDarkMode ? '#000000' : '#ffffff' }}
                                 activeDot={<CustomActiveDot />}
                             />
                         </LineChart>
