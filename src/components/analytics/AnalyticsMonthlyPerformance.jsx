@@ -46,7 +46,7 @@ function AnalyticsMonthlyPerformance({ data, isReady }) {
         />
 
         <StatChartCard
-          title="Customers LTV"
+          title="Customers Liftime Visits"
           value={ltv?.value}
           change={ltv?.change}
           trend={ltv?.trend}
