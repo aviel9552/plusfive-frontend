@@ -98,9 +98,9 @@ function AdminLTVGrothChart() {
     return (
       <g>
         {/* טבעת חיצונית ורודה בהירה */}
-        <circle cx={cx} cy={cy} r={7} fill="#ffb7d4" />
+        <circle cx={cx} cy={cy} r={7} fill="#ff257c" />
         {/* עיגול פנימי ורוד חזק */}
-        <circle cx={cx} cy={cy} r={4} fill="#ff257c" />
+        <circle cx={cx} cy={cy} r={4} fill="#ffb7d4" />
       </g>
     );
   };
