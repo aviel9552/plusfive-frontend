@@ -20,7 +20,7 @@ function CommonButton({
         relative overflow-hidden inline-flex items-center justify-center
         ${disabled 
           ? 'bg-gray-400 cursor-not-allowed opacity-60' 
-          : 'bg-[#ff257c] hover:bg-[#e31e6f] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+          : 'bg-[#ff257c] hover:bg-[#ff257c] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
         }
         text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200
         ${className}
