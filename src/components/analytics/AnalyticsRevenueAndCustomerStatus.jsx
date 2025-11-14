@@ -87,7 +87,7 @@ function AnalyticsRevenueAndCustomerStatus({
       />
 
       <StatPieChart
-        title="Customer Status Breakdown"
+        title="Customer Status Breakdown TEST"
         data={_pieData}
       />
     </div>
