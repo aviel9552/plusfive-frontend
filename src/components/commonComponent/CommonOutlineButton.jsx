@@ -22,9 +22,9 @@ function CommonOutlineButton({ text, onClick, className = '', textClass = '', ic
       style={{
         '--bg-color': bgColor || (isDarkMode ? darkBgColor : lightBgColor),
         backgroundImage: bgColor === 'transparent' ? 
-          'linear-gradient(to right, #DF64CC, #FF2380, #FE5D39)' :
-          `linear-gradient(var(--bg-color), var(--bg-color)),
-          linear-gradient(to right, #DF64CC, #FF2380, #FE5D39)`,
+          ? 'linear-gradient(to right, #ff257c, #ff7cb1, #ffb7d4)' 
+          : `linear-gradient(var(--bg-color), var(--bg-color)),
+             linear-gradient(to right, #ff257c, #ff7cb1, #ffb7d4)`,
         backgroundOrigin: 'border-box',
         backgroundClip: bgColor === 'transparent' ? 'border-box' : 'padding-box, border-box',
       }}
