@@ -9,7 +9,7 @@ function CommonBorderButton({ text, onClick, className = '', type = 'button', ic
       style={{
         // border: '2px solid transparent',
         borderRadius: '8px',
-        background: 'linear-gradient(259deg, #ff7cb1 3.28%, #ff257c 49.86%, #ffb7d4 100.32%)',
+        background: 'linear-gradient(259deg, #ff257c 3.28%, #ff257c 49.86%, #ff257c 100.32%)',
         backgroundClip: 'padding-box',
         position: 'relative',
         boxShadow: '0px 0px 0px 1px var(--Colors-Effects-Shadows-shadow-skeumorphic-inner-border, rgba(10, 13, 18, 0.18)) inset, 0px -2px 0px 0px var(--Colors-Effects-Shadows-shadow-skeumorphic-inner, rgba(10, 13, 18, 0.05)) inset, 0px 1px 2px 0px var(--Colors-Effects-Shadows-shadow-xs, rgba(10, 13, 18, 0.05))'
