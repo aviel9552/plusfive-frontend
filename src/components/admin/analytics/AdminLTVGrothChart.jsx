@@ -165,7 +165,7 @@ function AdminLTVGrothChart() {
               <YAxis
                 tickLine={false}
                 axisLine={{ stroke: '#444' }}
-                domain={[0, 'dataMax + 5.5']}
+                domain={[0, 'dataMax + 3.5']}
                 tick={<CustomYAxisTick />}
                 orientation={isRTL ? 'right' : 'left'}
                 label={{
