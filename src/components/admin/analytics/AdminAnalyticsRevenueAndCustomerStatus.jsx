@@ -39,14 +39,27 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
     fetchAllData();
   }, []); // Empty dependency array - run only once on mount
 
-  // Transform revenue impact data for the chart
-  const transformRevenueData = (data) => {
-    if (!data) return [];
-    return data.map(item => ({
-      month: item.label,
-      value: item.revenue
-    }));
+   // Colors for each status in the pie chart
+  const STATUS_COLORS = {
+    New: '#ff257c',
+    Active: '#ff4e94',
+    'At Risk': '#ff7db1',
+    Lost: '#ffb7d4',
+    Recovered: '#ffd5e6',
   };
+
+  // Transform customer status data for the pie chart
+  const transformCustomerData = (data) => {
+    if (!data) return [];
+    return data.breakdown?.map(item => ({
+      name: item.status,
+      value: item.count,
+      percentage: `${item.percentage}%`,
+      // משתמשים בצבעים שלנו לפי הסטטוס, ואם אין – לוקחים מה־API
+      color: STATUS_COLORS[item.status] || item.color,
+    })) || [];
+  };
+
 
   // Transform customer status data for the pie chart
   const transformCustomerData = (data) => {
