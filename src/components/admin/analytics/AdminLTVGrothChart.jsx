@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+=import React, { useEffect, useState, useRef } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminAnalyticsTranslations } from '../../../utils/translations';
@@ -14,35 +15,7 @@ function AdminLTVGrothChart() {
 
     const [monthlyLTVCountData, setMonthlyLTVCountData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [loadingRecharts, setLoadingRecharts] = useState(true);
-    const [Recharts, setRecharts] = useState(null);
     const hasApiCalled = useRef(false);
-
-    // 🧩 Lazy-load Recharts - Only load when chart component mounts (saves ~361KB from initial bundle)
-    useEffect(() => {
-        let isMounted = true;
-        
-        const loadRecharts = async () => {
-            try {
-                const rechartsModule = await import('recharts');
-                if (isMounted) {
-                    setRecharts(rechartsModule);
-                    setLoadingRecharts(false);
-                }
-            } catch (error) {
-                console.error('Error loading Recharts:', error);
-                if (isMounted) {
-                    setLoadingRecharts(false);
-                }
-            }
-        };
-
-        loadRecharts();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     // Transform API data for chart - only dynamic data
     const transformedData = monthlyLTVCountData?.monthlyLTVData?.map(item => ({
@@ -81,7 +54,7 @@ function AdminLTVGrothChart() {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-900 dark:text-white font-ttcommons">
+                <div className="bg-gray-100 dark:bg-[ffb7d4] px-3 py-2 rounded-lg shadow-lg text-gray-900 dark:text-white font-ttcommons">
                     <p className="font-semibold text-14">{label}</p>
                     <p className="text-16 dark:text-white text-gray-600">{payload[0].payload.tooltipLTV} {t.monthCustomersLTD}</p>
                 </div>
@@ -116,16 +89,13 @@ function AdminLTVGrothChart() {
                     cx={cx}
                     cy={cy}
                     r={3}
-                    fill="#FE7503"
+                    fill="#ffb7d4"
                 />
             </g>
         );
     };
 
-    // Extract Recharts components
-    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts || {};
-
-    if (loading || loadingRecharts || !Recharts) {
+    if (loading) {
         return (
             <div className='mt-10 flex flex-col gap-[16px]'>
                 <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder font-ttcommons dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
@@ -163,7 +133,7 @@ function AdminLTVGrothChart() {
                         >
                             <CartesianGrid
                                 strokeDasharray="6 6"
-                                stroke={isDarkMode ? "#D1D5DB" : "#000"}
+                                stroke={isDarkMode ? "#ffb7d4" : "#000"}
                                 strokeOpacity={0.15}
                             />
                             <XAxis 
@@ -196,9 +166,9 @@ function AdminLTVGrothChart() {
                             <Line
                                 type="monotone"
                                 dataKey="ltv"
-                                stroke="#675DFF"
+                                stroke="#ff257c"
                                 strokeWidth={2.5}
-                                dot={{ r: 6, stroke: '#FE7503', strokeWidth: 2, fill: isDarkMode ? '#000000' : '#ffffff' }}
+                                dot={{ r: 6, stroke: 'ffb7d4', strokeWidth: 2, fill: isDarkMode ? '#000000' : '#ffffff' }}
                                 activeDot={<CustomActiveDot />}
                             />
                         </LineChart>
