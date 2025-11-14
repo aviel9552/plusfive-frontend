@@ -40,7 +40,7 @@ function MonthlyPerformance() {
           color="green"
         />
         <StatChartCard
-          title="Customers LTV"
+          title="Customer Lifetime Visits"
           value="6.4/m"
           change={3}
           trend="Increase"
