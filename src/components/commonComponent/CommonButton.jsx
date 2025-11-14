@@ -11,7 +11,7 @@ function CommonButton({ text, onClick, className = '', type = 'button', icon, ic
         relative overflow-hidden
         ${disabled 
           ? 'bg-gray-400 cursor-not-allowed opacity-60' 
-          : 'bg-gradient-to-r from-[#ff257c] via-[#ff7cb1] to-[#ffb7d4] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+          : 'bg-[#ff257c] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
         }
         text-white font-ttcommons font-medium
         transition-all duration-300 ease-in-out
