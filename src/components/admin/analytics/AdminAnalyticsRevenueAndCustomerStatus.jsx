@@ -118,7 +118,7 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
           </div>
         ) : (
           <StatPieChart
-            title={t.customerStatusBreakdowntesttt}
+            title={t.customerStatusBreakdown}
             data={pieChartData}
           />
         )}
