@@ -39,6 +39,7 @@ const DEFAULT_DATA_MAP = {
   ],
 };
 
+// ברירת מחדל לפאי – רק אם אין pieData מבחוץ
 const DEFAULT_PIE = [
   { name: 'New',       value: 120, percentage: '20%', color: '#ff257c' },
   { name: 'Active',    value: 680, percentage: '22%', color: '#ff4e94' },
@@ -47,18 +48,35 @@ const DEFAULT_PIE = [
   { name: 'Recovered', value: 240, percentage: '15%', color: '#ffd5e6' },
 ];
 
+// מיפוי צבעים לפי סטטוס – פה אתה שולט בצבעים של כל פלח
+const STATUS_COLORS = {
+  New: '#ff257c',
+  Active: '#ff4e94',
+  'At Risk': '#ff7db1',
+  Lost: '#ffb7d4',
+  Recovered: '#ffd5e6',
+};
+
 function AnalyticsRevenueAndCustomerStatus({
   isReady = false,
   barDataMap,
   filters,
   pieData,
 }) {
-  // לא מרנדר עד שהעמוד מוכן — כך לא נראה לודרים פנימיים
+  // אם העמוד עוד לא מוכן – לא מרנדר כלום (לא מפעיל את הגרפים)
   if (!isReady) return null;
 
   const _filters = filters ?? DEFAULT_FILTERS;
   const _barDataMap = barDataMap ?? DEFAULT_DATA_MAP;
-  const _pieData = pieData ?? DEFAULT_PIE;
+
+  // אם הגיע pieData מה־API משתמשים בו, אם לא – DEFAULT_PIE
+  const rawPieData = pieData ?? DEFAULT_PIE;
+
+  // כאן אנחנו כופים את הצבעים לפי הסטטוס, לא משנה מה הגיע מה־API
+  const _pieData = rawPieData.map((item) => ({
+    ...item,
+    color: STATUS_COLORS[item.name] || item.color,
+  }));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 font-ttcommons mt-6">
@@ -66,16 +84,15 @@ function AnalyticsRevenueAndCustomerStatus({
         title="Revenue Impact"
         dataMap={_barDataMap}
         filters={_filters}
-        // אם ל-StatSingleBarChart יש prop שמבטל לודר פנימי, תעביר אותו כאן (למשל):
-        // isReady={isReady} or disableLoading
       />
+
       <StatPieChart
         title="Customer Status Breakdown"
         data={_pieData}
-        // כנ״ל: isReady={isReady} / disableLoading
       />
     </div>
   );
 }
 
 export default AnalyticsRevenueAndCustomerStatus;
+
