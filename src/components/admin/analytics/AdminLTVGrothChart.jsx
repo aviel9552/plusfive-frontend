@@ -164,12 +164,24 @@ function AdminLTVGrothChart() {
                             />
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                             <Line
-                                type="monotone"
-                                dataKey="ltv"
-                                stroke="#ff257c"
-                                strokeWidth={2.5}
-                                dot={{ r: 6, stroke: 'ffb7d4', strokeWidth: 2, fill: isDarkMode ? '#000000' : '#ffffff' }}
-                                activeDot={<CustomActiveDot />}
+  type="monotone"
+  dataKey="value"
+  stroke="#ff257c"
+  strokeWidth={3}
+  dot={{
+    fill: "#ff257c",     // צבע פנימי
+    stroke: "#ffffff",   // outline לבן כדי שיראו על רקע שחור
+    strokeWidth: 2,
+    r: 5                 // גודל העיגול
+  }}
+  activeDot={{
+    fill: "#ffffff",     // העיגול כשעוברים עם העכבר
+    stroke: "#ff257c",
+    strokeWidth: 2,
+    r: 7
+  }}
+/>
+
                             />
                         </LineChart>
                     </ResponsiveContainer>
