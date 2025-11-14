@@ -39,7 +39,7 @@ function CommonDropDown({
           '--bg-color': isDarkMode ? '#121212' : '#ffffff',
           backgroundImage: `
             linear-gradient(var(--bg-color), var(--bg-color)),
-            linear-gradient(to right, #DF64CC, #FF2380, #FE5D39)
+            linear-gradient(to right, #ff257c, #ff257c, #ff257c)
           `,
           backgroundOrigin: 'border-box',
           backgroundClip: 'padding-box, border-box',
