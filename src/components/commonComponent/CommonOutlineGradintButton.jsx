@@ -56,7 +56,7 @@ function CommonOutlineGradientButton({
           height: 100%;
           padding: var(--border-width);
           border-radius: var(--border-radius);
-          background-image: linear-gradient(259deg, #FE5D39 3.28%, #FF2380 49.86%, #DF64CC 100.32%);
+          background-image: linear-gradient(259deg, #ff257c 3.28%, #ff7cb1 49.86%, #ffb7d4 100.32%);
           -webkit-mask-image: var(--m-i), var(--m-i);
           mask-image: var(--m-i), var(--m-i);
           -webkit-mask-origin: var(--m-o);
