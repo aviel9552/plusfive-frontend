@@ -1,32 +1,28 @@
-<StatIconCard
-    icon={
-        <BiQr
-            className="text-2xl transition-colors duration-200"
-            style={{ color: "#ff257c" }}
-        />
-    }
-    value="25"
-    label="Scans"
-/>
+import React from 'react'
 
-<StatIconCard
-    icon={
-        <FiMousePointer
-            className="text-2xl transition-colors duration-200"
-            style={{ color: "#ff257c" }}
-        />
-    }
-    value="980"
-    label="Clicks"
-/>
+const StatIconCard = ({ icon, image, value, label }) => {
+  return (
+    <div className="bg-customBody dark:bg-customBrown rounded-[16px] px-6 py-[24px] border border-gray-200 dark:border-commonBorder transition-colors duration-200">
+      <div className="flex flex-col items-center text-center gap-[16px]">
+        {/* כאן שינינו: הוספתי text-[#ff257c] כדי שיצבע את האייקון */}
+        <div className="p-3 bg-gray-100 dark:bg-white rounded-full transition-colors duration-200 text-[#ff257c]">
+          {image ? (
+            <img src={image} alt={label} className="w-6 h-6" />
+          ) : (
+            icon
+          )}
+        </div>
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-30 font-bold font-ttcommons text-gray-900 dark:text-white transition-colors duration-200">
+            {value}
+          </p>
+          <span className="text-gray-600 dark:text-white transition-colors duration-200 text-14">
+            {label}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-<StatIconCard
-    icon={
-        <IoStatsChart
-            className="text-2xl transition-colors duration-200"
-            style={{ color: "#ff257c" }}
-        />
-    }
-    value="75%"
-    label="Conversions"
-/>
+export default StatIconCard;
