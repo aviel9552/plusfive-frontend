@@ -1,31 +1,38 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import PropTypes from 'prop-types';
 
-function CommonButton({ text, onClick, className = '', type = 'button', icon, iconPosition = 'left', gap = 'gap-2', disabled = false }) {
+function CommonButton({
+  text,
+  onClick,
+  className = '',
+  type = 'button',
+  icon,
+  iconPosition = 'left',
+  gap = 'gap-2',
+  disabled = false,
+}) {
   return (
     <button
-  type={type}
-  onClick={onClick}
-  disabled={disabled}
-  className={`
-    relative overflow-hidden
-    ${disabled 
-      ? 'bg-gray-400 cursor-not-allowed opacity-60' 
-      : 'bg-[#ff257c] hover:bg-[#e31e6f] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-    }
-    text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200
-  `}
->
-  {children}
-</button>
-
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        relative overflow-hidden inline-flex items-center justify-center
+        ${disabled 
+          ? 'bg-gray-400 cursor-not-allowed opacity-60' 
+          : 'bg-[#ff257c] hover:bg-[#e31e6f] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+        }
+        text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200
+        ${className}
+      `}
+    >
       <div className={`flex items-center justify-center ${icon ? gap : 'gap-0'}`}>
         {iconPosition === 'left' && icon}
-          {text}
+        {text && <span>{text}</span>}
         {iconPosition === 'right' && icon}
       </div>
     </button>
-  )
+  );
 }
 
 CommonButton.propTypes = {
@@ -36,7 +43,7 @@ CommonButton.propTypes = {
   icon: PropTypes.node,
   iconPosition: PropTypes.oneOf(['left', 'right']),
   gap: PropTypes.string,
-  disabled: PropTypes.bool
-}
+  disabled: PropTypes.bool,
+};
 
-export default CommonButton
+export default CommonButton;
