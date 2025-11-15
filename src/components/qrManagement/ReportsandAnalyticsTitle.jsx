@@ -31,17 +31,17 @@ function ReportsandAnalyticsTitle() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <StatIconCard
-                    icon={<BiQr className="text-2xl text-customRed transition-colors duration-200" />}
+                    icon={<BiQr className="text-2xl text-[#ff257c] transition-colors duration-200" />}
                     value="25"
                     label="Scans"
                 />
                 <StatIconCard
-                    icon={<FiMousePointer className="text-2xl text-customRed transition-colors duration-200" />}
+                    icon={<FiMousePointer className="text-2xl text-[#ff257c] transition-colors duration-200" />}
                     value="980"
                     label="Clicks"
                 />
                 <StatIconCard
-                    icon={<IoStatsChart className="text-2xl text-customRed transition-colors duration-200" />}
+                    icon={<IoStatsChart className="text-2xl text-[#ff257c] transition-colors duration-200" />}
                     value="75%"
                     label="Conversions"
                 />
