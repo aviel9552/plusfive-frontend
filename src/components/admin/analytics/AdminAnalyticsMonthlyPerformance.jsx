@@ -52,7 +52,7 @@ function AdminAnalyticsMonthlyPerformance() {
       })}`;
     }
     if (type === 'ltv') {
-      return `${value}/m`;
+      return `${value}/v`;
     }
     return value;
   };
