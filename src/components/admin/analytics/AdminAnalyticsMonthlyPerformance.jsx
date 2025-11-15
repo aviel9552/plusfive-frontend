@@ -18,6 +18,7 @@ function AdminAnalyticsMonthlyPerformance() {
   const t = getAdminTranslations(language);
   const { monthlyPerformance, fetchMonthlyPerformance } = useAdminData();
   const [revenueCountsData, setRevenueCountsData] = useState({});
+  console.log('revenueCountsData :', revenueCountsData);
   const [revenueCountsLoading, setRevenueCountsLoading] = useState(true);
   
   useEffect(() => {
@@ -44,8 +45,11 @@ function AdminAnalyticsMonthlyPerformance() {
 
   const formatValue = (value, type) => {
     if (type === 'revenue') {
-      // Show actual value with comma formatting for better readability
-      return `₪${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+      // Show actual value with comma formatting and allow decimal places
+      return `₪${value.toLocaleString('en-US', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 2 
+      })}`;
     }
     if (type === 'ltv') {
       return `${value}/m`;
