@@ -68,7 +68,8 @@ function AdminLTVGrothChart() {
         <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-900 dark:text-white font-ttcommons">
           <p className="font-semibold text-14">{label}</p>
           <p className="text-16 dark:text-white text-gray-600">
-            {payload[0].payload.tooltipLTV}₪ {t.monthCustomersLTD}
+            {payload[0].payload.tooltipLTV}₪ 
+            {/* {t.monthCustomersLTD} */}
           </p>
         </div>
       );
