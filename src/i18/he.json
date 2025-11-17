@@ -1080,5 +1080,35 @@
     "ratingRequestSentSuccessfully": "בקשת דירוג נשלחה בהצלחה ל",
     "failedToSendRatingRequest": "נכשל בשליחת בקשת דירוג",
     "errorOccurredWhileSending": "אירעה שגיאה בעת שליחת בקשת דירוג"
+  },
+  "monthTranslations": {
+    "Jan": "ינו׳",
+    "Feb": "פבר׳",
+    "Mar": "מרץ",
+    "Apr": "אפר׳",
+    "May": "מאי",
+    "Jun": "יונ׳",
+    "Jul": "יול׳",
+    "Aug": "אוג׳",
+    "Sep": "ספט׳",
+    "Oct": "אוק׳",
+    "Nov": "נוב׳",
+    "Dec": "דצמ׳"
+  },
+  "dayTranslations": {
+    "Sun": "א׳",
+    "Mon": "ב׳",
+    "Tue": "ג׳",
+    "Wed": "ד׳",
+    "Thu": "ה׳",
+    "Fri": "ו׳",
+    "Sat": "ש׳"
+  },
+  "statusTranslations": {
+    "New": "חדש",
+    "Active": "פעיל",
+    "At Risk": "בסיכון",
+    "Lost": "אבוד",
+    "Recovered": "התאושש"
   }
 }

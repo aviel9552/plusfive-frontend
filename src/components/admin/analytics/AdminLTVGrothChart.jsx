@@ -10,9 +10,15 @@ import {
 } from 'recharts';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
-import { getAdminAnalyticsTranslations } from '../../../utils/translations';
+import { getAdminAnalyticsTranslations, getMonthsTranslations } from '../../../utils/translations';
 import { getMonthlyLTVCount } from '../../../redux/services/adminServices';
 import { CommonLoader } from '../../index';
+
+// Function to translate month based on language
+const translateMonth = (month, language) => {
+  const monthTranslations = getMonthsTranslations(language);
+  return monthTranslations?.[month] || month;
+};
 
 function AdminLTVGrothChart() {
   const { isDarkMode } = useTheme();
@@ -24,10 +30,10 @@ function AdminLTVGrothChart() {
   const [loading, setLoading] = useState(true);
   const hasApiCalled = useRef(false);
 
-  // ממיר את הדאטה מה-API לגרף
+  // ממיר את הדאטה מה-API לגרף עם תרגום חודשים
   const transformedData =
     monthlyLTVCountData?.monthlyLTVData?.map((item) => ({
-      month: item.month,
+      month: translateMonth(item.month, language),
       ltv: item.averageLTVCount || 0,
       tooltipLTV: item.averageLTVCount
         ? item.averageLTVCount.toFixed(1)

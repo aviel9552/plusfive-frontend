@@ -64,3 +64,15 @@ export const getReferralPageTranslations = (language) => {
 export const getUserCustomerTranslations = (language) => {
   return getTranslationSection(language, 'userCustomer');
 }; 
+
+export const getMonthsTranslations = (language) => {
+  return getTranslationSection(language, 'monthTranslations');
+};
+
+export const getDaysTranslations = (language) => {
+  return getTranslationSection(language, 'dayTranslations');
+};
+
+export const getStatusTranslations = (language) => {
+  return getTranslationSection(language, 'statusTranslations');
+}; 

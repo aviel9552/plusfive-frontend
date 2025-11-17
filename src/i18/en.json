@@ -1092,6 +1092,36 @@
     "ratingRequestSentSuccessfully": "Rating request sent successfully to",
     "failedToSendRatingRequest": "Failed to send rating request",
     "errorOccurredWhileSending": "An error occurred while sending rating request"
+  },
+  "monthTranslations": {
+    "Jan": "Jan",
+    "Feb": "Feb",
+    "Mar": "Mar",
+    "Apr": "Apr",
+    "May": "May",
+    "Jun": "Jun",
+    "Jul": "Jul",
+    "Aug": "Aug",
+    "Sep": "Sep",
+    "Oct": "Oct",
+    "Nov": "Nov",
+    "Dec": "Dec"
+  },
+  "dayTranslations": {
+    "Sun": "Sun",
+    "Mon": "Mon",
+    "Tue": "Tue",
+    "Wed": "Wed",
+    "Thu": "Thu",
+    "Fri": "Fri",
+    "Sat": "Sat"
+  },
+  "statusTranslations": {
+    "New": "New",
+    "Active": "Active",
+    "At Risk": "At Risk",
+    "Lost": "Lost",
+    "Recovered": "Recovered"
   }
 }
 

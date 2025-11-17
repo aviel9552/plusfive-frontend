@@ -3,9 +3,21 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Too
 import { CommonDropDown } from '../../index';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLanguage } from '../../../context/LanguageContext';
-import { getAdminAnalyticsTranslations } from '../../../utils/translations';
+import { getAdminAnalyticsTranslations, getMonthsTranslations, getDaysTranslations } from '../../../utils/translations';
 import { getAverageRating, getQRCodeAnalytics } from '../../../redux/services/adminServices';
 import CommonLoader from '../../../components/commonComponent/CommonLoader';
+
+// Function to translate month based on language
+const translateMonth = (month, language) => {
+  const monthTranslations = getMonthsTranslations(language);
+  return monthTranslations?.[month] || month;
+};
+
+// Function to translate day based on language
+const translateDay = (day, language) => {
+  const dayTranslations = getDaysTranslations(language);
+  return dayTranslations?.[day] || day;
+};
 
 // Default data structure (will be replaced by API data)
 const defaultQrCodeData = [
@@ -103,11 +115,18 @@ function AdminAnalyticsSecontChart() {
         fetchAllAnalyticsData();
     }, []); // Empty dependency array - run only once on mount
 
+    // Transform data with translations
     const qrCodeDataMap = {
-        'Monthly': qrAnalyticsData.monthlyQrCodeData || [],
+        'Monthly': (qrAnalyticsData.monthlyQrCodeData || []).map(item => ({
+            ...item,
+            label: translateMonth(item.label, language)
+        })),
         'Quarterly': qrAnalyticsData.quarterlyQrCodeData || [],
         'Yearly': qrAnalyticsData.yearlyQrCodeData || [],
-        'This Week': qrAnalyticsData.weeklyQrCodeData || []
+        'This Week': (qrAnalyticsData.weeklyQrCodeData || []).map(item => ({
+            ...item,
+            label: translateDay(item.label, language)
+        }))
     };
 
     const FILTER_OPTIONS = [
@@ -117,18 +136,21 @@ function AdminAnalyticsSecontChart() {
         { label: t.thisWeek, value: 'This Week' }
     ];
 
-    const qrData = useMemo(() => qrCodeDataMap[filter], [filter, qrAnalyticsData]);
+    const qrData = useMemo(() => qrCodeDataMap[filter], [filter, qrAnalyticsData, language]);
 
-    // Transform API data for the rating chart
+    // Transform API data for the rating chart with month translations
     const ratingData = useMemo(() => {
         if (averageRatingData.monthlyData && averageRatingData.monthlyData.length > 0) {
             return averageRatingData.monthlyData.map(item => ({
-                month: item.month,
+                month: translateMonth(item.month, language),
                 rating: item.averageRating
             }));
         }
-        return defaultRatingData;
-    }, [averageRatingData.monthlyData]);
+        return defaultRatingData.map(item => ({
+            ...item,
+            month: translateMonth(item.month, language)
+        }));
+    }, [averageRatingData.monthlyData, language]);
 
     const CustomBarTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length && hoveredBar) {

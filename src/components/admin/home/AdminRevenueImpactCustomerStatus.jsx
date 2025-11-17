@@ -1,10 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { StatSingleBarChart, StatPieChart } from '../../index';
 import { useLanguage } from '../../../context/LanguageContext';
-import { getAdminTranslations } from '../../../utils/translations';
+import { getAdminTranslations, getMonthsTranslations, getStatusTranslations } from '../../../utils/translations';
 import { useAdminData } from '../../../hooks/useAdminData';
 import { getRevenueImpacts } from '../../../redux/services/adminServices';
 import CommonLoader from '../../../components/commonComponent/CommonLoader';
+
+// Function to translate month based on language
+const translateMonth = (month, language) => {
+  const monthTranslations = getMonthsTranslations(language);
+  return monthTranslations?.[month] || month;
+};
+
+// Function to translate status based on language
+const translateStatus = (status, language) => {
+  const statusTranslations = getStatusTranslations(language);
+  return statusTranslations?.[status] || status;
+};
 
 function AdminRevenueImpactCustomerStatus() {
   const { language } = useLanguage();
@@ -44,11 +56,11 @@ function AdminRevenueImpactCustomerStatus() {
     fetchRevenueImpacts();
   }, []);
 
-  // Transform revenue impact data for the chart
-  const transformRevenueData = (data) => {
+  // Transform revenue impact data for the chart with month translations
+  const transformRevenueData = (data, isMonthly = false) => {
     if (!data) return [];
     return data.map((item) => ({
-      month: item.label,
+      month: isMonthly ? translateMonth(item.label, language) : item.label,
       value: item.revenue,
     }));
   };
@@ -62,12 +74,12 @@ function AdminRevenueImpactCustomerStatus() {
     Recovered: '#ffd5e6',
   };
 
-  // Transform customer status data for the pie chart
+  // Transform customer status data for the pie chart with status translations
   const transformCustomerData = (data) => {
     if (!data) return [];
     return (
       data.breakdown?.map((item) => ({
-        name: item.status,
+        name: translateStatus(item.status, language),
         value: item.count,
         percentage: `${item.percentage}%`,
         // קודם ננסה צבע לפי סטטוס, ואם אין – נ fallback לצבע מה־API
@@ -83,14 +95,14 @@ function AdminRevenueImpactCustomerStatus() {
     { label: t.yearly, value: 'yearly' },
   ];
 
-  const dataMap = {
-    monthly: transformRevenueData(revenueImpactsData.monthly || []),
-    weekly: transformRevenueData(revenueImpactsData.weekly || []),
-    lastMonth: transformRevenueData(revenueImpactsData.lastMonth || []),
-    yearly: transformRevenueData(revenueImpactsData.yearly || []),
-  };
+  const dataMap = useMemo(() => ({
+    monthly: transformRevenueData(revenueImpactsData.monthly || [], true),
+    weekly: transformRevenueData(revenueImpactsData.weekly || [], false),
+    lastMonth: transformRevenueData(revenueImpactsData.lastMonth || [], false),
+    yearly: transformRevenueData(revenueImpactsData.yearly || [], false),
+  }), [revenueImpactsData, language]);
 
-  const pieChartData = transformCustomerData(customerStatus.data);
+  const pieChartData = useMemo(() => transformCustomerData(customerStatus.data), [customerStatus.data, language]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-[24px] font-ttcommons">
