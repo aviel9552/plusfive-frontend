@@ -6,7 +6,7 @@ import CommonTable from '../commonComponent/CommonTable';
 import { PiChatsCircleBold } from 'react-icons/pi';
 import CommonButton from '../commonComponent/CommonButton';
 import { useLanguage } from '../../context/LanguageContext';
-import { getUserCustomerTranslations } from '../../utils/translations';
+import { getUserCustomerTranslations, getStatusTranslations } from '../../utils/translations';
 import { IoMdDownload } from 'react-icons/io';
 import { toast } from 'react-toastify';
 import reviewService from '../../redux/services/reviewServices';
@@ -15,7 +15,13 @@ import CommonNormalDropDown from '../commonComponent/CommonNormalDropDown';
 import CommonLoader from '../commonComponent/CommonLoader';
 import { formatDate } from '../../utils/dateFormatter';
 
-const StatusBadge = ({ status }) => {
+// Function to translate status based on language
+const translateStatus = (status, language) => {
+  const statusTranslations = getStatusTranslations(language);
+  return statusTranslations?.[status] || status;
+};
+
+const StatusBadge = ({ status, language }) => {
     const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center text-14 whitespace-nowrap";
     let colorClasses = "";
 
@@ -49,20 +55,26 @@ const StatusBadge = ({ status }) => {
             colorClasses = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
 
-    // Special formatting for status text
-    const formatStatusText = (statusText) => {
+    // Map status to English key for translation
+    const getStatusKey = (statusText) => {
         if (!statusText) return '';
-
         const statusLower = statusText.toLowerCase();
-
-        if (statusLower === 'at risk' || statusLower === 'risk' || statusLower === 'at_risk') {
-            return 'At Risk';
-        }
-
-        return statusText?.charAt(0).toUpperCase() + statusText?.slice(1).toLowerCase();
+        
+        // Map Hebrew/English to English keys
+        if (statusLower === 'active' || statusLower === 'פעיל') return 'Active';
+        if (statusLower === 'new' || statusLower === 'חדש') return 'New';
+        if (statusLower === 'at risk' || statusLower === 'risk' || statusLower === 'at_risk' || statusLower === 'בסיכון') return 'At Risk';
+        if (statusLower === 'lost' || statusLower === 'אבוד') return 'Lost';
+        if (statusLower === 'recovered' || statusLower === 'התאושש') return 'Recovered';
+        
+        // If already in English format, return as is
+        return statusText;
     };
 
-    return <span className={`${baseClasses} ${colorClasses}`}>{formatStatusText(status)}</span>;
+    const statusKey = getStatusKey(status);
+    const translatedStatus = translateStatus(statusKey, language);
+
+    return <span className={`${baseClasses} ${colorClasses}`}>{translatedStatus}</span>;
 };
 
 const RatingStars = ({ rating }) => {
@@ -112,14 +124,15 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
     const [customerToSendRating, setCustomerToSendRating] = useState(null);
     const [isDataLoading, setIsDataLoading] = useState(false);
 
-    const filterOptions = [
+    // Filter options with translated labels
+    const filterOptions = useMemo(() => [
         { value: t.allStatus, label: t.allStatus },
-        { value: 'New', label: 'New' },
-        { value: 'Active', label: 'Active' },
-        { value: 'At Risk', label: 'At Risk' },
-        { value: 'Lost', label: 'Lost' },
-        { value: 'Recovered', label: 'Recovered' }
-    ];
+        { value: 'New', label: translateStatus('New', language) },
+        { value: 'Active', label: translateStatus('Active', language) },
+        { value: 'At Risk', label: translateStatus('At Risk', language) },
+        { value: 'Lost', label: translateStatus('Lost', language) },
+        { value: 'Recovered', label: translateStatus('Recovered', language) }
+    ], [t.allStatus, language]);
 
     const filteredData = useMemo(() => {
         let data = customers;
@@ -254,7 +267,7 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
             key: 'status',
             label: t.status,
             render: (row) => (
-                <StatusBadge status={row.customerStatus || row.status} />
+                <StatusBadge status={row.customerStatus || row.status} language={language} />
             )
         },
         {
