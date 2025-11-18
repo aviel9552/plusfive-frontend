@@ -59,7 +59,7 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
     city: '',
     state: '',
     postalCode: '',
-    country: 'US'
+    country: 'IL' // Default to Israel
   });
   
   const [errors, setErrors] = useState({});
@@ -71,19 +71,19 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
     const newErrors = {};
     
     if (!formData.cardholderName.trim()) {
-      newErrors.cardholderName = 'Cardholder name is required';
+      newErrors.cardholderName = t.cardHolderNamePlaceholder ? `${t.nameOnCard} is required` : 'Cardholder name is required';
     }
     
     if (!formData.billingAddress.trim()) {
-      newErrors.billingAddress = 'Billing address is required';
+      newErrors.billingAddress = t.streetAddress ? `${t.streetAddress} is required` : 'Billing address is required';
     }
     
     if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
+      newErrors.city = t.city ? `${t.city} is required` : 'City is required';
     }
     
     if (!formData.postalCode.trim()) {
-      newErrors.postalCode = 'Postal code is required';
+      newErrors.postalCode = t.postCode ? `${t.postCode} is required` : 'Postal code is required';
     }
     
     setErrors(newErrors);
@@ -188,7 +188,7 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-black dark:text-white mb-2">
-            Card Information <span className="text-red-500">*</span>
+            {t.addNewCreditCard ? t.addNewCreditCard.replace('New ', '').replace('Credit ', '') : 'Card Information'} <span className="text-red-500">*</span>
           </label>
           <div className="w-full border border-gray-200 dark:border-customBorderColor rounded-lg px-4 py-3 bg-customBody dark:bg-customBrown focus-within:border-pink-500 focus-within:ring-2 focus-within:ring-pink-500 transition-all duration-200">
             <CardElement
@@ -201,12 +201,12 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
 
         <div>
           <CommonInput
-            label="Cardholder Name"
+            label={t.nameOnCard || 'Cardholder Name'}
             id="cardholderName"
             name="cardholderName"
             value={formData.cardholderName}
             onChange={handleInputChange}
-            placeholder="Name as it appears on card"
+            placeholder={t.cardHolderNamePlaceholder || 'Name as it appears on card'}
             error={errors.cardholderName}
             labelFontSize="text-sm"
           />
@@ -215,16 +215,16 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
 
       {/* Billing Address Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Billing Address</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">{t.billingInformation || 'Billing Address'}</h3>
         
         <div>
           <CommonInput
-            label="Address"
+            label={t.streetAddress || 'Address'}
             id="billingAddress"
             name="billingAddress"
             value={formData.billingAddress}
             onChange={handleInputChange}
-            placeholder="Street address"
+            placeholder={t.streetAddressPlaceholder || 'Street address'}
             error={errors.billingAddress}
             labelFontSize="text-sm"
           />
@@ -233,12 +233,12 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <CommonInput
-              label="City"
+              label={t.city || 'City'}
               id="city"
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              placeholder="City"
+              placeholder={t.cityNamePlaceholder || 'City'}
               error={errors.city}
               labelFontSize="text-sm"
             />
@@ -246,12 +246,12 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
 
           <div>
             <CommonInput
-              label="State/Province"
+              label={t.stateProvince || 'State/Province'}
               id="state"
               name="state"
               value={formData.state}
               onChange={handleInputChange}
-              placeholder="State"
+              placeholder={t.state || 'State'}
               labelFontSize="text-sm"
             />
           </div>
@@ -260,12 +260,12 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <CommonInput
-              label="Postal Code"
+              label={t.postCode || 'Postal Code'}
               id="postalCode"
               name="postalCode"
               value={formData.postalCode}
               onChange={handleInputChange}
-              placeholder="Postal code"
+              placeholder={t.postCodePlaceholder || 'Postal code'}
               error={errors.postalCode}
               labelFontSize="text-sm"
             />
@@ -273,10 +273,11 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
 
           <div>
             <label className="block text-sm font-medium text-black dark:text-white mb-2">
-              Country
+              {t.country || 'Country'}
             </label>
             <CommonNormalDropDown
               options={[
+                { value: 'IL', label: 'Israel' },
                 { value: 'US', label: 'United States' },
                 { value: 'CA', label: 'Canada' },
                 { value: 'GB', label: 'United Kingdom' },
@@ -289,7 +290,7 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
               value={formData.country}
               className='!h-[50px]'
               onChange={(value) => handleInputChange({ target: { name: 'country', value } })}
-              placeholder="Select country"
+              placeholder={t.selectCountry || 'Select country'}
               fontSize="text-sm"
             />
           </div>
@@ -301,10 +302,9 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
         <div className="flex items-start gap-3">
           <GoShieldLock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
           <div>
-            <h4 className="font-medium text-blue-900 dark:text-blue-100">Secure Payment Processing</h4>
+            <h4 className="font-medium text-blue-900 dark:text-blue-100">{t.secureAndEncrypted || 'Secure Payment Processing'}</h4>
             <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-              Your payment information is encrypted and securely processed by Stripe. 
-              We never store your full card details on our servers.
+              {t.secureDescriptionSSL || t.secureDescription || 'Your payment information is encrypted and securely processed by Stripe. We never store your full card details on our servers.'}
             </p>
           </div>
         </div>
@@ -313,14 +313,14 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
       {/* Action Buttons */}
       <div className="flex items-center gap-4 pt-4">
         <CommonButton
-          text={isProcessing ? "Adding..." : "Add Payment Method"}
+          text={isProcessing ? (t.addCard ? `${t.addCard}...` : 'Adding...') : (t.addCard || 'Add Payment Method')}
           type="submit"
           disabled={!stripe || isProcessing || !cardComplete}
           icon={<FiCreditCard />}
           className="flex-1 !text-white rounded-lg py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <CommonCustomOutlineButton
-          text="Cancel"
+          text={t.cancel || 'Cancel'}
           onClick={onCancel}
           disabled={isProcessing}
           className="flex-1 rounded-lg py-3 text-lg"
@@ -333,6 +333,9 @@ function PaymentForm({ onSubmit, onCancel, onSuccess }) {
 
 // Wrapper component with Stripe Elements
 function StripePaymentForm({ onSubmit, onCancel, onSuccess }) {
+  const { language } = useLanguage();
+  const t = getUserCardTranslations(language);
+  
   // Show error message if Stripe is not properly configured
   if (!stripePromise) {
     return (
@@ -346,7 +349,7 @@ function StripePaymentForm({ onSubmit, onCancel, onSuccess }) {
             Stripe is not properly configured. Please contact support or check your environment variables.
           </p>
           <CommonCustomOutlineButton
-            text="Go Back"
+            text={t.cancel || 'Go Back'}
             onClick={onCancel}
             className="px-6 py-2"
           />

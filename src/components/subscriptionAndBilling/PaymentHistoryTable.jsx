@@ -239,7 +239,7 @@ const PaymentHistoryTable = () => {
                 <h2 className="text-24 font-ttcommons mb-6 text-gray-900 dark:text-white">{t.paymentHistory}</h2>
                 <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span className="ml-3 text-gray-600 dark:text-gray-400">Loading payment history...</span>
+                    <span className="ml-3 text-gray-600 dark:text-gray-400">{t.loadingPaymentHistory || 'Loading payment history...'}</span>
                 </div>
             </div>
         );

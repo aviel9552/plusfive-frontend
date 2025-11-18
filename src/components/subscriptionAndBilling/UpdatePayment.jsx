@@ -98,7 +98,7 @@ function UpdatePayment({ slug }) {
                         onClick={() => setCurrentView('main')}
                         className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
                     >
-                        ← Back to Payment Settings
+                        ← {t.backToPaymentSettings || 'Back to Payment Settings'}
                     </button>
                 </div>
                 <StripePaymentForm
@@ -183,10 +183,14 @@ function UpdatePayment({ slug }) {
                 isOpen={deleteModal.isOpen}
                 onClose={handleCloseDeleteModal}
                 onConfirm={handleConfirmDelete}
-                title="Remove Payment Method"
-                message={`Are you sure you want to remove this ${deleteModal.paymentMethod?.card?.brand_display || deleteModal.paymentMethod?.card?.brand || 'card'} ending in ${deleteModal.paymentMethod?.card?.last4 || '••••'}? This action cannot be undone.`}
-                confirmText="Remove"
-                cancelText="Cancel"
+                title={t.removePaymentMethod || 'Remove Payment Method'}
+                message={t.removePaymentMethodMessage 
+                    ? t.removePaymentMethodMessage
+                        .replace('{brand}', deleteModal.paymentMethod?.card?.brand_display || deleteModal.paymentMethod?.card?.brand || 'card')
+                        .replace('{last4}', deleteModal.paymentMethod?.card?.last4 || '••••')
+                    : `Are you sure you want to remove this ${deleteModal.paymentMethod?.card?.brand_display || deleteModal.paymentMethod?.card?.brand || 'card'} ending in ${deleteModal.paymentMethod?.card?.last4 || '••••'}? This action cannot be undone.`}
+                confirmText={t.remove || 'Remove'}
+                cancelText={t.cancel || 'Cancel'}
                 confirmButtonColor="bg-gradient-to-r from-customRed to-orange-500 hover:from-orange-500 hover:to-customRed focus:ring-2 focus:ring-orange-400"
             />
 

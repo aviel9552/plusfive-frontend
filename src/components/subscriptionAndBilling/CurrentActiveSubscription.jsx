@@ -182,28 +182,39 @@ function CurrentActiveSubscription({ slug }) {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Cancel Subscription
+              {t.cancelSubscription || 'Cancel Subscription'}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              This action cannot be undone
+              {t.cancelSubscriptionActionCannotBeUndone || 'This action cannot be undone'}
             </p>
           </div>
         </div>
 
         <div className="mb-6">
           <p className="text-gray-700 dark:text-gray-300 mb-4">
-            Are you sure you want to cancel your <strong>{getPlanName()}</strong> subscription? 
-            You'll continue to have access until the end of your current billing period.
+            {t.cancelSubscriptionConfirmMessage 
+              ? (
+                  <>
+                    {t.cancelSubscriptionConfirmMessage.split('{planName}')[0]}
+                    <strong>{getPlanName()}</strong>
+                    {t.cancelSubscriptionConfirmMessage.split('{planName}')[1]}
+                  </>
+                )
+              : (
+                  <>
+                    Are you sure you want to cancel your <strong>{getPlanName()}</strong> subscription? You'll continue to have access until the end of your current billing period.
+                  </>
+                )}
           </p>
           
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Reason for cancellation (optional)
+              {t.reasonForCancellation || 'Reason for cancellation (optional)'}
             </label>
             <textarea
               value={cancellationReason}
               onChange={(e) => setCancellationReason(e.target.value)}
-              placeholder="Help us improve our service..."
+              placeholder={t.helpUsImproveService || 'Help us improve our service...'}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
               rows={3}
             />
@@ -213,11 +224,11 @@ function CurrentActiveSubscription({ slug }) {
             <div className="flex items-start gap-2">
               <MdInfo className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-800 dark:text-blue-300">
-                <p className="font-medium">What happens next?</p>
+                <p className="font-medium">{t.whatHappensNext || 'What happens next?'}</p>
                 <ul className="mt-1 space-y-1">
-                  <li>• Access continues until {getEndDate()}</li>
-                  <li>• No more charges will be made</li>
-                  <li>• You can reactivate anytime</li>
+                  <li>• {t.accessContinuesUntil ? t.accessContinuesUntil.replace('{date}', getEndDate()) : `Access continues until ${getEndDate()}`}</li>
+                  <li>• {t.noMoreCharges || 'No more charges will be made'}</li>
+                  <li>• {t.canReactivateAnytime || 'You can reactivate anytime'}</li>
                 </ul>
               </div>
             </div>
@@ -226,13 +237,13 @@ function CurrentActiveSubscription({ slug }) {
 
         <div className="flex gap-3">
           <CommonCustomOutlineButton
-            text="Keep Subscription"
+            text={t.keepSubscription || 'Keep Subscription'}
             onClick={closeCancelDialog}
             className="flex-1"
             disabled={isCancelling}
           />
           <CommonButton
-            text={isCancelling ? "Cancelling..." : "Cancel Subscription"}
+            text={isCancelling ? (t.cancelling || 'Cancelling...') : (t.cancelSubscription || 'Cancel Subscription')}
             onClick={confirmCancellation}
             className="flex-1 bg-red-600 hover:bg-red-700 !text-white"
             disabled={isCancelling}
@@ -251,7 +262,7 @@ function CurrentActiveSubscription({ slug }) {
           <div className="md:p-[24px] rounded-xl md:border dark:border-commonBorder border-gray-200 dark:bg-customBrown bg-customBody">
             <div className="text-center py-8">
               <p className="text-black dark:text-white text-16">
-                No active subscription found. 
+                {t.noActiveSubscriptionFound || 'No active subscription found.'}
                 <br />
                 {/* <span className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline" onClick={() => navigate('/pricing')}>
                   View available plans
@@ -287,19 +298,19 @@ function CurrentActiveSubscription({ slug }) {
             <div className="md:p-[24px] rounded-xl md:border dark:border-commonBorder border-gray-200 dark:bg-customBrown bg-customBody">
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600 dark:text-gray-400">Loading subscription...</span>
+                <span className="ml-3 text-gray-600 dark:text-gray-400">{t.loadingSubscription || 'Loading subscription...'}</span>
               </div>
             </div>
           ) : (
             <div className="md:p-[24px] rounded-xl md:border dark:border-commonBorder border-gray-200 dark:bg-customBrown bg-customBody">
               {/* Enhanced Subscription Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-6 border-b border-gray-200 dark:border-commonBorder">
-                <SubscriptionDetail title="Subscription" value={getPlanName()} />
-                <SubscriptionDetail title="Amount" value={getAmount()} />
-                <SubscriptionDetail title="Start Date" value={getStartDate()} />
-                <SubscriptionDetail title="Next Billing" value={getEndDate()} />
+                <SubscriptionDetail title={t.subscription || 'Subscription'} value={getPlanName()} />
+                <SubscriptionDetail title={t.amount || 'Amount'} value={getAmount()} />
+                <SubscriptionDetail title={t.startDate || 'Start Date'} value={getStartDate()} />
+                <SubscriptionDetail title={t.nextBilling || 'Next Billing'} value={getEndDate()} />
                 <div className='flex flex-col gap-[16px]'>
-                  <p className="text-18 dark:text-white text-black">Status</p>
+                  <p className="text-18 dark:text-white text-black">{t.status || 'Status'}</p>
                   <div className="mt-1">
                     <StatusBadge status={getStatus()} />
                   </div>
@@ -345,7 +356,7 @@ function CurrentActiveSubscription({ slug }) {
                   onClick={handleUpdatePayment}
                 />
                 <CommonCustomOutlineButton 
-                  text="Cancel Subscription" 
+                  text={t.cancelSubscription || 'Cancel Subscription'} 
                   textColor='text-customRed' 
                   className="w-full md:w-auto text-14 px-6 py-3 border-red-300 hover:border-red-400"
                   onClick={handleCancel}

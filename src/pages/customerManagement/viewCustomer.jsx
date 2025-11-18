@@ -192,7 +192,7 @@ function ViewCustomer() {
                                 : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
-                            Reviews ({customer.reviews?.filter(review => review.status !== 'sent').length || 0})
+                            {t.reviews || 'Reviews'} ({customer.reviews?.filter(review => review.status !== 'sent').length || 0})
                         </button>
                         <button
                             onClick={() => setActiveTab('appointments')}
@@ -201,7 +201,7 @@ function ViewCustomer() {
                                 : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
-                            Appointments ({customer.appointments?.length || 0})
+                            {t.appointments || 'Appointments'} ({customer.appointments?.length || 0})
                         </button>
                         <button
                             onClick={() => setActiveTab('payments')}
@@ -210,7 +210,7 @@ function ViewCustomer() {
                                 : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
-                            Payment History ({customer.paymentHistory?.length || 0})
+                            {t.paymentHistory || 'Payment History'} ({customer.paymentHistory?.length || 0})
                         </button>
                     </div>
 

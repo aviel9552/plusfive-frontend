@@ -337,7 +337,7 @@ function Pricing({ slug, subscriptionLoading: subscriptionLoadingProp }) {
                 <div className="mt-7 text-center">
                     <div className="flex items-center justify-center gap-3">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        <span className="text-gray-600 dark:text-gray-400">Waiting for subscription data...</span>
+                        <span className="text-gray-600 dark:text-gray-400">{t.waitingForSubscriptionData || 'Waiting for subscription data...'}</span>
                     </div>
                 </div>
             ) : pricingPlans.length > 0 ? (
