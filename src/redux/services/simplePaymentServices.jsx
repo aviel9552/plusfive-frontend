@@ -64,9 +64,16 @@ export const getPaymentHistory = async (params = {}) => {
 
     const response = await apiClient.get(`/stripe/payment-history?${queryParams.toString()}`);
 
+    // Handle both response formats: { invoices: [...] } or { success: true, data: { payments: [...] } }
+    let responseData = response.data;
+    if (responseData.data) {
+      // Old format with success/data wrapper
+      responseData = responseData.data;
+    }
+
     return {
       success: true,
-      data: response.data.data,
+      data: responseData, // This will have either { invoices: [...] } or { payments: [...] }
       message: 'Payment history fetched successfully'
     };
   } catch (error) {

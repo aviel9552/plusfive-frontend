@@ -27,6 +27,7 @@ const PaymentHistoryTable = () => {
         const fetchPaymentHistory = async () => {
             try {
                 setPaymentHistoryLoading(true);
+                // Fetch all payments (no pagination from backend)
                 const result = await getPaymentHistory();
                 if (result.success) {
                     setPaymentHistoryData(result.data);
@@ -57,35 +58,69 @@ const PaymentHistoryTable = () => {
         }));
     };
 
-    // Get payment history data
+    // Get payment history data - handle both invoices array and payments array
     const getPaymentHistoryData = () => {
-        if (!paymentHistoryData?.payments) return [];
+        // Check for invoices array (new backend format)
+        if (paymentHistoryData?.invoices && Array.isArray(paymentHistoryData.invoices)) {
+            return paymentHistoryData.invoices.map(invoice => ({
+                id: invoice.invoiceId,
+                amount: invoice.amount,
+                currency: invoice.currency,
+                status: invoice.status === 'paid' ? 'succeeded' : invoice.status,
+                created: invoice.created ? new Date(invoice.created * 1000).toISOString() : null,
+                description: `Invoice ${invoice.invoiceNumber || invoice.invoiceId}`,
+                paymentType: invoice.subscriptionId ? 'subscription' : 'simple',
+                stripeSessionId: null,
+                stripePaymentId: null,
+                stripeSubscriptionId: invoice.subscriptionId || null,
+                paymentMethod: 'card',
+                source: 'stripe_invoice',
+                metadata: {
+                    invoiceId: invoice.invoiceId,
+                    invoiceNumber: invoice.invoiceNumber,
+                    invoiceStatus: invoice.status
+                },
+                receiptUrl: null,
+                invoiceUrl: invoice.hostedInvoiceUrl || null,
+                invoiceNumber: invoice.invoiceNumber || null,
+                hostedInvoiceUrl: invoice.hostedInvoiceUrl || null,
+                invoicePdf: invoice.pdfUrl || null
+            }));
+        }
         
-        return paymentHistoryData.payments.map(payment => ({
-            id: payment.id,
-            amount: payment.amount,
-            currency: payment.currency,
-            status: payment.status,
-            created: payment.createdAt,
-            description: payment.description,
-            paymentType: payment.paymentType,
-            stripeSessionId: payment.stripeSessionId,
-            stripePaymentId: payment.stripePaymentId,
-            stripeSubscriptionId: payment.stripeSubscriptionId,
-            paymentMethod: payment.paymentMethod,
-            source: payment.source,
-            metadata: payment.metadata,
-            receiptUrl: payment.receiptUrl,
-            invoiceUrl: payment.invoiceUrl
-        }));
+        // Fallback to payments array (old format)
+        if (paymentHistoryData?.payments) {
+            return paymentHistoryData.payments.map(payment => ({
+                id: payment.id,
+                amount: payment.amount,
+                currency: payment.currency,
+                status: payment.status,
+                created: payment.createdAt,
+                description: payment.description,
+                paymentType: payment.paymentType,
+                stripeSessionId: payment.stripeSessionId,
+                stripePaymentId: payment.stripePaymentId,
+                stripeSubscriptionId: payment.stripeSubscriptionId,
+                paymentMethod: payment.paymentMethod,
+                source: payment.source,
+                metadata: payment.metadata,
+                receiptUrl: payment.receiptUrl,
+                invoiceUrl: payment.invoiceUrl,
+                invoiceNumber: payment.invoiceNumber || payment.metadata?.invoiceNumber || null,
+                hostedInvoiceUrl: payment.metadata?.invoiceHostedUrl || null,
+                invoicePdf: payment.metadata?.invoicePdf || null
+            }));
+        }
+        
+        return [];
     };
 
     const filteredData = useMemo(() => {
-        // Only show payment history data (not Stripe invoices)
+        // Show all payment history data (both simple and subscription payments)
         let data = getPaymentHistoryData();
         
-        // Filter to show only "simple" payment type
-        data = data.filter(item => item.paymentType === 'simple');
+        // Show all payment types (simple, subscription, etc.)
+        // No need to filter by payment type - show all payments
         
         if (filterValue !== 'All') {
             data = data.filter(item => {
@@ -143,18 +178,36 @@ const PaymentHistoryTable = () => {
             if (!timestamp) return 'N/A';
             // Handle both Unix timestamp and ISO string
             const date = typeof timestamp === 'number' ? new Date(timestamp * 1000) : new Date(timestamp);
-            return date.toLocaleDateString();
+            // Format date with time
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
         };
 
-        return paginated.map(item => ({
-            icon: <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">₪</div>,
-            title: item.id,
-            subtitle: formatDate(item.created),
-            value: `₪${item.amount.toFixed(2)}`,
-            statusInfo: {
-                text: item.status.charAt(0).toUpperCase() + item.status.slice(1),
-                className: getStatusClassName(item.status),
-            },
+        return paginated.map(item => {
+            // Create title with invoice number if available
+            let title = item.description || `Payment ${item.id.slice(-8)}`;
+            if (item.invoiceNumber) {
+                title = `Invoice ${item.invoiceNumber}`;
+                if (item.description && !item.description.includes('Invoice')) {
+                    title = `${item.description} - ${item.invoiceNumber}`;
+                }
+            }
+
+            return {
+                icon: <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">₪</div>,
+                title: title,
+                subtitle: formatDate(item.created),
+                value: `₪${item.amount?.toFixed(2) || '0.00'}`,
+                statusInfo: {
+                    text: item.status?.charAt(0).toUpperCase() + item.status?.slice(1) || 'Unknown',
+                    className: getStatusClassName(item.status),
+                },
             action: (
                 <CommonOutlineButton
                     onClick={() => {
@@ -175,7 +228,8 @@ const PaymentHistoryTable = () => {
                     icon={<IoMdDownload />}
                 />
             )
-        }));
+            };
+        });
     }, [filteredData, currentPage, pageSize, t]);
     
     // Show loading state
@@ -192,7 +246,8 @@ const PaymentHistoryTable = () => {
     }
 
     // Show empty state if no payment history data
-    const hasPaymentHistory = paymentHistoryData?.payments && paymentHistoryData.payments.length > 0;
+    const hasPaymentHistory = (paymentHistoryData?.invoices && paymentHistoryData.invoices.length > 0) || 
+                               (paymentHistoryData?.payments && paymentHistoryData.payments.length > 0);
     
     if (!hasPaymentHistory) {
         return (
