@@ -22,6 +22,11 @@ function AdminQRManagement() {
   // Get user data from auth reducer
   const { user } = useSelector(state => state.auth);
   const businessName = user?.businessName || 'Your Business';
+  
+  // Check if user has active subscription
+  const subscriptionStatus = user?.subscriptionStatus?.toLowerCase();
+  const hasActiveSubscription = subscriptionStatus === 'active' && 
+    (!user?.subscriptionExpirationDate || new Date(user.subscriptionExpirationDate) > new Date());
 
   const [formData, setFormData] = useState({
    customerMessage: ` היי אח הסתפרתי הרגע אצל ${businessName},
@@ -335,7 +340,7 @@ function AdminQRManagement() {
                   text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading ? <div className="flex items-center justify-center gap-2"><CommonLoader /> {t.generating}</div> : t.generateQRCode)}
                   onClick={handleGenerateQR}
                   className="rounded-[8px] w-full py-[14px] text-14"
-                  disabled={loading || hasExistingQR || generatedQR}
+                  disabled={loading || hasExistingQR || generatedQR || !hasActiveSubscription}
                 />
               </div>
             </div>

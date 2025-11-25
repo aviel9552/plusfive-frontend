@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MdStars, MdClose } from 'react-icons/md';
 import { CommonButton } from '../index';
 import { useLanguage } from '../../context/LanguageContext';
@@ -7,6 +8,7 @@ import { getLayoutTranslations } from '../../utils/translations';
 const UpgradeCard = ({ onClose }) => {
   const { language } = useLanguage();
   const t = getLayoutTranslations(language);
+  const navigate = useNavigate();
 
   return (
     <div className="bg-gray-100 dark:bg-customBrown border border-gray-200 dark:border-commonBorder p-[16px] rounded-[8px]">
@@ -34,6 +36,7 @@ const UpgradeCard = ({ onClose }) => {
       <CommonButton
         text={t.upgradeNow}
         className="w-full rounded-[8px] px-[16px] py-[8px] text-14"
+        onClick={() => navigate('/app/subscription-and-billing')}
       />
     </div>
   );

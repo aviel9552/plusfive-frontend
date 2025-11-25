@@ -39,9 +39,9 @@ function AdminRoutes() {
         {/* <Route path="/referral-management" element={<AdminReferralManagement />} /> */}
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/account-settings" element={<AccountSettings />} />
-        <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} />
-        <Route path="/update-payment" element={<UpdatePaymentPage />} />
-        <Route path="/add-card" element={<AddCard />} />
+        {/* <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} /> */}
+        {/* <Route path="/update-payment" element={<UpdatePaymentPage />} /> */}
+        {/* <Route path="/add-card" element={<AddCard />} /> */}
         <Route path="/support-and-help" element={<SupportAndHelp />} />
         {/* Add more admin routes here in the future */}
       </Routes>
