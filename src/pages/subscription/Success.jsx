@@ -6,10 +6,13 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
 import { getCurrentSubscription } from '../../services/stripeService';
 import apiClient from '../../config/apiClient';
+import { useDispatch } from 'react-redux';
+import { setSubscriptionCache, updateUser } from '../../redux/actions/authActions';
 
 function SubscriptionSuccess() {
   const [countdown, setCountdown] = useState(5);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
   const t = getUserCardTranslations(language);
@@ -29,18 +32,41 @@ function SubscriptionSuccess() {
         
         if (activeSubscription) {
           // Update user table with latest Stripe data
-          await apiClient.post('/stripe/direct-update-subscription', {
+          const updateResponse = await apiClient.post('/stripe/direct-update-subscription', {
             subscriptionId: activeSubscription.id,
             userEmail: data.data.user.email
           });
+
+          // Update Redux user state with latest subscription data
+          if (updateResponse?.data?.user) {
+            dispatch(updateUser({
+              subscriptionStatus: 'active',
+              subscriptionExpirationDate: activeSubscription.current_period_end 
+                ? new Date(activeSubscription.current_period_end * 1000).toISOString()
+                : null,
+              subscriptionPlan: updateResponse.data.user.subscriptionPlan || data.data.user.subscriptionPlan
+            }));
+          }
+
+          // Update localStorage with subscription cache
+          const currentPeriodEnd = activeSubscription.current_period_end;
+          if (currentPeriodEnd) {
+            const expirationDate = new Date(currentPeriodEnd * 1000);
+            dispatch(setSubscriptionCache(true, expirationDate.toISOString()));
+          } else {
+            // No expiry date, set a far future date
+            const farFuture = new Date();
+            farFuture.setFullYear(farFuture.getFullYear() + 10);
+            dispatch(setSubscriptionCache(true, farFuture.toISOString()));
+          }
         }
       } catch (error) {
-        console.error('Update failed:', error);
+        // Silent error handling
       }
     };
 
     updateUserAfterPayment();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (countdown > 0) {

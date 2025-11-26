@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 import LoginBG from '../../assets/LoginBG.png';
 import FB from '../../assets/fb.svg';
 import Google from '../../assets/google.svg';
-import { loginUser } from '../../redux/actions/authActions';
+import { loginUser, setSubscriptionCache } from '../../redux/actions/authActions';
 import { resendVerificationEmail } from '../../redux/services/authService';
+import { getCurrentSubscription } from '../../services/stripeService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
 
@@ -174,12 +175,89 @@ function Login() {
       toast.success(t.loginSuccessful);
       // Clear all errors on successful login
       setError({});
-      // Navigate based on user role
+      // Get user data from localStorage after login
       const userData = JSON.parse(localStorage.getItem('userData'));
+      
+      // Navigate based on user role
       if (userData && userData.role === 'admin') {
         navigate('/admin');
-      } else {
+        return;
+      }
+      
+      // For regular users, check subscription status
+      let hasActiveSubscription = false;
+      
+      // FIRST: Check localStorage cache (fast check)
+      try {
+        const cachedSub = localStorage.getItem('hasActiveSubscription');
+        const cachedExpiry = localStorage.getItem('subscriptionExpiry');
+        
+        if (cachedSub === 'true' && cachedExpiry) {
+          const expiryDate = new Date(cachedExpiry);
+          const now = new Date();
+          if (expiryDate > now) {
+            hasActiveSubscription = true;
+          } else {
+            // Expired, clear cache via action
+            dispatch(setSubscriptionCache(false, null));
+          }
+        }
+      } catch (e) {
+        // Ignore cache errors
+      }
+      
+      // SECOND: If cache not found, call Stripe API
+      if (!hasActiveSubscription) {
+        try {
+          const stripeSubscriptionData = await getCurrentSubscription();
+          
+          // Check if user has active subscription from Stripe
+          const subscriptions = stripeSubscriptionData?.data?.stripe?.subscriptions || [];
+          const activeSubscription = subscriptions.find(
+            (sub) => sub.status === 'active' && !sub.cancel_at_period_end
+          );
+          
+          if (activeSubscription) {
+            // Check if subscription period has ended
+            const currentPeriodEnd = activeSubscription.current_period_end;
+            if (currentPeriodEnd) {
+              const expirationDate = new Date(currentPeriodEnd * 1000);
+              const currentDate = new Date();
+              hasActiveSubscription = expirationDate.getTime() > currentDate.getTime();
+              
+              // Store in localStorage via Redux action (centralized in authReducer)
+              if (hasActiveSubscription) {
+                dispatch(setSubscriptionCache(true, expirationDate.toISOString()));
+              }
+            } else {
+              // No expiration date, consider it active
+              hasActiveSubscription = true;
+              const farFuture = new Date();
+              farFuture.setFullYear(farFuture.getFullYear() + 10);
+              // Store in localStorage via Redux action (centralized in authReducer)
+              dispatch(setSubscriptionCache(true, farFuture.toISOString()));
+            }
+          }
+        } catch (stripeError) {
+          // If Stripe API fails, fallback to local user data
+          // Error is silent - will check local data below
+        }
+      }
+      
+      // THIRD: Fallback to local user data if Stripe didn't return active subscription
+      if (!hasActiveSubscription) {
+        const subscriptionStatus = userData?.subscriptionStatus?.toLowerCase();
+        const expirationDate = userData?.subscriptionExpirationDate;
+        hasActiveSubscription = subscriptionStatus === 'active' && 
+          (!expirationDate || new Date(expirationDate) > new Date());
+      }
+      
+      // If user has active subscription, redirect to app
+      // Otherwise, redirect to subscription page
+      if (hasActiveSubscription) {
         navigate('/app');
+      } else {
+        navigate('/subscription');
       }
     } catch (error) {
       // Check if error is related to email verification

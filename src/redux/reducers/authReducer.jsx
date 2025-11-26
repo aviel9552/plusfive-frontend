@@ -10,7 +10,6 @@ const safelyParseJSON = (data) => {
   try {
     return data ? JSON.parse(data) : null;
   } catch (error) {
-    console.error('Error parsing JSON from localStorage:', error);
     return null;
   }
 };
@@ -110,11 +109,28 @@ export default function authReducer(state = persistedState, action) {
         isAuthenticated: state.isAuthenticated
       };
 
+    case 'SET_SUBSCRIPTION_CACHE':
+      if (isBrowser) {
+        if (action.hasActiveSubscription && action.expiryDate) {
+          // Store subscription cache
+          localStorage.setItem('hasActiveSubscription', 'true');
+          localStorage.setItem('subscriptionExpiry', action.expiryDate);
+        } else {
+          // Remove subscription cache if inactive or expired
+          localStorage.removeItem('hasActiveSubscription');
+          localStorage.removeItem('subscriptionExpiry');
+        }
+      }
+      return state; // Don't change state, only update localStorage
+
     case 'LOGOUT':
       if (isBrowser) {
         localStorage.removeItem('userData');
         localStorage.removeItem('token');
         localStorage.removeItem('userRole');
+        // Remove subscription-related cache on logout
+        localStorage.removeItem('hasActiveSubscription');
+        localStorage.removeItem('subscriptionExpiry');
         document.cookie = 'token=; path=/; max-age=0';
       }
       // Only clear user data on logout, not on API errors

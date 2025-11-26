@@ -9,6 +9,8 @@ import { emailService } from '../../services/emailService';
 import { registerUser, resendVerificationEmail, createReferral } from '../../redux/services/authService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../../redux/actions/authActions';
 
 const businessTypes = [
   { value: '', label: 'Select business type' },
@@ -29,6 +31,7 @@ function Register() {
   const v = getValidationTranslations(language);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   // Check for ref parameter in URL
   useEffect(() => {
@@ -378,26 +381,44 @@ function Register() {
             referredUserId: registeredUser.data.user.id
           });
         } catch (referralError) {
-          console.error('Referral creation failed:', referralError);
           // Don't fail registration if referral fails
         }
       }
 
-      // Success message
-      toast.success(t.registrationSuccessful);
-
-      // Show email verification banner
-      setShowEmailVerificationBanner(true);
-
-      // Clear all errors on successful registration
-      setError({});
-
-      // Navigate to thank you page with real user data
-      // navigate('/thank-you', {
-      //   state: { userData }
-      // });
+      // Auto-login user after successful registration
+      // Check if backend returned token (new flow)
+      if (registeredUser.data?.token && registeredUser.data?.user) {
+        // Dispatch login action with token and user data
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          accessToken: registeredUser.data.token,
+          user: registeredUser.data.user
+        });
+        
+        // Store token and user data in localStorage
+        localStorage.setItem('token', registeredUser.data.token);
+        localStorage.setItem('userData', JSON.stringify(registeredUser.data.user));
+        localStorage.setItem('userRole', registeredUser.data.user.role);
+        
+        // Clear subscription cache since new user doesn't have subscription
+        localStorage.removeItem('hasActiveSubscription');
+        localStorage.removeItem('subscriptionExpiry');
+        
+        // Success message
+        toast.success(t.registrationSuccessful);
+        setError({});
+        
+        // Redirect to subscription page immediately (new user won't have subscription)
+        // Use replace: true to prevent back button access to /app routes
+        navigate('/subscription', { replace: true });
+      } else {
+        // Fallback: If token not available, show success and redirect to login
+        toast.success(t.registrationSuccessful);
+        setShowEmailVerificationBanner(true);
+        setError({});
+        // Note: This should not happen if backend is updated correctly
+      }
     } catch (error) {
-      console.error('Registration error:', error);
       toast.error(error.message || t.registrationFailed);
       // Don't clear errors on failed registration
     } finally {

@@ -10,6 +10,7 @@ const UPDATE_USER = 'UPDATE_USER';
 const UPDATE_USER_REQUEST = 'UPDATE_USER_REQUEST';
 const UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS';
 const UPDATE_USER_FAILURE = 'UPDATE_USER_FAILURE';
+const SET_SUBSCRIPTION_CACHE = 'SET_SUBSCRIPTION_CACHE';
 
 export const loginUser = (email, password) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
@@ -26,7 +27,6 @@ export const loginUser = (email, password) => async (dispatch) => {
       type: LOGIN_FAILURE,
       payload: error.message || 'Failed to fetch services',
     });
-    console.error('Login failed:', error);
     throw error;
   }
 };
@@ -56,16 +56,27 @@ export const updateUserProfile = (userData) => async (dispatch) => {
       type: UPDATE_USER_FAILURE,
       payload: error.message || 'Failed to update profile',
     });
-    console.error('Update profile failed:', error);
     // Return error without throwing
     return { success: false, error: error.message || 'Failed to update profile' };
   }
+};
+
+// Action to set subscription cache in localStorage
+export const setSubscriptionCache = (hasActiveSubscription, expiryDate) => (dispatch) => {
+  dispatch({
+    type: SET_SUBSCRIPTION_CACHE,
+    hasActiveSubscription,
+    expiryDate
+  });
 };
 
 export const logoutUser = () => (dispatch) => {
   localStorage.removeItem('token');
   localStorage.removeItem('userData');
   localStorage.removeItem('userRole');
+  // Remove subscription-related cache on logout
+  localStorage.removeItem('hasActiveSubscription');
+  localStorage.removeItem('subscriptionExpiry');
   document.cookie = 'token=; path=/; max-age=0';
   dispatch({ type: LOGOUT });
 };

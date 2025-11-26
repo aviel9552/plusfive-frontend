@@ -26,12 +26,10 @@ export const useStripeSubscription = (slug) => {
     const userData = localStorage.getItem('userData');
     
     if (!user || !token) {
-      console.warn('⚠️ Authentication state incomplete:', { user: !!user, token: !!token });
       return false;
     }
     
     if (token === 'undefined' || token === 'null') {
-      console.warn('⚠️ Invalid token value:', token);
       return false;
     }
     
@@ -49,7 +47,6 @@ export const useStripeSubscription = (slug) => {
       
       setPrices(prices);
     } catch (error) {
-      console.error('Failed to fetch prices:', error);
       toast.error('Failed to load pricing plans');
     } finally {
       setPricesLoading(false);
@@ -65,7 +62,6 @@ export const useStripeSubscription = (slug) => {
       const data = await getCurrentSubscription();
       setCurrentSubscription(data);
     } catch (error) {
-      console.error('Failed to fetch subscription:', error);
       // Show error toast for subscription fetch to help with debugging
       if (error.message.includes('endpoint not found')) {
         toast.error('Stripe subscription endpoint not configured. Please contact support.');
@@ -109,8 +105,6 @@ export const useStripeSubscription = (slug) => {
       // Redirect to Stripe Checkout
       window.location.href = checkoutResponse.url;
     } catch (error) {
-      console.error('❌ Failed to create checkout session:', error);
-      
       // Provide specific error messages based on error type
       if (error.message.includes('Authentication required')) {
         toast.error('Please login again to continue with your subscription');
@@ -145,6 +139,12 @@ export const useStripeSubscription = (slug) => {
       
       await cancelSubscription(subscriptionId);
       
+      // Clear subscription cache from localStorage via Redux action
+      // Note: We'll clear it directly here since this hook doesn't have dispatch access
+      // The action is called from components that use this hook
+      localStorage.removeItem('hasActiveSubscription');
+      localStorage.removeItem('subscriptionExpiry');
+      
       // Show success message with next steps
       toast.success(
         'Subscription Cancelled Successfully! You\'ll have access until the end of your billing period.',
@@ -154,13 +154,11 @@ export const useStripeSubscription = (slug) => {
       // Refresh subscription data to update UI immediately
       await fetchSubscription();
       
-      // Optional: Refresh page after a delay to ensure UI is fully updated
+      // Redirect to subscription page after cancellation
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = '/subscription';
       }, 2000);
     } catch (error) {
-      console.error('Failed to cancel subscription:', error);
-      
       // Provide specific error messages
       let errorMessage = 'Failed to cancel subscription';
       if (error.message.includes('not found')) {
@@ -197,7 +195,6 @@ export const useStripeSubscription = (slug) => {
       toast.success('Subscription reactivated successfully');
       await fetchSubscription(); // Refresh subscription data
     } catch (error) {
-      console.error('Failed to reactivate subscription:', error);
       toast.error(error.message || 'Failed to reactivate subscription');
     } finally {
       setLoading(false);
