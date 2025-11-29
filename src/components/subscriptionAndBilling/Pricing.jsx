@@ -96,12 +96,31 @@ const formatStripePricesToPlans = (stripePrices, t, isYearly) => {
         };
     }).filter(Boolean); // Remove null values
 
-    // Sort plans by price from lowest to highest
-    const sortedPlans = formattedPlans.sort((a, b) => {
+    // Sort plans: Popular plans should be at index 1 (second position)
+    // First sort by price from lowest to highest
+    const sortedByPrice = formattedPlans.sort((a, b) => {
         const priceA = isYearly ? a.yearlyPrice : a.monthlyPrice;
         const priceB = isYearly ? b.yearlyPrice : b.monthlyPrice;
         return priceA - priceB;
     });
+
+    // Find popular plan and move it to index 1 (second position)
+    const popularPlanIndex = sortedByPrice.findIndex(plan => plan.isPopular);
+    
+    let sortedPlans = [...sortedByPrice];
+    
+    // If popular plan exists and is not already at index 1, move it there
+    if (popularPlanIndex !== -1 && popularPlanIndex !== 1 && sortedPlans.length > 1) {
+        const popularPlan = sortedPlans[popularPlanIndex];
+        sortedPlans.splice(popularPlanIndex, 1); // Remove popular plan from current position
+        
+        // Insert popular plan at index 1 (second position)
+        if (sortedPlans.length >= 1) {
+            sortedPlans.splice(1, 0, popularPlan);
+        } else {
+            sortedPlans.push(popularPlan);
+        }
+    }
 
     return sortedPlans;
 };
@@ -163,14 +182,14 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
         // <div className="absolute top-6 right-6 bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]">
         <div className={`absolute top-6 ${language === 'he' ? 'left-6' : 'right-6'} bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]`}>
             <MdAutoAwesome className="text-purple-500 dark:text-purple-400 text-16" />
-            <span className="font-bold bg-gradient-to-br from-[#FF2380] to-[#675DFF] text-transparent bg-clip-text text-14">
+            <span className="font-bold bg-gradient-to-br from-[#FF2380] to-[#ff5d9a] text-transparent bg-clip-text text-14">
                 {t.popular}
             </span>
         </div>
     ) : null;
 
     const cardWrapperClass = cardIndex === 1 
-        ? 'p-[2px] bg-gradient-to-br from-[#FF2380] via-[#675DFF] to-purple-500 rounded-2xl shadow-lg' 
+        ? 'p-[2px] bg-gradient-to-br from-[#FF2380] via-[#ff5d9a] to-purple-500 rounded-2xl shadow-lg' 
         : isPopular 
             ? 'p-[2px] bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl' 
             : 'border border-gray-300 dark:border-[#FFFFFF29] rounded-2xl';
@@ -247,7 +266,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                     ))}
                 </ul>
 
-                {cardIndex === 1 ? (
+                {isPopular ? (
                     <CommonButton
                         {...getButtonProps()}
                     />
