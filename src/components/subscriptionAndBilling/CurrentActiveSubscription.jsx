@@ -153,9 +153,24 @@ function CurrentActiveSubscription({ slug }) {
     const subscription = getActiveSubscription();
     if (!subscription) return 'N/A';
     
-    const amount = subscription.items?.data?.[0]?.plan?.amount;
+    const plan = subscription.items?.data?.[0]?.plan;
+    const amount = plan?.amount;
+    const interval = plan?.interval; // 'day', 'month', or 'year'
+    
     if (amount) {
-      return `₪${(amount / 100).toFixed(2)}/month`;
+      const formattedAmount = `₪${(amount / 100).toFixed(2)}`;
+      
+      // Display interval based on plan interval
+      let intervalText = '/month'; // default
+      if (interval === 'day') {
+        intervalText = '/day';
+      } else if (interval === 'year') {
+        intervalText = '/year';
+      } else if (interval === 'month') {
+        intervalText = '/month';
+      }
+      
+      return `${formattedAmount}${intervalText}`;
     }
     return 'N/A';
   };
