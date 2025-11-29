@@ -16,21 +16,63 @@ const safelyParseJSON = (data) => {
 
 const isBrowser = typeof window !== "undefined";
 
+// Helper function to check if JWT token is expired
+const isTokenExpired = (token) => {
+  try {
+    if (!token || token === 'undefined') {
+      return true;
+    }
+
+    // JWT token has 3 parts: header.payload.signature
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return true; // Invalid token format
+    }
+
+    // Decode base64 payload
+    const payload = JSON.parse(atob(parts[1]));
+    
+    // Check if token has expiration (exp field)
+    if (!payload.exp) {
+      return false; // No expiration set, consider valid
+    }
+
+    // exp is in Unix timestamp (seconds), convert to milliseconds
+    const expirationTime = payload.exp * 1000;
+    const currentTime = Date.now();
+
+    // Token is expired if current time is greater than expiration time
+    return currentTime >= expirationTime;
+  } catch (error) {
+    // If any error occurs (invalid token, parsing error, etc.), consider expired
+    return true;
+  }
+};
+
 let persistedState = initialState;
 
 if (isBrowser) {
   const userData = localStorage.getItem('userData');
   const token = localStorage.getItem('token');
 
-  if (userData && token) {
+  // Check if token exists AND is not expired
+  if (userData && token && !isTokenExpired(token)) {
     persistedState = {
       ...initialState,
       isAuthenticated: true,
       user: safelyParseJSON(userData),
       token: token,
     };
+  } else if (userData && token && isTokenExpired(token)) {
+    // Token expired, clear all auth data from localStorage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('hasActiveSubscription');
+    localStorage.removeItem('subscriptionExpiry');
+    // Keep persistedState as initialState (not authenticated)
   } else {
-    // console.log("No data in localStorage");
+    // No data in localStorage, keep initialState
   }
 }
 

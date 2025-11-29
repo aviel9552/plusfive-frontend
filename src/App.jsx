@@ -7,15 +7,68 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import CommonToastify from './components/commonComponent/CommonToastify';
 import PublicRoutes from './routes/publicRoutes';
 import { useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutUser } from './redux/actions/authActions';
 import { Layout, PageLoader } from './components';
 // import './App.css'
 
 function App() {
+  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const user = useSelector(state => state.auth.user);
+
+  // Helper function to check if JWT token is expired or missing
+  const checkTokenValidity = useCallback(() => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Check if token is missing or invalid
+      if (!token || token === 'undefined' || token.trim() === '') {
+        return { isValid: false, reason: 'missing' };
+      }
+
+      // JWT token has 3 parts: header.payload.signature
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return { isValid: false, reason: 'invalid_format' };
+      }
+
+      // Decode base64 payload
+      const payload = JSON.parse(atob(parts[1]));
+      
+      // Check if token has expiration (exp field)
+      if (!payload.exp) {
+        return { isValid: true }; // No expiration set, consider valid
+      }
+
+      // exp is in Unix timestamp (seconds), convert to milliseconds
+      const expirationTime = payload.exp * 1000;
+      const currentTime = Date.now();
+
+      // Token is expired if current time is greater than expiration time
+      if (currentTime >= expirationTime) {
+        return { isValid: false, reason: 'expired' };
+      }
+
+      return { isValid: true };
+    } catch (error) {
+      // If any error occurs (invalid token, parsing error, etc.), consider invalid
+      return { isValid: false, reason: 'invalid' };
+    }
+  }, []);
+
+  // Check token validity - if invalid, logout user
+  useEffect(() => {
+    const tokenCheck = checkTokenValidity();
+    
+    // If token is missing or expired and user is authenticated, logout
+    if (!tokenCheck.isValid && isAuthenticated) {
+      dispatch(logoutUser());
+      navigate('/login', { replace: true });
+    }
+  }, [checkTokenValidity, isAuthenticated, dispatch, navigate]);
 
   // Helper function to check if user has active subscription
   const hasActiveSubscription = useCallback(() => {

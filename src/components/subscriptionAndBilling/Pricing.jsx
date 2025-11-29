@@ -130,7 +130,7 @@ const BillingToggle = ({ isYearly, onToggle, t, language }) => (
 );
 
 // Pricing Card Component
-const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscription, onManageSubscription }) => {
+const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscription, onManageSubscription, cardIndex }) => {
     const { language } = useLanguage(); // Add language hook
     const { name, description, monthlyPrice, yearlyPrice, features, isPopular, priceId, stripePriceId, isMetered, currency, meterId, isDaily } = plan;
     const price = isYearly ? yearlyPrice : monthlyPrice;
@@ -155,11 +155,11 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
     const isActiveCurrentPlan = isCurrentPlan && subscriptionStatus === 'active' && !isCanceledAtPeriodEnd;
 
     const cardClasses = `
-    bg-customGray2 dark:bg-[#1D1C20] p-[24px] rounded-2xl flex flex-col h-full
-    ${isPopular ? 'relative' : ''}
+    bg-customGray2 dark:bg-[#1D1C20] p-[24px] rounded-2xl flex flex-col h-full relative
   `;
 
-    const popularBadge = isPopular ? (
+    // const popularBadge = isPopular ? (
+        const popularBadge = cardIndex === 1 ? (
         // <div className="absolute top-6 right-6 bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]">
         <div className={`absolute top-6 ${language === 'he' ? 'left-6' : 'right-6'} bg-gray-100 dark:bg-customWhite backdrop-blur-sm text-sm font-semibold px-3 p-1 rounded-full flex items-center gap-[6px]`}>
             <MdAutoAwesome className="text-purple-500 dark:text-purple-400 text-16" />
@@ -169,7 +169,11 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
         </div>
     ) : null;
 
-    const cardWrapperClass = isPopular ? 'p-[2px] bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl' : 'border border-gray-300 dark:border-[#FFFFFF29] rounded-2xl';
+    const cardWrapperClass = cardIndex === 1 
+        ? 'p-[2px] bg-gradient-to-br from-[#FF2380] via-[#675DFF] to-purple-500 rounded-2xl shadow-lg' 
+        : isPopular 
+            ? 'p-[2px] bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl' 
+            : 'border border-gray-300 dark:border-[#FFFFFF29] rounded-2xl';
 
     const handleAction = () => {
         if (isCurrentPlan) {
@@ -243,7 +247,7 @@ const PricingCard = ({ plan, isYearly, t, onSubscribe, loading, currentSubscript
                     ))}
                 </ul>
 
-                {isPopular ? (
+                {cardIndex === 1 ? (
                     <CommonButton
                         {...getButtonProps()}
                     />
@@ -342,7 +346,7 @@ function Pricing({ slug, subscriptionLoading: subscriptionLoadingProp }) {
                 </div>
             ) : pricingPlans.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px] mt-[24px] items-stretch">
-                    {pricingPlans.map(plan => (
+                    {pricingPlans.map((plan, index) => (
                         <PricingCard
                             key={plan.uniqueKey || `${plan.name}-${isYearly ? 'yearly' : 'monthly'}`}
                             plan={plan}
@@ -352,6 +356,7 @@ function Pricing({ slug, subscriptionLoading: subscriptionLoadingProp }) {
                             loading={loading}
                             currentSubscription={currentSubscription}
                             onManageSubscription={handleManageSubscription}
+                            cardIndex={index}
                         />
                     ))}
                 </div>
