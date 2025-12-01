@@ -13,37 +13,33 @@ const PublicSubscription = () => {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const user = useSelector(state => state.auth.user);
   
-  // Get subscription loading state to control Pricing component visibility
-  const { subscriptionLoading } = useStripeSubscription(slug);
+  // Get subscription data from Stripe API
+  const { subscriptionLoading, currentSubscription } = useStripeSubscription(slug);
 
   // Helper function to check if user has active subscription
   const hasActiveSubscription = () => {
-    // Admin users don't need subscription, but they should not access subscription page
-    if (user?.role === 'admin') {
-      return true; // Admin has access, redirect them
-    }
-
-    // Check localStorage cache first
-    try {
-      const cachedSub = localStorage.getItem('hasActiveSubscription');
-      const cachedExpiry = localStorage.getItem('subscriptionExpiry');
+    // FIRST: Check Stripe API response (most reliable source)
+    if (currentSubscription?.data?.stripe?.subscriptions) {
+      const activeSubscriptions = currentSubscription.data.stripe.subscriptions.filter(
+        sub => sub.status && ['active', 'trialing'].includes(sub.status.toLowerCase())
+      );
       
-      if (cachedSub === 'true' && cachedExpiry) {
-        const expiryDate = new Date(cachedExpiry);
-        const now = new Date();
-        if (expiryDate.getTime() > now.getTime()) {
-          return true; // Active subscription found in cache
+      if (activeSubscriptions.length > 0) {
+        // Check if subscription is not expired
+        const subscription = activeSubscriptions[0];
+        if (subscription.current_period_end) {
+          const expiryTimestamp = subscription.current_period_end * 1000; // Convert to milliseconds
+          const now = Date.now();
+          if (expiryTimestamp > now) {
+            return true; // Active and not expired
+          }
         } else {
-          // Expired, remove from cache
-          localStorage.removeItem('hasActiveSubscription');
-          localStorage.removeItem('subscriptionExpiry');
+          return true; // Active with no expiry date
         }
       }
-    } catch (e) {
-      // Ignore errors
     }
 
-    // Fallback to user data from Redux
+    // SECOND: Check user data from Redux (fallback)
     if (user) {
       const subscriptionStatus = user?.subscriptionStatus;
       
@@ -65,30 +61,31 @@ const PublicSubscription = () => {
         }
         return true; // Active with no expiry date
       }
-      
-      // All other statuses (pending, canceled, inactive, etc.) mean no active subscription
-      return false;
     }
 
-    // No user data means no subscription
+    // No active subscription found
     return false;
   };
 
-  // Check if user has active subscription and redirect accordingly
+  // Check authentication and redirect accordingly
   useEffect(() => {
-    // Only check if user is authenticated
     if (isAuthenticated && user) {
-      // If user has active subscription, redirect to /app (don't show subscription page)
-      if (hasActiveSubscription()) {
-        if (user.role === 'admin') {
-          navigate('/admin', { replace: true });
-        } else {
+      // Admin users: Only check token, redirect directly to /admin
+      if (user.role === 'admin') {
+        navigate('/admin', { replace: true });
+        return;
+      }
+
+      // Regular users: Check subscription status (wait for subscription data to load)
+      if (!subscriptionLoading) {
+        // If user has active subscription, redirect to /app (don't show subscription page)
+        if (hasActiveSubscription()) {
           navigate('/app', { replace: true });
         }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user, navigate]);
+  }, [subscriptionLoading, isAuthenticated, user, currentSubscription, navigate]);
 
   // Handle logout and redirect to login
   const handleGoBack = () => {
