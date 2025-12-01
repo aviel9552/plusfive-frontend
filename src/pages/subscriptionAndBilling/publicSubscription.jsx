@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaArrowLeft } from 'react-icons/fa';
@@ -12,86 +12,53 @@ const PublicSubscription = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const user = useSelector(state => state.auth.user);
+  const hasRedirected = useRef(false);
   
   // Get subscription data from Stripe API
   const { subscriptionLoading, currentSubscription } = useStripeSubscription(slug);
 
-  // Helper function to check if user has active subscription
-  const hasActiveSubscription = () => {
-    // FIRST: Check Stripe API response (most reliable source)
-    if (currentSubscription?.data?.stripe?.subscriptions) {
-      const activeSubscriptions = currentSubscription.data.stripe.subscriptions.filter(
-        sub => sub.status && ['active', 'trialing'].includes(sub.status.toLowerCase())
-      );
-      
-      if (activeSubscriptions.length > 0) {
-        // Check if subscription is not expired
-        const subscription = activeSubscriptions[0];
-        if (subscription.current_period_end) {
-          const expiryTimestamp = subscription.current_period_end * 1000; // Convert to milliseconds
-          const now = Date.now();
-          if (expiryTimestamp > now) {
-            return true; // Active and not expired
-          }
-        } else {
-          return true; // Active with no expiry date
-        }
-      }
-    }
-
-    // SECOND: Check user data from Redux (fallback)
-    if (user) {
-      const subscriptionStatus = user?.subscriptionStatus;
-      
-      // If subscription status is null, undefined, or empty, no subscription
-      if (!subscriptionStatus || subscriptionStatus.trim() === '') {
-        return false;
-      }
-      
-      // Convert to lowercase for comparison
-      const status = subscriptionStatus.toLowerCase();
-      const expirationDate = user?.subscriptionExpirationDate;
-      
-      // Only consider active if subscription status is explicitly 'active'
-      if (status === 'active') {
-        if (expirationDate) {
-          const expiryDate = new Date(expirationDate);
-          const now = new Date();
-          return expiryDate.getTime() > now.getTime(); // Check if not expired
-        }
-        return true; // Active with no expiry date
-      }
-    }
-
-    // No active subscription found
-    return false;
-  };
-
-  // Check authentication and redirect accordingly
+  // Redirect authenticated users with active subscription to /app
   useEffect(() => {
-    if (isAuthenticated && user) {
-      // Admin users: Only check token, redirect directly to /admin
-      if (user.role === 'admin') {
-        navigate('/admin', { replace: true });
-        return;
-      }
+    if (hasRedirected.current) return;
 
-      // Regular users: Check subscription status (wait for subscription data to load)
-      if (!subscriptionLoading) {
-        // If user has active subscription, redirect to /app (don't show subscription page)
-        if (hasActiveSubscription()) {
-          navigate('/app', { replace: true });
+    // Only check for authenticated users (non-admin)
+    if (isAuthenticated && user && user.role !== 'admin') {
+      // Wait for subscription data to load
+      if (!subscriptionLoading && currentSubscription?.data?.stripe) {
+        const subscriptions = currentSubscription.data.stripe.subscriptions;
+        
+        if (Array.isArray(subscriptions)) {
+          const activeSubscriptions = subscriptions.filter(
+            sub => sub.status && ['active', 'trialing'].includes(sub.status.toLowerCase())
+          );
+          
+          if (activeSubscriptions.length > 0) {
+            const subscription = activeSubscriptions[0];
+            const hasActiveSubscription = subscription.current_period_end 
+              ? subscription.current_period_end * 1000 > Date.now()
+              : true;
+            
+            if (hasActiveSubscription) {
+              hasRedirected.current = true;
+              navigate('/app', { replace: true });
+            }
+          }
         }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscriptionLoading, isAuthenticated, user, currentSubscription, navigate]);
+  }, [isAuthenticated, user, subscriptionLoading, currentSubscription]);
 
   // Handle logout and redirect to login
   const handleGoBack = () => {
     dispatch(logoutUser());
     navigate('/login', { replace: true });
   };
+
+  // If redirecting, show nothing
+  if (hasRedirected.current) {
+    return null;
+  }
 
   // Render subscription page
   return (
