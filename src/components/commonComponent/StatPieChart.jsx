@@ -82,8 +82,8 @@ const StatPieChart = ({ title, data }) => {
       <div className={`grid sm:grid-cols-5 grid-cols-2 gap-4 mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
         {displayData.map((item, index) => (
           <div key={index} className={`flex flex-col items-center ${isRTL ? 'items-end' : 'items-start'}`}>
-            <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} mb-1`}>
-              <div className={`w-3 h-3 rounded-full ${isRTL ? 'ml-2' : 'mr-2'}`} style={{ backgroundColor: item.color }}></div>
+            <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''} mb-1`}>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
               <span className={`text-black dark:text-white text-14`}>{item.name}</span>
             </div>
             <span className={`text-gray-600 dark:text-white text-12 ${isRTL ? 'text-right' : 'text-left'}`}>
