@@ -60,8 +60,8 @@ function AdminQRManagement() {
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      customerMessage: ` היי אח הסתפרתי הרגע אצל ${businessName},
-      הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז.. לחץ על הלינק כדיי לדבר איתם ישירות:`,
+      customerMessage: `היי אח הסתפרתי הרגע ב ${businessName},
+והם נתנו לי לינק עם 20% לפעם ראשונה אצליהם, דבר איתם בלינק:`,
     }));
   }, [businessName]);
 
