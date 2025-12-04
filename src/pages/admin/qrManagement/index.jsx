@@ -29,7 +29,7 @@ function AdminQRManagement() {
     (!user?.subscriptionExpirationDate || new Date(user.subscriptionExpirationDate) > new Date());
 
   const [formData, setFormData] = useState({
-   customerMessage: ` היי אח הסתפרתי הרגע ב ${businessName},
+   customerMessage: `היי אח הסתפרתי הרגע ב ${businessName},
 והם נתנו לי לינק עם 20% לפעם ראשונה אצליהם, דבר איתם בלינק:`,
     directMessage: `היי אח קבלתי הטבה של 20% דרך חבר, אשמח לדבר`
     // targetUrl: ''
