@@ -29,9 +29,9 @@ function AdminQRManagement() {
     (!user?.subscriptionExpirationDate || new Date(user.subscriptionExpirationDate) > new Date());
 
   const [formData, setFormData] = useState({
-   customerMessage: ` היי אח הסתפרתי הרגע אצל ${businessName},
-הם נתנו לי אופציה לפרגן לחבר בתספורת מתנה אז.. לחץ על הלינק כדיי לדבר איתם ישירות:`,
-    directMessage: `היי קבלתי מתנה דרך חבר, אשמח לקבוע תור`
+   customerMessage: ` היי אח הסתפרתי הרגע ב ${businessName},
+והם נתנו לי לינק עם 20% לפעם ראשונה אצליהם, דבר איתם בלינק:`,
+    directMessage: `היי אח קבלתי הטבה של 20% דרך חבר, אשמח לדבר`
     // targetUrl: ''
   });
   const [errors, setErrors] = useState({});
