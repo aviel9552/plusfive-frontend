@@ -28,8 +28,34 @@ const StatPieChart = ({ title, data }) => {
   const customerData = data || [];
   const { isRTL } = useLanguage();
 
-  // Reverse data for Hebrew to show legend in correct RTL order
-  const displayData = isRTL ? [...customerData].reverse() : customerData;
+  // Sort data: New first, then Active, then others
+  const sortedData = [...customerData].sort((a, b) => {
+    const nameA = a.name?.toLowerCase().trim();
+    const nameB = b.name?.toLowerCase().trim();
+    
+    // Check if items are "New" or "חדש" (Hebrew)
+    const isANew = nameA === 'new' || nameA === 'חדש';
+    const isBNew = nameB === 'new' || nameB === 'חדש';
+    
+    // Check if items are "Active" or "פעיל" (Hebrew)
+    const isAActive = nameA === 'active' || nameA === 'פעיל';
+    const isBActive = nameB === 'active' || nameB === 'פעיל';
+    
+    // Priority: New = 1, Active = 2, Others = 3
+    const getPriority = (isNew, isActive) => {
+      if (isNew) return 1;
+      if (isActive) return 2;
+      return 3;
+    };
+    
+    const priorityA = getPriority(isANew, isAActive);
+    const priorityB = getPriority(isBNew, isBActive);
+    
+    return priorityA - priorityB;
+  });
+
+  // Use sorted data directly (New first, Active second) for both LTR and RTL
+  const displayData = sortedData;
 
   return (
     <div className="bg-white dark:bg-customBrown rounded-[16px] p-[24px] border border-gray-200 dark:border-commonBorder dark:shadow-none transition-colors duration-200 dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
