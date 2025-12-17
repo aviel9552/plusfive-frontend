@@ -133,7 +133,7 @@ function AdminAnalyticsMonthlyPerformance() {
         <StatChartCard
           title={t.customersLTV}
           value={formatValue(revenueCountsData.averageLTV || 0, 'ltv')}
-          change={data?.customerLTV?.change || 0}
+          change={Number((data?.customerLTV?.change || 0).toFixed(2))}
           trend={getTrendText(data?.customerLTV?.trend)}
           color={getTrendColor(data?.customerLTV?.trend)}
         />
