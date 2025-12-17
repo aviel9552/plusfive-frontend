@@ -47,12 +47,35 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "HebrewOverride", Arial, sans-serif;
   font-weight: 400;
   font-style: normal;
 }
+/* ========================= */
+/* Hebrew font override ONLY */
+/* ========================= */
+
+@font-face {
+  font-family: "HebrewOverride";
+  src: local("Nunito Sans");
+  unicode-range: U+0590-05FF, U+FB1D-FB4F;
+}
+
+html,
+body {
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "HebrewOverride",
+    Arial,
+    sans-serif;
+}
+
 :lang(he) {
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito Sans", "HebrewOverride", Arial, sans-serif;
 }
 
 /* Smooth transitions for theme switching */
