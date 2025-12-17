@@ -76,7 +76,7 @@ body {
 
 :lang(he) {
   font-family: "Nunito Sans", "HebrewOverride", Arial, sans-serif;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 /* Smooth transitions for theme switching */
