@@ -57,7 +57,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     navigate('/');
   };
 
-  const effectiveCollapsed = isMobile ? false : isCollapsed;
+  const effectiveCollapsed = isMobile ? false : true;
 
   const sidebarClasses = `
     font-ttcommons
