@@ -38,9 +38,6 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
 >
   {title}
 </span>
-      <div className="text-xs opacity-50">
-  lang: {language} | isRTL: {String(isRTL)}
-</div>
       <div className="flex items-end justify-between">
         <div className="flex flex-col">
           {/* כאן שינינו את צבע המספר + ₪ */}
