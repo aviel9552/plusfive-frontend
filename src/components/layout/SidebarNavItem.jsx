@@ -55,9 +55,9 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
             <Link to={to} className={getLinkClasses()}>
                 <span className='flex items-center gap-[8px]'>
                     {renderIcon()}
-                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
-                        {label}
-                    </span>
+                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden' : 'inline'}`}>
+  {label}
+</span>
                 </span>
                 {/* {isCollapsed && !showHoverText && (
                     <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#212121] text-white text-sm rounded-md
