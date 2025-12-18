@@ -65,7 +65,6 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
     h-[900px]
-    group
     ${isMobile
   ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
   : `${isCollapsed ? 'w-16' : 'w-[288px]'}`
