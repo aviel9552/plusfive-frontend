@@ -28,7 +28,9 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   }, [isMobile, isCollapsed, onCollapse]);
 
   const toggleDesktopSidebar = () => {
-    onCollapse(!isCollapsed);
+  return; // בדסקטופ לא פותחים בכלל
+};
+
   };
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
