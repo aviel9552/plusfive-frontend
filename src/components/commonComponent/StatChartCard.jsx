@@ -32,7 +32,11 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
 
   return (
     <div className="bg-white dark:bg-customBrown rounded-xl p-[20px] border border-gray-200 dark:border-commonBorder relative dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
-      <span className="text-black dark:text-white text-14">{title}</span>
+     <span
+  className={`text-14 text-black dark:text-white ${isRTL ? 'font-bold' : 'font-medium'}`}
+>
+  {title}
+</span>
       <div className="flex items-end justify-between">
         <div className="flex flex-col">
           {/* כאן שינינו את צבע המספר + ₪ */}
