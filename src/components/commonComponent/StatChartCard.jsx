@@ -35,8 +35,8 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
      <span
   className={`text-14 text-black dark:text-white ${
     isRTL
-      ? 'font-nunitoSans font-extrabold'
-      : 'font-ttcommons font-medium'
+      ? 'text-16 font-nunitoSans font-extrabold'
+      : 'text-14 font-ttcommons font-medium'
   }`}
 >
   {title}
