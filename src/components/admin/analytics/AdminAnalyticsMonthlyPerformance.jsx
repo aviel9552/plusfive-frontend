@@ -112,21 +112,21 @@ function AdminAnalyticsMonthlyPerformance() {
         <StatChartCard
           title={t.recoveredCustomers}
           value={revenueCountsData.recoveredCustomersCount || 0}
-          change={data?.recoveredCustomers?.change || 0}
+          change={Math.round(data?.recoveredCustomers?.change || 0)}
           trend={getTrendText(data?.recoveredCustomers?.trend)}
           color={getTrendColor(data?.recoveredCustomers?.trend)}
         />
         <StatChartCard
           title={t.recoveredRevenue}
           value={formatValue(revenueCountsData.totalRecoveredRevenue || 0, 'revenue')}
-          change={data?.recoveredRevenue?.change || 0}
+          change={Math.round(data?.recoveredRevenue?.change || 0)}
           trend={getTrendText(data?.recoveredRevenue?.trend)}
           color={getTrendColor(data?.recoveredRevenue?.trend)}
         />
         <StatChartCard
           title={t.lostRevenue}
           value={formatValue(revenueCountsData.totalLostRevenue || 0, 'revenue')}
-          change={data?.lostRevenue?.change || 0}
+          change={Math.round(data?.lostRevenue?.change || 0)}
           trend={getTrendText(data?.lostRevenue?.trend)}
           color={getTrendColor(data?.lostRevenue?.trend)}
         />
