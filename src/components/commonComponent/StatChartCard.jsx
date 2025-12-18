@@ -44,7 +44,7 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
       <div className="flex items-end justify-between">
         <div className="flex flex-col">
           {/* כאן שינינו את צבע המספר + ₪ */}
-          <span className="text-44 font-semibold text-[#374151] dark:text-white font-ttcommons">
+          <span className="text-44 font-regular text-[#374151] dark:text-white font-ttcommons">
             {value}
           </span>
           <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} gap-2`}>
