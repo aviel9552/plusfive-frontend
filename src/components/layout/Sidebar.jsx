@@ -67,7 +67,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     h-[900px]
     ${isMobile
   ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
-  : `${isCollapsed ? 'w-16' : 'w-[288px]'}`
+  : : `w-16 hover:w-16`
 }
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
