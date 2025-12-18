@@ -28,9 +28,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   }, [isMobile, isCollapsed, onCollapse]);
 
   const toggleDesktopSidebar = () => {
-  return; // בדסקטופ לא פותחים בכלל
-};
-
+    onCollapse(!isCollapsed);
   };
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -57,7 +55,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     navigate('/');
   };
 
-  const effectiveCollapsed = isMobile ? false : true;
+  const effectiveCollapsed = isMobile ? false : isCollapsed;
 
   const sidebarClasses = `
     font-ttcommons
@@ -67,10 +65,12 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     flex flex-col z-[30]
     transition-all duration-300 ease-in-out
     h-[900px]
-    ${isMobile
-  ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
-  : : `w-16 hover:w-16`
-}
+    group
+    ${isMobile ?
+      `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
+      `${isCollapsed ? 'w-16 hover:w-[288px]' : 'w-[288px]'}`
+    }
+  `;
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
 
