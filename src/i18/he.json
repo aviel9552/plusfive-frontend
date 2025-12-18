@@ -348,8 +348,8 @@
   "admin": {
     "monthlyPerformance": "ביצועים חודשיים",
     "recoveredCustomers": "לקוחות שחזרו",
-    "recoveredRevenue": "הכנסה שחזרה",
-    "lostRevenue": "הכנסה שאבדה",
+    "recoveredRevenue": "הכנסות שחזרו",
+    "lostRevenue": "הכנסות שאבדו",
     "customersLTV": "ממוצע ביקורים",
     "increase": "עלייה",
     "decrease": "ירידה",
