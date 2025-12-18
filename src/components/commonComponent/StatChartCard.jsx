@@ -35,10 +35,9 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
      <span
   className={`text-14 text-black dark:text-white ${
     isRTL
-      ? 'font-extrabold'
-      : 'font-medium font-ttcommons'
+      ? 'font-nunitoSans font-extrabold'
+      : 'font-ttcommons font-medium'
   }`}
-  style={isRTL ? { fontFamily: 'Nunito Sans' } : undefined}
 >
   {title}
 </span>
