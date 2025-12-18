@@ -33,7 +33,9 @@ const StatChartCard = ({ title, value, change, trend, color, chartColor = "#ff25
   return (
     <div className="bg-white dark:bg-customBrown rounded-xl p-[20px] border border-gray-200 dark:border-commonBorder relative dark:hover:bg-customBlack hover:bg-customBody shadow-md hover:shadow-sm">
      <span
-  className={`text-14 text-black dark:text-white ${isRTL ? 'font-bold' : 'font-medium'}`}
+  className={`text-14 text-black dark:text-white ${
+    isRTL ? 'underline bg-yellow-100 px-1 rounded' : ''
+  }`}
 >
   {title}
 </span>
