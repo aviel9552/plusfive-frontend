@@ -66,11 +66,10 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     transition-all duration-300 ease-in-out
     h-[900px]
     group
-    ${isMobile ?
-      `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
-      `${isCollapsed ? 'w-16' : 'w-[288px]'}
-    }
-  `;
+    ${isMobile
+  ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
+  : `${isCollapsed ? 'w-16' : 'w-[288px]'}`
+}
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
 
