@@ -624,11 +624,11 @@
     "recoveredCustomers": "לקוחות שחזרו",
     "recoveredRevenue": "הכנסות שחזרו",
     "lostRevenue": "הכנסות אבודות",
-    "customersLTV": "ערך לקוח לכל החיים",
+    "customersLTV": "ממוצע ביקורים",
     "increase": "עלייה",
     "decrease": "ירידה",
     "revenueImpact": "השפעת הכנסות",
-    "customerStatusBreakdown": "פירוט סטטוס לקוחות",
+    "customerStatusBreakdown": "סטטוס לקוחות",
     "monthly": "חודשי",
     "weekly": "שבועי",
     "lastMonth": "חודש שעבר",
@@ -641,8 +641,8 @@
     "yearly": "שנתי",
     "thisWeek": "שבוע זה",
     "qrCode": "קוד QR",
-    "averageRatingOverTime": "דירוג ממוצע לאורך זמן",
-    "ltvGrowthOverTime": "צמיחת ערך לקוח לאורך זמן",
+    "averageRatingOverTime": "דירוג לקוחות",
+    "ltvGrowthOverTime": "ממוצע עסקה",
     "ltdMonthly": "LTD - חודשי",
     "monthCustomersLTD": "לקוחות חודש LTD"
   },
@@ -1144,7 +1144,7 @@
     "New": "חדש",
     "Active": "פעיל",
     "At Risk": "בסיכון",
-    "Lost": "אבוד",
-    "Recovered": "התאושש"
+    "Lost": "נוטש",
+    "Recovered": "הוחזר"
   }
 }
