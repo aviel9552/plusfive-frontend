@@ -39,6 +39,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   const userSubscriptionStartDate = useSelector(state => state.auth?.user?.subscriptionStartDate);
   const [showUpgradeCard, setShowUpgradeCard] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const { language } = useLanguage();
   const t = getLayoutTranslations(language);
 
@@ -100,7 +101,11 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
       )}
-      <aside className={sidebarClasses}>
+      <aside
+  className={sidebarClasses}
+  onMouseEnter={() => setIsHovering(true)}
+  onMouseLeave={() => setIsHovering(false)}
+>
         {/* Header */}
         <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center group-hover:justify-between' : 'justify-between'}`}>
           {/* Logo for expanded state */}
@@ -144,7 +149,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
                 {...link}
                 isCollapsed={effectiveCollapsed}
                 isRTL={isRTL}
-                showHoverText={isCollapsed}
+                showHoverText={effectiveCollapsed}
               />
             ))}
           </ul>
