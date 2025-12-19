@@ -75,9 +75,17 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!isAuthenticated) {
-  // If user is not authenticated, render all public routes (login, register, etc.)
-  return <PublicRoutes />;
+  const token = localStorage.getItem('token');
+const isAppRoute = location.pathname.startsWith('/app');
+
+// ✅ אם אנחנו כבר על /app ויש טוקן, אבל Redux עוד לא הספיק להתעדכן — תציג Loader במקום דף לבן
+if (!isAuthenticated) {
+  if (isAppRoute && token && token !== 'undefined' && token.trim() !== '') {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  // לא מחובר באמת -> לך ללוגין
+  return <Navigate to="/login" replace state={{ from: location }} />;
 }
 
 // ✅ מונע מסך לבן אחרי login בזמן שה-user עוד נטען
