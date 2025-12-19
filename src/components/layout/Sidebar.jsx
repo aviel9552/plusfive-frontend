@@ -64,7 +64,9 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     navigate('/');
   };
 
-  const effectiveCollapsed = isMobile ? false : isCollapsed;
+// במובייל אין collapsed (תמיד מציג טקסט כשהתפריט פתוח)
+// בדסקטופ: כשלא מרחפים -> collapsed, כשמרחפים -> לא collapsed
+const effectiveCollapsed = isMobile ? false : !isHovering;
 
   const sidebarClasses = `
     font-ttcommons
