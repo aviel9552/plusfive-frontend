@@ -155,9 +155,6 @@ if (isAuthenticated && !user) {
       }
     }
   }
-
-  // Check if route is /app/* and requires subscription
-  const isAppRoute = location.pathname.startsWith('/app');
   
   // If accessing /app/* routes, check subscription - redirect immediately if no subscription
   if (isAppRoute && user?.role !== 'admin') {
