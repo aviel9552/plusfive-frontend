@@ -173,7 +173,7 @@ const Header = ({ onMobileMenuToggle }) => {
             options={languageOptions}
             value={language}
             onChange={changeLanguage}
-            className="hidden lg:flex p-1"
+            className="flex p-1"
             showIcon={true}
             borderRadius="rounded-full"
             inputBorderRadius="rounded-full"
