@@ -26,6 +26,14 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
       onCollapse(false);
     }
   }, [isMobile, isCollapsed, onCollapse]);
+  
+  useEffect(() => {
+  // Desktop: תמיד סגור כברירת מחדל (אייקונים בלבד)
+  if (!isMobile && !isCollapsed) {
+    onCollapse(true);
+  }
+}, [isMobile, isCollapsed, onCollapse]);
+
 
   const toggleDesktopSidebar = () => {
     onCollapse(!isCollapsed);
@@ -56,7 +64,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     navigate('/');
   };
 
-  const effectiveCollapsed = isMobile ? false : (isCollapsed && !isHovering);
+  const effectiveCollapsed = isMobile ? false : isCollapsed;
 
   const sidebarClasses = `
     font-ttcommons
