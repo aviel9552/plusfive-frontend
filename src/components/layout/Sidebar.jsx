@@ -132,13 +132,16 @@ const effectiveCollapsed = isMobile ? false : !isHovering;
 
           {/* Toggle button for expanded state */}
           {isMobile && (
-            <button
-              onClick={toggleDesktopSidebar}
-              className={`flex text-white rounded-full p-1 shadow-lg z-[101] ${isCollapsed ? 'hidden group-hover:flex' : 'flex'}`}
-            >
-              <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" className="" />
-            </button>
-          )}
+  <button
+    type="button"
+    onClick={() => setIsMobileMenuOpen(prev => !prev)}
+    className="flex rounded-full p-1 shadow-lg z-[101]"
+    aria-label="Toggle mobile menu"
+  >
+    <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" />
+  </button>
+)}
+
 
           {/* {!isMobile && (
             <button
