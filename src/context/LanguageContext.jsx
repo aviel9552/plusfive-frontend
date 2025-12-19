@@ -19,7 +19,7 @@ export const useLanguage = () => {
 export const LanguageProvider = ({ children }) => {
   // Default: English, ya localStorage se
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem("language") || "en";
+    return localStorage.getItem("language") || "he";
   });
 
   useEffect(() => {
