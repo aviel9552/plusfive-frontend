@@ -131,7 +131,7 @@ const effectiveCollapsed = isMobile ? false : !isHovering;
           </span>
 
           {/* Toggle button for expanded state */}
-          {!isMobile && (
+          {isMobile && (
             <button
               onClick={toggleDesktopSidebar}
               className={`flex text-white rounded-full p-1 shadow-lg z-[101] ${isCollapsed ? 'hidden group-hover:flex' : 'flex'}`}
