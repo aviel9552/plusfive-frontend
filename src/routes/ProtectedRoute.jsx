@@ -76,9 +76,15 @@ function ProtectedRoute({ children }) {
   }
 
   if (!isAuthenticated) {
-    // If user is not authenticated, render all public routes (login, register, etc.)
-    return <PublicRoutes />;
-  }
+  // If user is not authenticated, render all public routes (login, register, etc.)
+  return <PublicRoutes />;
+}
+
+// ✅ מונע מסך לבן אחרי login בזמן שה-user עוד נטען
+if (isAuthenticated && !user) {
+  return <div className="p-6">Loading...</div>;
+}
+
 
   // Helper function to check if user has active subscription from Stripe API
   const hasActiveSubscription = () => {
