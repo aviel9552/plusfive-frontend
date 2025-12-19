@@ -24,7 +24,7 @@ export const LanguageProvider = ({ children }) => {
 
   useEffect(() => {
     if (!localStorage.getItem("language")) {
-      localStorage.setItem("language", "en");
+      localStorage.setItem("language", "he");
     }
   }, []);
 
