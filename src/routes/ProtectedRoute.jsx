@@ -67,13 +67,9 @@ function ProtectedRoute({ children }) {
 
   // If token is invalid (missing or expired), redirect to login
   const tokenValidity = checkTokenValidity();
-  if (!tokenValidity.isValid) {
-    // Token is missing or expired - logout and redirect
-    if (isAuthenticated) {
-      dispatch(logoutUser());
-    }
-    return <Navigate to="/login" replace />;
-  }
+if (!tokenValidity.isValid) {
+  return <Navigate to="/login" replace />;
+}
 
   const token = localStorage.getItem('token');
 const isAppRoute = location.pathname.startsWith('/app');
