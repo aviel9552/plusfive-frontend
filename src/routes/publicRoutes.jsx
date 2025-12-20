@@ -101,6 +101,14 @@ function PublicRouteGuard({ children }) {
 // Global Subscription Guard - Blocks all routes except /subscription for users without subscription
 function GlobalSubscriptionGuard({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const user = useSelector(state => state.auth.user);
+  
+  // Always call hooks at the top level - never conditionally
+  // Get slug from pathname (will be empty string if no slug)
+  const slug = window.location.pathname.split('/')[1] || '';
+  const { subscriptionLoading, currentSubscription } = useStripeSubscription(slug);
   
   // Skip subscription check for /subscription route itself to prevent infinite loops
   // SubscriptionRouteGuard already handles /subscription route protection
@@ -113,18 +121,10 @@ function GlobalSubscriptionGuard({ children }) {
     return children;
   }
 
-  const navigate = useNavigate();
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-  const user = useSelector(state => state.auth.user);
-
   // Only make API call if not on subscription route and user is authenticated
   if (!isAuthenticated || !user || user.role === 'admin') {
     return children; // No subscription check needed for unauthenticated or admin
   }
-
-  // For other routes, check subscription but only once
-  const slug = window.location.pathname.split('/')[1];
-  const { subscriptionLoading, currentSubscription } = useStripeSubscription(slug);
 
   // Check subscription status synchronously for immediate redirect
   const checkSubscriptionAndRedirect = () => {
