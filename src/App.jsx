@@ -12,8 +12,13 @@ import { logoutUser } from './redux/actions/authActions';
 import { Layout, PageLoader } from './components';
 // import './App.css'
 
+import { toast } from 'react-toastify';
+
+const originalToastSuccess = toast.success;
+
 toast.success = (...args) => {
   console.trace('toast.success called with:', args);
+  return originalToastSuccess(...args);
 };
 
 
