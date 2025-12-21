@@ -28,14 +28,16 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
   return `flex items-center w-full px-3 py-2 rounded-lg relative group transition-colors duration-200
   ${
     isActive()
-      ? 'bg-[#ff257c]/10 dark:bg-[#ff257c]/85'
+      ? 'bg-[#ff257c]/85'
       : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
   }`;
 };
 
     const getIconClasses = () => {
-        return `text-22 lg:text-20  ${isActive() ? 'text-gray-900 dark:text-white' : ''}`;
-    }
+  return `text-22 lg:text-20 ${
+    isActive() ? 'text-white' : 'text-gray-900 dark:text-white'
+  }`;
+};
 
     const renderIcon = () => {
         if (customIcon) {
@@ -56,9 +58,15 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
             <Link to={to} className={getLinkClasses()}>
                 <span className='flex items-center gap-[8px]'>
                     {renderIcon()}
-                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
-                        {label}
-                    </span>
+                    <span
+  className={`transition-opacity duration-300 text-16 ${
+    isActive()
+      ? 'text-white'
+      : 'text-gray-700 dark:text-white'
+  } ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}
+>
+  {label}
+</span>
                 </span>
                 {/* {isCollapsed && !showHoverText && (
                     <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#212121] text-white text-sm rounded-md
