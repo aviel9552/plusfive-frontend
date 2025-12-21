@@ -145,7 +145,7 @@ function Login() {
     setIsResendingEmail(true);
     try {
       await resendVerificationEmail(form.email);
-      // toast.success(t.verificationEmailSent);
+      toast.success(t.verificationEmailSent);
       setShowEmailVerificationBanner(false);
     } catch (error) {
       toast.error(error.message || t.failedToSendVerificationEmail);
@@ -172,7 +172,7 @@ function Login() {
     setIsLoading(true);
     try {
       await dispatch(loginUser(form.email, form.password));
-      // toast.success(t.loginSuccessful);
+      toast.success(t.loginSuccessful);
       // Clear all errors on successful login
       setError({});
       // Get user data from localStorage after login
