@@ -25,12 +25,13 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
     };
 
     const getLinkClasses = () => {
-        return `flex items-center w-full px-3 py-2 rounded-lg relative group transition-colors duration-200
-        ${isActive()
-                ? `bg-gray-200 dark:bg-[#212121] text-gray-900 dark:text-white`
-                : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
-            }`;
-    };
+    return `flex items-center w-full px-3 py-2 rounded-lg relative group transition-colors duration-200
+    ${
+        isActive()
+            ? 'bg-[rgba(255,37,124,0.12)] text-gray-900 dark:text-white'
+            : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
+    }`;
+};
 
     const getIconClasses = () => {
         return `text-22 lg:text-20  ${isActive() ? 'text-gray-900 dark:text-white' : ''}`;
@@ -55,9 +56,9 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
             <Link to={to} className={getLinkClasses()}>
                 <span className='flex items-center gap-[8px]'>
                     {renderIcon()}
-                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden' : 'inline'}`}>
-  {label}
-</span>
+                    <span className={`text-gray-700 dark:text-white transition-opacity duration-300 text-16 ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}>
+                        {label}
+                    </span>
                 </span>
                 {/* {isCollapsed && !showHoverText && (
                     <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#212121] text-white text-sm rounded-md
