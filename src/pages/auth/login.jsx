@@ -145,7 +145,7 @@ function Login() {
     setIsResendingEmail(true);
     try {
       await resendVerificationEmail(form.email);
-      toast.success(t.verificationEmailSent);
+      // toast.success(t.verificationEmailSent);
       setShowEmailVerificationBanner(false);
     } catch (error) {
       toast.error(error.message || t.failedToSendVerificationEmail);
