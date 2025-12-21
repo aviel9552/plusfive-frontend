@@ -128,15 +128,16 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
             P
           </span>
 
-          {/* Toggle button for expanded state */}
-          {!isMobile && (
-            <button
-              onClick={toggleDesktopSidebar}
-              className={`flex text-white rounded-full p-1 shadow-lg z-[101] ${isCollapsed ? 'hidden group-hover:flex' : 'flex'}`}
-            >
-              <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" className="" />
-            </button>
-          )}
+          {/* Toggle button – MOBILE ONLY */}
+{isMobile && (
+  <button
+    onClick={toggleDesktopSidebar}
+    className="flex text-white rounded-full p-1 shadow-lg z-[101]"
+  >
+    <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" />
+  </button>
+)}
+
 
           {/* {!isMobile && (
             <button
