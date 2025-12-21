@@ -64,8 +64,8 @@ const StatusBadge = ({ status, language }) => {
         if (statusLower === 'active' || statusLower === 'פעיל') return 'Active';
         if (statusLower === 'new' || statusLower === 'חדש') return 'New';
         if (statusLower === 'at risk' || statusLower === 'risk' || statusLower === 'at_risk' || statusLower === 'בסיכון') return 'At Risk';
-        if (statusLower === 'lost' || statusLower === 'אבוד') return 'Lost';
-        if (statusLower === 'recovered' || statusLower === 'התאושש') return 'Recovered';
+        if (statusLower === 'lost' || statusLower === 'נוטש') return 'Lost';
+        if (statusLower === 'recovered' || statusLower === 'חוזר') return 'Recovered';
         
         // If already in English format, return as is
         return statusText;
@@ -152,9 +152,9 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
                     case 'At Risk':
                         return itemStatusLower === 'at risk' || itemStatusLower === 'risk' || itemStatusLower === 'at_risk' || itemStatusLower === 'בסיכון';
                     case 'Lost':
-                        return itemStatusLower === 'lost' || itemStatusLower === 'אבוד';
+                        return itemStatusLower === 'lost' || itemStatusLower === 'נוטש';
                     case 'Recovered':
-                        return itemStatusLower === 'recovered' || itemStatusLower === 'התאושש';
+                        return itemStatusLower === 'recovered' || itemStatusLower === 'חוזר';
                     default:
                         return true;
                 }
