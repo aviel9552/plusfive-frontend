@@ -12,6 +12,11 @@ import { logoutUser } from './redux/actions/authActions';
 import { Layout, PageLoader } from './components';
 // import './App.css'
 
+toast.success = (...args) => {
+  console.trace('toast.success called with:', args);
+};
+
+
 function App() {
   const dispatch = useDispatch();
   const location = useLocation();
