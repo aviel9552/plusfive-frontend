@@ -28,7 +28,7 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
   return `flex items-center w-full px-3 py-2 rounded-lg relative group transition-colors duration-200
   ${
     isActive()
-      ? 'bg-[#ff257c]/10 dark:bg-[#ff257c]/80'
+      ? 'bg-[#ff257c]/10 dark:bg-[#ff257c]/85'
       : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
   }`;
 };
