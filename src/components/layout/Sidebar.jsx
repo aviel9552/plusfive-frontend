@@ -64,9 +64,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
     navigate('/');
   };
 
-// במובייל אין collapsed (תמיד מציג טקסט כשהתפריט פתוח)
-// בדסקטופ: כשלא מרחפים -> collapsed, כשמרחפים -> לא collapsed
-const effectiveCollapsed = isMobile ? false : !isHovering;
+  const effectiveCollapsed = isMobile ? false : isCollapsed;
 
   const sidebarClasses = `
     font-ttcommons
@@ -79,7 +77,7 @@ const effectiveCollapsed = isMobile ? false : !isHovering;
     group
     ${isMobile ?
       `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
-      `${isCollapsed ? 'w-16 hover:w-[288px]' : 'w-[288px]'}`
+      `${isCollapsed ? 'w-24 hover:w-[288px]' : 'w-[288px]'}`
     }
   `;
 
@@ -131,17 +129,14 @@ const effectiveCollapsed = isMobile ? false : !isHovering;
           </span>
 
           {/* Toggle button for expanded state */}
-          {isMobile && (
-  <button
-    type="button"
-    onClick={() => setIsMobileMenuOpen(prev => !prev)}
-    className="flex rounded-full p-1 shadow-lg z-[101]"
-    aria-label="Toggle mobile menu"
-  >
-    <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" />
-  </button>
-)}
-
+          {!isMobile && (
+            <button
+              onClick={toggleDesktopSidebar}
+              className={`flex text-white rounded-full p-1 shadow-lg z-[101] ${isCollapsed ? 'hidden group-hover:flex' : 'flex'}`}
+            >
+              <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" className="" />
+            </button>
+          )}
 
           {/* {!isMobile && (
             <button
