@@ -35,7 +35,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
 }, [isMobile, isCollapsed, onCollapse]);
 
 
-  const toggleDesktopSidebar = () => {
+  // const toggleDesktopSidebar = () => {
     onCollapse(!isCollapsed);
   };
   const { isDarkMode } = useTheme();
