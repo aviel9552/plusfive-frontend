@@ -40,17 +40,29 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
 };
 
     const renderIcon = () => {
-        if (customIcon) {
-            // If customIcon is an object with dark and light variants
-            if (typeof customIcon === 'object' && customIcon.dark && customIcon.light) {
-                const iconSrc = isDarkMode ? customIcon.dark : customIcon.light;
-                return <img src={iconSrc} alt="" className="w-5 h-5" />;
-            }
-            // If customIcon is a single SVG string
-            return <img src={customIcon} alt="" className="w-5 h-5" />;
+    if (customIcon) {
+        // If customIcon is an object with dark and light variants
+        if (typeof customIcon === 'object' && customIcon.dark && customIcon.light) {
+            const iconSrc = isDarkMode ? customIcon.dark : customIcon.light;
+            return (
+                <img
+                    src={iconSrc}
+                    alt=""
+                    className={`w-5 h-5 ${isActive() ? 'brightness-0 invert' : ''}`}
+                />
+            );
         }
-        // Fallback to regular icon
-        return <Icon className={getIconClasses()} />;
+        // If customIcon is a single image
+        return (
+            <img
+                src={customIcon}
+                alt=""
+                className={`w-5 h-5 ${isActive() ? 'brightness-0 invert' : ''}`}
+            />
+        );
+    }
+    // Fallback to regular icon
+    return <Icon className={getIconClasses()} />;
     };
 
     return (
