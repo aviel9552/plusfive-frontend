@@ -11,6 +11,7 @@ import { resendVerificationEmail } from '../../redux/services/authService';
 import { getCurrentSubscription } from '../../services/stripeService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
+import { useEffect } from 'react';
 
 function Login() {
   const { language } = useLanguage();
@@ -22,6 +23,10 @@ function Login() {
   const [error, setError] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
+    useEffect(() => {
+    // Close any toast that might appear during login flow
+    toast.dismiss();
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailVerificationBanner, setShowEmailVerificationBanner] = useState(false);
   const [isResendingEmail, setIsResendingEmail] = useState(false);
