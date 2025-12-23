@@ -28,14 +28,18 @@ const SidebarNavItem = ({
   };
 
   const getLinkClasses = () => {
-    return `flex items-center w-full rounded-lg relative group transition-colors duration-200
-    ${isCollapsed ? 'justify-center p-2' : 'px-3 py-2'}
-    ${
-      isActive()
-        ? 'bg-[#ff257c]/85'
-        : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
-    }`;
-  };
+  return `flex items-center w-full rounded-lg relative group transition-colors duration-200
+  ${
+    isCollapsed
+      ? 'justify-center w-10 h-10'
+      : 'px-3 py-2'
+  }
+  ${
+    isActive()
+      ? 'bg-[#ff257c]/85'
+      : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#212121] hover:text-gray-900 dark:hover:text-white'
+  }`;
+};
 
   const getIconClasses = () => {
     return `text-22 lg:text-20 ${
