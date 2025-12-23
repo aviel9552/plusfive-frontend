@@ -72,13 +72,12 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
                     {renderIcon()}
                     <span
   className={`transition-opacity duration-300 text-16 ${
-    isActive()
-      ? 'text-white'
-      : 'text-gray-700 dark:text-white'
-  } ${isCollapsed ? 'hidden' : 'inline'}
+    isActive() ? 'text-white' : 'text-gray-700 dark:text-white'
+  } ${isCollapsed ? 'hidden' : 'inline'}`}
 >
   {label}
 </span>
+
                 </span>
                 {/* {isCollapsed && !showHoverText && (
                     <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#212121] text-white text-sm rounded-md
