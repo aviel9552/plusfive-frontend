@@ -157,7 +157,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
                 {...link}
                 isCollapsed={effectiveCollapsed}
                 isRTL={isRTL}
-                showHoverText={effectiveCollapsed}
+                showHoverText={false}
               />
             ))}
           </ul>
