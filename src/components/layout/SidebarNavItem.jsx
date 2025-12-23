@@ -108,15 +108,16 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
 
       {/* Arrow – מחובר לתיבה (חופף פנימה כדי שלא ייראה נפרד) */}
       <span
-        className={`
-          absolute top-1/2 -translate-y-1/2
-          w-3 h-3
-          bg-[#111111]
-          rotate-45
-          rounded-none
-          ${isRTL ? '-right-1' : '-left-1'}
-        `}
-      />
+  className={`
+    absolute top-1/2 -translate-y-1/2
+    w-0 h-0
+    border-y-[6px] border-y-transparent
+    ${isRTL
+      ? 'border-l-[6px] border-l-[#111111] -right-[6px]'
+      : 'border-r-[6px] border-r-[#111111] -left-[6px]'
+    }
+  `}
+/>
     </span>
   </span>
 )}
