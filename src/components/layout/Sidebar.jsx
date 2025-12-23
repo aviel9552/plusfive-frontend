@@ -148,8 +148,14 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           )} */}
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-hidden" onClick={() => isMobile && setIsMobileMenuOpen(false)}>
+        {/* =========================
+            🔥 NAVIGATION (העדכון כאן)
+            ========================= */}
+
+        <nav
+          className={`flex-1 ${isMobile ? 'overflow-hidden' : 'overflow-visible'}`}
+          onClick={() => isMobile && setIsMobileMenuOpen(false)}
+        >
           <ul className="space-y-3 px-2 list-none">
             {navLinks.map((link) => (
               <SidebarNavItem
