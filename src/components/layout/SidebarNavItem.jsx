@@ -75,7 +75,7 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
     isActive()
       ? 'text-white'
       : 'text-gray-700 dark:text-white'
-  } ${isCollapsed ? 'hidden group-hover:inline' : 'inline'}`}
+  } ${isCollapsed ? 'hidden' : 'inline'}
 >
   {label}
 </span>
