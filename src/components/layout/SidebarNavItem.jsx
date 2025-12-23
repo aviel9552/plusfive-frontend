@@ -85,20 +85,42 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
   <span
     className={`
       pointer-events-none absolute top-1/2 -translate-y-1/2
-      ${isRTL ? 'right-full mr-3' : 'left-full ml-3'}
-      bg-[#111111] text-white
-      text-[13px] leading-none font-medium
-      px-[10px] py-[6px]
-      rounded-[10px]
-      shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+      ${isRTL ? 'right-full mr-4' : 'left-full ml-4'}
       opacity-0 group-hover:opacity-100
-      transition-opacity duration-150
-      whitespace-nowrap z-[9999]
+      transition-opacity duration-200 ease-out delay-100
+      z-[9999]
     `}
   >
-    {label}
+    {/* Tooltip box */}
+    <span
+      className="
+        relative
+        bg-[#111111]
+        text-white
+        text-[14px] font-medium
+        px-[14px] py-[8px]
+        rounded-[12px]
+        whitespace-nowrap
+        shadow-[0_12px_32px_rgba(0,0,0,0.35)]
+        leading-none
+      "
+    >
+      {label}
+
+      {/* 🔺 Arrow (הצ׳ופצ׳יק) */}
+      <span
+        className={`
+          absolute top-1/2 -translate-y-1/2
+          w-2.5 h-2.5
+          bg-[#111111]
+          rotate-45
+          ${isRTL ? '-right-1.5' : '-left-1.5'}
+        `}
+      />
+    </span>
   </span>
 )}
+
 
     </Link>
   </li>
