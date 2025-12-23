@@ -115,16 +115,15 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   onMouseLeave={() => setIsHovering(false)}
 >
         {/* Header */}
-        <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center group-hover:justify-between' : 'justify-between'}`}>
-          {/* Logo for expanded state */}
-          <div className={`flex items-center gap-[8px] ${isCollapsed ? 'hidden group-hover:flex' : 'flex'}`}>
+          <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <div className={`flex items-center gap-[8px] ${isCollapsed ? 'hidden' : 'flex'}`}>
             <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300`} onClick={handleLogoClick}>
               <img src={isDarkMode ? DarkLogo : LightLogo} alt="Logo" className="w-[100px] h-auto" />
             </span>
           </div>
 
           {/* Centered P for collapsed state */}
-          <span className={`text-24 !font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'block group-hover:hidden' : 'hidden'}`} onClick={handleLogoClick}>
+          <span className={`text-24 !font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'block' : 'hidden'}`} onClick={handleLogoClick}>
             P
           </span>
 
