@@ -58,7 +58,7 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
             <img
                 src={customIcon}
                 alt=""
-               className={`w-5 h-5 lg:w-6 lg:h-6 ${isActive() ? 'brightness-0 invert' : ''}`}
+               className={`w-5 h-5 lg:w-10 lg:h-10 ${isActive() ? 'brightness-0 invert' : ''}`}
             />
         );
     }
