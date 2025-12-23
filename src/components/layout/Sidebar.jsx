@@ -67,19 +67,20 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   const effectiveCollapsed = isMobile ? false : isCollapsed;
 
   const sidebarClasses = `
-    font-ttcommons
-    fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen 
-    bg-white dark:bg-customBlack 
-    ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-commonBorder 
-    flex flex-col z-[30]
-    transition-all duration-300 ease-in-out
-    h-[900px]
-    group
-    ${isMobile ?
-      `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}` :
-      `${isCollapsed ? 'w-20' : 'w-[288px]'}`;
-    }
-  `;
+  font-ttcommons
+  fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen 
+  bg-white dark:bg-customBlack 
+  ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-commonBorder 
+  flex flex-col z-[30]
+  transition-all duration-300 ease-in-out
+  h-[900px]
+  group
+  ${
+    isMobile
+      ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
+      : `${isCollapsed ? 'w-20' : 'w-[288px]'}`
+  }
+`;
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
 
