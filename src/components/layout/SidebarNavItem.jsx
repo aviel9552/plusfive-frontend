@@ -77,7 +77,7 @@ const SidebarNavItem = ({
         <span
           className={`
             flex items-center justify-center
-            w-10 h-10 rounded-lg
+            w-12 h-12 rounded-lg
             transition-colors duration-200
             ${
               isActive()
