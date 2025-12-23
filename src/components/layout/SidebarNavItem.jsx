@@ -65,7 +65,7 @@ const SidebarNavItem = ({
         <img
           src={customIcon}
           alt=""
-          className={`w-5 h-5 lg:w-[30px] lg:h-[30px] ${
+          className={`w-5 h-5 lg:w-[20px] lg:h-[20px] ${
             isActive() ? 'brightness-0 invert' : ''
           }`}
         />
