@@ -92,8 +92,8 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
       rounded-[10px]
       shadow-[0_10px_30px_rgba(0,0,0,0.35)]
       opacity-0 group-hover:opacity-100
-      transition-opacity duration-150
-      whitespace-nowrap z-[9999]
+transition-opacity duration-200 ease-out
+delay-100
     `}
   >
     {label}
