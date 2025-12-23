@@ -81,7 +81,7 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
         </span>
       </span>
 
-      {isCollapsed && (
+     {isCollapsed && (
   <span
     className={`
       pointer-events-none absolute top-1/2 -translate-y-1/2
@@ -92,7 +92,8 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
       rounded-[10px]
       shadow-[0_10px_30px_rgba(0,0,0,0.35)]
       opacity-0 group-hover:opacity-100
-transition-opacity duration-150
+      transition-opacity duration-150
+      whitespace-nowrap z-[9999]
     `}
   >
     {label}
