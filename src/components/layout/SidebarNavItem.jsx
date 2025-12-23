@@ -91,7 +91,6 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
       z-[9999]
     `}
   >
-    {/* Tooltip box */}
     <span
       className="
         relative
@@ -101,25 +100,27 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
         px-[14px] py-[8px]
         rounded-[12px]
         whitespace-nowrap
-        shadow-[0_12px_32px_rgba(0,0,0,0.35)]
         leading-none
+        shadow-[0_10px_30px_rgba(0,0,0,0.35)]
       "
     >
       {label}
 
-      {/* 🔺 Arrow (הצ׳ופצ׳יק) */}
+      {/* Arrow – מחובר לתיבה (חופף פנימה כדי שלא ייראה נפרד) */}
       <span
         className={`
           absolute top-1/2 -translate-y-1/2
-          w-2.5 h-2.5
+          w-3 h-3
           bg-[#111111]
           rotate-45
-          ${isRTL ? '-right-1.5' : '-left-1.5'}
+          rounded-none
+          ${isRTL ? '-right-1' : '-left-1'}
         `}
       />
     </span>
   </span>
 )}
+
 
 
     </Link>
