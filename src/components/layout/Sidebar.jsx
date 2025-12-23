@@ -156,7 +156,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           className={`flex-1 ${isMobile ? 'overflow-hidden' : 'overflow-visible'}`}
           onClick={() => isMobile && setIsMobileMenuOpen(false)}
         >
-          <ul className="space-y-3 px-2 list-none">
+          <ul className={`space-y-3 list-none ${effectiveCollapsed ? 'px-0' : 'px-2'}`}>
             {navLinks.map((link) => (
               <SidebarNavItem
                 key={link.to}
