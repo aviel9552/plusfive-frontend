@@ -66,30 +66,42 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
     };
 
     return (
-        <li className="relative list-none">
-            <Link to={to} className={getLinkClasses()}>
-                <span className='flex items-center gap-[8px]'>
-                    {renderIcon()}
-                    <span
-  className={`transition-opacity duration-300 text-16 ${
-    isActive() ? 'text-white' : 'text-gray-700 dark:text-white'
-  } ${isCollapsed ? 'hidden' : 'inline'}`}
->
-  {label}
-</span>
+  <li className="relative list-none">
+    <Link to={to} className={getLinkClasses()}>
+      
+      {/* Icon + (label only when open) */}
+      <span className="flex items-center gap-[8px]">
+        {renderIcon()}
+        <span
+          className={`transition-opacity duration-300 text-16 ${
+            isActive() ? 'text-white' : 'text-gray-700 dark:text-white'
+          } ${isCollapsed ? 'hidden' : 'inline'}`}
+        >
+          {label}
+        </span>
+      </span>
 
-                </span>
-                {/* {isCollapsed && !showHoverText && (
-                    <span className={`fixed ${isRTL ? 'right-[4.5rem]' : 'left-[4.5rem]'} px-3 py-2 bg-gray-800 dark:bg-[#212121] text-white text-sm rounded-md
-                    transition-all duration-300 ease-in-out
-                    opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap ${isRTL ? 'translate-x-[20px] group-hover:translate-x-0' : 'translate-x-[-20px] group-hover:translate-x-0'} 
-                    z-[9999] shadow-lg`}>
-                        {label}
-                    </span>
-                )} */}
-            </Link>
-        </li>
-    );
+      {/* 🔥 TOOLTIP – בדיוק פה */}
+      {isCollapsed && (
+        <span
+          className={`
+            pointer-events-none absolute top-1/2 -translate-y-1/2
+            ${isRTL ? 'right-full mr-3' : 'left-full ml-3'}
+            px-3 py-2 rounded-xl
+            bg-gray-900 text-white text-sm
+            opacity-0 group-hover:opacity-100
+            transition-opacity duration-150
+            whitespace-nowrap z-[9999] shadow-lg
+          `}
+        >
+          {label}
+        </span>
+      )}
+
+    </Link>
+  </li>
+);
+
 };
 
 export default SidebarNavItem; 
