@@ -77,7 +77,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   ${
     isMobile
       ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
-      : 'w-20'
+      : 'w-18'
   }
 `;
 
