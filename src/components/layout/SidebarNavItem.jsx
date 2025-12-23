@@ -25,7 +25,8 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
     };
 
     const getLinkClasses = () => {
-  return `flex items-center w-full px-3 py-2 rounded-lg relative group transition-colors duration-200
+  return `flex items-center w-full rounded-lg relative group transition-colors duration-200
+  ${isCollapsed ? 'justify-center p-2' : 'px-3 py-2'}
   ${
     isActive()
       ? 'bg-[#ff257c]/85'
