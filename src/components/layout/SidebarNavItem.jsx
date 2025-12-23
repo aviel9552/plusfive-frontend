@@ -81,22 +81,24 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed, specialPaths = [],
         </span>
       </span>
 
-      {/* 🔥 TOOLTIP – בדיוק פה */}
       {isCollapsed && (
-        <span
-          className={`
-            pointer-events-none absolute top-1/2 -translate-y-1/2
-            ${isRTL ? 'right-full mr-3' : 'left-full ml-3'}
-            px-3 py-2 rounded-xl
-            bg-gray-900 text-white text-sm
-            opacity-0 group-hover:opacity-100
-            transition-opacity duration-150
-            whitespace-nowrap z-[9999] shadow-lg
-          `}
-        >
-          {label}
-        </span>
-      )}
+  <span
+    className={`
+      pointer-events-none absolute top-1/2 -translate-y-1/2
+      ${isRTL ? 'right-full mr-3' : 'left-full ml-3'}
+      bg-[#111111] text-white
+      text-[13px] leading-none font-medium
+      px-[10px] py-[6px]
+      rounded-[10px]
+      shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+      opacity-0 group-hover:opacity-100
+      transition-opacity duration-150
+      whitespace-nowrap z-[9999]
+    `}
+  >
+    {label}
+  </span>
+)}
 
     </Link>
   </li>
