@@ -1,8 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { IoHomeOutline } from "react-icons/io5";
-import { FiUsers, FiBarChart2, FiCreditCard } from "react-icons/fi";
-import { MdQrCodeScanner } from "react-icons/md";
+import { FiUsers } from "react-icons/fi";
+import { MdQrCode2 } from "react-icons/md";
+import { FiBarChart2 } from "react-icons/fi";
+import { FiCreditCard } from "react-icons/fi";
 import { useLanguage } from "../../context/LanguageContext";
 
 const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
@@ -10,7 +12,7 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 
   const items = [
     {
-      to: `${basePath}/dashboard`,
+      to: `${basePath}`,
       label: language === "he" ? "בית" : "Home",
       icon: IoHomeOutline,
     },
@@ -20,9 +22,9 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
       icon: FiUsers,
     },
     {
-      to: `${basePath}/qr`,
+      to: `${basePath}/qr-management`,
       label: language === "he" ? "QR" : "QR",
-      icon: MdQrCodeScanner,
+      icon: MdQrCode2,
     },
     {
       to: `${basePath}/analytics`,
@@ -30,14 +32,11 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
       icon: FiBarChart2,
     },
     {
-      to: `${basePath}/subscription`,
-      label: language === "he" ? "מנוי" : "Subscription",
+      to: `${basePath}/subscription-and-billing`,
+      label: language === "he" ? "מנוי" : "Billing",
       icon: FiCreditCard,
     },
   ];
-
-  // אם אתה רוצה שב־RTL זה ממש ירגיש טבעי (ימין->שמאל), אפשר להפוך את הסדר
-  const orderedItems = isRTL ? [...items].reverse() : items;
 
   return (
     <nav
@@ -50,25 +49,37 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
         pb-[env(safe-area-inset-bottom)]
       "
     >
-      <ul className={`grid grid-cols-5 ${isRTL ? "direction-rtl" : ""}`}>
-        {orderedItems.map((item) => {
+      <ul
+        className={`
+          grid grid-cols-5
+          ${isRTL ? "direction-rtl" : ""}
+        `}
+      >
+        {items.map((item) => {
           const Icon = item.icon;
 
           return (
             <li key={item.to}>
               <NavLink
                 to={item.to}
+                end
                 className={({ isActive }) =>
                   `
                   flex flex-col items-center justify-center
                   py-3
                   transition-colors
-                  ${isActive ? "text-[#ff257c]" : "text-gray-500 dark:text-gray-300"}
+                  ${
+                    isActive
+                      ? "text-[#ff257c]"
+                      : "text-gray-500 dark:text-gray-300"
+                  }
                   `
                 }
               >
                 <Icon className="text-[22px]" />
-                <span className="text-[11px] mt-1 leading-none">{item.label}</span>
+                <span className="text-[11px] mt-1 leading-none">
+                  {item.label}
+                </span>
               </NavLink>
             </li>
           );
@@ -79,4 +90,3 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 };
 
 export default BottomNav;
-
