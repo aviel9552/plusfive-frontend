@@ -114,7 +114,7 @@ const SidebarNavItem = ({
                 bg-[#111111]
                 text-white
                 text-[14px] font-medium
-                px-[14px] py-[8px]
+                px-[14px] py-[10px]
                 rounded-[9px]
                 whitespace-nowrap
                 leading-none
