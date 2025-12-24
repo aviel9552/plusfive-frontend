@@ -1,10 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { IoHomeOutline } from "react-icons/io5";
-import { FiUsers } from "react-icons/fi";
-import { MdQrCode2 } from "react-icons/md";
-import { FiBarChart2 } from "react-icons/fi";
-import { FiCreditCard } from "react-icons/fi";
+import { FiUsers, FiBarChart2, FiGrid, FiCreditCard } from "react-icons/fi";
 import { useLanguage } from "../../context/LanguageContext";
 
 const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
@@ -12,24 +9,25 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 
   const items = [
     {
-      to: `${basePath}`,
-      label: language === "he" ? "בית" : "Home",
-      icon: IoHomeOutline,
-    },
-    {
       to: `${basePath}/customers`,
       label: language === "he" ? "לקוחות" : "Customers",
       icon: FiUsers,
     },
     {
-      to: `${basePath}/qr-management`,
-      label: language === "he" ? "QR" : "QR",
-      icon: MdQrCode2,
-    },
-    {
       to: `${basePath}/analytics`,
       label: language === "he" ? "אנליטיקס" : "Analytics",
       icon: FiBarChart2,
+    },
+    {
+      to: `${basePath}/dashboard`,
+      label: language === "he" ? "בית" : "Home",
+      icon: IoHomeOutline,
+      isHome: true,
+    },
+    {
+      to: `${basePath}/qr-management`,
+      label: language === "he" ? "QR" : "QR",
+      icon: FiGrid,
     },
     {
       to: `${basePath}/subscription-and-billing`,
@@ -53,33 +51,50 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
         className={`
           grid grid-cols-5
           ${isRTL ? "direction-rtl" : ""}
+          items-center
         `}
       >
         {items.map((item) => {
           const Icon = item.icon;
 
           return (
-            <li key={item.to}>
+            <li key={item.to} className="flex justify-center">
               <NavLink
                 to={item.to}
-                end
                 className={({ isActive }) =>
                   `
                   flex flex-col items-center justify-center
-                  py-3
-                  transition-colors
+                  transition-all
                   ${
-                    isActive
-                      ? "text-[#ff257c]"
-                      : "text-gray-500 dark:text-gray-300"
+                    item.isHome
+                      ? `
+                        -mt-6
+                        w-14 h-14
+                        rounded-full
+                        bg-[#ff257c]
+                        text-white
+                        shadow-lg
+                      `
+                      : `
+                        py-3
+                        ${
+                          isActive
+                            ? "text-[#ff257c]"
+                            : "text-gray-500 dark:text-gray-300"
+                        }
+                      `
                   }
-                  `
+                `
                 }
               >
-                <Icon className="text-[22px]" />
-                <span className="text-[11px] mt-1 leading-none">
-                  {item.label}
-                </span>
+                <Icon
+                  className={item.isHome ? "text-[26px]" : "text-[22px]"}
+                />
+                {!item.isHome && (
+                  <span className="text-[11px] mt-1 leading-none">
+                    {item.label}
+                  </span>
+                )}
               </NavLink>
             </li>
           );
@@ -90,3 +105,4 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 };
 
 export default BottomNav;
+
