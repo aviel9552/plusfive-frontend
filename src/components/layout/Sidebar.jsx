@@ -12,42 +12,51 @@ import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getLayoutTranslations } from '../../utils/translations';
 import { PiPlusBold } from 'react-icons/pi';
-import DarkLogo from "../../assets/DarkLogo.png"
-import LightLogo from "../../assets/LightLogo.jpeg"
-import Sidebar_Toggle_Icon from "../../assets/Sidebar_Toggle_Icon.svg"
-import BlackLogoutIcon from "../../assets/log-out-black.svg"
-import WhiteLogoutIcon from "../../assets/log-out-white.svg"
+import DarkLogo from "../../assets/DarkLogo.png";
+import LightLogo from "../../assets/LightLogo.jpeg";
+import Sidebar_Toggle_Icon from "../../assets/Sidebar_Toggle_Icon.svg";
+import BlackLogoutIcon from "../../assets/log-out-black.svg";
+import WhiteLogoutIcon from "../../assets/log-out-white.svg";
 import { useTheme } from '../../context/ThemeContext';
 
-const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMobileMenuOpen, isRTL = false }) => {
+const Sidebar = ({
+  isCollapsed,
+  onCollapse,
+  isMobile,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
+  isRTL = false, // נשאר רק בשביל nav item אם אתה רוצה
+}) => {
   // Automatically set collapsed to false on mobile
   useEffect(() => {
     if (isMobile && isCollapsed) {
       onCollapse(false);
     }
   }, [isMobile, isCollapsed, onCollapse]);
-  
-  useEffect(() => {
-  // Desktop: תמיד סגור כברירת מחדל (אייקונים בלבד)
-  if (!isMobile && !isCollapsed) {
-    onCollapse(true);
-  }
-}, [isMobile, isCollapsed, onCollapse]);
 
+  useEffect(() => {
+    // Desktop: תמיד סגור כברירת מחדל (אייקונים בלבד)
+    if (!isMobile && !isCollapsed) {
+      onCollapse(true);
+    }
+  }, [isMobile, isCollapsed, onCollapse]);
 
   const toggleDesktopSidebar = () => {
-     onCollapse(!isCollapsed);
+    onCollapse(!isCollapsed);
   };
+
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
-  const userRole = useSelector(state => state.auth?.user?.role);
-  const userSubscriptionStatus = useSelector(state => state.auth?.user?.subscriptionStatus);
-  const userSubscriptionStartDate = useSelector(state => state.auth?.user?.subscriptionStartDate);
+
+  const userRole = useSelector((state) => state.auth?.user?.role);
+  const userSubscriptionStatus = useSelector((state) => state.auth?.user?.subscriptionStatus);
+  const userSubscriptionStartDate = useSelector((state) => state.auth?.user?.subscriptionStartDate);
+
   const [showUpgradeCard, setShowUpgradeCard] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+
   const { language } = useLanguage();
   const t = getLayoutTranslations(language);
 
@@ -66,38 +75,35 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
 
   const effectiveCollapsed = isMobile ? false : isCollapsed;
 
+  // ✅ ננעל תמיד לשמאל, בלי קשר לשפה
   const sidebarClasses = `
-  font-ttcommons
-  fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen
-  bg-[#141414] dark:bg-customBlack
-  ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-commonBorder
-  flex flex-col z-[30]
-  transition-all duration-300 ease-in-out
-  h-[900px]
-  ${
-    isMobile
-      ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}`
-      : 'w-[72px]'
-  }
-`;
+    font-ttcommons
+    fixed left-0 top-0 h-screen
+    bg-[#141414] dark:bg-customBlack
+    border-r border-gray-200 dark:border-commonBorder
+    flex flex-col z-[30]
+    transition-all duration-300 ease-in-out
+    h-[900px]
+    ${
+      isMobile
+        ? `w-[288px] ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`
+        : 'w-[72px]'
+    }
+  `;
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
 
   // Check if upgrade card should be shown
   const shouldShowUpgradeCard = () => {
-    // Don't show for admin
     if (userRole === 'admin') return false;
-    
-    // Don't show if user has active subscription
     if (userSubscriptionStatus === 'active') return false;
-    
-    // Don't show if subscription start date is in the future (user already subscribed)
+
     if (userSubscriptionStartDate) {
       const startDate = new Date(userSubscriptionStartDate);
       const now = new Date();
       if (startDate > now) return false;
     }
-    
+
     return true;
   };
 
@@ -107,41 +113,55 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
         <div
           className="fixed inset-0 bg-black/50 z-[29]"
           onClick={() => setIsMobileMenuOpen(false)}
-        ></div>
+        />
       )}
+
       <aside
-  className={sidebarClasses}
-  onMouseEnter={() => setIsHovering(true)}
-  onMouseLeave={() => setIsHovering(false)}
->
+        className={sidebarClasses}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         {/* Header */}
-          <div className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+        <div
+          className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${
+            isCollapsed ? 'justify-center' : 'justify-between'
+          }`}
+        >
           <div className={`flex items-center gap-[8px] ${isCollapsed ? 'hidden' : 'flex'}`}>
-            <span className={`text-20 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300`} onClick={handleLogoClick}>
-              <img src={isDarkMode ? DarkLogo : LightLogo} alt="Logo" className="w-[100px] h-auto" />
+            <span
+              className="text-20 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300"
+              onClick={handleLogoClick}
+            >
+              <img
+                src={isDarkMode ? DarkLogo : LightLogo}
+                alt="Logo"
+                className="w-[100px] h-auto"
+              />
             </span>
           </div>
 
           {/* Centered P for collapsed state */}
-          <span className={`text-24 !font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${isCollapsed ? 'block' : 'hidden'}`} onClick={handleLogoClick}>
+          <span
+            className={`text-24 !font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${
+              isCollapsed ? 'block' : 'hidden'
+            }`}
+            onClick={handleLogoClick}
+          >
             P
           </span>
 
-
-          {/* {!isMobile && (
+          {/* כפתור טוגל לדסקטופ (כבוי אצלך כרגע) */}
+          {false && !isMobile && (
             <button
               onClick={toggleDesktopSidebar}
-              className={`flex absolute ${isRTL ? '-left-3' : '-right-3'} top-7 bg-pink-500 hover:bg-pink-600 text-white rounded-full p-1 shadow-lg z-[101]`}
+              className="flex absolute -right-3 top-7 bg-pink-500 hover:bg-pink-600 text-white rounded-full p-1 shadow-lg z-[101]"
             >
-              {isCollapsed ? (isRTL ? <MdChevronLeft size={16} /> : <MdChevronRight size={16} />) : (isRTL ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />)}
+              {isCollapsed ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />}
             </button>
-          )} */}
+          )}
         </div>
 
-        {/* =========================
-            🔥 NAVIGATION (העדכון כאן)
-            ========================= */}
-
+        {/* NAVIGATION */}
         <nav
           className={`flex-1 ${isMobile ? 'overflow-hidden' : 'overflow-visible'}`}
           onClick={() => isMobile && setIsMobileMenuOpen(false)}
@@ -152,7 +172,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
                 key={link.to}
                 {...link}
                 isCollapsed={effectiveCollapsed}
-                isRTL={isRTL}
+                isRTL={isRTL} // אם תרצה טקסט RTL בתוך האייטם
                 showHoverText={false}
               />
             ))}
@@ -161,12 +181,16 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
 
         {/* Upgrade Plan Card - only for non-subscribed users */}
         {shouldShowUpgradeCard() && showUpgradeCard && (
-          <div className={`text-gray-700 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'block'} p-4`}>
+          <div
+            className={`text-gray-700 dark:text-white transition-opacity duration-300 ${
+              effectiveCollapsed ? 'hidden' : 'block'
+            } p-4`}
+          >
             <UpgradeCard onClose={() => setShowUpgradeCard(false)} />
           </div>
         )}
 
-        {/* Logout */}
+        {/* Logout (כבוי אצלך) */}
         {/* <div className="relative m-3">
           <button onClick={handleLogoutClick} className="w-full">
             <SidebarNavItem
@@ -183,6 +207,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
           </button>
         </div> */}
       </aside>
+
       <CommonConfirmModel
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
@@ -194,4 +219,5 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
+
