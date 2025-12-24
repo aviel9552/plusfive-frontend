@@ -4,9 +4,10 @@ import { IoHomeOutline } from "react-icons/io5";
 import { FiUsers, FiBarChart2, FiGrid, FiCreditCard } from "react-icons/fi";
 import { useLanguage } from "../../context/LanguageContext";
 
-const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
+const BottomNav = ({ basePath = "/app" }) => {
   const { language } = useLanguage();
 
+  // 🔥 הסדר כאן הוא הסדר שמופיע מימין לשמאל
   const items = [
     {
       to: `${basePath}/customers`,
@@ -26,7 +27,7 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
     },
     {
       to: `${basePath}/qr-management`,
-      label: language === "he" ? "QR" : "QR",
+      label: "QR",
       icon: FiGrid,
     },
     {
@@ -38,7 +39,7 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 
   return (
     <nav
-      dir="ltr"
+      dir="rtl"   // ✅ נועלים RTL כדי שהסדר יהיה מימין לשמאל תמיד
       className="
         fixed bottom-0 left-0 w-full
         z-[60]
@@ -48,12 +49,7 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
         pb-[env(safe-area-inset-bottom)]
       "
     >
-      <ul
-        className="
-          grid grid-cols-5
-          items-center
-        "
-      >
+      <ul className="grid grid-cols-5 items-center">
         {items.map((item) => {
           const Icon = item.icon;
 
@@ -87,11 +83,13 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
                 `
                 }
               >
-                <Icon className={item.isHome ? "text-[26px]" : "text-[22px]"} />
+                <Icon
+                  className={item.isHome ? "text-[26px]" : "text-[22px]"}
+                />
 
                 {!item.isHome && (
                   <span
-                    dir={language === "he" ? "rtl" : "ltr"}
+                    dir={language === "he" ? "rtl" : "ltr"} // רק הטקסט מתהפך
                     className="text-[11px] mt-1 leading-none"
                   >
                     {item.label}
@@ -107,5 +105,6 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 };
 
 export default BottomNav;
+
 
 
