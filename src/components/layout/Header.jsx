@@ -134,7 +134,7 @@ const Header = ({ onMobileMenuToggle }) => {
         `}
       >
         {/* LEFT SIDE */}
-        <div className={`h-full flex items-center gap-3 ${isRTL ? 'order-2' : 'order-1'}`}>
+        <div className={`h-full flex items-center gap-1 ${isRTL ? 'order-2' : 'order-1'}`}>
           {/* ✅ LOGO כמו Fresha */}
           <button
             onClick={handleLogoClick}
