@@ -127,16 +127,6 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
             P
           </span>
 
-          {/* Toggle button – MOBILE ONLY */}
-{isMobile && (
-  <button
-    onClick={toggleDesktopSidebar}
-    className="flex text-white rounded-full p-1 shadow-lg z-[101]"
-  >
-    <img src={Sidebar_Toggle_Icon} alt="Sidebar Toggle Icon" />
-  </button>
-)}
-
 
           {/* {!isMobile && (
             <button
