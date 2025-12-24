@@ -81,7 +81,7 @@ const SidebarNavItem = ({
             ${
               isActive()
                 ? 'bg-[#ff257c]/85'
-                : 'hover:bg-[#212121] dark:hover:bg-[#212121]'
+                : 'hover:bg-[#2c2c2c] dark:hover:bg-[#212121]'
             }
           `}
         >
