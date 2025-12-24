@@ -41,14 +41,16 @@ const Layout = ({ children }) => {
         isRTL ? 'flex-row-reverse' : ''
       }`}
     >
-      <Sidebar
-        isCollapsed={isDesktopSidebarCollapsed}
-        onCollapse={setIsDesktopSidebarCollapsed}
-        isMobile={isMobile}
-        isMobileMenuOpen={isMobileMenuOpen}
-        setIsMobileMenuOpen={setIsMobileMenuOpen}
-        isRTL={isRTL}
-      />
+      {!isMobile && (
+  <Sidebar 
+    isCollapsed={isDesktopSidebarCollapsed} 
+    onCollapse={setIsDesktopSidebarCollapsed}
+    isMobile={isMobile}
+    isMobileMenuOpen={isMobileMenuOpen}
+    setIsMobileMenuOpen={setIsMobileMenuOpen}
+    isRTL={isRTL}
+  />
+)}
 
       <div
         className={`flex flex-col flex-1 transition-all duration-300 min-w-0 ${
