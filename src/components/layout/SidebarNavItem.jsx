@@ -35,48 +35,37 @@ const SidebarNavItem = ({
     `;
   };
 
-  // ✅ ICON COLOR UPDATE:
-  // Light mode: make icons "light" (gray-400/500)
-  // Dark mode: keep them white
-  // Active: white (on pink bg)
+  // ✅ Icon ALWAYS white (light mode + dark mode, active + inactive)
   const getIconClasses = () => {
-    return `text-22 lg:text-20 ${
-      isActive()
-        ? 'text-white'
-        : 'text-gray-400 dark:text-white group-hover:text-gray-500 dark:group-hover:text-white'
-    }`;
+    return 'text-22 lg:text-20 text-white';
   };
 
   const renderIcon = () => {
-    // customIcon can be { light, dark } or a string src
+    // ✅ If you pass a custom image icon (svg/png), always force it to white too
     if (customIcon) {
+      // object with dark/light variants
       if (typeof customIcon === 'object' && customIcon.dark && customIcon.light) {
         const iconSrc = isDarkMode ? customIcon.dark : customIcon.light;
-
         return (
           <img
             src={iconSrc}
             alt=""
-            className={`
-              w-5 h-5 lg:w-[24px] lg:h-[24px]
-              ${isActive() ? 'brightness-0 invert' : 'opacity-70 group-hover:opacity-90'}
-            `}
+            className="w-5 h-5 lg:w-[24px] lg:h-[24px] brightness-0 invert"
           />
         );
       }
 
+      // single icon src
       return (
         <img
           src={customIcon}
           alt=""
-          className={`
-            w-5 h-5 lg:w-[20px] lg:h-[20px]
-            ${isActive() ? 'brightness-0 invert' : 'opacity-70 group-hover:opacity-90'}
-          `}
+          className="w-5 h-5 lg:w-[20px] lg:h-[20px] brightness-0 invert"
         />
       );
     }
 
+    // normal react-icons
     return <Icon className={getIconClasses()} />;
   };
 
@@ -156,6 +145,7 @@ const SidebarNavItem = ({
 };
 
 export default SidebarNavItem;
+
 
 
 
