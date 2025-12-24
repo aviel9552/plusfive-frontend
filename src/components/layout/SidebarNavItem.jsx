@@ -118,7 +118,7 @@ const SidebarNavItem = ({
                 rounded-[9px]
                 whitespace-nowrap
                 leading-none
-                shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+                shadow-[0_4px_14px_rgba(0,0,0,0.18)]
               "
             >
               {label}
