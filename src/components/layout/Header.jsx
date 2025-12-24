@@ -121,7 +121,7 @@ const Header = ({ onMobileMenuToggle }) => {
   return (
 <header
   className={`bg-white dark:bg-customBlack px-4 lg:px-6
-    h-[72px] lg:h-[80px]
+    h-[72px] lg:h-[72px]
     grid border-b border-gray-200 dark:border-commonBorder
     font-ttcommons transition-colors duration-200
   `}
