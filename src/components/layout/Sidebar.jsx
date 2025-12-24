@@ -69,7 +69,7 @@ const Sidebar = ({ isCollapsed, onCollapse, isMobile, isMobileMenuOpen, setIsMob
   const sidebarClasses = `
   font-ttcommons
   fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen
-  bg-white dark:bg-customBlack
+  bg-[#f141414] dark:bg-customBlack
   ${isRTL ? 'border-l' : 'border-r'} border-gray-200 dark:border-commonBorder
   flex flex-col z-[30]
   transition-all duration-300 ease-in-out
