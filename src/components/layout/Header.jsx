@@ -144,7 +144,7 @@ const Header = ({ onMobileMenuToggle }) => {
             <img
               src={isDarkMode ? DarkLogo : LightLogo}
               alt="Logo"
-              className="h-[22px] lg:h-[24px] w-auto object-contain"
+              className="h-[22px] lg:h-[28px] w-auto object-contain"
             />
           </button>
 
