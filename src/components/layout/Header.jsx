@@ -148,11 +148,23 @@ const Header = ({ onMobileMenuToggle }) => {
             />
           </button>
 
-          {false && (
-  <button ...>
-    <FiMenu size={24} />
-  </button>
-)}
+         {/* Mobile menu (desktop only button) */}
+<button
+  onClick={onMobileMenuToggle}
+  className={`
+    hidden lg:flex
+    w-10 h-10
+    items-center justify-center
+    text-gray-700 dark:text-white
+    hover:bg-gray-100 dark:hover:bg-customIconBgColor
+    rounded-lg
+    transition-colors duration-200
+  `}
+  aria-label="Open sidebar"
+>
+  <FiMenu size={22} />
+</button>
+
 
           <div className="hidden lg:block">
             {/* אם תרצה כותרת ליד הלוגו:
