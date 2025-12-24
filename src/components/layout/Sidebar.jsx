@@ -12,11 +12,11 @@ import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { useLanguage } from '../../context/LanguageContext';
 import { getLayoutTranslations } from '../../utils/translations';
 import { PiPlusBold } from 'react-icons/pi';
-import DarkLogo from "../../assets/DarkLogo.png";
-import LightLogo from "../../assets/LightLogo.jpeg";
-import Sidebar_Toggle_Icon from "../../assets/Sidebar_Toggle_Icon.svg";
-import BlackLogoutIcon from "../../assets/log-out-black.svg";
-import WhiteLogoutIcon from "../../assets/log-out-white.svg";
+import DarkLogo from '../../assets/DarkLogo.png';
+import LightLogo from '../../assets/LightLogo.jpeg';
+import Sidebar_Toggle_Icon from '../../assets/Sidebar_Toggle_Icon.svg';
+import BlackLogoutIcon from '../../assets/log-out-black.svg';
+import WhiteLogoutIcon from '../../assets/log-out-white.svg';
 import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({
@@ -25,25 +25,21 @@ const Sidebar = ({
   isMobile,
   isMobileMenuOpen,
   setIsMobileMenuOpen,
-  isRTL = false, // נשאר רק בשביל nav item אם אתה רוצה
+  isRTL = false, // נשאר רק אם SidebarNavItem צריך RTL פנימי לטקסט
 }) => {
-  // Automatically set collapsed to false on mobile
+  // ✅ Mobile: לא קורסים (תמיד פתוח כשמובייל)
   useEffect(() => {
     if (isMobile && isCollapsed) {
       onCollapse(false);
     }
   }, [isMobile, isCollapsed, onCollapse]);
 
+  // ✅ Desktop: תמיד סגור כברירת מחדל (אייקונים בלבד)
   useEffect(() => {
-    // Desktop: תמיד סגור כברירת מחדל (אייקונים בלבד)
     if (!isMobile && !isCollapsed) {
       onCollapse(true);
     }
   }, [isMobile, isCollapsed, onCollapse]);
-
-  const toggleDesktopSidebar = () => {
-    onCollapse(!isCollapsed);
-  };
 
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -55,7 +51,6 @@ const Sidebar = ({
 
   const [showUpgradeCard, setShowUpgradeCard] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
 
   const { language } = useLanguage();
   const t = getLayoutTranslations(language);
@@ -65,17 +60,17 @@ const Sidebar = ({
     navigate('/login', { replace: true });
   };
 
-  const handleLogoutClick = () => {
-    setShowLogoutModal(true);
-  };
-
   const handleLogoClick = () => {
     navigate('/');
   };
 
+  // ✅ במובייל: לא collapsed (כי זה תפריט מלא)
   const effectiveCollapsed = isMobile ? false : isCollapsed;
 
-  // ✅ ננעל תמיד לשמאל, בלי קשר לשפה
+  // ✅ טולטיפים רק בדסקטופ כשהסיידבר collapsed
+  const showHoverText = !isMobile && effectiveCollapsed;
+
+  // ✅ סיידבר תמיד LEFT (לא תלוי RTL)
   const sidebarClasses = `
     font-ttcommons
     fixed left-0 top-0 h-screen
@@ -93,7 +88,6 @@ const Sidebar = ({
 
   const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
 
-  // Check if upgrade card should be shown
   const shouldShowUpgradeCard = () => {
     if (userRole === 'admin') return false;
     if (userSubscriptionStatus === 'active') return false;
@@ -116,89 +110,74 @@ const Sidebar = ({
         />
       )}
 
-      <aside
-        className={sidebarClasses}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
+      <aside className={sidebarClasses}>
         {/* Header */}
         <div
           className={`flex items-center overflow-hidden h-[69px] md:h-[85px] px-4 relative ${
-            isCollapsed ? 'justify-center' : 'justify-between'
+            effectiveCollapsed ? 'justify-center' : 'justify-between'
           }`}
         >
-          <div className={`flex items-center gap-[8px] ${isCollapsed ? 'hidden' : 'flex'}`}>
+          {/* Logo רק כשלא collapsed */}
+          <div className={`flex items-center gap-[8px] ${effectiveCollapsed ? 'hidden' : 'flex'}`}>
             <span
               className="text-20 font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300"
               onClick={handleLogoClick}
             >
-              <img
-                src={isDarkMode ? DarkLogo : LightLogo}
-                alt="Logo"
-                className="w-[100px] h-auto"
-              />
+              <img src={isDarkMode ? DarkLogo : LightLogo} alt="Logo" className="w-[100px] h-auto" />
             </span>
           </div>
 
-          {/* Centered P for collapsed state */}
+          {/* P במצב collapsed */}
           <span
             className={`text-24 !font-testtiemposfine font-semibold text-gray-900 cursor-pointer dark:text-white transition-opacity duration-300 ${
-              isCollapsed ? 'block' : 'hidden'
+              effectiveCollapsed ? 'block' : 'hidden'
             }`}
             onClick={handleLogoClick}
           >
             P
           </span>
-
-          {/* כפתור טוגל לדסקטופ (כבוי אצלך כרגע) */}
-          {false && !isMobile && (
-            <button
-              onClick={toggleDesktopSidebar}
-              className="flex absolute -right-3 top-7 bg-pink-500 hover:bg-pink-600 text-white rounded-full p-1 shadow-lg z-[101]"
-            >
-              {isCollapsed ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />}
-            </button>
-          )}
         </div>
 
         {/* NAVIGATION */}
         <nav
+          // ✅ בדסקטופ חייב overflow-visible כדי שהטולטיפ לא ייחתך
           className={`flex-1 ${isMobile ? 'overflow-hidden' : 'overflow-visible'}`}
           onClick={() => isMobile && setIsMobileMenuOpen(false)}
         >
-          <ul className={`space-y-3 list-none ${effectiveCollapsed ? 'px-0' : 'px-2'}`}>
+          <ul
+            // ✅ חשוב: overflow-visible גם כאן, כדי שלא ייחתך tooltip
+            className={`space-y-3 list-none overflow-visible ${effectiveCollapsed ? 'px-0' : 'px-2'}`}
+          >
             {navLinks.map((link) => (
               <SidebarNavItem
                 key={link.to}
                 {...link}
                 isCollapsed={effectiveCollapsed}
-                isRTL={isRTL} // אם תרצה טקסט RTL בתוך האייטם
-                showHoverText={false}
+                isRTL={isRTL}
+                // ✅ זה השינוי שמדליק את הצ׳ופצ׳יקים
+                showHoverText={showHoverText}
               />
             ))}
           </ul>
         </nav>
 
-        {/* Upgrade Plan Card - only for non-subscribed users */}
+        {/* Upgrade Plan Card */}
         {shouldShowUpgradeCard() && showUpgradeCard && (
-          <div
-            className={`text-gray-700 dark:text-white transition-opacity duration-300 ${
-              effectiveCollapsed ? 'hidden' : 'block'
-            } p-4`}
-          >
+          <div className={`text-gray-700 dark:text-white transition-opacity duration-300 ${effectiveCollapsed ? 'hidden' : 'block'} p-4`}>
             <UpgradeCard onClose={() => setShowUpgradeCard(false)} />
           </div>
         )}
 
         {/* Logout (כבוי אצלך) */}
         {/* <div className="relative m-3">
-          <button onClick={handleLogoutClick} className="w-full">
+          <button onClick={() => setShowLogoutModal(true)} className="w-full">
             <SidebarNavItem
-              onClick={handleLogoutClick}
+              onClick={() => setShowLogoutModal(true)}
               icon={MdLogout}
               label={t.logout}
               isCollapsed={effectiveCollapsed}
               isRTL={isRTL}
+              showHoverText={showHoverText}
               customIcon={{
                 light: BlackLogoutIcon,
                 dark: WhiteLogoutIcon
@@ -220,4 +199,5 @@ const Sidebar = ({
 };
 
 export default Sidebar;
+
 
