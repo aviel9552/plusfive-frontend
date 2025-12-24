@@ -120,11 +120,15 @@ const Header = ({ onMobileMenuToggle }) => {
 
   return (
 <header
-  className={`bg-white dark:bg-customBlack px-4 lg:px-6
+  className="
+    fixed top-0 left-0
+    w-full
+    bg-white dark:bg-customBlack
     h-[72px] lg:h-[66px]
-    grid border-b border-gray-200 dark:border-commonBorder
-    font-ttcommons transition-colors duration-200
-  `}
+    border-b border-gray-200 dark:border-commonBorder
+    z-[40]
+    font-ttcommons
+  "
 >
   <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div className={`flex items-center ${isRTL ? 'order-2' : 'order-1'}`}>
