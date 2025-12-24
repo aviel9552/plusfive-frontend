@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-  FiSearch,
   FiBell,
   FiMoon,
   FiSun,
@@ -21,7 +20,6 @@ import { logoutUser } from '../../redux/actions/authActions';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { getLayoutTranslations } from '../../utils/translations';
 
-// ✅ לוגו (תבחר אחד / לפי theme)
 import DarkLogo from '../../assets/DarkLogo.png';
 import LightLogo from '../../assets/LightLogo.jpeg';
 
@@ -33,13 +31,11 @@ const Header = ({ onMobileMenuToggle }) => {
   const { language, changeLanguage } = useLanguage();
 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showSearchModal, setShowSearchModal] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const profileMenuRef = useRef(null);
   const notificationRef = useRef(null);
-  const [visibleCount, setVisibleCount] = useState(4);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,15 +46,6 @@ const Header = ({ onMobileMenuToggle }) => {
     { value: 'he', shortLabel: 'He', label: 'Hebrew', code: 'he', fullName: 'Hebrew' },
   ];
 
-  const notifications = [
-    { id: 1, name: 'UI/UX Design', time: '2 min ago', message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
-    { id: 2, name: 'Message', time: '1 hour ago', message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
-    { id: 3, name: 'Forms', time: '2 hour ago', message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
-    { id: 4, name: 'Challenge invitation', time: '12 hour ago', message: 'Jonny aber invites to join the challenge', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
-    { id: 5, name: 'Payment', time: '1 day ago', message: 'Your payment was successful.', avatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
-    { id: 6, name: 'Security', time: '2 days ago', message: 'Password changed successfully.', avatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
-  ];
-
   const toggleNotifications = () => setShowNotifications((prev) => !prev);
   const toggleProfileMenu = () => setShowProfileMenu((prev) => !prev);
 
@@ -67,7 +54,6 @@ const Header = ({ onMobileMenuToggle }) => {
     navigate('/login', { replace: true });
   };
 
-  // ✅ לחיצה על לוגו (כמו Fresha -> חוזר ל-dashboard)
   const handleLogoClick = () => {
     const isAdmin = user?.role === 'admin';
     navigate(isAdmin ? '/admin/dashboard' : '/app/dashboard');
@@ -110,11 +96,15 @@ const Header = ({ onMobileMenuToggle }) => {
   const isAdmin = userRole === 'admin';
   const accountSettingsLink = isAdmin ? '/admin/account-settings' : '/app/account-settings';
   const supportLink = isAdmin ? '/admin/support-and-help' : '/app/support-and-help';
+
+  // ✅ נשאר RTL רק לדברים כמו מיקום דרופדאונים וכו' (אבל ההדר עצמו לא מתהפך)
   const isRTL = language === 'he';
   const t = getLayoutTranslations(language);
 
   return (
     <header
+      // ✅ נועלים את כל ההדר ל-LTR כדי שלא יתהפך בשום שפה
+      dir="ltr"
       className="
         fixed top-0 left-0
         w-full
@@ -126,16 +116,16 @@ const Header = ({ onMobileMenuToggle }) => {
       "
     >
       <div
-        className={`
+        // ✅ תמיד flex רגיל (כמו אנגלית): לוגו משמאל, אייקונים מימין
+        className="
           h-full
           px-4 lg:px-6
           flex items-center justify-between
-          ${isRTL ? 'flex-row-reverse' : ''}
-        `}
+        "
       >
         {/* LEFT SIDE */}
-        <div className={`h-full flex items-center -ml-2 gap-3 ${isRTL ? 'order-2' : 'order-1'}`}>
-          {/* ✅ LOGO כמו Fresha */}
+        <div className="h-full flex items-center -ml-2 gap-3">
+          {/* ✅ LOGO */}
           <button
             onClick={handleLogoClick}
             className="h-full flex items-center"
@@ -148,41 +138,32 @@ const Header = ({ onMobileMenuToggle }) => {
             />
           </button>
 
-         {/* Mobile menu (desktop only button) */}
-{false && (
-  <button
-    onClick={onMobileMenuToggle}
-    className={`
-      w-10 h-10
-      items-center justify-center
-      text-gray-700 dark:text-white
-      hover:bg-gray-100 dark:hover:bg-customIconBgColor
-      rounded-lg
-      transition-colors duration-200
-    `}
-    aria-label="Open sidebar"
-  >
-    <FiMenu size={22} />
-  </button>
-)}
-
+          {/* ✅ כפתור התפריט כבוי לגמרי */}
+          {false && (
+            <button
+              onClick={onMobileMenuToggle}
+              className="
+                w-10 h-10
+                flex items-center justify-center
+                text-gray-700 dark:text-white
+                hover:bg-gray-100 dark:hover:bg-customIconBgColor
+                rounded-lg
+                transition-colors duration-200
+              "
+              aria-label="Open sidebar"
+            >
+              <FiMenu size={22} />
+            </button>
+          )}
 
           <div className="hidden lg:block">
-            {/* אם תרצה כותרת ליד הלוגו:
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">{pageTitle}</div>
-            */}
+            {/* אופציונלי: כותרת ליד הלוגו */}
+            {/* <div className="text-lg font-semibold text-gray-900 dark:text-white">{pageTitle}</div> */}
           </div>
         </div>
 
         {/* RIGHT SIDE (ICONS) */}
-        <div
-          className={`
-            h-full
-            flex items-center
-            gap-2 lg:gap-4
-            ${isRTL ? 'order-1 mr-auto' : 'order-2 ml-auto'}
-          `}
-        >
+        <div className="h-full flex items-center gap-2 lg:gap-4">
           <div className="h-full flex items-center">
             <CommonNormalDropDown
               options={languageOptions}
@@ -227,8 +208,7 @@ const Header = ({ onMobileMenuToggle }) => {
         <div
           ref={notificationRef}
           className={`
-            fixed
-            top-20
+            fixed top-20
             ${isRTL ? 'left-2' : 'right-2'}
             w-[70%]
             sm:top-20
@@ -251,25 +231,8 @@ const Header = ({ onMobileMenuToggle }) => {
           </div>
 
           <div className="divide-y divide-gray-100 dark:divide-customBorderColor">
-            {/* (השארת רשימה כבויה אצלך) */}
+            {/* רשימה */}
           </div>
-
-          {visibleCount < notifications.length && (
-            <button
-              className="w-full py-2 text-blue-600 font-semibold hover:underline"
-              onClick={() => setVisibleCount((c) => c + 4)}
-            >
-              Load More
-            </button>
-          )}
-          {visibleCount > 4 && (
-            <button
-              className="w-full py-2 text-blue-600 font-semibold hover:underline"
-              onClick={() => setVisibleCount(4)}
-            >
-              Show Less
-            </button>
-          )}
         </div>
       )}
 
@@ -277,7 +240,18 @@ const Header = ({ onMobileMenuToggle }) => {
       {showProfileMenu && (
         <div
           ref={profileMenuRef}
-          className={`absolute ${isRTL ? 'md:left-10 left-2' : 'md:right-10 right-2'} mt-2 w-auto sm:w-72 bg-white dark:bg-customBlack rounded-2xl shadow-2xl border border-gray-200 dark:border-customBorderColor z-[1200] p-0 overflow-hidden`}
+          className={`
+            absolute
+            ${isRTL ? 'md:left-10 left-2' : 'md:right-10 right-2'}
+            mt-2
+            w-auto sm:w-72
+            bg-white dark:bg-customBlack
+            rounded-2xl shadow-2xl
+            border border-gray-200 dark:border-customBorderColor
+            z-[1200]
+            p-0
+            overflow-hidden
+          `}
         >
           <div className="flex flex-col items-center py-5 px-6 bg-white dark:bg-customBlack">
             <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-[#ff257c] text-white mb-2 shadow">
@@ -340,4 +314,5 @@ const Header = ({ onMobileMenuToggle }) => {
 };
 
 export default Header;
+
 
