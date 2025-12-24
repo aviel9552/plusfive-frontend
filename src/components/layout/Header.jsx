@@ -121,7 +121,7 @@ const Header = ({ onMobileMenuToggle }) => {
   return (
 <header
   className={`bg-white dark:bg-customBlack px-4 lg:px-6 ${
-    isRootPage ? 'h-[72px] lg:h-[56px]' : 'h-[55px] lg:h-[48px]'
+    isRootPage ? 'h-[72px] lg:h-[60px]' : 'h-[55px] lg:h-[52px]'
   } grid border-b border-gray-200 dark:border-commonBorder font-ttcommons transition-colors duration-200`}
 >
   <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
