@@ -35,23 +35,32 @@ const SidebarNavItem = ({
     `;
   };
 
+  // ✅ ICON COLOR UPDATE:
+  // Light mode: make icons "light" (gray-400/500)
+  // Dark mode: keep them white
+  // Active: white (on pink bg)
   const getIconClasses = () => {
     return `text-22 lg:text-20 ${
-      isActive() ? 'text-white' : 'text-gray-900 dark:text-white'
+      isActive()
+        ? 'text-white'
+        : 'text-gray-400 dark:text-white group-hover:text-gray-500 dark:group-hover:text-white'
     }`;
   };
 
   const renderIcon = () => {
+    // customIcon can be { light, dark } or a string src
     if (customIcon) {
       if (typeof customIcon === 'object' && customIcon.dark && customIcon.light) {
         const iconSrc = isDarkMode ? customIcon.dark : customIcon.light;
+
         return (
           <img
             src={iconSrc}
             alt=""
-            className={`w-5 h-5 lg:w-[24px] lg:h-[24px] ${
-              isActive() ? 'brightness-0 invert' : ''
-            }`}
+            className={`
+              w-5 h-5 lg:w-[24px] lg:h-[24px]
+              ${isActive() ? 'brightness-0 invert' : 'opacity-70 group-hover:opacity-90'}
+            `}
           />
         );
       }
@@ -60,9 +69,10 @@ const SidebarNavItem = ({
         <img
           src={customIcon}
           alt=""
-          className={`w-5 h-5 lg:w-[20px] lg:h-[20px] ${
-            isActive() ? 'brightness-0 invert' : ''
-          }`}
+          className={`
+            w-5 h-5 lg:w-[20px] lg:h-[20px]
+            ${isActive() ? 'brightness-0 invert' : 'opacity-70 group-hover:opacity-90'}
+          `}
         />
       );
     }
@@ -146,5 +156,6 @@ const SidebarNavItem = ({
 };
 
 export default SidebarNavItem;
+
 
 
