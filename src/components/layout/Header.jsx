@@ -5,7 +5,7 @@ import {
   FiMoon,
   FiSun,
   FiMenu,
-        FiEdit2,
+  FiEdit2,
   FiSettings,
   FiHelpCircle,
   FiLogOut,
@@ -20,7 +20,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../../redux/actions/authActions';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { getLayoutTranslations } from '../../utils/translations';
-// import Clap from '../../assets/clap.svg';
+
+// ✅ לוגו (תבחר אחד / לפי theme)
+import DarkLogo from '../../assets/DarkLogo.png';
+import LightLogo from '../../assets/LightLogo.jpeg';
 
 const Header = ({ onMobileMenuToggle }) => {
   const user = useSelector((state) => state.auth?.user);
@@ -48,48 +51,12 @@ const Header = ({ onMobileMenuToggle }) => {
   ];
 
   const notifications = [
-    {
-      id: 1,
-      name: 'UI/UX Design',
-      time: '2 min ago',
-      message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    },
-    {
-      id: 2,
-      name: 'Message',
-      time: '1 hour ago',
-      message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    },
-    {
-      id: 3,
-      name: 'Forms',
-      time: '2 hour ago',
-      message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
-      avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-    },
-    {
-      id: 4,
-      name: 'Challenge invitation',
-      time: '12 hour ago',
-      message: 'Jonny aber invites to join the challenge',
-      avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
-    },
-    {
-      id: 5,
-      name: 'Payment',
-      time: '1 day ago',
-      message: 'Your payment was successful.',
-      avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-    },
-    {
-      id: 6,
-      name: 'Security',
-      time: '2 days ago',
-      message: 'Password changed successfully.',
-      avatar: 'https://randomuser.me/api/portraits/women/6.jpg',
-    },
+    { id: 1, name: 'UI/UX Design', time: '2 min ago', message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
+    { id: 2, name: 'Message', time: '1 hour ago', message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", avatar: 'https://randomuser.me/api/portraits/women/2.jpg' },
+    { id: 3, name: 'Forms', time: '2 hour ago', message: "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", avatar: 'https://randomuser.me/api/portraits/men/3.jpg' },
+    { id: 4, name: 'Challenge invitation', time: '12 hour ago', message: 'Jonny aber invites to join the challenge', avatar: 'https://randomuser.me/api/portraits/women/4.jpg' },
+    { id: 5, name: 'Payment', time: '1 day ago', message: 'Your payment was successful.', avatar: 'https://randomuser.me/api/portraits/men/5.jpg' },
+    { id: 6, name: 'Security', time: '2 days ago', message: 'Password changed successfully.', avatar: 'https://randomuser.me/api/portraits/women/6.jpg' },
   ];
 
   const toggleNotifications = () => setShowNotifications((prev) => !prev);
@@ -100,7 +67,12 @@ const Header = ({ onMobileMenuToggle }) => {
     navigate('/login', { replace: true });
   };
 
-  // Close profile menu on outside click
+  // ✅ לחיצה על לוגו (כמו Fresha -> חוזר ל-dashboard)
+  const handleLogoClick = () => {
+    const isAdmin = user?.role === 'admin';
+    navigate(isAdmin ? '/admin/dashboard' : '/app/dashboard');
+  };
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
@@ -130,15 +102,10 @@ const Header = ({ onMobileMenuToggle }) => {
     return false;
   });
 
-  if (dynamicTitle && specialTitles[dynamicTitle]) {
-    pageTitle = specialTitles[dynamicTitle];
-  } else if (specialTitles && specialTitles[location.pathname]) {
-    pageTitle = specialTitles[location.pathname];
-  } else if (currentNav) {
-    pageTitle = currentNav.label;
-  } else {
-    pageTitle = 'Page';
-  }
+  if (dynamicTitle && specialTitles[dynamicTitle]) pageTitle = specialTitles[dynamicTitle];
+  else if (specialTitles && specialTitles[location.pathname]) pageTitle = specialTitles[location.pathname];
+  else if (currentNav) pageTitle = currentNav.label;
+  else pageTitle = 'Page';
 
   const isAdmin = userRole === 'admin';
   const accountSettingsLink = isAdmin ? '/admin/account-settings' : '/app/account-settings';
@@ -158,7 +125,6 @@ const Header = ({ onMobileMenuToggle }) => {
         font-ttcommons
       "
     >
-      {/* ✅ h-full + px כאן כדי שהכל יהיה בדיוק באמצע הגובה */}
       <div
         className={`
           h-full
@@ -168,7 +134,21 @@ const Header = ({ onMobileMenuToggle }) => {
         `}
       >
         {/* LEFT SIDE */}
-        <div className={`h-full flex items-center ${isRTL ? 'order-2' : 'order-1'}`}>
+        <div className={`h-full flex items-center gap-3 ${isRTL ? 'order-2' : 'order-1'}`}>
+          {/* ✅ LOGO כמו Fresha */}
+          <button
+            onClick={handleLogoClick}
+            className="h-full flex items-center"
+            aria-label="Go to dashboard"
+          >
+            <img
+              src={isDarkMode ? DarkLogo : LightLogo}
+              alt="Logo"
+              className="h-[22px] lg:h-[24px] w-auto object-contain"
+            />
+          </button>
+
+          {/* Mobile menu */}
           <button
             onClick={onMobileMenuToggle}
             className={`
@@ -179,7 +159,6 @@ const Header = ({ onMobileMenuToggle }) => {
               rounded-lg
               lg:hidden
               transition-colors duration-200
-              ${isRTL ? 'ml-2' : 'mr-2'}
             `}
             aria-label="Open sidebar"
           >
@@ -187,8 +166,9 @@ const Header = ({ onMobileMenuToggle }) => {
           </button>
 
           <div className="hidden lg:block">
-            {/* אם תרצה להחזיר כותרת: */}
-            {/* <div className="text-lg font-semibold text-gray-900 dark:text-white">{pageTitle}</div> */}
+            {/* אם תרצה כותרת ליד הלוגו:
+            <div className="text-lg font-semibold text-gray-900 dark:text-white">{pageTitle}</div>
+            */}
           </div>
         </div>
 
@@ -201,7 +181,6 @@ const Header = ({ onMobileMenuToggle }) => {
             ${isRTL ? 'order-1 mr-auto' : 'order-2 ml-auto'}
           `}
         >
-          {/* ✅ מרכז בגובה: לכל אלמנט גובה קבוע + flex-center */}
           <div className="h-full flex items-center">
             <CommonNormalDropDown
               options={languageOptions}
@@ -230,8 +209,10 @@ const Header = ({ onMobileMenuToggle }) => {
             <FiBell className="text-xl text-gray-700 dark:text-white" />
           </button>
 
-          {/* Profile */}
-          <button className="w-10 h-10 flex items-center justify-center" onClick={toggleProfileMenu}>
+          <button
+            className="w-10 h-10 flex items-center justify-center"
+            onClick={toggleProfileMenu}
+          >
             <div className="w-10 h-10 rounded-full bg-[#ff257c] flex items-center justify-center text-white font-bold text-base">
               {userName.charAt(0).toUpperCase()}
             </div>
@@ -260,7 +241,6 @@ const Header = ({ onMobileMenuToggle }) => {
             shadow-2xl rounded-2xl border border-gray-200 dark:border-customBorderColor
             z-[1200]
             overflow-y-auto
-            scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100
           `}
           style={{ minWidth: 0 }}
         >
@@ -269,19 +249,7 @@ const Header = ({ onMobileMenuToggle }) => {
           </div>
 
           <div className="divide-y divide-gray-100 dark:divide-customBorderColor">
-            {/* אם תרצה להחזיר את הרשימה:
-            {notifications.slice(0, visibleCount).map(n => (
-              <div key={n.id} className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} gap-3 px-4 py-3`}>
-                <img src={n.avatar} className="w-11 h-11 rounded-full object-cover" alt="" />
-                <div className="flex-1">
-                  <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} justify-between`}>
-                    <span className="font-semibold text-gray-900 dark:text-white">{n.name}</span>
-                    <span className="text-xs text-gray-400">{n.time}</span>
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-300">{n.message}</div>
-                </div>
-              </div>
-            ))} */}
+            {/* (השארת רשימה כבויה אצלך) */}
           </div>
 
           {visibleCount < notifications.length && (
@@ -293,48 +261,13 @@ const Header = ({ onMobileMenuToggle }) => {
             </button>
           )}
           {visibleCount > 4 && (
-            <button className="w-full py-2 text-blue-600 font-semibold hover:underline" onClick={() => setVisibleCount(4)}>
+            <button
+              className="w-full py-2 text-blue-600 font-semibold hover:underline"
+              onClick={() => setVisibleCount(4)}
+            >
               Show Less
             </button>
           )}
-        </div>
-      )}
-
-      {/* Mobile Search Modal */}
-      {showSearchModal && (
-        <div className="fixed inset-0 z-[2000] dark:bg-white dark:bg-opacity-20 bg-black bg-opacity-60 flex items-start justify-center pt-24">
-          <div className="bg-white dark:bg-customBlack rounded-xl p-4 w-[90vw] max-w-xs shadow-xl flex flex-col">
-            <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-              {isRTL ? (
-                <button
-                  className={`${isRTL ? 'mr-2' : 'ml-2'} text-gray-500 dark:text-gray-400 hover:text-pink-500 text-2xl`}
-                  onClick={() => setShowSearchModal(false)}
-                  aria-label="Close search"
-                >
-                  ×
-                </button>
-              ) : (
-                <FiSearch className={`text-xl text-gray-400 ${isRTL ? 'mr-2' : 'ml-2'}`} />
-              )}
-              <input
-                type="text"
-                placeholder={t.search}
-                className="flex-1 bg-transparent outline-none border-none text-gray-800 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500 text-base"
-                autoFocus
-              />
-              {isRTL ? (
-                <FiSearch className={`text-xl text-gray-400 ${isRTL ? 'mr-2' : 'ml-2'}`} />
-              ) : (
-                <button
-                  className={`${isRTL ? 'mr-2' : 'ml-2'} text-gray-500 dark:text-gray-400 hover:text-pink-500 text-2xl`}
-                  onClick={() => setShowSearchModal(false)}
-                  aria-label="Close search"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
         </div>
       )}
 
@@ -405,3 +338,4 @@ const Header = ({ onMobileMenuToggle }) => {
 };
 
 export default Header;
+
