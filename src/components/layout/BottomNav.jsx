@@ -1,19 +1,43 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { IoHomeOutline } from "react-icons/io5";
-import { FiUsers, FiBarChart2, FiSettings } from "react-icons/fi";
+import { FiUsers, FiBarChart2, FiCreditCard } from "react-icons/fi";
+import { MdQrCodeScanner } from "react-icons/md";
 import { useLanguage } from "../../context/LanguageContext";
 
 const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
   const { language } = useLanguage();
 
-  // שנה את הנתיבים פה למה שיש אצלך בפועל
   const items = [
-    { to: `${basePath}/dashboard`, label: language === "he" ? "בית" : "Home", icon: IoHomeOutline },
-    { to: `${basePath}/customers`, label: language === "he" ? "לקוחות" : "Customers", icon: FiUsers },
-    { to: `${basePath}/analytics`, label: language === "he" ? "אנליטיקס" : "Analytics", icon: FiBarChart2 },
-    { to: `${basePath}/account-settings`, label: language === "he" ? "הגדרות" : "Settings", icon: FiSettings },
+    {
+      to: `${basePath}/dashboard`,
+      label: language === "he" ? "בית" : "Home",
+      icon: IoHomeOutline,
+    },
+    {
+      to: `${basePath}/customers`,
+      label: language === "he" ? "לקוחות" : "Customers",
+      icon: FiUsers,
+    },
+    {
+      to: `${basePath}/qr`,
+      label: language === "he" ? "QR" : "QR",
+      icon: MdQrCodeScanner,
+    },
+    {
+      to: `${basePath}/analytics`,
+      label: language === "he" ? "אנליטיקס" : "Analytics",
+      icon: FiBarChart2,
+    },
+    {
+      to: `${basePath}/subscription`,
+      label: language === "he" ? "מנוי" : "Subscription",
+      icon: FiCreditCard,
+    },
   ];
+
+  // אם אתה רוצה שב־RTL זה ממש ירגיש טבעי (ימין->שמאל), אפשר להפוך את הסדר
+  const orderedItems = isRTL ? [...items].reverse() : items;
 
   return (
     <nav
@@ -26,9 +50,10 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
         pb-[env(safe-area-inset-bottom)]
       "
     >
-      <ul className={`grid grid-cols-4 ${isRTL ? "direction-rtl" : ""}`}>
-        {items.map((item) => {
+      <ul className={`grid grid-cols-5 ${isRTL ? "direction-rtl" : ""}`}>
+        {orderedItems.map((item) => {
           const Icon = item.icon;
+
           return (
             <li key={item.to}>
               <NavLink
@@ -54,3 +79,4 @@ const BottomNav = ({ isRTL = false, basePath = "/app" }) => {
 };
 
 export default BottomNav;
+
