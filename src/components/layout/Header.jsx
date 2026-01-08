@@ -1,0 +1,326 @@
+import { useState, useRef, useEffect } from 'react';
+import {
+  FiBell,
+  FiMoon,
+  FiSun,
+  FiMenu,
+  FiEdit2,
+  FiSettings,
+  FiHelpCircle,
+  FiLogOut,
+} from 'react-icons/fi';
+import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { CommonNormalDropDown } from '../index';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import userNavLinks, { specialPageTitles as userSpecialTitles } from './UserNavLinks';
+import adminNavLinks, { specialPageTitles as adminSpecialTitles } from './AdminNavLinks';
+import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../../redux/actions/authActions';
+import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
+import { getLayoutTranslations } from '../../utils/translations';
+
+import DarkLogo from '../../assets/DarkLogo.png';
+import LightLogo from '../../assets/LightLogo.jpeg';
+
+const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
+  const user = useSelector((state) => state.auth?.user);
+  const userName = user?.name || user?.firstName || 'User';
+
+  const { isDarkMode, toggleTheme } = useTheme();
+  const { language, changeLanguage } = useLanguage();
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const profileMenuRef = useRef(null);
+  const profileButtonRef = useRef(null);
+  const notificationRef = useRef(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  const languageOptions = [
+    { value: 'en', shortLabel: 'En', label: 'English', code: 'en', fullName: 'English' },
+    { value: 'he', shortLabel: 'He', label: 'Hebrew', code: 'he', fullName: 'Hebrew' },
+  ];
+
+  const toggleNotifications = () => setShowNotifications((prev) => !prev);
+  const toggleProfileMenu = () => setShowProfileMenu((prev) => !prev);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    navigate('/login', { replace: true });
+  };
+
+  const handleLogoClick = () => {
+    const isAdmin = user?.role === 'admin';
+    navigate(isAdmin ? '/admin/dashboard' : '/app/dashboard');
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // Don't close if clicking on the profile button or inside the menu
+      if (
+        profileMenuRef.current && 
+        !profileMenuRef.current.contains(event.target) &&
+        profileButtonRef.current &&
+        !profileButtonRef.current.contains(event.target)
+      ) {
+        setShowProfileMenu(false);
+      }
+    }
+    if (showProfileMenu) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showProfileMenu]);
+
+  const userRole = useSelector((state) => state.auth?.user?.role);
+  const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
+  const specialTitles = userRole === 'admin' ? adminSpecialTitles : userSpecialTitles;
+
+  const currentNav = navLinks.find(
+    (link) =>
+      link.to === location.pathname ||
+      (link.specialPaths && link.specialPaths.includes(location.pathname))
+  );
+
+  let pageTitle = '';
+  const dynamicTitle = Object.keys(specialTitles || {}).find((titlePath) => {
+    if (titlePath.includes(':')) {
+      const basePath = titlePath.split(':')[0];
+      return location.pathname.startsWith(basePath);
+    }
+    return false;
+  });
+
+  if (dynamicTitle && specialTitles[dynamicTitle]) pageTitle = specialTitles[dynamicTitle];
+  else if (specialTitles && specialTitles[location.pathname]) pageTitle = specialTitles[location.pathname];
+  else if (currentNav) pageTitle = currentNav.label;
+  else pageTitle = 'Page';
+
+  const isAdmin = userRole === 'admin';
+  const accountSettingsLink = isAdmin ? '/admin/account-settings' : '/app/account-settings';
+  const supportLink = isAdmin ? '/admin/support-and-help' : '/app/support-and-help';
+
+  // ✅ נשאר RTL רק לדברים כמו מיקום דרופדאונים וכו' (אבל ההדר עצמו לא מתהפך)
+  const isRTL = language === 'he';
+  const t = getLayoutTranslations(language);
+
+  return (
+    <header
+      // ✅ נועלים את כל ההדר ל-LTR כדי שלא יתהפך בשום שפה
+      dir="ltr"
+      className="
+        fixed top-0 left-0
+        w-full
+        bg-white dark:bg-customBlack
+        h-[72px] lg:h-[66px]
+        border-b border-gray-200 dark:border-commonBorder
+        z-[40]
+        font-ttcommons
+      "
+    >
+      <div
+        // ✅ תמיד flex רגיל (כמו אנגלית): לוגו משמאל, אייקונים מימין
+        className="
+          h-full
+          px-4 lg:px-6
+          flex items-center justify-between
+        "
+      >
+        {/* LEFT SIDE */}
+        <div className="h-full flex items-center -ml-2 gap-3">
+          {/* ✅ LOGO */}
+          <button
+            onClick={handleLogoClick}
+            className="h-full flex items-center ml-1 lg:ml-2"
+            aria-label="Go to dashboard"
+          >
+            <img
+              src={isDarkMode ? DarkLogo : LightLogo}
+              alt="Logo"
+              className="h-[24px] lg:h-[32px] w-auto object-contain"
+            />
+          </button>
+
+          {/* ✅ כפתור התפריט כבוי לגמרי */}
+          {false && (
+            <button
+              onClick={onMobileMenuToggle}
+              className="
+                w-10 h-10
+                flex items-center justify-center
+                text-gray-700 dark:text-white
+                hover:bg-gray-100 dark:hover:bg-customIconBgColor
+                rounded-lg
+                transition-colors duration-200
+              "
+              aria-label="Open sidebar"
+            >
+              <FiMenu size={22} />
+            </button>
+          )}
+
+          <div className="hidden lg:block">
+            {/* אופציונלי: כותרת ליד הלוגו */}
+            {/* <div className="text-lg font-semibold text-gray-900 dark:text-white">{pageTitle}</div> */}
+          </div>
+        </div>
+
+        {/* RIGHT SIDE (ICONS) */}
+        <div className="h-full flex items-center gap-2 lg:gap-4">
+          <div className="h-full flex items-center">
+
+          </div>
+
+          <button
+            onClick={toggleTheme}
+            className="w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-customIconBgColor rounded-full transition-colors duration-200"
+            title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? <FiSun className="text-xl text-white" /> : <FiMoon className="text-xl text-gray-700" />}
+          </button>
+
+          <button
+            className="w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-customIconBgColor rounded-full relative transition-colors duration-200"
+            onClick={toggleNotifications}
+          >
+            <FiBell className="text-xl text-gray-700 dark:text-white" />
+          </button>
+
+          <button
+            ref={profileButtonRef}
+            className="w-10 h-10 flex items-center justify-center"
+            onClick={toggleProfileMenu}
+          >
+            <div className="w-10 h-10 rounded-full bg-black dark:bg-black flex items-center justify-center text-white font-bold text-base">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Notification Dropdown */}
+      {showNotifications && (
+        <div
+          ref={notificationRef}
+          className={`
+            fixed top-20
+            ${isRTL ? 'left-2' : 'right-2'}
+            w-[70%]
+            sm:top-20
+            ${isRTL ? 'sm:left-8' : 'sm:right-8'}
+            sm:w-[420px]
+            ${isRTL ? 'sm:right-auto' : 'sm:left-auto'}
+            sm:mx-0
+            mx-auto
+            sm:max-h-[80vh]
+            max-h-[60vh]
+            bg-white dark:bg-customBrown
+            shadow-2xl rounded-2xl border border-gray-200 dark:border-customBorderColor
+            z-[1200]
+            overflow-y-auto
+          `}
+          style={{ minWidth: 0 }}
+        >
+          <div className="p-4 border-b border-gray-100 dark:border-customBorderColor font-bold text-gray-700 dark:text-white">
+            {t.notifications}
+          </div>
+
+          <div className="divide-y divide-gray-100 dark:divide-customBorderColor">
+            {/* רשימה */}
+          </div>
+        </div>
+      )}
+
+      {/* Profile Dropdown */}
+      {showProfileMenu && (
+        <div
+          ref={profileMenuRef}
+          className={`
+            absolute
+            md:right-10 right-2
+            top-full
+            mt-2
+            w-auto sm:w-72
+            bg-white dark:bg-customBlack
+            rounded-2xl shadow-2xl
+            border border-gray-200 dark:border-customBorderColor
+            z-[1200]
+            p-0
+            overflow-hidden
+          `}
+        >
+          <div className="flex flex-col items-center py-5 px-6 bg-white dark:bg-customBlack">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-black dark:bg-black text-white mb-2 shadow">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+            <div className="font-semibold text-gray-900 dark:text-white text-lg">{userName}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@email.com'}</div>
+          </div>
+
+          <div className="py-2 bg-white dark:bg-customBlack">
+            <button
+              onClick={() => {
+                setShowProfileMenu(false);
+                if (onOpenBusinessProfile) {
+                  onOpenBusinessProfile();
+                }
+              }}
+              className="w-full flex items-center gap-3 px-6 py-3 hover:bg-gray-100 dark:hover:bg-[#232323] transition-colors text-gray-700 dark:text-white text-base text-left"
+            >
+              <FiEdit2 className="text-lg text-gray-500 dark:text-gray-300" />
+              {t.profile}
+            </button>
+
+            <button
+              onClick={() => {
+                setShowProfileMenu(false);
+                if (onOpenBusinessProfile) {
+                  onOpenBusinessProfile();
+                }
+              }}
+              className="w-full flex items-center gap-3 px-6 py-3 hover:bg-gray-100 dark:hover:bg-[#232323] transition-colors text-gray-700 dark:text-white text-base text-left"
+            >
+              <FiSettings className="text-lg text-gray-500 dark:text-gray-300" />
+              {t.accountSettings}
+            </button>
+
+            <Link
+              to={supportLink}
+              className="flex items-center gap-3 px-6 py-3 hover:bg-gray-100 dark:hover:bg-[#232323] transition-colors text-red-500 dark:text-red-400 text-base"
+              onClick={() => setShowProfileMenu(false)}
+            >
+              <FiHelpCircle className="text-lg text-red-500 dark:text-red-400" />
+              {t.supportAndHelp}
+            </Link>
+          </div>
+
+          <hr className="border-gray-200 dark:border-customBorderColor my-0" />
+
+          <button
+            className="flex items-center gap-3 px-6 py-3 w-full hover:bg-red-50 dark:hover:bg-[#3a2323] transition-colors text-red-600 dark:text-red-400 font-semibold text-base"
+            onClick={() => setShowLogoutModal(true)}
+          >
+            <FiLogOut className="text-lg" />
+            {t.logout}
+          </button>
+        </div>
+      )}
+
+      <CommonConfirmModel
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        title={t.logoutConfirm}
+        message={t.logoutMessage}
+      />
+    </header>
+  );
+};
+
+export default Header;
+
+
