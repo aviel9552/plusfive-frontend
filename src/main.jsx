@@ -13,7 +13,6 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { persistor } from '../lib/store'
 import { BrowserRouter as Router } from 'react-router-dom'
 
-//this code added by aviel
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
