@@ -168,9 +168,10 @@ function GlobalSubscriptionGuard({ children }) {
   };
 
   // Immediate redirect check using Navigate component (faster than useEffect)
-  if (checkSubscriptionAndRedirect()) {
-    return <Navigate to="/subscription" replace />;
-  }
+  // DISABLED: Allow users to login and access routes without subscription check
+  // if (checkSubscriptionAndRedirect()) {
+  //   return <Navigate to="/subscription" replace />;
+  // }
 
   return children;
 }

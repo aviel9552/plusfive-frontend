@@ -117,7 +117,8 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    // If user is authenticated and is on the root path, redirect based on role and subscription
+    // If user is authenticated and is on the root path, redirect based on role
+    // DISABLED: Subscription check - allow all users to access /app regardless of subscription
     if (isAuthenticated && user) {
       if (location.pathname === '/') {
         // Admin users go directly to admin dashboard
@@ -126,17 +127,11 @@ function App() {
           return;
         }
 
-        // Regular users: check subscription first
-        if (hasActiveSubscription()) {
-          // Has active subscription, redirect to app dashboard
-          navigate('/app', { replace: true });
-        } else {
-          // No active subscription, redirect to subscription page
-          navigate('/subscription', { replace: true });
-        }
+        // Regular users: redirect to app dashboard (no subscription check)
+        navigate('/app', { replace: true });
       }
     }
-  }, [isAuthenticated, user, location, navigate, hasActiveSubscription]);
+  }, [isAuthenticated, user, location, navigate]);
 
   return (
     <ThemeProvider>

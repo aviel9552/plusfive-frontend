@@ -141,32 +141,33 @@ if (isAuthenticated && !user) {
     return false;
   };
 
+  // DISABLED: Subscription checks - allow users to access protected routes without subscription
   // Check if current route is subscription page
-  const isSubscriptionRoute = location.pathname === '/subscription' || location.pathname.startsWith('/subscription/');
+  // const isSubscriptionRoute = location.pathname === '/subscription' || location.pathname.startsWith('/subscription/');
   
-  // If user is authenticated and doesn't have subscription, redirect to subscription page IMMEDIATELY
-  if (isAuthenticated && user && user.role !== 'admin') {
-    // Check if subscription data has loaded
-    if (!subscriptionLoading && currentSubscription?.data?.stripe) {
-      // Stripe API response received - check subscription status
-      if (!hasActiveSubscription() && !isSubscriptionRoute) {
-        // No active subscription - redirect immediately to /subscription
-        return <Navigate to="/subscription" replace />;
-      }
-    }
-  }
+  // DISABLED: If user is authenticated and doesn't have subscription, redirect to subscription page IMMEDIATELY
+  // if (isAuthenticated && user && user.role !== 'admin') {
+  //   // Check if subscription data has loaded
+  //   if (!subscriptionLoading && currentSubscription?.data?.stripe) {
+  //     // Stripe API response received - check subscription status
+  //     if (!hasActiveSubscription() && !isSubscriptionRoute) {
+  //       // No active subscription - redirect immediately to /subscription
+  //       return <Navigate to="/subscription" replace />;
+  //     }
+  //   }
+  // }
   
-  // If accessing /app/* routes, check subscription - redirect immediately if no subscription
-  if (isAppRoute && user?.role !== 'admin') {
-    if (!subscriptionLoading && currentSubscription?.data?.stripe) {
-      if (!hasActiveSubscription()) {
-        // No active subscription, redirect immediately to subscription page
-        return <Navigate to="/subscription" replace />;
-      }
-    }
-  }
+  // DISABLED: If accessing /app/* routes, check subscription - redirect immediately if no subscription
+  // if (isAppRoute && user?.role !== 'admin') {
+  //   if (!subscriptionLoading && currentSubscription?.data?.stripe) {
+  //     if (!hasActiveSubscription()) {
+  //       // No active subscription, redirect immediately to subscription page
+  //       return <Navigate to="/subscription" replace />;
+  //     }
+  //   }
+  // }
 
-  // If user is authenticated and has subscription (or is admin), render the protected content
+  // If user is authenticated, render the protected content (no subscription check)
   return children;
 }
 

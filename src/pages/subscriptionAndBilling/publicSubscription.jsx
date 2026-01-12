@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaArrowLeft } from 'react-icons/fa';
@@ -12,53 +12,48 @@ const PublicSubscription = () => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const user = useSelector(state => state.auth.user);
-  const hasRedirected = useRef(false);
   
   // Get subscription data from Stripe API
   const { subscriptionLoading, currentSubscription } = useStripeSubscription(slug);
 
-  // Redirect authenticated users with active subscription to /app
-  useEffect(() => {
-    if (hasRedirected.current) return;
+  // DISABLED: Redirect authenticated users with active subscription to /app
+  // Allow users to stay on /subscription page even if they have active subscription
+  // useEffect(() => {
+  //   if (hasRedirected.current) return;
 
-    // Only check for authenticated users (non-admin)
-    if (isAuthenticated && user && user.role !== 'admin') {
-      // Wait for subscription data to load
-      if (!subscriptionLoading && currentSubscription?.data?.stripe) {
-        const subscriptions = currentSubscription.data.stripe.subscriptions;
-        
-        if (Array.isArray(subscriptions)) {
-          const activeSubscriptions = subscriptions.filter(
-            sub => sub.status && ['active', 'trialing'].includes(sub.status.toLowerCase())
-          );
-          
-          if (activeSubscriptions.length > 0) {
-            const subscription = activeSubscriptions[0];
-            const hasActiveSubscription = subscription.current_period_end 
-              ? subscription.current_period_end * 1000 > Date.now()
-              : true;
-            
-            if (hasActiveSubscription) {
-              hasRedirected.current = true;
-              navigate('/app', { replace: true });
-            }
-          }
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, user, subscriptionLoading, currentSubscription]);
+  //   // Only check for authenticated users (non-admin)
+  //   if (isAuthenticated && user && user.role !== 'admin') {
+  //     // Wait for subscription data to load
+  //     if (!subscriptionLoading && currentSubscription?.data?.stripe) {
+  //       const subscriptions = currentSubscription.data.stripe.subscriptions;
+  //       
+  //       if (Array.isArray(subscriptions)) {
+  //         const activeSubscriptions = subscriptions.filter(
+  //           sub => sub.status && ['active', 'trialing'].includes(sub.status.toLowerCase())
+  //         );
+  //         
+  //         if (activeSubscriptions.length > 0) {
+  //           const subscription = activeSubscriptions[0];
+  //           const hasActiveSubscription = subscription.current_period_end 
+  //             ? subscription.current_period_end * 1000 > Date.now()
+  //             : true;
+  //           
+  //           if (hasActiveSubscription) {
+  //             hasRedirected.current = true;
+  //             navigate('/app', { replace: true });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isAuthenticated, user, subscriptionLoading, currentSubscription]);
 
   // Handle logout and redirect to login
   const handleGoBack = () => {
     dispatch(logoutUser());
     navigate('/login', { replace: true });
   };
-
-  // If redirecting, show nothing
-  if (hasRedirected.current) {
-    return null;
-  }
 
   // Render subscription page
   return (

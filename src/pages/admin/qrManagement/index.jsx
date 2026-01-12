@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import BlackQRIcon from '../../../assets/qr-large-black-icon.svg';
 import WhiteQRIcon from '../../../assets/qr-large-white-icon.svg';
 import { useTheme } from '../../../context/ThemeContext';
+import { useStripeSubscription } from '../../../hooks/useStripeSubscription';
 
 function AdminQRManagement() {
   const { language } = useLanguage();
@@ -23,10 +24,67 @@ function AdminQRManagement() {
   const { user } = useSelector(state => state.auth);
   const businessName = user?.businessName || 'Your Business';
   
-  // Check if user has active subscription
-  const subscriptionStatus = user?.subscriptionStatus?.toLowerCase();
-  const hasActiveSubscription = subscriptionStatus === 'active' && 
-    (!user?.subscriptionExpirationDate || new Date(user.subscriptionExpirationDate) > new Date());
+  // Get slug from pathname for subscription check
+  const slug = window.location.pathname.split('/')[1] || '';
+  const { subscriptionLoading, currentSubscription } = useStripeSubscription(slug);
+  
+  // Check if user has active subscription from Stripe API (same logic as backend)
+  const hasActiveSubscription = () => {
+    // Admin users don't need subscription
+    if (user?.role === 'admin') {
+      return true;
+    }
+
+    // FIRST: Check Stripe API response (most reliable source - PRIMARY CHECK)
+    if (!subscriptionLoading && currentSubscription?.data?.stripe) {
+      const subscriptions = currentSubscription.data.stripe.subscriptions;
+      
+      // If Stripe API has been loaded and subscriptions array exists
+      if (Array.isArray(subscriptions)) {
+        // Filter for active subscriptions
+        const activeSubscriptions = subscriptions.filter(
+          sub => sub.status && ['active', 'trialing'].includes(sub.status.toLowerCase())
+        );
+        
+        if (activeSubscriptions.length > 0) {
+          const subscription = activeSubscriptions[0];
+          // Check current_period_end from Stripe (Unix timestamp in seconds)
+          if (subscription.current_period_end) {
+            const expiryTimestamp = subscription.current_period_end * 1000; // Convert to milliseconds
+            const now = Date.now();
+            if (expiryTimestamp > now) {
+              return true; // Active and not expired
+            }
+          } else {
+            return true; // Active with no expiry date
+          }
+        }
+      }
+      
+      // If subscriptions array is empty or no active subscription, return false
+      return false;
+    }
+
+    // SECOND: Fallback to database fields if Stripe API hasn't loaded yet
+    if (subscriptionLoading) {
+      // Still loading - can't make decision yet, return false to be safe
+      return false;
+    }
+
+    // Fallback to user data from Redux if Stripe API check failed
+    const subscriptionStatus = user?.subscriptionStatus?.toLowerCase();
+    if (subscriptionStatus === 'active') {
+      if (user?.subscriptionExpirationDate) {
+        const expiryDate = new Date(user.subscriptionExpirationDate);
+        const now = new Date();
+        return expiryDate.getTime() > now.getTime();
+      }
+      return true; // Active with no expiry date
+    }
+
+    // If we reach here, no active subscription found
+    return false;
+  };
 
   const [formData, setFormData] = useState({
    customerMessage: `היי אח הסתפרתי הרגע ב ${businessName},
@@ -185,6 +243,12 @@ function AdminQRManagement() {
   };
 
   const handleGenerateQR = async () => {
+    // Check subscription before allowing QR generation
+    if (!hasActiveSubscription()) {
+      toast.error('Please subscribe to create QR codes');
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -230,6 +294,12 @@ function AdminQRManagement() {
 
   // Download QR Code functionality
   const handleDownloadQR = () => {
+    // Check subscription before allowing QR download
+    if (!hasActiveSubscription()) {
+      toast.error('Please subscribe to download QR codes');
+      return;
+    }
+
     if (!generatedQR && !existingQRCode) {
       toast.error(t.noQRCodeToDownload);
       return;
@@ -296,7 +366,7 @@ function AdminQRManagement() {
                     placeholder={t.messageForCustomerPlaceholder}
                     error={errors.customerMessage}
                     labelFontSize="text-14"
-                    disabled={hasExistingQR || generatedQR}
+                    disabled={hasExistingQR || generatedQR || !hasActiveSubscription()}
                     required={true}
                   />
 
@@ -312,7 +382,7 @@ function AdminQRManagement() {
                     placeholder={t.directMessagePlaceholder}
                     error={errors.directMessage}
                     labelFontSize="text-14"
-                    disabled={hasExistingQR || generatedQR}
+                    disabled={hasExistingQR || generatedQR || !hasActiveSubscription()}
                     required={true}
                   />
 
@@ -340,7 +410,7 @@ function AdminQRManagement() {
                   text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading ? <div className="flex items-center justify-center gap-2"><CommonLoader /> {t.generating}</div> : t.generateQRCode)}
                   onClick={handleGenerateQR}
                   className="rounded-[8px] w-full py-[14px] text-14"
-                  disabled={loading || hasExistingQR || generatedQR || !hasActiveSubscription}
+                  disabled={loading || hasExistingQR || generatedQR || !hasActiveSubscription()}
                 />
               </div>
             </div>
@@ -393,7 +463,7 @@ function AdminQRManagement() {
               text={t.downloadQRCode}
               className="py-[8px] w-auto rounded-[8px] px-[12px] text-14"
               icon={<LuDownload className="text-lg font-bold" />}
-              disabled={!generatedQR && !existingQRCode}
+              disabled={(!generatedQR && !existingQRCode) || !hasActiveSubscription()}
               onClick={handleDownloadQR}
             />
             {/* <CommonOutlineButton
