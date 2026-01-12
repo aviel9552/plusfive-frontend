@@ -66,7 +66,7 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
         ₪{formatTooltipValue(entry.value)}
         </div>
         <div className="text-gray-600 dark:text-white text-12">
-          {entry.month || 'Month'} 2025
+          {entry.month || 'Month'} {entry.year || new Date().getFullYear()}
         </div>
       </div>
     );

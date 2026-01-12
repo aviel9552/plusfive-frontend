@@ -63,6 +63,7 @@ function AdminAnalyticsRevenueAndCustomerStatus() {
     return data.map((item) => ({
       month: isMonthly ? translateMonth(item.label, language) : item.label,
       value: item.revenue,
+      year: item.year, // Include year for tooltip display
     }));
   };
 
