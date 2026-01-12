@@ -119,7 +119,8 @@ function AdminAnalyticsSecontChart() {
     const qrCodeDataMap = {
         'Monthly': (qrAnalyticsData.monthlyQrCodeData || []).map(item => ({
             ...item,
-            label: translateMonth(item.label, language)
+            label: translateMonth(item.label, language),
+            year: item.year // Include year from API data
         })),
         'Quarterly': qrAnalyticsData.quarterlyQrCodeData || [],
         'Yearly': qrAnalyticsData.yearlyQrCodeData || [],
@@ -156,15 +157,16 @@ function AdminAnalyticsSecontChart() {
         if (active && payload && payload.length && hoveredBar) {
             const data = payload.find(p => p.dataKey === hoveredBar);
             if (data) {
-                const currentYear = new Date().getFullYear();
+                const entry = data.payload;
                 let displayValue = data.value;
-                let year = filter === 'Yearly' ? '' : currentYear;
+                // Use year from data if available, otherwise use current year (for non-monthly filters)
+                let year = filter === 'Yearly' ? '' : (entry?.year || new Date().getFullYear());
                 let metricType = hoveredBar === 'scanCount' ? 'Scans' : 'Shares';
 
                 return (
                     <div className="bg-gray-100 dark:bg-[#43474E] px-3 py-2 rounded-lg shadow-lg text-gray-800 dark:text-white">
                         <p className="font-bold text-lg">{metricType}: {displayValue}</p>
-                        <p className="text-xs text-gray-400">{label} {year} Year</p>
+                        <p className="text-xs text-gray-400">{label} {year}</p>
                     </div>
                 );
             }
