@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CommonButton, CommonCustomOutlineButton } from '../index';
 import { MdWarning, MdInfo, MdCheckCircle, MdError, MdCancel, MdCreditCard } from 'react-icons/md';
 import { useLanguage } from '../../context/LanguageContext';
 import { getUserCardTranslations } from '../../utils/translations';
 import { useStripeSubscription } from '../../hooks/useStripeSubscription';
+import { getCurrentSubscription } from '../../services/stripeService';
 
 const SubscriptionDetail = ({ title, value }) => (
   <div className='flex flex-col gap-[16px]'>
@@ -46,8 +47,35 @@ function CurrentActiveSubscription({ slug }) {
   const [cancellationReason, setCancellationReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
   
-  // Get current subscription data from Stripe
-  const { currentSubscription, subscriptionLoading, handleCancelSubscription, handleOpenCustomerPortal } = useStripeSubscription();
+  // State for subscription data (direct API call)
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  
+  // Get cancel subscription handler from hook
+  const { handleCancelSubscription, handleOpenCustomerPortal } = useStripeSubscription();
+  
+  // Fetch subscription data directly from API (like home page)
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        setSubscriptionLoading(true);
+        console.log('CurrentActiveSubscription: Fetching subscription from API...');
+        
+        const response = await getCurrentSubscription();
+        console.log('CurrentActiveSubscription: API Response:', response);
+        
+        // Set the subscription data
+        setCurrentSubscription(response);
+      } catch (error) {
+        console.error('CurrentActiveSubscription: Error fetching subscription:', error);
+        setCurrentSubscription(null);
+      } finally {
+        setSubscriptionLoading(false);
+      }
+    };
+
+    fetchSubscription();
+  }, []);
   
   const handleUpdatePayment = () => {
     if (currentSubscription) {

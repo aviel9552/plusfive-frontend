@@ -72,7 +72,7 @@ export const NewStaffModal = ({
             {/* Name */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                <label className="text-medium font-medium text-gray-600 dark:text-white">
                   שם מלא <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -98,7 +98,7 @@ export const NewStaffModal = ({
             {/* Phone */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                <label className="text-medium font-medium text-gray-600 dark:text-white">
                   טלפון <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -128,7 +128,7 @@ export const NewStaffModal = ({
 
             {/* Email */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+              <label className="text-medium font-medium text-gray-600 dark:text-white">
                 אימייל
               </label>
               <input
@@ -143,7 +143,7 @@ export const NewStaffModal = ({
 
             {/* City */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+              <label className="text-medium font-medium text-gray-600 dark:text-white">
                 עיר
               </label>
               <input
@@ -158,7 +158,7 @@ export const NewStaffModal = ({
 
             {/* Address */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+              <label className="text-medium font-medium text-gray-600 dark:text-white">
                 כתובת
               </label>
               <input
@@ -174,6 +174,11 @@ export const NewStaffModal = ({
         </div>
 
         <div className="px-8 py-5 border-t border-gray-200 dark:border-commonBorder">
+          {newStaffErrors.submit && (
+            <p className="text-[11px] text-red-500 mb-3 text-center">
+              {newStaffErrors.submit}
+            </p>
+          )}
           <button
             type="button"
             className="w-full h-[44px] rounded-full text-medium font-semibold flex items-center justify-center bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition"

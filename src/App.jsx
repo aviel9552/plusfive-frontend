@@ -116,27 +116,38 @@ function App() {
     return false;
   }, [user]);
 
-  useEffect(() => {
-    // If user is authenticated and is on the root path, redirect based on role and subscription
-    if (isAuthenticated && user) {
-      if (location.pathname === '/') {
-        // Admin users go directly to admin dashboard
-        if (user.role === 'admin') {
-          navigate('/admin', { replace: true });
-          return;
-        }
+  // useEffect(() => {
+  //   // If user is authenticated and is on the root path, redirect based on role and subscription
+  //   if (isAuthenticated && user) {
+  //     if (location.pathname === '/') {
+  //       // Admin users go directly to admin dashboard
+  //       if (user.role === 'admin') {
+  //         navigate('/admin', { replace: true });
+  //         return;
+  //       }
 
-        // Regular users: check subscription first
-        if (hasActiveSubscription()) {
-          // Has active subscription, redirect to app dashboard
-          navigate('/app', { replace: true });
-        } else {
-          // No active subscription, redirect to subscription page
-          navigate('/subscription', { replace: true });
-        }
-      }
+  //       // Regular users: check subscription first
+  //       if (hasActiveSubscription()) {
+  //         // Has active subscription, redirect to app dashboard
+  //         navigate('/app', { replace: true });
+  //       } else {
+  //         // No active subscription, redirect to subscription page
+  //         navigate('/subscription', { replace: true });
+  //       }
+  //     }
+  //   }
+  // }, [isAuthenticated, user, location, navigate, hasActiveSubscription]);
+
+  useEffect(() => {
+  if (isAuthenticated && user && location.pathname === '/') {
+    if (user.role === 'admin') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/app', { replace: true });
     }
-  }, [isAuthenticated, user, location, navigate, hasActiveSubscription]);
+  }
+}, [isAuthenticated, user, location.pathname, navigate]);
+
 
   return (
     <ThemeProvider>

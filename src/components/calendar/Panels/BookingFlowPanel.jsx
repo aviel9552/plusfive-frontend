@@ -18,6 +18,8 @@ import { getMonthMatrix } from "../../../utils/calendar/calendarMatrix";
 import { isSameCalendarDay, formatBookingDateLabel } from "../../../utils/calendar/dateHelpers";
 import { generateTimeSlots, parseServiceDuration, calculateEndTime, getExactStartTime } from "../../../utils/calendar/timeHelpers";
 import { DEMO_WAITLIST_CLIENTS } from "../../../data/calendar/demoData";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllServicesAction } from "../../../redux/actions/serviceActions";
 
 const SERVICES_STORAGE_KEY = "services";
 
@@ -70,46 +72,59 @@ export const BookingFlowPanel = ({
   onApply,
   onOpenNewClientModal,
 }) => {
-  // Load services from localStorage only (no demo services)
+  // Redux hooks
+  const dispatch = useDispatch();
+  const { services: servicesFromStore } = useSelector((state) => state.service);
+  
+  // Load services from Redux store
   const [services, setServices] = useState([]);
   
   useEffect(() => {
-    const loadServices = () => {
-      const storedServices = localStorage.getItem(SERVICES_STORAGE_KEY);
-      if (storedServices) {
-        try {
-          const parsedServices = JSON.parse(storedServices);
-          setServices(parsedServices);
-        } catch (error) {
-          console.error("Error loading services from localStorage:", error);
+    const fetchServices = async () => {
+      const result = await dispatch(getAllServicesAction());
+      if (!result.success) {
+        console.error("Error loading services:", result.error);
+        // Fallback to localStorage if API fails
+        const storedServices = localStorage.getItem(SERVICES_STORAGE_KEY);
+        if (storedServices) {
+          try {
+            const parsedServices = JSON.parse(storedServices);
+            setServices(parsedServices);
+          } catch (parseError) {
+            console.error("Error loading services from localStorage:", parseError);
+            setServices([]);
+          }
+        } else {
           setServices([]);
         }
-      } else {
-        setServices([]);
       }
     };
     
-    loadServices();
-    
-    // Listen for storage changes
-    const handleStorageChange = (e) => {
-      if (e.key === SERVICES_STORAGE_KEY) {
-        loadServices();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Check periodically for changes
-    const intervalId = setInterval(() => {
-      loadServices();
-    }, 1000);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
+    // Only fetch if store is empty
+    if (servicesFromStore.length === 0) {
+      fetchServices();
+    }
+  }, [dispatch]);
+
+  // Sync services from Redux store to local state
+  useEffect(() => {
+    if (servicesFromStore.length > 0) {
+      // Transform services from API format to frontend format
+      const transformedServices = servicesFromStore.map((s) => ({
+        id: s.id,
+        name: s.name || "",
+        notes: s.notes || "",
+        category: s.category || "",
+        price: s.price || 0,
+        duration: s.duration || 30,
+        color: s.color || "#FF257C",
+        hideFromClients: s.hideFromClients || false,
+        status: s.isActive ? "פעיל" : "לא פעיל",
+        createdAt: s.createdAt || new Date().toISOString(),
+      }));
+      setServices(transformedServices);
+    }
+  }, [servicesFromStore]);
 
   // Get selected service object
   const selectedServiceObj = useMemo(() => {

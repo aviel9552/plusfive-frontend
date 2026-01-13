@@ -956,7 +956,7 @@ export const ClientSummaryCard = ({
                   </div>
                   {client?.phone && (
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm text-gray-600 dark:text-white">
                         {formatPhoneForDisplay(client.phone)}
                       </span>
                       <button
@@ -968,7 +968,7 @@ export const ClientSummaryCard = ({
                           window.location.href = `tel:${client.phone}`;
                         }}
                       >
-                        <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
                       </button>
                       <button
                         type="button"
@@ -1009,7 +1009,7 @@ export const ClientSummaryCard = ({
                       className={`relative pb-3 pt-1 font-medium transition-colors ${
                         clientViewTab === key
                           ? "text-gray-900 dark:text-white"
-                          : "text-gray-500 dark:text-gray-400"
+                          : "text-gray-500 dark:text-white"
                       }`}
                     >
                       {label}
@@ -1038,10 +1038,10 @@ export const ClientSummaryCard = ({
                     }}
                   >
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiUser className="text-gray-600 dark:text-gray-400" />
+                      <FiUser className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שם מלא</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">שם מלא</div>
                       {editingField === "name" ? (
                         <div className="flex items-center gap-2">
                           <input
@@ -1088,7 +1088,7 @@ export const ClientSummaryCard = ({
                               e.stopPropagation();
                               setEditingField("name");
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                           >
                             <FiEdit className="text-xs" />
                           </button>
@@ -1108,10 +1108,10 @@ export const ClientSummaryCard = ({
                     }}
                   >
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiPhone className="text-gray-600 dark:text-gray-400" />
+                      <FiPhone className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">טלפון</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">טלפון</div>
                       {editingField === "phone" ? (
                         <div className="flex items-center gap-2">
                           <input
@@ -1159,7 +1159,7 @@ export const ClientSummaryCard = ({
                               e.stopPropagation();
                               setEditingField("phone");
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                           >
                             <FiEdit className="text-xs" />
                           </button>
@@ -1179,10 +1179,10 @@ export const ClientSummaryCard = ({
                     }}
                   >
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiMail className="text-gray-600 dark:text-gray-400" />
+                      <FiMail className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">אימייל</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">אימייל</div>
                       {editingField === "email" ? (
                         <div className="flex items-center gap-2">
                           <input
@@ -1230,7 +1230,7 @@ export const ClientSummaryCard = ({
                               e.stopPropagation();
                               setEditingField("email");
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                           >
                             <FiEdit className="text-xs" />
                           </button>
@@ -1250,10 +1250,10 @@ export const ClientSummaryCard = ({
                     }}
                   >
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiMapPin className="text-gray-600 dark:text-gray-400" />
+                      <FiMapPin className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">עיר</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">עיר</div>
                       {editingField === "city" ? (
                         <div className="flex items-center gap-2">
                           <input
@@ -1301,7 +1301,7 @@ export const ClientSummaryCard = ({
                               e.stopPropagation();
                               setEditingField("city");
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                           >
                             <FiEdit className="text-xs" />
                           </button>
@@ -1321,10 +1321,10 @@ export const ClientSummaryCard = ({
                     }}
                   >
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiHome className="text-gray-600 dark:text-gray-400" />
+                      <FiHome className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">כתובת</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">כתובת</div>
                       {editingField === "address" ? (
                         <div className="flex items-center gap-2">
                           <input
@@ -1372,7 +1372,7 @@ export const ClientSummaryCard = ({
                               e.stopPropagation();
                               setEditingField("address");
                             }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                           >
                             <FiEdit className="text-xs" />
                           </button>
@@ -1384,10 +1384,10 @@ export const ClientSummaryCard = ({
                   {/* סטטוס */}
                   <div className="flex items-center gap-3 relative" ref={statusDropdownRef}>
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiCheckCircle className="text-gray-600 dark:text-gray-400" />
+                      <FiCheckCircle className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">סטטוס</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">סטטוס</div>
                       <div className="relative">
                         {(() => {
                           const currentStatus = editedClientData.status || client?.status || "פעיל";
@@ -1498,10 +1498,10 @@ export const ClientSummaryCard = ({
                   {/* דירוג */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FaStar className="text-gray-600 dark:text-gray-400" />
+                      <FaStar className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">דירוג</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">דירוג</div>
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {client?.rating || "-"}
                       </div>
@@ -1511,10 +1511,10 @@ export const ClientSummaryCard = ({
                   {/* תאריך פגישה ראשונה */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                      <FiClock className="text-gray-600 dark:text-gray-400" />
+                      <FiClock className="text-gray-600 dark:text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">תאריך פגישה ראשונה</div>
+                      <div className="text-xs text-gray-500 dark:text-white mb-1">תאריך פגישה ראשונה</div>
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {(() => {
                           try {
@@ -1552,7 +1552,7 @@ export const ClientSummaryCard = ({
               {clientViewTab === "appointments" && (
                 sortedAppointments.length === 0 ? (
                   <div className="space-y-4 mt-6">
-                    <div className="text-sm text-gray-600 dark:text-gray-400 text-center py-8">
+                    <div className="text-sm text-gray-600 dark:text-white text-center py-8">
                       אין תורים עבור לקוח זה
                     </div>
                   </div>
@@ -1579,26 +1579,26 @@ export const ClientSummaryCard = ({
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <FiCalendar className="text-gray-500 dark:text-gray-400" size={16} />
+                                <FiCalendar className="text-gray-500 dark:text-white" size={16} />
                                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                   {formattedDate}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 mb-2">
-                                <FiClock className="text-gray-500 dark:text-gray-400" size={16} />
+                                <FiClock className="text-gray-500 dark:text-white" size={16} />
                                 <span className="text-sm text-gray-700 dark:text-gray-300">
                                   {timeRange}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 mb-2">
-                                <FiUser className="text-gray-500 dark:text-gray-400" size={16} />
+                                <FiUser className="text-gray-500 dark:text-white" size={16} />
                                 <span className="text-sm text-gray-700 dark:text-gray-300">
                                   {service}
                                 </span>
                               </div>
                               {staff !== '-' && (
                                 <div className="flex items-center gap-2 mb-2">
-                                  <FiUser className="text-gray-500 dark:text-gray-400" size={16} />
+                                  <FiUser className="text-gray-500 dark:text-white" size={16} />
                                   <span className="text-sm text-gray-700 dark:text-gray-300">
                                     {staff}
                                   </span>
@@ -1606,7 +1606,7 @@ export const ClientSummaryCard = ({
                               )}
                               {appointment.status && (
                                 <div className="flex items-center gap-2 mb-2">
-                                  <FiCheckCircle className="text-gray-500 dark:text-gray-400" size={16} />
+                                  <FiCheckCircle className="text-gray-500 dark:text-white" size={16} />
                                   <span className="text-sm text-gray-700 dark:text-gray-300">
                                     {appointment.status}
                                   </span>
@@ -1655,7 +1655,7 @@ export const ClientSummaryCard = ({
                               className={`relative px-3 py-1.5 rounded-full font-medium transition-all whitespace-nowrap ${
                                 dataCategoryTab === key
                                   ? "text-white"
-                                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                                  : "text-gray-600 dark:text-white hover:text-gray-900 dark:hover:text-gray-200"
                               }`}
                               style={
                                 dataCategoryTab === key
@@ -1676,10 +1676,10 @@ export const ClientSummaryCard = ({
                             {/* סך הכנסות */}
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                <FiDollarSign className="text-gray-600 dark:text-gray-400" />
+                                <FiDollarSign className="text-gray-600 dark:text-white" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">סך הכנסות</div>
+                                <div className="text-xs text-gray-500 dark:text-white mb-1">סך הכנסות</div>
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   ₪{clientAdvancedStats.totalRevenue.toLocaleString()}
                                 </div>
@@ -1689,10 +1689,10 @@ export const ClientSummaryCard = ({
                             {/* ממוצע הכנסה לתור */}
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                <FiTrendingUp className="text-gray-600 dark:text-gray-400" />
+                                <FiTrendingUp className="text-gray-600 dark:text-white" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ממוצע הכנסה לתור</div>
+                                <div className="text-xs text-gray-500 dark:text-white mb-1">ממוצע הכנסה לתור</div>
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   ₪{clientAdvancedStats.avgRevenuePerVisit.toLocaleString()}
                                 </div>
@@ -1702,10 +1702,10 @@ export const ClientSummaryCard = ({
                             {/* עסקה ממוצעת */}
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                <FiDollarSign className="text-gray-600 dark:text-gray-400" />
+                                <FiDollarSign className="text-gray-600 dark:text-white" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">עסקה ממוצעת</div>
+                                <div className="text-xs text-gray-500 dark:text-white mb-1">עסקה ממוצעת</div>
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                   ₪{clientAdvancedStats.avgRevenuePerVisit.toLocaleString()}
                                 </div>
@@ -1718,7 +1718,7 @@ export const ClientSummaryCard = ({
                                 <FiAlertCircle className="text-red-500 dark:text-red-400" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">הכנסות שאבדו</div>
+                                <div className="text-xs text-gray-500 dark:text-white mb-1">הכנסות שאבדו</div>
                                 <div className="text-sm font-medium text-red-600 dark:text-red-400">
                                   ₪{clientAdvancedStats.lostRevenue.toLocaleString()}
                                 </div>
@@ -1731,7 +1731,7 @@ export const ClientSummaryCard = ({
                                 <FiRefreshCw className="text-green-500 dark:text-green-400" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">הכנסות שחזרו</div>
+                                <div className="text-xs text-gray-500 dark:text-white mb-1">הכנסות שחזרו</div>
                                 <div className="text-sm font-medium text-green-600 dark:text-green-400">
                                   ₪{clientAdvancedStats.recoveredRevenue.toLocaleString()}
                                 </div>
@@ -1747,10 +1747,10 @@ export const ClientSummaryCard = ({
                           {/* כמות ביקורים */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                              <FiCalendar className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">כמות ביקורים</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">כמות ביקורים</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.visitCount}
                               </div>
@@ -1760,10 +1760,10 @@ export const ClientSummaryCard = ({
                           {/* כמות ביקורים ממוצעת לשנה */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                              <FiCalendar className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">כמות ביקורים ממוצעת לשנה</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">כמות ביקורים ממוצעת לשנה</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.avgVisitsPerYear !== null ? clientAdvancedStats.avgVisitsPerYear : "-"}
                               </div>
@@ -1773,10 +1773,10 @@ export const ClientSummaryCard = ({
                           {/* ימים מהתור האחרון */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                              <FiCalendar className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ימים מהתור האחרון</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">ימים מהתור האחרון</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.daysSinceLastAppointment !== null ? clientAdvancedStats.daysSinceLastAppointment : "-"}
                               </div>
@@ -1786,10 +1786,10 @@ export const ClientSummaryCard = ({
                           {/* זמן ממוצע בין פגישות */}
                           <div className="flex items-start gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-                              <FiClock className="text-gray-600 dark:text-gray-400" />
+                              <FiClock className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">זמן ממוצע בין פגישות</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">זמן ממוצע בין פגישות</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                                 {clientAdvancedStats.avgTimeBetweenVisits !== null ? `${clientAdvancedStats.avgTimeBetweenVisits} ימים` : "-"}
                               </div>
@@ -1835,10 +1835,10 @@ export const ClientSummaryCard = ({
                           {/* זמן ממוצע בין קביעת התור לתור */}
                           <div className="flex items-start gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-                              <FiClock className="text-gray-600 dark:text-gray-400" />
+                              <FiClock className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">זמן ממוצע בין קביעת התור לתור</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">זמן ממוצע בין קביעת התור לתור</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                                 {clientAdvancedStats.avgTimeFromBookingToAppointment !== null ? `${clientAdvancedStats.avgTimeFromBookingToAppointment} ימים` : "-"}
                               </div>
@@ -1889,10 +1889,10 @@ export const ClientSummaryCard = ({
                           {/* ממוצע דירוג */}
                           <div className="flex items-start gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center flex-shrink-0">
-                              <FiStar className="text-gray-600 dark:text-gray-400" />
+                              <FiStar className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ממוצע דירוג</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">ממוצע דירוג</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
                                 {clientAdvancedStats.avgRating !== "-" ? clientAdvancedStats.avgRating : "-"}
                               </div>
@@ -1943,10 +1943,10 @@ export const ClientSummaryCard = ({
                           {/* תור אחרון */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                              <FiCalendar className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">תור אחרון</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">תור אחרון</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.lastAppointmentDate 
                                   ? `${formatDate(clientAdvancedStats.lastAppointmentDate)}${clientAdvancedStats.lastAppointmentTime ? ` ${clientAdvancedStats.lastAppointmentTime}` : ''}`
@@ -1958,10 +1958,10 @@ export const ClientSummaryCard = ({
                           {/* שירות אחרון */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiTrendingUp className="text-gray-600 dark:text-gray-400" />
+                              <FiTrendingUp className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שירות אחרון</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">שירות אחרון</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.lastService}
                               </div>
@@ -1971,10 +1971,10 @@ export const ClientSummaryCard = ({
                           {/* דירוג אחרון */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiStar className="text-gray-600 dark:text-gray-400" />
+                              <FiStar className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">דירוג אחרון</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">דירוג אחרון</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.lastRating !== "-" ? clientAdvancedStats.lastRating : "-"}
                               </div>
@@ -1984,10 +1984,10 @@ export const ClientSummaryCard = ({
                           {/* איש צוות אחרון */}
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                              <FiUser className="text-gray-600 dark:text-gray-400" />
+                              <FiUser className="text-gray-600 dark:text-white" />
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">איש צוות אחרון</div>
+                              <div className="text-xs text-gray-500 dark:text-white mb-1">איש צוות אחרון</div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {clientAdvancedStats.lastStaff}
                               </div>
@@ -2007,10 +2007,10 @@ export const ClientSummaryCard = ({
                               {/* מקור הגעה */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiGlobe className="text-gray-600 dark:text-gray-400" />
+                                  <FiGlobe className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">מקור הגעה</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">מקור הגעה</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.source || client?.acquisitionSource || "-"}
                                   </div>
@@ -2020,10 +2020,10 @@ export const ClientSummaryCard = ({
                               {/* תאריך כניסת הליד */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                                  <FiCalendar className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">תאריך כניסת הליד</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">תאריך כניסת הליד</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.leadDate 
                                       ? formatDate(new Date(client.leadDate))
@@ -2042,10 +2042,10 @@ export const ClientSummaryCard = ({
                               {/* שם קמפיין */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiTarget className="text-gray-600 dark:text-gray-400" />
+                                  <FiTarget className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שם קמפיין</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">שם קמפיין</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.campaignName || "-"}
                                   </div>
@@ -2055,10 +2055,10 @@ export const ClientSummaryCard = ({
                               {/* שם אד-סט */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiTarget className="text-gray-600 dark:text-gray-400" />
+                                  <FiTarget className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שם אד-סט</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">שם אד-סט</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.adSetName || "-"}
                                   </div>
@@ -2068,10 +2068,10 @@ export const ClientSummaryCard = ({
                               {/* שם מודעה */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiTarget className="text-gray-600 dark:text-gray-400" />
+                                  <FiTarget className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שם מודעה</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">שם מודעה</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.adName || "-"}
                                   </div>
@@ -2086,10 +2086,10 @@ export const ClientSummaryCard = ({
                               {/* utm_source */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiLink className="text-gray-600 dark:text-gray-400" />
+                                  <FiLink className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">utm_source</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">utm_source</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.utmSource || client?.utm_source || "-"}
                                   </div>
@@ -2099,10 +2099,10 @@ export const ClientSummaryCard = ({
                               {/* utm_medium */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiLink className="text-gray-600 dark:text-gray-400" />
+                                  <FiLink className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">utm_medium</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">utm_medium</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.utmMedium || client?.utm_medium || "-"}
                                   </div>
@@ -2112,10 +2112,10 @@ export const ClientSummaryCard = ({
                               {/* utm_campaign */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiLink className="text-gray-600 dark:text-gray-400" />
+                                  <FiLink className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">utm_campaign</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">utm_campaign</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.utmCampaign || client?.utm_campaign || "-"}
                                   </div>
@@ -2125,10 +2125,10 @@ export const ClientSummaryCard = ({
                               {/* utm_content */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiLink className="text-gray-600 dark:text-gray-400" />
+                                  <FiLink className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">utm_content</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">utm_content</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.utmContent || client?.utm_content || "-"}
                                   </div>
@@ -2138,10 +2138,10 @@ export const ClientSummaryCard = ({
                               {/* utm_term */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiLink className="text-gray-600 dark:text-gray-400" />
+                                  <FiLink className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">utm_term</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">utm_term</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {client?.utmTerm || client?.utm_term || "-"}
                                   </div>
@@ -2156,10 +2156,10 @@ export const ClientSummaryCard = ({
                               {/* זמן להמרה */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiBarChart2 className="text-gray-600 dark:text-gray-400" />
+                                  <FiBarChart2 className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">זמן להמרה</div>
+                                  <div className="text-xs text-gray-500 dark:text-white mb-1">זמן להמרה</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {(() => {
                                       if (clientAdvancedStats.timeToConversion === null) return "-";
@@ -2187,7 +2187,7 @@ export const ClientSummaryCard = ({
                       )}
                     </>
                   ) : (
-                    <div className="text-sm text-gray-600 dark:text-gray-400 text-center py-8">
+                    <div className="text-sm text-gray-600 dark:text-white text-center py-8">
                       אין נתונים זמינים
                     </div>
                   )}

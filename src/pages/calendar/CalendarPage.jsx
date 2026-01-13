@@ -18,6 +18,11 @@ import { useCalendarView } from "../../hooks/calendar/useCalendarView";
 import { useAppointments } from "../../hooks/calendar/useAppointments";
 import { useBookingFlow } from "../../hooks/calendar/useBookingFlow";
 import { useWaitlist } from "../../hooks/calendar/useWaitlist";
+import { useCalendarData } from "../../hooks/calendar/useCalendarData";
+import { useCustomerCreation } from "../../hooks/calendar/useCustomerCreation";
+import { useEventFiltering } from "../../hooks/calendar/useEventFiltering";
+import { useStaffTransformation } from "../../hooks/calendar/useStaffTransformation";
+import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
 
 // Components
 import { CalendarHeader } from "../../components/calendar/CalendarHeader";
@@ -40,7 +45,7 @@ import whatsappIcon from "../../assets/whatsappicon.png";
 import { Area, AreaChart, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatHeaderLabel, formatDateLocal, isSameCalendarDay, toDateOnly, isFullMonthRange, formatBookingDateLabel, formatDayLabel } from "../../utils/calendar/dateHelpers";
 import { formatPhoneForBackend, formatPhoneForDisplay, formatPhoneToWhatsapp, formatPhoneForBackend as formatPhoneForBackendUtil } from "../../utils/phoneHelpers";
-import { addCalendarClient } from "../calendarClients";
+// Note: addCalendarClient is no longer needed - customers are managed via Redux
 import { parseTime, minutesToLabel, calculateEndTime, parseServiceDuration, timeRangesOverlap, getExactStartTime, generateTimeSlots } from "../../utils/calendar/timeHelpers";
 import { calculateRecurringDates, checkRecurringConflicts } from "../../utils/calendar/recurringEngine";
 import { findBatchConflicts } from "../../utils/calendar/conflictDetection";
@@ -48,12 +53,11 @@ import { findBatchConflicts } from "../../utils/calendar/conflictDetection";
 
 // Data
 import { 
-  DEMO_WAITLIST_CLIENTS,
   createDemoEvents 
 } from "../../data/calendar/demoData";
 
-const CALENDAR_STAFF_STORAGE_KEY = "calendar_staff";
-const SERVICES_STORAGE_KEY = "services";
+// Redux
+import { useDispatch } from "react-redux";
 
 export default function CalendarPage() {
   const { language } = useLanguage();
@@ -483,14 +487,32 @@ export default function CalendarPage() {
     loadAppointments,
     createAppointment: createAppointmentHook, // Rename to avoid conflict
     createAppointments,
-    updateAppointment,
-    deleteAppointment,
+    updateAppointment: updateAppointmentOriginal,
+    deleteAppointment: deleteAppointmentOriginal,
     setAppointments: setCustomEvents,
     getHasConflict,
     resetConflict,
     isLoading: appointmentsLoading,
     error: appointmentsError,
   } = useAppointments();
+
+  // Wrapper for updateAppointment with subscription check
+  const updateAppointment = (eventId, updateData) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לעדכן תורים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+    return updateAppointmentOriginal(eventId, updateData);
+  };
+
+  // Wrapper for deleteAppointment with subscription check
+  const deleteAppointment = (eventId) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי למחוק תורים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+    return deleteAppointmentOriginal(eventId);
+  };
 
   // Refs for request deduplication and cancellation
   const inFlightRef = useRef(false);
@@ -538,19 +560,19 @@ export default function CalendarPage() {
     
     if (import.meta.env.DEV) {
       // Log both local and UTC for debugging - ENHANCED
-      console.log('[CALENDAR] 📅 Date range computed:', {
-        view,
-        currentDate: currentDate.toISOString(),
-        localStart: startDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-        localEnd: endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-        utcStart: startISO,
-        utcEnd: endISO,
-        startDateObj: startDate.toString(),
-        endDateObj: endDate.toString(),
-        // Verify: parse back from ISO to check for timezone shifts
-        parsedStart: new Date(startISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-        parsedEnd: new Date(endISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-      });
+      // console.log('[CALENDAR] 📅 Date range computed:', {
+      //   view,
+      //   currentDate: currentDate.toISOString(),
+      //   localStart: startDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+      //   localEnd: endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+      //   utcStart: startISO,
+      //   utcEnd: endISO,
+      //   startDateObj: startDate.toString(),
+      //   endDateObj: endDate.toString(),
+      //   // Verify: parse back from ISO to check for timezone shifts
+      //   parsedStart: new Date(startISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+      //   parsedEnd: new Date(endISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+      // });
     }
     
     return { rangeKey, startISO, endISO, startDate, endDate };
@@ -596,15 +618,15 @@ export default function CalendarPage() {
           // Log range in both ISO and local time for debugging
           const startDateLocal = new Date(startISO);
           const endDateLocal = new Date(endISO);
-          console.log('[CALENDAR] Loading appointments for date range:', {
-            startISO,
-            endISO,
-            startLocal: startDateLocal.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-            endLocal: endDateLocal.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-            view,
-            currentDate: currentDate.toISOString(),
-            weekStart: weekStart?.toISOString(),
-          });
+          // console.log('[CALENDAR] Loading appointments for date range:', {
+          //   startISO,
+          //   endISO,
+          //   startLocal: startDateLocal.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+          //   endLocal: endDateLocal.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+          //   view,
+          //   currentDate: currentDate.toISOString(),
+          //   weekStart: weekStart?.toISOString(),
+          // });
         }
         
         await loadAppointments(filters, abortController.signal);
@@ -944,6 +966,12 @@ export default function CalendarPage() {
 
   // Booking Flow Hook
   const bookingFlow = useBookingFlow();
+
+  // Check subscription status using custom hook
+  const { hasActiveSubscription, subscriptionLoading } = useSubscriptionCheck({
+    pageName: 'CALENDAR PAGE',
+    enableLogging: false
+  });
   const {
     addFlowMode,
     waitlistAddStep,
@@ -1008,140 +1036,24 @@ export default function CalendarPage() {
     convertToAppointment,
   } = waitlist;
 
-  // Load staff from localStorage
-  const [staffFromStorage, setStaffFromStorage] = useState([]);
-  
-  useEffect(() => {
-    const loadStaff = () => {
-      const storedStaff = localStorage.getItem(CALENDAR_STAFF_STORAGE_KEY);
-      if (storedStaff) {
-        try {
-          const parsedStaff = JSON.parse(storedStaff);
-          setStaffFromStorage(parsedStaff);
-        } catch (error) {
-          console.error("Error loading staff from localStorage:", error);
-        }
-      }
-    };
-    
-    loadStaff();
-    
-    // Listen for storage changes (from other tabs or the staff page)
-    const handleStorageChange = (e) => {
-      if (e.key === CALENDAR_STAFF_STORAGE_KEY) {
-        loadStaff();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also check periodically for changes (works for same-tab updates)
-    const intervalId = setInterval(() => {
-      loadStaff();
-    }, 1000); // Check every second
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
+  // Use calendar data hook
+  const {
+    staffFromStorage,
+    services,
+    clients,
+    setClients,
+    isLoadingStaff,
+    isLoadingServices,
+    isLoadingCustomers,
+  } = useCalendarData();
 
-  // Load services from localStorage only (no demo services)
-  const [services, setServices] = useState([]);
-  
-  useEffect(() => {
-    const loadServices = () => {
-      const storedServices = localStorage.getItem(SERVICES_STORAGE_KEY);
-      if (storedServices) {
-        try {
-          const parsedServices = JSON.parse(storedServices);
-          setServices(parsedServices);
-        } catch (error) {
-          console.error("Error loading services from localStorage:", error);
-          setServices([]);
-        }
-      } else {
-        setServices([]);
-      }
-    };
-    
-    loadServices();
-    
-    // Listen for storage changes
-    const handleStorageChange = (e) => {
-      if (e.key === SERVICES_STORAGE_KEY) {
-        loadServices();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Check periodically for changes
-    const intervalId = setInterval(() => {
-      loadServices();
-    }, 1000);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  // Convert staff from storage to calendar format
-  const STAFF_DAY_CALENDARS = useMemo(() => {
-    return staffFromStorage
-      .filter((staffMember) => {
-        // Filter out staff members with status "לא פעיל" (inactive)
-        const staffStatus = staffMember.status || "פעיל";
-        return staffStatus !== "לא פעיל";
-      })
-      .map((staffMember) => {
-        const workingHours = staffMember.workingHours || {};
-        const today = new Date();
-        const dayNames = ['א\'', 'ב\'', 'ג\'', 'ד\'', 'ה\'', 'ו\'', 'ש\''];
-        const dayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1; // Convert Sunday=0 to Sunday=6
-        const todayKey = dayNames[dayIndex];
-        const todayHours = workingHours[todayKey] || {};
-        const isActive = todayHours.active !== false; // Default to true
-        
-        // Determine status based on working hours and active state
-        let status = "available";
-        if (!isActive) {
-          status = "offline";
-        } else if (todayHours.startTime && todayHours.endTime) {
-          const now = new Date();
-          const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-          const startTime = todayHours.startTime;
-          const endTime = todayHours.endTime;
-          
-          if (currentTime >= startTime && currentTime <= endTime) {
-            status = "available";
-          } else {
-            status = "offline";
-          }
-        }
-        
-        return {
-          id: String(staffMember.id),
-          name: staffMember.name || "ללא שם",
-          initials: staffMember.initials || (staffMember.name ? staffMember.name.charAt(0).toUpperCase() : "ל"),
-          role: staffMember.role || "",
-          status: status,
-          bookingsToday: 0, // Can be calculated from appointments if needed
-          imageUrl: staffMember.profileImage || null,
-          workingHours: workingHours, // Store full working hours for reference
-        };
-      });
-  }, [staffFromStorage]);
-
-  const ALL_STAFF_IDS = useMemo(() => {
-    return STAFF_DAY_CALENDARS.map((s) => s.id);
-  }, [STAFF_DAY_CALENDARS]);
+  // Use staff transformation hook
+  const { STAFF_DAY_CALENDARS, ALL_STAFF_IDS } = useStaffTransformation(staffFromStorage);
 
   // Update selectedTeamMembers when ALL_STAFF_IDS changes
   const [selectedStaff, setSelectedStaff] = useState("all-business");
   const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
-  
+
   useEffect(() => {
     // Only update selectedTeamMembers if we're in "all-business" mode
     // Don't override if user has selected a specific staff member
@@ -1178,31 +1090,6 @@ export default function CalendarPage() {
   const [activeDraggedAppointmentId, setActiveDraggedAppointmentId] = useState(null);
   const [hoveredAppointmentId, setHoveredAppointmentId] = useState(null);
 
-  // Clients list
-  const [clients, setClients] = useState(DEMO_WAITLIST_CLIENTS);
-  
-  // Load clients from localStorage and merge with DEMO_WAITLIST_CLIENTS
-  useEffect(() => {
-    const storedClients = localStorage.getItem("calendar_clients");
-    if (storedClients) {
-      try {
-        const parsedClients = JSON.parse(storedClients);
-        // Merge: stored clients first (newest), then demo clients
-        // Remove duplicates by id or phone
-        const demoClientIds = new Set(DEMO_WAITLIST_CLIENTS.map(c => c.id));
-        const demoClientPhones = new Set(DEMO_WAITLIST_CLIENTS.map(c => c.phone).filter(Boolean));
-        const uniqueDemoClients = DEMO_WAITLIST_CLIENTS.filter(c => 
-          !parsedClients.some(sc => sc.id === c.id || (sc.phone && c.phone && sc.phone === c.phone))
-        );
-        // Combine: stored clients (newest first) + unique demo clients
-        setClients([...parsedClients, ...uniqueDemoClients]);
-      } catch (error) {
-        console.error("Error loading clients from localStorage:", error);
-        setClients(DEMO_WAITLIST_CLIENTS);
-      }
-    }
-  }, []);
-
   // Listen for storage changes to update appointments when client names are updated
   const appointmentsRef = useRef(customEvents);
   useEffect(() => {
@@ -1218,28 +1105,14 @@ export default function CalendarPage() {
         // Re-derive appointmentSummaryData from the updated event in customEvents
         // This ensures both views always use the same source of truth
         
-        // Find client - prioritize localStorage (most up-to-date), then demo clients, then event data
+        // Find client from current clients list (from Redux store)
         let client = null;
         
         if (updatedEvent.clientId) {
-          try {
-            const storedClients = localStorage.getItem("calendar_clients");
-            if (storedClients) {
-              const clients = JSON.parse(storedClients);
-              const storedClient = clients.find(c => c.id === updatedEvent.clientId);
-              if (storedClient) {
-                client = { ...storedClient };
-              }
-            }
-          } catch (error) {
-            console.error("Error loading client from localStorage:", error);
-          }
+          client = clients.find(c => c.id === updatedEvent.clientId);
         }
         
-        if (!client && updatedEvent.clientId) {
-          client = DEMO_WAITLIST_CLIENTS.find(c => c.id === updatedEvent.clientId);
-        }
-        
+        // If not found, create from event data
         if (!client) {
           client = { 
             name: updatedEvent.client || updatedEvent.clientName || "לקוח מזדמן", 
@@ -1334,12 +1207,36 @@ export default function CalendarPage() {
 
   // New client modal state
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
-  const [newClientName, setNewClientName] = useState("");
-  const [newClientPhone, setNewClientPhone] = useState("");
-  const [newClientEmail, setNewClientEmail] = useState("");
-  const [newClientCity, setNewClientCity] = useState("");
-  const [newClientAddress, setNewClientAddress] = useState("");
-  const [newClientErrors, setNewClientErrors] = useState({});
+
+  // Use customer creation hook
+  const customerCreation = useCustomerCreation((newClient) => {
+    // On success callback
+    setSelectedWaitlistClient(newClient);
+    setIsNewClientModalOpen(false);
+    // If we have service and date already selected, proceed directly to appointment summary
+    setTimeout(() => {
+      if (bookingSelectedService && bookingSelectedDate) {
+        handleFlowApply(newClient);
+      }
+    }, 100);
+  });
+
+  const {
+    newClientName,
+    setNewClientName,
+    newClientPhone,
+    setNewClientPhone,
+    newClientEmail,
+    setNewClientEmail,
+    newClientCity,
+    setNewClientCity,
+    newClientAddress,
+    setNewClientAddress,
+    newClientErrors,
+    setNewClientErrors,
+    handleCreateNewClient,
+    resetForm: resetCustomerForm,
+  } = customerCreation;
 
   // Calculate week days
   const weekDays = useMemo(() => {
@@ -1362,140 +1259,73 @@ export default function CalendarPage() {
     const combined = [...base, ...customEvents];
     
     if (import.meta.env.DEV) {
-      console.log('[CAL_EVENTS] 📅 Combined events:', {
-        demoCount: base.length,
-        customCount: customEvents.length,
-        totalCount: combined.length,
-        customEvents: customEvents.map(e => ({
-          id: e.id,
-          date: e.date,
-          start: e.start,
-          end: e.end,
-          staff: e.staff,
-          staffId: e.staffId,
-          status: e.status,
-          hasDate: !!e.date,
-          hasStart: !!e.start,
-          hasEnd: !!e.end,
-        })),
-        // Check for appointments without required fields
-        invalidEvents: customEvents.filter(e => !e.date || !e.start).map(e => ({
-          id: e.id,
-          date: e.date,
-          start: e.start,
-          staff: e.staff,
-        })),
-      });
+      // console.log('[CAL_EVENTS] 📅 Combined events:', {
+      //   demoCount: base.length,
+      //   customCount: customEvents.length,
+      //   totalCount: combined.length,
+      //   customEvents: customEvents.map(e => ({
+      //     id: e.id,
+      //     date: e.date,
+      //     start: e.start,
+      //     end: e.end,
+      //     staff: e.staff,
+      //     staffId: e.staffId,
+      //     status: e.status,
+      //     hasDate: !!e.date,
+      //     hasStart: !!e.start,
+      //     hasEnd: !!e.end,
+      //   })),
+      //   // Check for appointments without required fields
+      //   invalidEvents: customEvents.filter(e => !e.date || !e.start).map(e => ({
+      //     id: e.id,
+      //     date: e.date,
+      //     start: e.start,
+      //     staff: e.staff,
+      //   })),
+      // });
     }
     
     return combined;
   }, [weekDays, customEvents]);
 
-  // Filter events based on staff selection
-  const filterEvents = (eventsList) => {
-    const filtered = eventsList.filter((e) => {
-      // Filter out cancelled appointments from view
-      if (e.status === "בוטל") {
-        return false;
-      }
-      
-      if (selectedStaff === "all-business") {
-        return true;
-      }
-      if (selectedStaff === "scheduled-team") {
-        // Check if staff has appointments in the events list
-        // This will show only staff who actually have appointments
-        return eventsList.some(
-          (appt) => appt.staff === e.staff && appt.status !== "בוטל"
-        );
-      }
-      if (selectedStaff === "custom") {
-        if (!selectedTeamMembers.length) return false;
-        return selectedTeamMembers.includes(e.staff);
-      }
-      return e.staff === selectedStaff;
-    });
-    
-    // Log filtering results - ENHANCED
-    if (import.meta.env.DEV) {
-      const filteredOut = eventsList.filter((e) => {
-        if (e.status === "בוטל") return true;
-        if (selectedStaff === "all-business") return false;
-        if (selectedStaff === "scheduled-team") {
-          return !eventsList.some((appt) => appt.staff === e.staff && appt.status !== "בוטל");
-        }
-        if (selectedStaff === "custom") {
-          if (!selectedTeamMembers.length) return true;
-          return !selectedTeamMembers.includes(e.staff);
-        }
-        return e.staff !== selectedStaff;
-      });
-      
-      console.log('[CAL_APPTS_RENDER] 🎨 Filtering results:', {
-        total: eventsList.length,
-        visible: filtered.length,
-        filteredOut: filteredOut.length,
-        view,
-        currentDate: currentDate.toISOString(),
-        selectedStaff,
-        customEventsCount: customEvents.length,
-        demoEventsCount: demoEvents.length - customEvents.length,
-        sampleVisible: filtered.slice(0, 3).map(e => ({
-          id: e.id,
-          date: e.date,
-          start: e.start,
-          end: e.end,
-          staff: e.staff,
-          status: e.status,
-        })),
-        sampleFilteredOut: filteredOut.slice(0, 3).map(e => ({
-          id: e.id,
-          date: e.date,
-          start: e.start,
-          staff: e.staff,
-          status: e.status,
-          reason: e.status === "בוטל" ? "cancelled" : 
-                  selectedStaff === "custom" && !selectedTeamMembers.includes(e.staff) ? "not_in_selected_team" :
-                  selectedStaff !== "all-business" && e.staff !== selectedStaff ? "staff_mismatch" : "unknown",
-        })),
-      });
-    }
-    
-    return filtered;
-  };
+  // Use event filtering hook
+  const { filteredEvents: filteredDemoEvents, filterEvents } = useEventFiltering(
+    demoEvents,
+    selectedStaff,
+    selectedTeamMembers
+  );
 
   const filteredEvents = useMemo(() => {
     const filtered = filterEvents(demoEvents);
-    
+
     if (import.meta.env.DEV) {
-      console.log('[FILTERED_EVENTS] 🎯 Final filtered events for rendering:', {
-        totalDemoEvents: demoEvents.length,
-        totalCustomEvents: customEvents.length,
-        totalFiltered: filtered.length,
-        view,
-        selectedStaff,
-        selectedTeamMembers,
-        dateRange: {
-          start: dateRange.startISO,
-          end: dateRange.endISO,
-          startLocal: new Date(dateRange.startISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-          endLocal: new Date(dateRange.endISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-        },
-        customEventIds: customEvents.map(e => e.id),
-        filteredEventIds: filtered.map(e => e.id),
-        // Check which custom events are in filtered list
-        customEventsInFiltered: customEvents.map(custom => ({
-          id: custom.id,
-          date: custom.date,
-          start: custom.start,
-          staff: custom.staff,
-          inFiltered: filtered.some(f => f.id === custom.id),
-        })),
-      });
+      // console.log("[FILTERED_EVENTS] 🎯 Final filtered events for rendering:", {
+      //   totalDemoEvents: demoEvents.length,
+      //   totalCustomEvents: customEvents.length,
+      //   totalFiltered: filtered.length,
+      //   view,
+      //   selectedStaff,
+      //   selectedTeamMembers,
+      //   dateRange: {
+      //     start: dateRange.startISO,
+      //     end: dateRange.endISO,
+      //     startLocal: new Date(dateRange.startISO).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }),
+      //     endLocal: new Date(dateRange.endISO).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }),
+      //   },
+      //   customEventIds: customEvents.map((e) => e.id),
+      //   filteredEventIds: filtered.map((e) => e.id),
+      //   customEventsInFiltered: customEvents.map((custom) => ({
+      //     id: custom.id,
+      //     date: custom.date,
+      //     start: custom.start,
+      //     staff: custom.staff,
+      //     inFiltered: filtered.some((f) => f.id === custom.id),
+      //   })),
+      // });
     }
-    
+
     return filtered;
-  }, [demoEvents, selectedStaff, selectedTeamMembers, STAFF_DAY_CALENDARS, view, currentDate, customEvents, dateRange]);
+  }, [demoEvents, selectedStaff, selectedTeamMembers, STAFF_DAY_CALENDARS, view, currentDate, customEvents, dateRange, filterEvents]);
 
   // Check for conflicts immediately when recurring settings change
   // This triggers after completing selection in either dropdown (service type or duration)
@@ -1805,7 +1635,13 @@ export default function CalendarPage() {
 
   // Create appointment when "קבע תור" button is clicked
   const handleCreateAppointment = async (pendingData) => {
-    console.log("[CREATE_APPT] save_clicked", pendingData);
+    // Check subscription before creating appointment
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי ליצור תורים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
+    // console.log("[CREATE_APPT] save_clicked", pendingData);
     
     const {
       dateIso,
@@ -1819,10 +1655,8 @@ export default function CalendarPage() {
       selectedServiceObj,
     } = pendingData;
 
-    // Save client to localStorage for calendar clients page (if not already saved)
-    if (selectedWaitlistClient) {
-      addCalendarClient(selectedWaitlistClient);
-    }
+    // Note: Client is already saved via Redux when created/selected
+    // No need to manually save to localStorage anymore
 
     // Generate first event ID for appointment summary
     const firstEventId = uuid();
@@ -1886,7 +1720,7 @@ export default function CalendarPage() {
     }
 
     // Create all appointments via API using the hook (which handles server sync + state update)
-    console.log("[CREATE_APPT] calling createAppointment hook for", appointmentsToCreate.length, "appointments");
+    // console.log("[CREATE_APPT] calling createAppointment hook for", appointmentsToCreate.length, "appointments");
     
     if (appointmentsToCreate.length === 0) {
       console.warn("[CREATE_APPT] No appointments to create");
@@ -1901,40 +1735,40 @@ export default function CalendarPage() {
     for (const appointmentData of appointmentsToCreate) {
       try {
         if (import.meta.env.DEV) {
-          console.log("[CREATE_APPT] 🚀 Creating appointment:", {
-            date: appointmentData.date,
-            start: appointmentData.start,
-            end: appointmentData.end,
-            staff: appointmentData.staff,
-            staffId: appointmentData.staffId,
-            client: appointmentData.client,
-            service: appointmentData.serviceName,
-          });
+          // console.log("[CREATE_APPT] 🚀 Creating appointment:", {
+          //   date: appointmentData.date,
+          //   start: appointmentData.start,
+          //   end: appointmentData.end,
+          //   staff: appointmentData.staff,
+          //   staffId: appointmentData.staffId,
+          //   client: appointmentData.client,
+          //   service: appointmentData.serviceName,
+          // });
         }
         
         const created = await createAppointmentHook(appointmentData);
         createdAppointments.push(created);
         
         if (import.meta.env.DEV) {
-          console.log("[CREATE_APPT] ✅ Successfully created appointment:", {
-            id: created?.id,
-            date: created?.date,
-            start: created?.start,
-            end: created?.end,
-            staff: created?.staff,
-            status: created?.status,
-            hasDate: !!created?.date,
-            hasStart: !!created?.start,
-            hasEnd: !!created?.end,
-            // Check if it's in current date range
-            inCurrentRange: created?.date && created?.date >= dateRange.startDate.toISOString().split('T')[0] && created?.date <= dateRange.endDate.toISOString().split('T')[0],
-            dateRange: {
-              start: dateRange.startISO,
-              end: dateRange.endISO,
-              startLocal: dateRange.startDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-              endLocal: dateRange.endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-            },
-          });
+          // console.log("[CREATE_APPT] ✅ Successfully created appointment:", {
+          //   id: created?.id,
+          //   date: created?.date,
+          //   start: created?.start,
+          //   end: created?.end,
+          //   staff: created?.staff,
+          //   status: created?.status,
+          //   hasDate: !!created?.date,
+          //   hasStart: !!created?.start,
+          //   hasEnd: !!created?.end,
+          //   // Check if it's in current date range
+          //   inCurrentRange: created?.date && created?.date >= dateRange.startDate.toISOString().split('T')[0] && created?.date <= dateRange.endDate.toISOString().split('T')[0],
+          //   dateRange: {
+          //     start: dateRange.startISO,
+          //     end: dateRange.endISO,
+          //     startLocal: dateRange.startDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+          //     endLocal: dateRange.endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+          //   },
+          // });
         }
       } catch (error) {
         console.error("[CREATE_APPT] Failed to create appointment:", error);
@@ -1955,26 +1789,44 @@ export default function CalendarPage() {
       }
     }
     
+    // Reload appointments from API to ensure we have the latest data
+    // This ensures the newly created appointment appears in the calendar
+    if (createdAppointments.length > 0) {
+      try {
+        const filters = {
+          start: dateRange.startISO,
+          end: dateRange.endISO,
+        };
+        await loadAppointments(filters);
+        if (import.meta.env.DEV) {
+          console.log('[CREATE_APPT] ✅ Reloaded appointments from API after creation');
+        }
+      } catch (reloadError) {
+        console.error('[CREATE_APPT] ⚠️ Failed to reload appointments after creation:', reloadError);
+        // Don't throw - appointments were created successfully, just couldn't reload
+      }
+    }
+    
     if (import.meta.env.DEV) {
-      console.log("[CREATE_APPT] ✅ Successfully created", createdAppointments.length, "appointments");
-      console.log("[CREATE_APPT] Created appointments details:", createdAppointments.map(apt => ({
-        id: apt.id,
-        date: apt.date,
-        start: apt.start,
-        end: apt.end,
-        staff: apt.staff,
-        status: apt.status,
-      })));
+      // console.log("[CREATE_APPT] ✅ Successfully created", createdAppointments.length, "appointments");
+      // console.log("[CREATE_APPT] Created appointments details:", createdAppointments.map(apt => ({
+      //   id: apt.id,
+      //   date: apt.date,
+      //   start: apt.start,
+      //   end: apt.end,
+      //   staff: apt.staff,
+      //   status: apt.status,
+      // })));
     }
     
     // Appointments are saved to localStorage immediately by the hook
     // No need to refetch - the state is already updated
     if (import.meta.env.DEV) {
-      console.log("[CREATE_APPT] ✅ Appointments created and saved to localStorage:", {
-        createdCount: createdAppointments.length,
-        createdAppointmentIds: createdAppointments.map(a => a.id),
-        createdAppointmentDates: createdAppointments.map(a => ({ id: a.id, date: a.date, start: a.start })),
-      });
+      // console.log("[CREATE_APPT] ✅ Appointments created and saved to localStorage:", {
+      //   createdCount: createdAppointments.length,
+      //   createdAppointmentIds: createdAppointments.map(a => a.id),
+      //   createdAppointmentDates: createdAppointments.map(a => ({ id: a.id, date: a.date, start: a.start })),
+      // });
     }
     
     // Note: The hook already adds appointments to state, but we refetch to ensure consistency
@@ -2024,72 +1876,6 @@ export default function CalendarPage() {
     setAppointmentSummaryData(null);
   };
 
-  // Handle creating a new client
-  const handleCreateNewClient = () => {
-    const errors = {};
-    if (!newClientName.trim()) {
-      errors.name = "שם הוא שדה חובה";
-    }
-    
-    const phoneDigits = newClientPhone.trim().replace(/\D/g, '');
-    if (!newClientPhone.trim()) {
-      errors.phone = "טלפון הוא שדה חובה";
-    } else if (phoneDigits.length !== 10) {
-      errors.phone = "מספר טלפון חייב להכיל בדיוק 10 ספרות";
-    }
-
-    setNewClientErrors(errors);
-    if (Object.keys(errors).length > 0) {
-      return;
-    }
-
-    const initials = newClientName
-      .trim()
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
-
-    const newClient = {
-      id: Date.now(),
-      name: newClientName.trim(),
-      phone: formatPhoneForBackend(phoneDigits),
-      email: newClientEmail.trim(),
-      city: newClientCity.trim(),
-      address: newClientAddress.trim(),
-      initials: initials || "ל",
-    };
-
-    // Add client to clients list
-    setClients((prev) => [newClient, ...prev]);
-    
-    // Save client to localStorage for calendar clients page
-    addCalendarClient(newClient);
-    
-    // Set as selected client
-    setSelectedWaitlistClient(newClient);
-    
-    // Close modal
-    setIsNewClientModalOpen(false);
-    
-    // Reset form fields
-    setNewClientName("");
-    setNewClientPhone("");
-    setNewClientEmail("");
-    setNewClientCity("");
-    setNewClientAddress("");
-    setNewClientErrors({});
-    
-    // If we have service and date already selected, proceed directly to appointment summary
-    // Use setTimeout to ensure state updates are applied first
-    setTimeout(() => {
-      if (bookingSelectedService && bookingSelectedDate) {
-        handleFlowApply(newClient);
-      }
-    }, 0);
-  };
 
   // Apply date selection
   const applyDateSelection = () => {
@@ -2289,25 +2075,9 @@ export default function CalendarPage() {
     // Find client - prioritize localStorage (most up-to-date), then demo clients, then event data
     let client = null;
     
-    // First, try to get from localStorage calendar clients (most up-to-date)
+    // Find client from current clients list (from Redux store)
     if (event.clientId) {
-      try {
-        const storedClients = localStorage.getItem("calendar_clients");
-        if (storedClients) {
-          const clients = JSON.parse(storedClients);
-          const storedClient = clients.find(c => c.id === event.clientId);
-          if (storedClient) {
-            client = { ...storedClient };
-          }
-        }
-      } catch (error) {
-        console.error("Error loading client from localStorage:", error);
-      }
-    }
-    
-    // If not found in localStorage, try demo clients
-    if (!client && event.clientId) {
-      client = DEMO_WAITLIST_CLIENTS.find(c => c.id === event.clientId);
+      client = clients.find(c => c.id === event.clientId);
     }
     
     // If still not found, create from event data
@@ -2729,16 +2499,10 @@ export default function CalendarPage() {
         setIsServiceTypeDropdownOpen={setIsServiceTypeDropdownOpen}
         setIsRepeatDurationDropdownOpen={setIsRepeatDurationDropdownOpen}
         setBookingMonth={setBookingMonth}
-        staffDayCalendars={STAFF_DAY_CALENDARS}
         onApply={handleFlowApply}
         onOpenNewClientModal={() => {
           setSelectedWaitlistClient(null);
-          setNewClientName("");
-          setNewClientPhone("");
-          setNewClientEmail("");
-          setNewClientCity("");
-          setNewClientAddress("");
-          setNewClientErrors({});
+          resetCustomerForm();
           setIsNewClientModalOpen(true);
         }}
       />

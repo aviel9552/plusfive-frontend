@@ -7,6 +7,8 @@ import userReducer from '../src/redux/reducers/userReducer';
 import referralReducer from '../src/redux/reducers/referralReducer';
 import customerReducer from '../src/redux/reducers/customerReducer';
 import adminReducer from '../src/redux/reducers/adminReducer';
+import serviceReducer from '../src/redux/reducers/serviceReducer';
+import staffReducer from '../src/redux/reducers/staffReducer';
 
 // Root Reducer
 const rootReducer = combineReducers({
@@ -16,6 +18,8 @@ const rootReducer = combineReducers({
   referral: referralReducer,
   customer: customerReducer,
   admin: adminReducer,
+  service: serviceReducer,
+  staff: staffReducer,
 });
 
 // Persist Config

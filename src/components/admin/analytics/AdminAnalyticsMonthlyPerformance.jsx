@@ -18,7 +18,6 @@ function AdminAnalyticsMonthlyPerformance({ onLoadingChange }) {
   const t = getAdminTranslations(language);
   const { monthlyPerformance, fetchMonthlyPerformance } = useAdminData();
   const [revenueCountsData, setRevenueCountsData] = useState({});
-  console.log('revenueCountsData :', revenueCountsData);
   const [revenueCountsLoading, setRevenueCountsLoading] = useState(true);
   
   useEffect(() => {

@@ -79,13 +79,27 @@ export const mapBackendAppointmentToFrontend = (backendAppointment) => {
   }
   
   // Map staff/employee fields
-  if (backendAppointment.employeeId !== undefined && backendAppointment.employeeId !== null) {
+  // Priority: staff relation > employeeId (legacy)
+  if (backendAppointment.staff?.id) {
+    // New: Use staff relation if available
+    frontendAppointment.staff = backendAppointment.staff.id;
+    frontendAppointment.staffId = backendAppointment.staff.id;
+    frontendAppointment.staffName = backendAppointment.staff.fullName || null;
+  } else if (backendAppointment.employeeId !== undefined && backendAppointment.employeeId !== null) {
+    // Legacy: Use employeeId if staff relation not available
     frontendAppointment.staff = backendAppointment.employeeId;
     frontendAppointment.staffId = backendAppointment.employeeId;
+  } else {
+    // Set to null explicitly so filtering logic knows it's unassigned
+    frontendAppointment.staff = null;
+    frontendAppointment.staffId = null;
   }
   
-  if (backendAppointment.employeeName) {
+  // Fallback to employeeName if staff relation doesn't have name
+  if (!frontendAppointment.staffName && backendAppointment.employeeName) {
     frontendAppointment.staffName = String(backendAppointment.employeeName);
+  } else if (!frontendAppointment.staffName) {
+    frontendAppointment.staffName = null;
   }
   
   // Map customer/client fields
@@ -103,9 +117,21 @@ export const mapBackendAppointmentToFrontend = (backendAppointment) => {
   }
   
   // Map service fields
-  if (backendAppointment.selectedServices) {
+  // Priority: service relation > selectedServices (legacy)
+  if (backendAppointment.service?.id) {
+    // New: Use service relation if available
+    frontendAppointment.serviceId = backendAppointment.service.id;
+    frontendAppointment.serviceName = backendAppointment.service.name || null;
+    frontendAppointment.serviceDuration = backendAppointment.service.duration || null;
+    frontendAppointment.servicePrice = backendAppointment.service.price || null;
+    frontendAppointment.color = backendAppointment.service.color || null;
+  } else if (backendAppointment.selectedServices) {
+    // Legacy: Use selectedServices string if service relation not available
     frontendAppointment.serviceName = String(backendAppointment.selectedServices);
-    // Create title from service and client name
+  }
+  
+  // Create title from service and client name
+  if (frontendAppointment.serviceName) {
     const clientName = frontendAppointment.client || 'לקוח';
     frontendAppointment.title = `${frontendAppointment.serviceName} – ${clientName}`;
   }
@@ -141,38 +167,38 @@ export const getAppointments = async (filters = {}, signal = null) => {
     const fullUrl = `${apiClient.defaults.baseURL}/appointments${Object.keys(filters).length > 0 ? '?' + new URLSearchParams(filters).toString() : ''}`;
     
     if (import.meta.env.DEV) {
-      console.log('[API] GET /appointments', filters);
-      console.log('[API] Full URL:', fullUrl);
+      // console.log('[API] GET /appointments', filters);
+      // console.log('[API] Full URL:', fullUrl);
       // Check if token exists
       const token = localStorage.getItem('token');
-      console.log('[API] Authorization token present:', !!token && token !== 'undefined');
+      // console.log('[API] Authorization token present:', !!token && token !== 'undefined');
     }
     
     // Do NOT send custom headers - they trigger CORS preflight
     // Cache control is handled by backend response headers
-    const response = await apiClient.get('/appointments', { 
+    const response = await apiClient.get('/webhooks/appointments', { 
       params: filters,
       signal: signal, // Support AbortController
     });
     
     // Log response details
-    console.log('[FE_GET_APPTS]', {
-      url: fullUrl,
-      status: response.status,
-      keys: response.data ? Object.keys(response.data) : [],
-      dataKeys: response.data?.data ? Object.keys(response.data.data) : null,
-      hasAppointments: !!response.data?.appointments,
-      hasNestedData: !!response.data?.data?.appointments,
-      isArray: Array.isArray(response.data),
-      appointmentsLength: Array.isArray(response.data?.appointments) ? response.data.appointments.length : 
-                          Array.isArray(response.data?.data?.appointments) ? response.data.data.appointments.length : 'N/A',
-      sample: response.data?.appointments?.[0] || response.data?.data?.appointments?.[0] || response.data?.[0] || null,
-    });
+    // console.log('[FE_GET_APPTS]', {
+    //   url: fullUrl,
+    //   status: response.status,
+    //   keys: response.data ? Object.keys(response.data) : [],
+    //   dataKeys: response.data?.data ? Object.keys(response.data.data) : null,
+    //   hasAppointments: !!response.data?.appointments,
+    //   hasNestedData: !!response.data?.data?.appointments,
+    //   isArray: Array.isArray(response.data),
+    //   appointmentsLength: Array.isArray(response.data?.appointments) ? response.data.appointments.length : 
+    //                       Array.isArray(response.data?.data?.appointments) ? response.data.data.appointments.length : 'N/A',
+    //   sample: response.data?.appointments?.[0] || response.data?.data?.appointments?.[0] || response.data?.[0] || null,
+    // });
     
     // Handle 304 Not Modified defensively (shouldn't happen with no-store, but handle it)
     if (response.status === 304) {
       if (import.meta.env.DEV) {
-        console.warn('[API] GET /appointments - Received 304, this should not happen with no-store headers');
+        // console.warn('[API] GET /appointments - Received 304, this should not happen with no-store headers');
       }
       // Return empty array if 304 (no body in 304 response)
       return {
@@ -322,18 +348,28 @@ const shouldRenderAppointment = (appointment, rangeStartISO, rangeEndISO, filter
   // Check staff filter if active
   if (filters.selectedStaff) {
     if (filters.selectedStaff === "all-business") {
-      // Show all
+      // Show all appointments, including unassigned
     } else if (filters.selectedStaff === "scheduled-team") {
       // This is checked at the list level, not individual appointment level
+      // Include unassigned appointments
     } else if (filters.selectedStaff === "custom") {
       if (!filters.selectedTeamMembers || !filters.selectedTeamMembers.length) {
+        // If no team selected, show unassigned appointments
+        if (appointment.staff === null || appointment.staff === undefined) {
+          return { shouldRender: true };
+        }
         return { shouldRender: false, reason: 'staff_filter_no_team_selected' };
+      }
+      // Include unassigned appointments in custom team view
+      if (appointment.staff === null || appointment.staff === undefined) {
+        return { shouldRender: true };
       }
       if (!filters.selectedTeamMembers.includes(appointment.staff)) {
         return { shouldRender: false, reason: `staff_filter_not_in_team: ${appointment.staff}` };
       }
     } else {
-      // Specific staff selected
+      // Specific staff selected - only show appointments for that specific staff
+      // Unassigned appointments won't show in specific staff view
       if (appointment.staff !== filters.selectedStaff) {
         return { shouldRender: false, reason: `staff_filter_mismatch: ${appointment.staff} !== ${filters.selectedStaff}` };
       }
@@ -353,8 +389,8 @@ const shouldRenderAppointment = (appointment, rangeStartISO, rangeEndISO, filter
 const processAppointmentsResponse = (response, rangeStartISO = null, rangeEndISO = null, filters = {}) => {
   // Log raw response for debugging
   if (import.meta.env.DEV) {
-    console.log('[GET_APPTS] status', response.status);
-    console.log('[GET_APPTS] data', response.data);
+    // console.log('[GET_APPTS] status', response.status);
+    // console.log('[GET_APPTS] data', response.data);
   }
   
   // Map backend appointments to frontend format
@@ -365,16 +401,16 @@ const processAppointmentsResponse = (response, rangeStartISO = null, rangeEndISO
   let items = [];
   
   if (import.meta.env.DEV) {
-    console.log('[GET_APPTS] 🔍 Extracting appointments from response:', {
-      backendDataType: typeof backendData,
-      isArray: Array.isArray(backendData),
-      hasData: !!backendData?.data,
-      hasDataAppointments: !!backendData?.data?.appointments,
-      hasAppointments: !!backendData?.appointments,
-      dataIsArray: Array.isArray(backendData?.data),
-      keys: backendData ? Object.keys(backendData) : [],
-      dataKeys: backendData?.data ? Object.keys(backendData.data) : [],
-    });
+    // console.log('[GET_APPTS] 🔍 Extracting appointments from response:', {
+    //   backendDataType: typeof backendData,
+    //   isArray: Array.isArray(backendData),
+    //   hasData: !!backendData?.data,
+    //   hasDataAppointments: !!backendData?.data?.appointments,
+    //   hasAppointments: !!backendData?.appointments,
+    //   dataIsArray: Array.isArray(backendData?.data),
+    //   keys: backendData ? Object.keys(backendData) : [],
+    //   dataKeys: backendData?.data ? Object.keys(backendData.data) : [],
+    // });
   }
   
   // Safely extract the appointments array with multiple fallbacks
@@ -392,18 +428,18 @@ const processAppointmentsResponse = (response, rangeStartISO = null, rangeEndISO
   }
   
   if (import.meta.env.DEV) {
-    console.log('[GET_APPTS] ✅ Extracted items:', {
-      itemsLength: items.length,
-      extractionPath: Array.isArray(backendData) 
-        ? 'direct array'
-        : Array.isArray(backendData?.data?.appointments)
-          ? 'backendData.data.appointments'
-          : Array.isArray(backendData?.appointments)
-            ? 'backendData.appointments'
-            : Array.isArray(backendData?.data)
-              ? 'backendData.data'
-              : 'empty array',
-    });
+    // console.log('[GET_APPTS] ✅ Extracted items:', {
+    //   itemsLength: items.length,
+    //   extractionPath: Array.isArray(backendData) 
+    //     ? 'direct array'
+    //     : Array.isArray(backendData?.data?.appointments)
+    //       ? 'backendData.data.appointments'
+    //       : Array.isArray(backendData?.appointments)
+    //         ? 'backendData.appointments'
+    //         : Array.isArray(backendData?.data)
+    //           ? 'backendData.data'
+    //           : 'empty array',
+    // });
   }
   
   // If items is not an array, log warning and return empty array
@@ -419,23 +455,23 @@ const processAppointmentsResponse = (response, rangeStartISO = null, rangeEndISO
   
   // DEV: Log raw backend appointments
   if (import.meta.env.DEV && rangeStartISO && rangeEndISO) {
-    console.group('🔍 [DEBUG] Appointment Processing');
-    console.log('📅 Requested Range:', {
-      startISO: rangeStartISO,
-      endISO: rangeEndISO,
-      startLocal: new Date(rangeStartISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-      endLocal: new Date(rangeEndISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-    });
-    console.log('📦 Raw Backend Appointments:', {
-      count: items.length,
-      first10: items.slice(0, 10).map(item => ({
-        id: item.id,
-        startDate: item.startDate,
-        endDate: item.endDate,
-        employeeId: item.employeeId,
-        employeeName: item.employeeName,
-      })),
-    });
+    // console.group('🔍 [DEBUG] Appointment Processing');
+    // console.log('📅 Requested Range:', {
+    //   startISO: rangeStartISO,
+    //   endISO: rangeEndISO,
+    //   startLocal: new Date(rangeStartISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+    //   endLocal: new Date(rangeEndISO).toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+    // });
+    // console.log('📦 Raw Backend Appointments:', {
+    //   count: items.length,
+    //   first10: items.slice(0, 10).map(item => ({
+    //     id: item.id,
+    //     startDate: item.startDate,
+    //     endDate: item.endDate,
+    //     employeeId: item.employeeId,
+    //     employeeName: item.employeeName,
+    //   })),
+    // });
   }
 
   // Map each appointment with error handling per item
@@ -452,31 +488,31 @@ const processAppointmentsResponse = (response, rangeStartISO = null, rangeEndISO
     .filter(Boolean); // Remove null values
 
   // Log mapped appointments
-  console.log('[FE_MAPPED_APPTS]', {
-    count: mappedAppointments.length,
-    sample: mappedAppointments[0] ? {
-      id: mappedAppointments[0].id,
-      date: mappedAppointments[0].date,
-      start: mappedAppointments[0].start,
-      end: mappedAppointments[0].end,
-      staff: mappedAppointments[0].staff,
-      status: mappedAppointments[0].status,
-    } : null,
-  });
+  // console.log('[FE_MAPPED_APPTS]', {
+  //   count: mappedAppointments.length,
+  //   sample: mappedAppointments[0] ? {
+  //     id: mappedAppointments[0].id,
+  //     date: mappedAppointments[0].date,
+  //     start: mappedAppointments[0].start,
+  //     end: mappedAppointments[0].end,
+  //     staff: mappedAppointments[0].staff,
+  //     status: mappedAppointments[0].status,
+  //   } : null,
+  // });
 
   // DEV: Debug rendering eligibility
   if (import.meta.env.DEV && rangeStartISO && rangeEndISO) {
-    console.log('🔄 Mapped Appointments:', {
-      count: mappedAppointments.length,
-      first10: mappedAppointments.slice(0, 10).map(apt => ({
-        id: apt.id,
-        date: apt.date,
-        start: apt.start,
-        end: apt.end,
-        staff: apt.staff,
-        status: apt.status,
-      })),
-    });
+    // console.log('🔄 Mapped Appointments:', {
+    //   count: mappedAppointments.length,
+    //   first10: mappedAppointments.slice(0, 10).map(apt => ({
+    //     id: apt.id,
+    //     date: apt.date,
+    //     start: apt.start,
+    //     end: apt.end,
+    //     staff: apt.staff,
+    //     status: apt.status,
+    //   })),
+    // });
 
     // Check renderability for each appointment
     const renderabilityResults = mappedAppointments.map(apt => {
@@ -506,41 +542,41 @@ const processAppointmentsResponse = (response, rangeStartISO = null, rangeEndISO
     });
 
     // Log summary table
-    console.table({
-      'Total from Server': items.length,
-      'Total Mapped': mappedAppointments.length,
-      'Total Renderable': renderable.length,
-      'Total Skipped': skipped.length,
-    });
+    // console.table({
+    //   'Total from Server': items.length,
+    //   'Total Mapped': mappedAppointments.length,
+    //   'Total Renderable': renderable.length,
+    //   'Total Skipped': skipped.length,
+    // });
 
     // Log skip reasons
     if (skipped.length > 0) {
       console.group('❌ Skipped Appointments by Reason');
       Object.entries(skipReasons).forEach(([reason, examples]) => {
-        console.log(`\n${reason}: ${skipped.filter(s => s.reason === reason).length} items`);
-        console.table(examples);
+        // console.log(`\n${reason}: ${skipped.filter(s => s.reason === reason).length} items`);
+        // console.table(examples);
       });
       console.groupEnd();
     }
 
     // Log renderable appointments
     if (renderable.length > 0) {
-      console.log('✅ Renderable Appointments:', {
-        count: renderable.length,
-        first10: renderable.slice(0, 10).map(r => ({
-          id: r.appointment.id,
-          date: r.appointment.date,
-          start: r.appointment.start,
-          end: r.appointment.end,
-        })),
-      });
+      // console.log('✅ Renderable Appointments:', {
+      //   count: renderable.length,
+      //   first10: renderable.slice(0, 10).map(r => ({
+      //     id: r.appointment.id,
+      //     date: r.appointment.date,
+      //     start: r.appointment.start,
+      //     end: r.appointment.end,
+      //   })),
+      // });
     }
 
     console.groupEnd();
   }
   
   if (import.meta.env.DEV) {
-    console.log(`[API] GET /appointments - received ${items.length} items, mapped ${mappedAppointments.length} appointments`);
+    // console.log(`[API] GET /appointments - received ${items.length} items, mapped ${mappedAppointments.length} appointments`);
   }
   
   return {
@@ -561,19 +597,19 @@ export const createAppointment = async (appointmentData) => {
     const backendPayload = mapFrontendAppointmentToBackend(appointmentData);
     
     if (import.meta.env.DEV) {
-      console.log("[API] POST /appointments", backendPayload);
+      // console.log("[API] POST /appointments", backendPayload);
     }
     
-    const response = await apiClient.post('/appointments', backendPayload);
+    const response = await apiClient.post('/webhooks/appointments', backendPayload);
     
     // Backend returns { success: true, message, data: appointment }
     // Return the full response so hook can extract and map it
     if (import.meta.env.DEV) {
-      console.log('[API] POST /appointments response:', {
-        success: response.data?.success,
-        hasData: !!response.data?.data,
-        appointmentId: response.data?.data?.id,
-      });
+      // console.log('[API] POST /appointments response:', {
+      //   success: response.data?.success,
+      //   hasData: !!response.data?.data,
+      //   appointmentId: response.data?.data?.id,
+      // });
     }
     
     return response.data;
@@ -640,7 +676,7 @@ const normalizeILPhone = (phone) => {
  * Frontend format: { date, start, end, staff, staffName, clientId, client, serviceId, serviceName, ... }
  * Backend format: { startDate (ISO), endDate (ISO), duration, employeeId, employeeName, customerId, customerFullName, ... }
  */
-const mapFrontendAppointmentToBackend = (frontendData) => {
+export const mapFrontendAppointmentToBackend = (frontendData) => {
   const backendPayload = {};
   
   // Map startDate: combine date + start time into ISO datetime string
@@ -719,21 +755,21 @@ const mapFrontendAppointmentToBackend = (frontendData) => {
       backendPayload.endDate = endDate.toISOString();
       
       if (import.meta.env.DEV) {
-        console.log('[MAP_TO_BACKEND] 📅 endDate conversion:', {
-          input: { date: frontendData.date, end: frontendData.end },
-          localDate: endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-          isoString: endDate.toISOString(),
-          utcDate: new Date(endDate.toISOString()).toLocaleString('he-IL', { timeZone: 'UTC' }),
-        });
+        // console.log('[MAP_TO_BACKEND] 📅 endDate conversion:', {
+        //   input: { date: frontendData.date, end: frontendData.end },
+        //   localDate: endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+        //   isoString: endDate.toISOString(),
+        //   utcDate: new Date(endDate.toISOString()).toLocaleString('he-IL', { timeZone: 'UTC' }),
+        // });
       }
       
       if (import.meta.env.DEV) {
-        console.log('[MAP_TO_BACKEND] 📅 endDate conversion:', {
-          input: { date: frontendData.date, end: frontendData.end },
-          localDate: endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
-          isoString: endDate.toISOString(),
-          utcDate: new Date(endDate.toISOString()).toLocaleString('he-IL', { timeZone: 'UTC' }),
-        });
+        // console.log('[MAP_TO_BACKEND] 📅 endDate conversion:', {
+        //   input: { date: frontendData.date, end: frontendData.end },
+        //   localDate: endDate.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' }),
+        //   isoString: endDate.toISOString(),
+        //   utcDate: new Date(endDate.toISOString()).toLocaleString('he-IL', { timeZone: 'UTC' }),
+        // });
       }
     }
   } else if (frontendData.endDate) {
@@ -779,20 +815,37 @@ const mapFrontendAppointmentToBackend = (frontendData) => {
     return parsed;
   };
   
-  // Try to get employeeId from staffId or staff
-  const employeeIdValue = frontendData.staffId !== undefined && frontendData.staffId !== null
+  // Map staffId: staff or staffId -> staffId (String, CUID)
+  // Priority: staffId field > staff field
+  const staffIdValue = frontendData.staffId !== undefined && frontendData.staffId !== null
     ? frontendData.staffId
     : (frontendData.staff !== undefined && frontendData.staff !== null ? frontendData.staff : null);
   
-  const validatedEmployeeId = validateEmployeeId(employeeIdValue);
-  if (validatedEmployeeId !== null) {
-    backendPayload.employeeId = validatedEmployeeId;
+  // Check if staffId is a String (CUID) - new Staff table format
+  if (staffIdValue !== null && typeof staffIdValue === 'string' && staffIdValue.length > 10) {
+    // It's a CUID (Staff table ID)
+    backendPayload.staffId = staffIdValue;
+  } else if (staffIdValue !== null) {
+    // Try to validate as employeeId (Int) for legacy support
+    const validatedEmployeeId = validateEmployeeId(staffIdValue);
+    if (validatedEmployeeId !== null) {
+      backendPayload.employeeId = validatedEmployeeId; // Legacy field
+    }
   }
-  // If invalid, omit employeeId and only send employeeName (if available)
   
-  // Map employeeName: staffName -> employeeName
+  // Map employeeName: staffName -> employeeName (for legacy support)
   if (frontendData.staffName !== undefined && frontendData.staffName !== null) {
     backendPayload.employeeName = String(frontendData.staffName);
+  }
+  
+  // Map serviceId: serviceId -> serviceId (String, CUID)
+  if (frontendData.serviceId !== undefined && frontendData.serviceId !== null) {
+    backendPayload.serviceId = String(frontendData.serviceId);
+  }
+  
+  // Legacy: Map selectedServices if serviceId not provided
+  if (!backendPayload.serviceId && frontendData.serviceName) {
+    backendPayload.selectedServices = String(frontendData.serviceName);
   }
   
   // Map customer data with CUID validation
@@ -868,7 +921,7 @@ export const createAppointmentsBatch = async (appointmentsArray) => {
         ? response.data.data.map(apt => apt.id).filter(Boolean)
         : [];
       if (createdIds.length > 0) {
-        console.log('Appointments created on server', createdIds);
+        // console.log('Appointments created on server', createdIds);
       }
     }
     
@@ -898,15 +951,15 @@ export const updateAppointment = async (appointmentId, appointmentData) => {
     const backendPayload = mapFrontendAppointmentToBackend(appointmentData);
     
     if (import.meta.env.DEV) {
-      console.log(`[API] PATCH /appointments/${appointmentId}`, backendPayload);
+      // console.log(`[API] PATCH /appointments/${appointmentId}`, backendPayload);
     }
     
-    const response = await apiClient.patch(`/appointments/${appointmentId}`, backendPayload);
+    const response = await apiClient.put(`/webhooks/appointments/${appointmentId}`, backendPayload);
     
     // Backend returns { success: true, message, data: appointment }
     // Return the response data structure (hook will map it)
     if (import.meta.env.DEV && response.data?.data?.id) {
-      console.log('Appointment updated on server', response.data.data.id);
+      // console.log('Appointment updated on server', response.data.data.id);
     }
     
     return response.data;
@@ -930,7 +983,7 @@ export const updateAppointment = async (appointmentId, appointmentData) => {
  */
 export const deleteAppointment = async (appointmentId) => {
   try {
-    const response = await apiClient.delete(`/appointments/${appointmentId}`);
+    const response = await apiClient.delete(`/webhooks/appointments/${appointmentId}`);
     return response.data;
   } catch (error) {
     console.error('❌ בעיה עם ה-server: שגיאה במחיקת תור', error);

@@ -20,6 +20,15 @@ import gradientImage from "../../assets/gradientteam.jpg";
 import whatsappIcon from "../../assets/whatsappicon.png";
 import { Area, AreaChart, Tooltip, ResponsiveContainer } from 'recharts';
 import { DEMO_SERVICES } from "../../data/calendar/demoData";
+import { useDispatch, useSelector } from "react-redux";
+import { 
+  getAllServicesAction, 
+  createServiceAction, 
+  updateServiceAction, 
+  deleteServiceAction, 
+  deleteMultipleServicesAction 
+} from "../../redux/actions/serviceActions";
+import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
 
 const SERVICES_STORAGE_KEY = "services";
 const COLUMN_SPACING_STORAGE_KEY = "services_column_spacing";
@@ -28,6 +37,10 @@ const VISIBLE_FIELDS_STORAGE_KEY = "services_visible_fields";
 export default function ServicesPage() {
   const { language } = useLanguage();
   const { isDarkMode } = useTheme();
+  const dispatch = useDispatch();
+  
+  // Get services from Redux store
+  const { services: servicesFromStore, loading: isLoadingServices } = useSelector((state) => state.service);
   const [services, setServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedServices, setSelectedServices] = useState([]);
@@ -240,28 +253,43 @@ export default function ServicesPage() {
   };
 
   // Update service status
-  const handleUpdateServiceStatus = (serviceId, newStatus) => {
-    const updatedServices = services.map(service => {
-      if (service.id === serviceId) {
-        return {
-          ...service,
-          status: newStatus
-        };
-      }
-      return service;
-    });
-
-    setServices(updatedServices);
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(updatedServices));
-    
-    // Update selectedServiceForView if it's the same service
-    if (selectedServiceForView && selectedServiceForView.id === serviceId) {
-      const updatedServicesMember = updatedServices.find(s => s.id === serviceId);
-      setSelectedServiceForView(updatedServicesMember);
+  const handleUpdateServiceStatus = async (serviceId, newStatus) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
+      return;
     }
-    
-    // Close the dropdown
-    setOpenStatusDropdowns(prev => ({ ...prev, [serviceId]: false }));
+
+    try {
+      const isActive = newStatus === "פעיל";
+      const result = await dispatch(updateServiceAction(serviceId, { isActive }));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      const updatedServices = services.map(service => {
+        if (service.id === serviceId) {
+          return {
+            ...service,
+            status: newStatus
+          };
+        }
+        return service;
+      });
+
+      setServices(updatedServices);
+      
+      // Update selectedServiceForView if it's the same service
+      if (selectedServiceForView && selectedServiceForView.id === serviceId) {
+        const updatedServicesMember = updatedServices.find(s => s.id === serviceId);
+        setSelectedServiceForView(updatedServicesMember);
+      }
+      
+      // Close the dropdown
+      setOpenStatusDropdowns(prev => ({ ...prev, [serviceId]: false }));
+    } catch (error) {
+      console.error("Error updating service status:", error);
+      // Don't show alert for status updates, just log the error
+    }
   };
 
   // Toggle service status
@@ -464,75 +492,141 @@ export default function ServicesPage() {
   const DAYS_OF_WEEK = ['א\'', 'ב\'', 'ג\'', 'ד\'', 'ה\'', 'ו\'', 'ש\''];
 
   // Update service field directly from list
-  const handleUpdateServiceFieldInList = (serviceId, field, value) => {
-    const updatedServices = services.map(service => {
-      if (service.id === serviceId) {
-        return {
-          ...service,
-          [field]: value
-        };
-      }
-      return service;
-    });
+  const handleUpdateServiceFieldInList = async (serviceId, field, value) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
 
-    setServices(updatedServices);
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(updatedServices));
-    
-    // Update selectedServiceForView if it's the same service
-    if (selectedServiceForView && selectedServiceForView.id === serviceId) {
-      const updatedService = updatedServices.find(s => s.id === serviceId);
-      setSelectedServiceForView(updatedService);
+    try {
+      const updateData = {};
+      
+      if (field === "name") {
+        updateData.name = value;
+      } else if (field === "notes") {
+        updateData.notes = value || null;
+      } else if (field === "category") {
+        updateData.category = value || null;
+      } else if (field === "price") {
+        const priceDigits = typeof value === 'string' ? value.replace(/[^\d]/g, '') : value.toString().replace(/[^\d]/g, '');
+        updateData.price = priceDigits ? parseFloat(priceDigits) : 0;
+      } else if (field === "duration") {
+        updateData.duration = parseInt(value);
+      } else if (field === "color") {
+        updateData.color = value || "#FF257C";
+      } else if (field === "hideFromClients") {
+        updateData.hideFromClients = value;
+      }
+
+      // Update via Redux action
+      const result = await dispatch(updateServiceAction(serviceId, updateData));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const updatedServiceData = result.data;
+
+      // Update local state
+      const updatedServices = services.map(service => {
+        if (service.id === serviceId) {
+          return {
+            ...service,
+            name: updatedServiceData.name || (field === "name" ? value : service.name),
+            notes: updatedServiceData.notes !== undefined ? updatedServiceData.notes : (field === "notes" ? value : service.notes),
+            category: updatedServiceData.category !== undefined ? updatedServiceData.category : (field === "category" ? value : service.category),
+            price: updatedServiceData.price || (field === "price" ? parseFloat(value) : service.price),
+            duration: updatedServiceData.duration || (field === "duration" ? parseInt(value) : service.duration),
+            color: updatedServiceData.color || (field === "color" ? value : service.color),
+            hideFromClients: updatedServiceData.hideFromClients !== undefined ? updatedServiceData.hideFromClients : (field === "hideFromClients" ? value : service.hideFromClients),
+          };
+        }
+        return service;
+      });
+
+      setServices(updatedServices);
+      
+      // Update selectedServiceForView if it's the same service
+      if (selectedServiceForView && selectedServiceForView.id === serviceId) {
+        const updatedService = updatedServices.find(s => s.id === serviceId);
+        setSelectedServiceForView(updatedService);
+      }
+    } catch (error) {
+      console.error("Error updating service field:", error);
+      // Don't show alert for inline editing, just log the error
     }
   };
 
   // Save edited field
-  const handleSaveField = (fieldName) => {
+  const handleSaveField = async (fieldName) => {
     if (!selectedServiceForView) return;
 
-    const updatedServices = services.map(service => {
-      if (service.id === selectedServiceForView.id) {
-        const updates = {
-          ...service,
-        };
-        
-        if (fieldName === "name") {
-          updates.name = editedServiceData.name;
-        } else if (fieldName === "notes") {
-          updates.notes = editedServiceData.notes;
-        } else if (fieldName === "category") {
-          updates.category = editedServiceData.category;
-        } else if (fieldName === "price") {
-          let priceValue = editedServiceData.price;
-          if (typeof priceValue === 'string') {
-            const digits = priceValue.replace(/[^\d]/g, '');
-            if (digits.length > 0) {
-              priceValue = parseInt(digits);
-            } else {
-              priceValue = 0;
-            }
-          }
-          updates.price = priceValue;
-        } else if (fieldName === "duration") {
-          updates.duration = editedServiceData.duration;
-        } else if (fieldName === "color") {
-          updates.color = editedServiceData.color;
-        } else if (fieldName === "hideFromClients") {
-          updates.hideFromClients = editedServiceData.hideFromClients;
-        }
-        
-        return updates;
-      }
-      return service;
-    });
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
 
-    setServices(updatedServices);
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(updatedServices));
-    
-    // Update selectedServiceForView to reflect changes
-    const updatedServicesMember = updatedServices.find(s => s.id === selectedServiceForView.id);
-    setSelectedServiceForView(updatedServicesMember);
-    
-    setEditingField(null);
+    try {
+      const updateData = {};
+      
+      if (fieldName === "name") {
+        updateData.name = editedServiceData.name;
+      } else if (fieldName === "notes") {
+        updateData.notes = editedServiceData.notes || null;
+      } else if (fieldName === "category") {
+        updateData.category = editedServiceData.category || null;
+      } else if (fieldName === "price") {
+        let priceValue = editedServiceData.price;
+        if (typeof priceValue === 'string') {
+          const digits = priceValue.replace(/[^\d]/g, '');
+          if (digits.length > 0) {
+            priceValue = parseFloat(digits);
+          } else {
+            priceValue = 0;
+          }
+        }
+        updateData.price = priceValue;
+      } else if (fieldName === "duration") {
+        updateData.duration = parseInt(editedServiceData.duration);
+      } else if (fieldName === "color") {
+        updateData.color = editedServiceData.color || "#FF257C";
+      } else if (fieldName === "hideFromClients") {
+        updateData.hideFromClients = editedServiceData.hideFromClients;
+      }
+
+      // Update via Redux action
+      const result = await dispatch(updateServiceAction(selectedServiceForView.id, updateData));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const updatedServiceData = result.data;
+
+      // Update local state
+      const updatedServices = services.map(service => {
+        if (service.id === selectedServiceForView.id) {
+          return {
+            ...service,
+            name: updatedServiceData.name || editedServiceData.name,
+            notes: updatedServiceData.notes || editedServiceData.notes,
+            category: updatedServiceData.category || editedServiceData.category,
+            price: updatedServiceData.price || (fieldName === "price" ? parseFloat(editedServiceData.price) : service.price),
+            duration: updatedServiceData.duration || (fieldName === "duration" ? parseInt(editedServiceData.duration) : service.duration),
+            color: updatedServiceData.color || editedServiceData.color,
+            hideFromClients: updatedServiceData.hideFromClients !== undefined ? updatedServiceData.hideFromClients : editedServiceData.hideFromClients,
+          };
+        }
+        return service;
+      });
+
+      setServices(updatedServices);
+      
+      // Update selectedServiceForView to reflect changes
+      const updatedServicesMember = updatedServices.find(s => s.id === selectedServiceForView.id);
+      setSelectedServiceForView(updatedServicesMember);
+      
+      setEditingField(null);
+    } catch (error) {
+      console.error("Error updating service:", error);
+      alert(error.message || "שגיאה בעדכון שירות. נסה שוב.");
+    }
   };
 
   // Cancel editing field
@@ -651,17 +745,59 @@ export default function ServicesPage() {
   const [newServiceHideFromClients, setNewServiceHideFromClients] = useState(false);
   const [newServiceErrors, setNewServiceErrors] = useState({});
 
-  // Load services from localStorage on mount
+  // Check subscription status using custom hook
+  const { hasActiveSubscription, subscriptionLoading } = useSubscriptionCheck({
+    pageName: 'SERVICES PAGE',
+    enableLogging: true
+  });
+
+  // Transform services from Redux store to frontend format
+  const transformService = (s) => ({
+    id: s.id,
+    name: s.name || "",
+    notes: s.notes || "",
+    category: s.category || "",
+    price: s.price || 0,
+    duration: s.duration || 30,
+    color: s.color || "#FF257C",
+    hideFromClients: s.hideFromClients || false,
+    status: s.isActive ? "פעיל" : "לא פעיל",
+    createdAt: s.createdAt || new Date().toISOString(),
+  });
+
+  // Load services from Redux store on mount
   useEffect(() => {
-    const storedServices = localStorage.getItem(SERVICES_STORAGE_KEY);
-    if (storedServices) {
-      try {
-        setServices(JSON.parse(storedServices));
-      } catch (error) {
-        console.error("Error loading services from localStorage:", error);
+    const fetchServices = async () => {
+      const result = await dispatch(getAllServicesAction());
+      if (result.success) {
+        // Services will be updated via servicesFromStore useEffect
+      } else {
+        console.error("Error loading services:", result.error);
+        // Fallback to localStorage if API fails
+        const storedServices = localStorage.getItem(SERVICES_STORAGE_KEY);
+        if (storedServices) {
+          try {
+            setServices(JSON.parse(storedServices));
+          } catch (parseError) {
+            console.error("Error loading services from localStorage:", parseError);
+          }
+        }
       }
+    };
+
+    // Only fetch if store is empty
+    if (servicesFromStore.length === 0) {
+      fetchServices();
     }
-  }, []);
+  }, [dispatch]);
+
+  // Sync services from Redux store to local state
+  useEffect(() => {
+    if (servicesFromStore.length > 0) {
+      const transformedServices = servicesFromStore.map(transformService);
+      setServices(transformedServices);
+    }
+  }, [servicesFromStore]);
 
   // Filter and sort services
   const filteredAndSortedServices = useMemo(() => {
@@ -728,19 +864,33 @@ export default function ServicesPage() {
 
   // Removed clientAdvancedStats - not needed for staff management
 
-  const handleDeleteService = (serviceId) => {
-    if (!window.confirm("האם אתה בטוח שאתה רוצה למחוק את איש הצוות הזה?")) {
-            return;
-          }
-          
-    const updatedServices = services.filter((s) => s.id !== serviceId);
-    setServices(updatedServices);
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(updatedServices));
+  const handleDeleteService = async (serviceId) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי למחוק שירותים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
+    if (!window.confirm("האם אתה בטוח שאתה רוצה למחוק את השירות הזה?")) {
+      return;
+    }
     
-    // If the deleted staff member was being viewed, close the summary
-    if (selectedServiceForView?.id === serviceId) {
-      setShowServiceSummary(false);
-      setSelectedServiceForView(null);
+    try {
+      const result = await dispatch(deleteServiceAction(serviceId));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      
+      const updatedServices = services.filter((s) => s.id !== serviceId);
+      setServices(updatedServices);
+      
+      // If the deleted service was being viewed, close the summary
+      if (selectedServiceForView?.id === serviceId) {
+        setShowServiceSummary(false);
+        setSelectedServiceForView(null);
+      }
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      alert(error.message || "שגיאה במחיקת שירות. נסה שוב.");
     }
   };
 
@@ -779,17 +929,31 @@ export default function ServicesPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteSelectedClients = () => {
+  const handleDeleteSelectedClients = async () => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי למחוק שירותים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     if (selectedServices.length === 0) {
       alert("אנא בחר לפחות שירות אחד למחיקה");
       return;
     }
 
-    if (window.confirm(`האם אתה בטוח שאתה רוצה למחוק ${selectedServices.length} איש/שירותים?`)) {
-      const updatedServices = services.filter((s) => !selectedServices.includes(s.id));
-      setServices(updatedServices);
-      localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(updatedServices));
-      setSelectedServices([]);
+    if (window.confirm(`האם אתה בטוח שאתה רוצה למחוק ${selectedServices.length} שירותים?`)) {
+      try {
+        const result = await dispatch(deleteMultipleServicesAction(selectedServices));
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        
+        const updatedServices = services.filter((s) => !selectedServices.includes(s.id));
+        setServices(updatedServices);
+        setSelectedServices([]);
+      } catch (error) {
+        console.error("Error deleting services:", error);
+        alert(error.message || "שגיאה במחיקת שירותים. נסה שוב.");
+      }
     }
   };
 
@@ -817,7 +981,7 @@ export default function ServicesPage() {
   };
 
   // Handle creating a new service
-  const handleCreateNewService = () => {
+  const handleCreateNewService = async () => {
     const errors = {};
     if (!newServiceName.trim()) {
       errors.name = "שם שירות הוא שדה חובה";
@@ -838,40 +1002,64 @@ export default function ServicesPage() {
       return;
     }
 
-    const newService = {
-      id: Date.now(),
-      name: newServiceName.trim(),
-      notes: newServiceNotes.trim(),
-      category: newServiceCategory || "",
-      price: parseFloat(newServicePrice),
-      duration: parseInt(newServiceDuration),
-      color: newServiceColor || "#FF257C",
-      hideFromClients: newServiceHideFromClients || false,
-      status: "פעיל",
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      // Create service via Redux action
+      const serviceData = {
+        name: newServiceName.trim(),
+        notes: newServiceNotes.trim() || null,
+        category: newServiceCategory || null,
+        price: parseFloat(newServicePrice),
+        duration: parseInt(newServiceDuration),
+        color: newServiceColor || "#FF257C",
+        hideFromClients: newServiceHideFromClients || false,
+      };
 
-    // Add service to services list
-    const updatedServices = [newService, ...services];
-    setServices(updatedServices);
-    localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(updatedServices));
-    
-    // Close modal
-    setIsNewServiceModalOpen(false);
-    
-    // Reset form fields
-    setNewServiceName("");
-    setNewServiceNotes("");
-    setNewServiceCategory("");
-    setNewServicePrice("");
-    setNewServiceDuration("");
-    setNewServiceColor("#FF257C");
-    setNewServiceHideFromClients(false);
-    setNewServiceErrors({});
+      const result = await dispatch(createServiceAction(serviceData));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const createdService = result.data;
+
+      // Transform API response to match frontend format
+      const newService = {
+        id: createdService.id,
+        name: createdService.name || newServiceName.trim(),
+        notes: createdService.notes || "",
+        category: createdService.category || "",
+        price: createdService.price || parseFloat(newServicePrice),
+        duration: createdService.duration || parseInt(newServiceDuration),
+        color: createdService.color || newServiceColor || "#FF257C",
+        hideFromClients: createdService.hideFromClients || false,
+        status: createdService.isActive ? "פעיל" : "לא פעיל",
+        createdAt: createdService.createdAt || new Date().toISOString(),
+      };
+
+      // Add service to services list
+      const updatedServices = [newService, ...services];
+      setServices(updatedServices);
+      
+      // Close modal
+      setIsNewServiceModalOpen(false);
+      
+      // Reset form fields
+      setNewServiceName("");
+      setNewServiceNotes("");
+      setNewServiceCategory("");
+      setNewServicePrice("");
+      setNewServiceDuration("");
+      setNewServiceColor("#FF257C");
+      setNewServiceHideFromClients(false);
+      setNewServiceErrors({});
+    } catch (error) {
+      console.error("Error creating service:", error);
+      setNewServiceErrors({ 
+        submit: error.message || "שגיאה ביצירת שירות. נסה שוב." 
+      });
+    }
   };
 
   return (
-    <div className="w-full bg-[#ffffff]" dir="rtl">
+    <div className="w-full bg-gray-50 dark:bg-customBlack" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
@@ -881,12 +1069,12 @@ export default function ServicesPage() {
                 שירותים
               </h1>
               {services.length > 0 && (
-                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
+                <span className="text-sm text-gray-500 dark:text-white bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
                   {services.length}
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-white">
               צפה, הוסף, ערוך ומחק את השירותים שלך.{" "}
               <a href="#" className="text-[#ff257c] hover:underline">למד עוד</a>
             </p>
@@ -894,6 +1082,10 @@ export default function ServicesPage() {
           <div className="flex items-center gap-2">
               <button
               onClick={() => {
+                if (!hasActiveSubscription) {
+                  alert('נדרש מנוי פעיל כדי ליצור שירותים. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
                 setNewServiceName("");
                 setNewServiceNotes("");
                 setNewServiceCategory("");
@@ -904,7 +1096,13 @@ export default function ServicesPage() {
                 setNewServiceErrors({});
                 setIsNewServiceModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-all duration-200 font-semibold text-sm flex items-center gap-2"
+              disabled={!hasActiveSubscription || subscriptionLoading}
+              className={`px-4 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
+                !hasActiveSubscription || subscriptionLoading
+                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-white cursor-not-allowed'
+                  : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
+              }`}
+              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי ליצור שירותים' : ''}
             >
               חדש
               <FiPlus className="text-base" />
@@ -1075,7 +1273,7 @@ export default function ServicesPage() {
                 >
                   <div className="py-2">
                     {/* קטגוריה: מיון */}
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">
                       מיון
                     </div>
                     {[
@@ -1119,7 +1317,7 @@ export default function ServicesPage() {
 
                     {/* קטגוריה: פרטים */}
                     <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      <div className="text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">
                         פרטים
                       </div>
                       <button
@@ -1128,7 +1326,7 @@ export default function ServicesPage() {
                           e.stopPropagation();
                           selectAllFieldsInCategory(["name", "status", "duration", "price", "notes", "category", "color", "hideFromClients"]);
                         }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
+                        className="text-xs text-gray-600 dark:text-white hover:text-[#ff257c] transition-colors"
                       >
                         סמן הכל
                       </button>
@@ -1212,7 +1410,7 @@ export default function ServicesPage() {
               className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
                 selectedServices.length === 0
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-gray-400 hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
+                  : "text-gray-600 dark:text-white hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
               }`}
               title="הורדת שירותים נבחרים"
             >
@@ -1221,14 +1419,20 @@ export default function ServicesPage() {
 
             {/* Delete Button */}
             <button
-              onClick={handleDeleteSelectedClients}
-              disabled={selectedServices.length === 0}
+              onClick={() => {
+                if (!hasActiveSubscription) {
+                  alert('נדרש מנוי פעיל כדי למחוק שירותים. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
+                handleDeleteSelectedClients();
+              }}
+              disabled={selectedServices.length === 0 || !hasActiveSubscription || subscriptionLoading}
               className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
-                selectedServices.length === 0
+                selectedServices.length === 0 || !hasActiveSubscription || subscriptionLoading
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
+                  : "text-gray-600 dark:text-white hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
               }`}
-              title="מחיקת שירותים נבחרים"
+              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי למחוק שירותים' : 'מחיקת שירותים נבחרים'}
             >
               <FiTrash2 className="text-sm" />
             </button>
@@ -1236,10 +1440,17 @@ export default function ServicesPage() {
         </div>
 
         {/* Services List */}
-        {filteredAndSortedServices.length === 0 ? (
+        {isLoadingServices ? (
+          <div className="p-12 text-center">
+            <div className="mx-auto w-8 h-8 border-4 border-gray-200 dark:border-gray-700 border-t-[#ff257c] rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500 dark:text-white text-lg">
+              טוען שירותים...
+            </p>
+          </div>
+        ) : filteredAndSortedServices.length === 0 ? (
           <div className="p-12 text-center">
             <span className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4 block">☺</span>
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
+            <p className="text-gray-500 dark:text-white text-lg">
               {searchQuery ? "לא נמצאו שירותים התואמים לחיפוש" : "אין שירותים עדיין"}
             </p>
             {!searchQuery && (
@@ -1249,6 +1460,7 @@ export default function ServicesPage() {
             )}
           </div>
         ) : (
+          <div className="bg-white dark:bg-[#181818] rounded-lg overflow-hidden">
             <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
             {/* Table Headers */}
             <div className="flex items-center gap-6 px-4 py-3 border-b border-gray-200 dark:border-[#2b2b2b] relative min-w-max">
@@ -1258,56 +1470,56 @@ export default function ServicesPage() {
               {visibleFields.name && (
                 <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
                   <div className="w-8 h-8 flex-shrink-0"></div>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                 שם שירות
                 </span>
               </div>
               )}
               {visibleFields.status && (
                 <div className="w-28 flex items-center justify-center flex-shrink-0" style={{ marginRight: `${columnSpacing.statusToPhone}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     סטטוס
                   </span>
                 </div>
               )}
               {visibleFields.duration && (
                 <div className="w-40 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     משך שירות
                   </span>
                 </div>
               )}
               {visibleFields.price && (
                 <div className="w-40 flex items-center justify-start flex-shrink-0" style={{ marginRight: `8px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     מחיר
                   </span>
                 </div>
               )}
               {visibleFields.notes && (
                 <div className="w-48 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     הערות
                   </span>
                 </div>
               )}
               {visibleFields.category && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     קטגוריה
                   </span>
                 </div>
               )}
               {visibleFields.color && (
                 <div className="w-24 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     צבע
                   </span>
                 </div>
               )}
               {visibleFields.hideFromClients && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     להסתיר מלקוחות
                   </span>
                 </div>
@@ -1367,7 +1579,7 @@ export default function ServicesPage() {
                   {/* שם שירות עם אייקון */}
                   {visibleFields.name && (
                     <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
-                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-gray-300 flex-shrink-0 overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-white flex-shrink-0 overflow-hidden">
                         {service.profileImage ? (
                           <img 
                             src={service.profileImage} 
@@ -1390,6 +1602,10 @@ export default function ServicesPage() {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (!hasActiveSubscription) {
+                            alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
+                            return;
+                          }
                           const rect = e.currentTarget.getBoundingClientRect();
                           setStatusDropdownPositions(prev => ({
                             ...prev,
@@ -1403,7 +1619,12 @@ export default function ServicesPage() {
                             [service.id]: !prev[service.id]
                           }));
                         }}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium hover:opacity-90 transition text-white ${
+                        disabled={!hasActiveSubscription || subscriptionLoading}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition text-white ${
+                          !hasActiveSubscription || subscriptionLoading
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:opacity-90'
+                        } ${
                           (service.status || "פעיל") === "לא פעיל"
                             ? "bg-black"
                             : ""
@@ -1514,6 +1735,10 @@ export default function ServicesPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
+                              if (!hasActiveSubscription || subscriptionLoading) {
+                                alert('נדרש מנוי פעיל כדי לערוך משך שירות. אנא הירשם למנוי כדי להמשיך.');
+                                return;
+                              }
                               const rect = e.currentTarget.getBoundingClientRect();
                               setDurationDropdownPositions(prev => ({
                                 ...prev,
@@ -1527,7 +1752,12 @@ export default function ServicesPage() {
                                 [`duration-${service.id}`]: !prev[`duration-${service.id}`]
                               }));
                             }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 dark:border-commonBorder text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c] transition-colors"
+                            disabled={!hasActiveSubscription || subscriptionLoading}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] transition-colors ${
+                          !hasActiveSubscription || subscriptionLoading
+                            ? 'border-gray-200 dark:border-commonBorder opacity-50 cursor-not-allowed'
+                            : 'border-gray-200 dark:border-commonBorder hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c]'
+                        }`}
                       >
                         <span className="whitespace-nowrap">
                           {service.duration 
@@ -1670,9 +1900,17 @@ export default function ServicesPage() {
                     </div>
                       ) : (
                         <div 
-                          className="text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer hover:text-[#ff257c] w-full"
+                          className={`text-sm text-gray-700 dark:text-white truncate w-full ${
+                            !hasActiveSubscription || subscriptionLoading
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'cursor-pointer hover:text-[#ff257c]'
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!hasActiveSubscription || subscriptionLoading) {
+                              alert('נדרש מנוי פעיל כדי לערוך מחיר. אנא הירשם למנוי כדי להמשיך.');
+                              return;
+                            }
                             setEditingField(`price-${service.id}`);
                           }}
                         >
@@ -1698,7 +1936,7 @@ export default function ServicesPage() {
                         />
                       ) : (
                         <div 
-                          className="text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer hover:text-[#ff257c] w-full"
+                          className="text-sm text-gray-700 dark:text-white truncate cursor-pointer hover:text-[#ff257c] w-full"
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingField(`notes-${service.id}`);
@@ -1717,6 +1955,10 @@ export default function ServicesPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (!hasActiveSubscription || subscriptionLoading) {
+                            alert('נדרש מנוי פעיל כדי לערוך קטגוריה. אנא הירשם למנוי כדי להמשיך.');
+                            return;
+                          }
                           const rect = e.currentTarget.getBoundingClientRect();
                           setCategoryDropdownPositions(prev => ({
                             ...prev,
@@ -1730,7 +1972,12 @@ export default function ServicesPage() {
                             [`category-${service.id}`]: !prev[`category-${service.id}`]
                           }));
                         }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 dark:border-commonBorder text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c] transition-colors"
+                        disabled={!hasActiveSubscription || subscriptionLoading}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] transition-colors ${
+                          !hasActiveSubscription || subscriptionLoading
+                            ? 'border-gray-200 dark:border-commonBorder opacity-50 cursor-not-allowed'
+                            : 'border-gray-200 dark:border-commonBorder hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c]'
+                        }`}
                       >
                         <span className="whitespace-nowrap">
                           {service.category || "בחר קטגוריה"}
@@ -1799,6 +2046,10 @@ export default function ServicesPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (!hasActiveSubscription || subscriptionLoading) {
+                            alert('נדרש מנוי פעיל כדי לערוך צבע. אנא הירשם למנוי כדי להמשיך.');
+                            return;
+                          }
                           const rect = e.currentTarget.getBoundingClientRect();
                           setColorDropdownPositions(prev => ({
                             ...prev,
@@ -1812,9 +2063,14 @@ export default function ServicesPage() {
                             [`color-${service.id}`]: !prev[`color-${service.id}`]
                           }));
                         }}
-                        className="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-gray-600"
+                        disabled={!hasActiveSubscription || subscriptionLoading}
+                        className={`w-8 h-8 rounded-full border-2 transition-opacity ${
+                          !hasActiveSubscription || subscriptionLoading
+                            ? 'opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-600'
+                            : 'border-gray-300 dark:border-gray-600 hover:scale-110'
+                        }`}
                         style={{ backgroundColor: service.color || "#FF257C" }}
-                        title={service.color || "#FF257C"}
+                        title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי לערוך צבע' : (service.color || "#FF257C")}
                       />
                       {openStatusDropdowns[`color-${service.id}`] && (
                         <>
@@ -1882,9 +2138,18 @@ export default function ServicesPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (!hasActiveSubscription || subscriptionLoading) {
+                            alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+                            return;
+                          }
                           handleUpdateServiceFieldInList(service.id, 'hideFromClients', !service.hideFromClients);
                         }}
+                        disabled={!hasActiveSubscription || subscriptionLoading}
                         className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none flex items-center ${
+                          !hasActiveSubscription || subscriptionLoading
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
+                        } ${
                           service.hideFromClients
                             ? "bg-[#ff257c] justify-end"
                             : "bg-gray-300 dark:bg-gray-600 justify-start"
@@ -1914,29 +2179,48 @@ export default function ServicesPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!hasActiveSubscription || subscriptionLoading) {
+                          alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+                          return;
+                        }
                         setSelectedServiceForView(service);
                         setShowServiceSummary(true);
                         setServiceViewTab("details");
                         setEditingField("name");
                       }}
-                      className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
-                      title="ערוך"
+                      disabled={!hasActiveSubscription || subscriptionLoading}
+                      className={`p-2 rounded-lg transition ${
+                        !hasActiveSubscription || subscriptionLoading
+                          ? 'opacity-50 cursor-not-allowed text-gray-300 dark:text-gray-600'
+                          : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                      }`}
+                      title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי לערוך שירותים' : 'ערוך'}
                     >
                       <FiEdit className="text-base" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!hasActiveSubscription) {
+                          alert('נדרש מנוי פעיל כדי למחוק שירותים. אנא הירשם למנוי כדי להמשיך.');
+                          return;
+                        }
                         handleDeleteService(service.id);
                       }}
-                      className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition"
-                      title="מחק"
+                      disabled={!hasActiveSubscription || subscriptionLoading}
+                      className={`p-2 rounded-lg transition ${
+                        !hasActiveSubscription || subscriptionLoading
+                          ? 'opacity-50 cursor-not-allowed text-gray-300 dark:text-gray-600'
+                          : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-400 hover:text-red-500 dark:hover:text-red-400'
+                      }`}
+                      title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי למחוק שירותים' : 'מחק'}
                     >
                       <FiTrash2 className="text-base" />
                     </button>
                   </div>
                 </div>
             ))}
+            </div>
           </div>
         )}
       </div>
@@ -2025,7 +2309,7 @@ export default function ServicesPage() {
                       </div>
                       {selectedServiceForView?.duration && (
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-sm text-gray-600 dark:text-white">
                             {(() => {
                               const minutes = Number(selectedServiceForView.duration);
                               if (isNaN(minutes)) return selectedServiceForView.duration;
@@ -2043,7 +2327,7 @@ export default function ServicesPage() {
                       )}
                       {selectedServiceForView?.price && (
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-sm text-gray-600 dark:text-white">
                             {typeof selectedServiceForView.price === 'number' ? `₪${selectedServiceForView.price}` : selectedServiceForView.price}
                           </span>
                         </div>
@@ -2067,7 +2351,7 @@ export default function ServicesPage() {
                           className={`relative pb-3 pt-1 font-medium transition-colors ${
                             serviceViewTab === key
                               ? "text-gray-900 dark:text-white"
-                              : "text-gray-500 dark:text-gray-400"
+                              : "text-gray-500 dark:text-white"
                           }`}
                         >
                           {label}
@@ -2087,8 +2371,16 @@ export default function ServicesPage() {
                     <div className="space-y-4 mt-6">
                     {/* שם שירות */}
                     <div 
-                      className="flex items-center gap-3 group cursor-pointer"
+                      className={`flex items-center gap-3 group ${
+                        !hasActiveSubscription || subscriptionLoading
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'cursor-pointer'
+                      }`}
                       onClick={(e) => {
+                        if (!hasActiveSubscription || subscriptionLoading) {
+                          alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+                          return;
+                        }
                         if (editingField !== "name") {
                           e.stopPropagation();
                           setEditingField("name");
@@ -2096,10 +2388,10 @@ export default function ServicesPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiPackage className="text-gray-600 dark:text-gray-400" />
+                        <FiPackage className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שם שירות</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">שם שירות</div>
                         {editingField === "name" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2131,7 +2423,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("name");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2144,9 +2436,18 @@ export default function ServicesPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
+                                if (!hasActiveSubscription || subscriptionLoading) {
+                                  alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+                                  return;
+                                }
                                 setEditingField("name");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              disabled={!hasActiveSubscription || subscriptionLoading}
+                              className={`opacity-0 group-hover:opacity-100 p-1.5 rounded-full transition-all ${
+                                !hasActiveSubscription || subscriptionLoading
+                                  ? 'cursor-not-allowed opacity-50'
+                                  : 'bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333]'
+                              }`}
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2166,10 +2467,10 @@ export default function ServicesPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiClock className="text-gray-600 dark:text-gray-400" />
+                        <FiClock className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">משך שירות</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">משך שירות</div>
                         {editingField === "duration" ? (
                           <div className="flex items-center gap-2">
                             <select
@@ -2221,7 +2522,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("duration");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2249,7 +2550,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                 setEditingField("duration");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2269,10 +2570,10 @@ export default function ServicesPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiDollarSign className="text-gray-600 dark:text-gray-400" />
+                        <FiDollarSign className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">מחיר</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">מחיר</div>
                         {editingField === "price" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2312,7 +2613,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("price");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2327,7 +2628,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                 setEditingField("price");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2347,10 +2648,10 @@ export default function ServicesPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiFileText className="text-gray-600 dark:text-gray-400" />
+                        <FiFileText className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">הערות</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">הערות</div>
                         {editingField === "notes" ? (
                           <div className="flex items-center gap-2">
                             <textarea
@@ -2384,7 +2685,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                   handleCancelEditField("notes");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2400,7 +2701,7 @@ export default function ServicesPage() {
                                 e.stopPropagation();
                                 setEditingField("notes");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2412,10 +2713,10 @@ export default function ServicesPage() {
                     {/* סטטוס */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiCheckCircle className="text-gray-600 dark:text-gray-400" />
+                        <FiCheckCircle className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1 relative">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">סטטוס</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">סטטוס</div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2529,10 +2830,10 @@ export default function ServicesPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiTag className="text-gray-600 dark:text-gray-400" />
+                        <FiTag className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">קטגוריה</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">קטגוריה</div>
                         {editingField === "category" ? (
                           <div className="flex items-center gap-2">
                             <select
@@ -2570,7 +2871,7 @@ export default function ServicesPage() {
                                                       e.stopPropagation();
                                 handleCancelEditField("category");
                                       }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                                     >
                               <FiX className="text-sm" />
                                                   </button>
@@ -2585,7 +2886,7 @@ export default function ServicesPage() {
                                           e.stopPropagation();
                                 setEditingField("category");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                                       </button>
@@ -2605,10 +2906,10 @@ export default function ServicesPage() {
                       }}
                     >
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiCircle className="text-gray-600 dark:text-gray-400" />
+                        <FiCircle className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">צבע</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">צבע</div>
                         {editingField === "color" ? (
                           <div className="flex items-center gap-2">
                             <div className="flex-1 flex flex-wrap gap-2">
@@ -2648,7 +2949,7 @@ export default function ServicesPage() {
                                         e.stopPropagation();
                                 handleCancelEditField("color");
                                       }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                                     >
                               <FiX className="text-sm" />
                                     </button>
@@ -2669,7 +2970,7 @@ export default function ServicesPage() {
                                         e.stopPropagation();
                                 setEditingField("color");
                                       }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                                     >
                               <FiEdit className="text-xs" />
                                     </button>
@@ -2681,10 +2982,10 @@ export default function ServicesPage() {
                     {/* להסתיר מלקוחות */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiEyeOff className="text-gray-600 dark:text-gray-400" />
+                        <FiEyeOff className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">להסתיר מלקוחות</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">להסתיר מלקוחות</div>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -2723,10 +3024,10 @@ export default function ServicesPage() {
                     {/* תאריך יצירה */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                                  <FiCalendar className="text-gray-600 dark:text-white" />
                           </div>
                                 <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">תאריך יצירה</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">תאריך יצירה</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {selectedServiceForView?.createdAt 
                             ? formatDate(new Date(selectedServiceForView.createdAt))
@@ -2743,10 +3044,10 @@ export default function ServicesPage() {
                       {/* השעה הכי מוקדמת לקביעת תור */}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                          <FiClock className="text-gray-600 dark:text-gray-400" />
+                          <FiClock className="text-gray-600 dark:text-white" />
                                 </div>
                         <div className="flex-1 relative">
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">השעה הכי מוקדמת לקביעת תור</div>
+                          <div className="text-xs text-gray-500 dark:text-white mb-1">השעה הכי מוקדמת לקביעת תור</div>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -2835,10 +3136,10 @@ export default function ServicesPage() {
                       {/* השעה הכי מאוחרת לקביעת תור */}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                          <FiClock className="text-gray-600 dark:text-gray-400" />
+                          <FiClock className="text-gray-600 dark:text-white" />
                         </div>
                         <div className="flex-1 relative">
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">השעה הכי מאוחרת לקביעת תור</div>
+                          <div className="text-xs text-gray-500 dark:text-white mb-1">השעה הכי מאוחרת לקביעת תור</div>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -2927,10 +3228,10 @@ export default function ServicesPage() {
                       {/* ימים שבהם אפשר לקבוע תור */}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                          <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                          <FiCalendar className="text-gray-600 dark:text-white" />
                         </div>
                         <div className="flex-1">
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ימים שבהם אפשר לקבוע תור</div>
+                          <div className="text-xs text-gray-500 dark:text-white mb-1">ימים שבהם אפשר לקבוע תור</div>
                           <div className="flex items-center gap-3 flex-wrap mt-2">
                           {DAYS_OF_WEEK.map((day) => {
                             // Default: if availableDays is undefined/null, all days are selected
@@ -2992,7 +3293,7 @@ export default function ServicesPage() {
                                 className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all ${
                                   isDaySelected
                                     ? "border-[#ff257c] bg-[#ff257c] text-white"
-                                    : "border-gray-300 dark:border-gray-500 bg-white dark:bg-[#181818] text-gray-700 dark:text-gray-300 hover:border-[#ff257c]"
+                                    : "border-gray-300 dark:border-gray-500 bg-white dark:bg-[#181818] text-gray-700 dark:text-white hover:border-[#ff257c]"
                                 }`}
                               >
                                 {day}

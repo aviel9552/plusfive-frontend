@@ -62,7 +62,10 @@ export const getPaymentHistory = async (params = {}) => {
     if (params.limit) queryParams.append('limit', params.limit);
     if (params.type) queryParams.append('type', params.type);
 
-    const response = await apiClient.get(`/stripe/payment-history?${queryParams.toString()}`);
+    // Use longer timeout for payment history (30 seconds) as Stripe API calls can be slow
+    const response = await apiClient.get(`/stripe/payment-history?${queryParams.toString()}`, {
+      timeout: 30000 // 30 seconds timeout for payment history
+    });
 
     // Handle both response formats: { invoices: [...] } or { success: true, data: { payments: [...] } }
     let responseData = response.data;
@@ -78,9 +81,28 @@ export const getPaymentHistory = async (params = {}) => {
     };
   } catch (error) {
     console.error('Get payment history error:', error);
+    
+    // Handle timeout errors specifically
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      return {
+        success: false,
+        error: 'Request timeout - The server is taking too long to respond. Please try again.',
+        data: null
+      };
+    }
+    
+    // Handle network errors
+    if (error.request && !error.response) {
+      return {
+        success: false,
+        error: 'Network error - Unable to connect to the server. Please check your connection.',
+        data: null
+      };
+    }
+    
     return {
       success: false,
-      error: error.response?.data?.message || 'Failed to fetch payment history',
+      error: error.response?.data?.message || error.message || 'Failed to fetch payment history',
       data: null
     };
   }

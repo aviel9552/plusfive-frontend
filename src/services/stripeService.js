@@ -3,9 +3,22 @@ import apiClient from '../config/apiClient';
 // Get all available Stripe prices (public endpoint)
 export const getStripePrices = async () => {
   try {
-    const response = await apiClient.get('/stripe/prices');
+    // Use longer timeout for prices (30 seconds) as Stripe API calls can be slow
+    const response = await apiClient.get('/stripe/prices', {
+      timeout: 30000 // 30 seconds timeout for prices
+    });
     return response.data;
   } catch (error) {
+    // Handle timeout errors specifically
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      throw new Error('Request timeout - The server is taking too long to respond. Please try again.');
+    }
+    
+    // Handle network errors
+    if (error.request && !error.response) {
+      throw new Error('Network error - Unable to connect to the server. Please check your connection.');
+    }
+    
     // Handle specific error cases
     if (error.response?.status === 404) {
       throw new Error('Pricing endpoint not found. Please check if the backend route is configured.');
@@ -74,9 +87,22 @@ export const createCheckoutSession = async (priceId, successUrl, cancelUrl, mete
 // Get current user subscription (protected endpoint)
 export const getCurrentSubscription = async () => {
   try {
-    const response = await apiClient.get('/stripe/subscription');
+    // Use longer timeout for subscription (30 seconds) as Stripe API calls can be slow
+    const response = await apiClient.get('/stripe/subscription', {
+      timeout: 30000 // 30 seconds timeout for subscription
+    });
     return response.data;
   } catch (error) {
+    // Handle timeout errors specifically
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      throw new Error('Request timeout - The server is taking too long to respond. Please try again.');
+    }
+    
+    // Handle network errors
+    if (error.request && !error.response) {
+      throw new Error('Network error - Unable to connect to the server. Please check your connection.');
+    }
+    
     // Handle specific error cases
     if (error.response?.status === 404) {
       throw new Error('Subscription endpoint not found. Please check if the backend route is configured.');

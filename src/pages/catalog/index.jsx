@@ -489,7 +489,7 @@ export default function CatalogPage() {
   };
 
   return (
-    <div className="w-full bg-[#ffffff]" dir="rtl">
+    <div className="w-full bg-gray-50 dark:bg-customBlack" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">

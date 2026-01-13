@@ -141,7 +141,7 @@ export const NewServiceModal = ({
             {/* שם שירות */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                <label className="text-medium font-medium text-gray-600 dark:text-white">
                   שם שירות <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -166,7 +166,7 @@ export const NewServiceModal = ({
 
             {/* הערות */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+              <label className="text-medium font-medium text-gray-600 dark:text-white">
                 הערות
               </label>
               <textarea
@@ -181,7 +181,7 @@ export const NewServiceModal = ({
 
             {/* קטגוריה */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+              <label className="text-medium font-medium text-gray-600 dark:text-white">
                 קטגוריה
               </label>
               <div className="relative">
@@ -245,7 +245,7 @@ export const NewServiceModal = ({
             {/* מחיר */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                <label className="text-medium font-medium text-gray-600 dark:text-white">
                   מחיר <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -278,7 +278,7 @@ export const NewServiceModal = ({
             {/* משך השירות */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                <label className="text-medium font-medium text-gray-600 dark:text-white">
                   משך השירות <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -353,7 +353,7 @@ export const NewServiceModal = ({
 
             {/* הצבע של השירות ביומן */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+              <label className="text-medium font-medium text-gray-600 dark:text-white">
                 הצבע של השירות ביומן
               </label>
               <div className="relative">
@@ -418,7 +418,7 @@ export const NewServiceModal = ({
             {/* להסתיר מתורים ע"י קביעת לקוחות */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                <label className="text-medium font-medium text-gray-600 dark:text-white">
                   להסתיר מתורים ע"י קביעת לקוחות
                 </label>
                 <button
@@ -447,6 +447,11 @@ export const NewServiceModal = ({
         </div>
 
         <div className="px-8 py-5 border-t border-gray-200 dark:border-commonBorder">
+          {newServiceErrors.submit && (
+            <p className="text-[11px] text-red-500 mb-3 text-center">
+              {newServiceErrors.submit}
+            </p>
+          )}
           <button
             type="button"
             className="w-full h-[44px] rounded-full text-medium font-semibold flex items-center justify-center bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition"

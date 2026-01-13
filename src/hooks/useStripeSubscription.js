@@ -218,16 +218,14 @@ export const useStripeSubscription = (slug) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
-  // בדבלופמנט – לא קוראים בכלל ל-Stripe
-  if (isDev) return;
-  fetchPrices();
-}, [fetchPrices]);
+    // Always fetch prices (removed dev check to allow API calls in development)
+    fetchPrices();
+  }, [fetchPrices]);
 
-useEffect(() => {
-  // בדבלופמנט – לא בודקים subscription מול Stripe
-  if (isDev) return;
-  fetchSubscription();
-}, [fetchSubscription]);
+  useEffect(() => {
+    // Always fetch subscription (removed dev check to allow API calls in development)
+    fetchSubscription();
+  }, [fetchSubscription]);
 
   return {
     prices,

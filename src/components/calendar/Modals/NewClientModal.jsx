@@ -128,17 +128,28 @@ export const NewClientModal = ({
 
             {/* Email */}
             <div className="space-y-3">
-              <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
-                אימייל
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                  אימייל <span className="text-red-500">*</span>
+                </label>
+              </div>
               <input
                 type="email"
                 value={newClientEmail}
                 onChange={(e) => onEmailChange(e.target.value)}
                 placeholder="client@example.com"
                 dir="rtl"
-                className="w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border border-gray-200 dark:border-[#262626] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(255,37,124,0.45)] focus:border-transparent text-right"
+                className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border ${
+                  newClientErrors.email
+                    ? "border-red-400 dark:border-red-500"
+                    : "border-gray-200 dark:border-[#262626]"
+                } text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(255,37,124,0.45)] focus:border-transparent text-right`}
               />
+              {newClientErrors.email && (
+                <p className="text-[11px] text-red-500">
+                  {newClientErrors.email}
+                </p>
+              )}
             </div>
 
             {/* City */}
@@ -171,6 +182,15 @@ export const NewClientModal = ({
               />
             </div>
           </div>
+          
+          {/* Submit Error */}
+          {newClientErrors.submit && (
+            <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {newClientErrors.submit}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="px-8 py-5 border-t border-gray-200 dark:border-commonBorder">

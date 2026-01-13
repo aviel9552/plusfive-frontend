@@ -19,6 +19,15 @@ import gradientImage from "../../assets/gradientteam.jpg";
 import whatsappIcon from "../../assets/whatsappicon.png";
 import { Area, AreaChart, Tooltip, ResponsiveContainer } from 'recharts';
 import { DEMO_SERVICES } from "../../data/calendar/demoData";
+import { useDispatch, useSelector } from "react-redux";
+import { 
+  getAllStaffAction, 
+  createStaffAction, 
+  updateStaffAction, 
+  deleteStaffAction, 
+  deleteMultipleStaffAction 
+} from "../../redux/actions/staffActions";
+import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
 
 const CALENDAR_STAFF_STORAGE_KEY = "calendar_staff";
 const COLUMN_SPACING_STORAGE_KEY = "calendar_staff_column_spacing";
@@ -27,6 +36,10 @@ const VISIBLE_FIELDS_STORAGE_KEY = "calendar_staff_visible_fields";
 export default function CalendarStaffPage() {
   const { language } = useLanguage();
   const { isDarkMode } = useTheme();
+  const dispatch = useDispatch();
+  
+  // Get staff from Redux store
+  const { staff: staffFromStore, loading: isLoadingStaff } = useSelector((state) => state.staff);
   const [staff, setStaff] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStaff, setSelectedStaff] = useState([]);
@@ -102,6 +115,12 @@ export default function CalendarStaffPage() {
   });
   const profileImageInputRef = useRef(null);
   const priceInputRef = useRef(null);
+
+  // Check subscription status using custom hook
+  const { hasActiveSubscription, subscriptionLoading } = useSubscriptionCheck({
+    pageName: 'CALENDAR STAFF PAGE',
+    enableLogging: false
+  });
 
   // Handle clicks outside price input to close editing
   useEffect(() => {
@@ -247,6 +266,11 @@ export default function CalendarStaffPage() {
 
   // Update staff status
   const handleUpdateStaffStatus = (staffId, newStatus) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     const updatedStaff = staff.map(staffMember => {
       if (staffMember.id === staffId) {
         return {
@@ -315,6 +339,11 @@ export default function CalendarStaffPage() {
 
   // Update working hours for staff member
   const handleUpdateWorkingHours = (staffId, dayIndex, field, value) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך שעות עבודה. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     const updatedStaff = staff.map(staffMember => {
       if (staffMember.id === staffId) {
         const currentWorkingHours = staffMember.workingHours || {};
@@ -405,6 +434,11 @@ export default function CalendarStaffPage() {
 
   // Update service duration or price
   const handleUpdateServiceField = (staffId, serviceId, field, value, shouldCloseEditing = true) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך שירותים. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     const updatedStaff = staff.map(staffMember => {
       if (staffMember.id === staffId) {
         const currentServices = staffMember.services || [];
@@ -491,42 +525,57 @@ export default function CalendarStaffPage() {
   const DAYS_OF_WEEK = ['א\'', 'ב\'', 'ג\'', 'ד\'', 'ה\'', 'ו\'', 'ש\''];
 
   // Save edited field
-  const handleSaveField = (fieldName) => {
+  const handleSaveField = async (fieldName) => {
     if (!selectedStaffForView) return;
 
-    const updatedStaff = staff.map(staffMember => {
-      if (staffMember.id === selectedStaffForView.id) {
-        const updates = {
-          ...staffMember,
-        };
-        
-        if (fieldName === "name") {
-          updates.name = editedStaffData.name;
-        } else if (fieldName === "phone") {
-          updates.phone = formatPhoneForBackend(editedStaffData.phone);
-        } else if (fieldName === "email") {
-          updates.email = editedStaffData.email;
-        } else if (fieldName === "city") {
-          updates.city = editedStaffData.city;
-        } else if (fieldName === "address") {
-          updates.address = editedStaffData.address;
-        }
-        
-        return updates;
+    try {
+      const updateData = {};
+      
+      if (fieldName === "name") {
+        updateData.fullName = editedStaffData.name;
+      } else if (fieldName === "phone") {
+        updateData.phone = formatPhoneForBackend(editedStaffData.phone);
+      } else if (fieldName === "email") {
+        updateData.email = editedStaffData.email || null;
+      } else if (fieldName === "city") {
+        updateData.city = editedStaffData.city || null;
+      } else if (fieldName === "address") {
+        updateData.address = editedStaffData.address || null;
       }
-      return staffMember;
-    });
 
-    setStaff(updatedStaff);
-    localStorage.setItem(CALENDAR_STAFF_STORAGE_KEY, JSON.stringify(updatedStaff));
-    
-    // Update selectedStaffForView to reflect changes
-    const updatedStaffMember = updatedStaff.find(s => s.id === selectedStaffForView.id);
-    setSelectedStaffForView(updatedStaffMember);
-    
-    // Removed appointment update logic - staff management doesn't need to update appointments
-    
-    setEditingField(null);
+      // Update via Redux action
+      const result = await dispatch(updateStaffAction(selectedStaffForView.id, updateData));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const updatedStaffData = result.data;
+
+      // Update local state
+      const updatedStaff = staff.map(staffMember => {
+        if (staffMember.id === selectedStaffForView.id) {
+          return {
+            ...staffMember,
+            name: updatedStaffData.fullName || editedStaffData.name,
+            phone: updatedStaffData.phone || formatPhoneForBackend(editedStaffData.phone),
+            email: updatedStaffData.email || editedStaffData.email,
+            city: updatedStaffData.city || editedStaffData.city,
+            address: updatedStaffData.address || editedStaffData.address,
+          };
+        }
+        return staffMember;
+      });
+
+      setStaff(updatedStaff);
+      
+      // Update selectedStaffForView to reflect changes
+      const updatedStaffMember = updatedStaff.find(s => s.id === selectedStaffForView.id);
+      setSelectedStaffForView(updatedStaffMember);
+      
+      setEditingField(null);
+    } catch (error) {
+      console.error("Error updating staff:", error);
+      alert(error.message || "שגיאה בעדכון איש צוות. נסה שוב.");
+    }
   };
 
   // Cancel editing field
@@ -545,6 +594,64 @@ export default function CalendarStaffPage() {
       }
     }
     setEditingField(null);
+  };
+
+  // Update staff field in list (inline editing)
+  const handleUpdateStaffFieldInList = async (staffId, fieldName, value) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
+    try {
+      const updateData = {};
+      
+      if (fieldName === "name") {
+        updateData.fullName = value;
+      } else if (fieldName === "phone") {
+        const phoneDigits = value.replace(/\D/g, '');
+        updateData.phone = formatPhoneForBackend(phoneDigits);
+      } else if (fieldName === "email") {
+        updateData.email = value || null;
+      } else if (fieldName === "city") {
+        updateData.city = value || null;
+      } else if (fieldName === "address") {
+        updateData.address = value || null;
+      }
+
+      // Update via Redux action
+      const result = await dispatch(updateStaffAction(staffId, updateData));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const updatedStaffData = result.data;
+
+      // Update local state
+      const updatedStaff = staff.map(staffMember => {
+        if (staffMember.id === staffId) {
+          return {
+            ...staffMember,
+            name: updatedStaffData.fullName || (fieldName === "name" ? value : staffMember.name),
+            phone: updatedStaffData.phone || (fieldName === "phone" ? formatPhoneForBackend(value.replace(/\D/g, '')) : staffMember.phone),
+            email: updatedStaffData.email || (fieldName === "email" ? value : staffMember.email),
+            city: updatedStaffData.city || (fieldName === "city" ? value : staffMember.city),
+            address: updatedStaffData.address || (fieldName === "address" ? value : staffMember.address),
+          };
+        }
+        return staffMember;
+      });
+
+      setStaff(updatedStaff);
+      
+      // Update selectedStaffForView if it's the same staff member
+      if (selectedStaffForView && selectedStaffForView.id === staffId) {
+        const updatedStaffMember = updatedStaff.find(s => s.id === staffId);
+        setSelectedStaffForView(updatedStaffMember);
+      }
+    } catch (error) {
+      console.error("Error updating staff field:", error);
+      // Don't show alert for inline editing, just log the error
+    }
   };
   
   // Column spacing state
@@ -643,17 +750,64 @@ export default function CalendarStaffPage() {
   const [newStaffAddress, setNewStaffAddress] = useState("");
   const [newStaffErrors, setNewStaffErrors] = useState({});
 
-  // Load clients from localStorage on mount
+  // Transform staff from Redux store to frontend format
+  const transformStaff = (s) => ({
+    id: s.id,
+    name: s.fullName || "",
+    phone: s.phone || "",
+    email: s.email || "",
+    city: s.city || "",
+    address: s.address || "",
+    initials: (s.fullName || "")
+      .trim()
+      .split(" ")
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "ל",
+    status: s.isActive ? "פעיל" : "לא פעיל",
+    services: DEMO_SERVICES.map(service => ({
+      id: service.id,
+      duration: service.duration,
+      price: service.price
+    })),
+    createdAt: s.createdAt || new Date().toISOString(),
+  });
+
+  // Load staff from Redux store on mount
   useEffect(() => {
-    const storedClients = localStorage.getItem(CALENDAR_STAFF_STORAGE_KEY);
-    if (storedClients) {
-      try {
-        setStaff(JSON.parse(storedClients));
-      } catch (error) {
-        console.error("Error loading clients from localStorage:", error);
+    const fetchStaff = async () => {
+      const result = await dispatch(getAllStaffAction());
+      if (result.success) {
+        // Staff will be updated via staffFromStore useEffect
+      } else {
+        console.error("Error loading staff:", result.error);
+        // Fallback to localStorage if API fails
+        const storedClients = localStorage.getItem(CALENDAR_STAFF_STORAGE_KEY);
+        if (storedClients) {
+          try {
+            setStaff(JSON.parse(storedClients));
+          } catch (parseError) {
+            console.error("Error loading clients from localStorage:", parseError);
+          }
+        }
       }
+    };
+
+    // Only fetch if store is empty
+    if (staffFromStore.length === 0) {
+      fetchStaff();
     }
-  }, []);
+  }, [dispatch]);
+
+  // Sync staff from Redux store to local state
+  useEffect(() => {
+    if (staffFromStore.length > 0) {
+      const transformedStaff = staffFromStore.map(transformStaff);
+      setStaff(transformedStaff);
+    }
+  }, [staffFromStore]);
 
   // Check if we need to open a staff card (from business profile)
   useEffect(() => {
@@ -776,19 +930,33 @@ export default function CalendarStaffPage() {
 
   // Removed clientAdvancedStats - not needed for staff management
 
-  const handleDeleteStaff = (staffId) => {
+  const handleDeleteStaff = async (staffId) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי למחוק אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     if (!window.confirm("האם אתה בטוח שאתה רוצה למחוק את איש הצוות הזה?")) {
-            return;
-          }
-          
-    const updatedStaff = staff.filter((s) => s.id !== staffId);
-    setStaff(updatedStaff);
-    localStorage.setItem(CALENDAR_STAFF_STORAGE_KEY, JSON.stringify(updatedStaff));
+      return;
+    }
     
-    // If the deleted staff member was being viewed, close the summary
-    if (selectedStaffForView?.id === staffId) {
-      setShowStaffSummary(false);
-      setSelectedStaffForView(null);
+    try {
+      const result = await dispatch(deleteStaffAction(staffId));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      
+      const updatedStaff = staff.filter((s) => s.id !== staffId);
+      setStaff(updatedStaff);
+      
+      // If the deleted staff member was being viewed, close the summary
+      if (selectedStaffForView?.id === staffId) {
+        setShowStaffSummary(false);
+        setSelectedStaffForView(null);
+      }
+    } catch (error) {
+      console.error("Error deleting staff:", error);
+      alert(error.message || "שגיאה במחיקת איש צוות. נסה שוב.");
     }
   };
 
@@ -831,17 +999,31 @@ export default function CalendarStaffPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteSelectedClients = () => {
+  const handleDeleteSelectedClients = async () => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי למחוק אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     if (selectedStaff.length === 0) {
       alert("אנא בחר לפחות איש צוות אחד למחיקה");
       return;
     }
 
     if (window.confirm(`האם אתה בטוח שאתה רוצה למחוק ${selectedStaff.length} איש/אנשי צוות?`)) {
-      const updatedStaff = staff.filter((s) => !selectedStaff.includes(s.id));
-      setStaff(updatedStaff);
-      localStorage.setItem(CALENDAR_STAFF_STORAGE_KEY, JSON.stringify(updatedStaff));
-      setSelectedStaff([]);
+      try {
+        const result = await dispatch(deleteMultipleStaffAction(selectedStaff));
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        
+        const updatedStaff = staff.filter((s) => !selectedStaff.includes(s.id));
+        setStaff(updatedStaff);
+        setSelectedStaff([]);
+      } catch (error) {
+        console.error("Error deleting staff:", error);
+        alert(error.message || "שגיאה במחיקת אנשי צוות. נסה שוב.");
+      }
     }
   };
 
@@ -869,7 +1051,12 @@ export default function CalendarStaffPage() {
   };
 
   // Handle creating a new staff member
-  const handleCreateNewStaff = () => {
+  const handleCreateNewStaff = async () => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי ליצור אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     const errors = {};
     if (!newStaffName.trim()) {
       errors.name = "שם הוא שדה חובה";
@@ -887,51 +1074,73 @@ export default function CalendarStaffPage() {
       return;
     }
 
-    const initials = newStaffName
-      .trim()
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
+    try {
+      // Create staff via Redux action
+      const staffData = {
+        fullName: newStaffName.trim(),
+        phone: formatPhoneForBackend(phoneDigits),
+        email: newStaffEmail.trim() || null,
+        city: newStaffCity.trim() || null,
+        address: newStaffAddress.trim() || null,
+      };
 
-    const newStaffMember = {
-      id: Date.now(),
-      name: newStaffName.trim(),
-      phone: formatPhoneForBackend(phoneDigits),
-      email: newStaffEmail.trim(),
-      city: newStaffCity.trim(),
-      address: newStaffAddress.trim(),
-      initials: initials || "ל",
-      status: "פעיל",
-      services: DEMO_SERVICES.map(service => ({
-        id: service.id,
-        duration: service.duration,
-        price: service.price
-      })), // Initialize with all services enabled by default
-      createdAt: new Date().toISOString(),
-    };
+      const result = await dispatch(createStaffAction(staffData));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const createdStaff = result.data;
 
-    // Add staff member to staff list
-    const updatedStaff = [newStaffMember, ...staff];
-    setStaff(updatedStaff);
-    localStorage.setItem(CALENDAR_STAFF_STORAGE_KEY, JSON.stringify(updatedStaff));
-    
-    // Close modal
-    setIsNewStaffModalOpen(false);
-    
-    // Reset form fields
-    setNewStaffName("");
-    setNewStaffPhone("");
-    setNewStaffEmail("");
-    setNewStaffCity("");
-    setNewStaffAddress("");
-    setNewStaffErrors({});
+      // Transform API response to match frontend format
+      const initials = newStaffName
+        .trim()
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
+      const newStaffMember = {
+        id: createdStaff.id,
+        name: createdStaff.fullName || newStaffName.trim(),
+        phone: createdStaff.phone || formatPhoneForBackend(phoneDigits),
+        email: createdStaff.email || "",
+        city: createdStaff.city || "",
+        address: createdStaff.address || "",
+        initials: initials || "ל",
+        status: createdStaff.isActive ? "פעיל" : "לא פעיל",
+        services: DEMO_SERVICES.map(service => ({
+          id: service.id,
+          duration: service.duration,
+          price: service.price
+        })),
+        createdAt: createdStaff.createdAt || new Date().toISOString(),
+      };
+
+      // Add staff member to staff list
+      const updatedStaff = [newStaffMember, ...staff];
+      setStaff(updatedStaff);
+      
+      // Close modal
+      setIsNewStaffModalOpen(false);
+      
+      // Reset form fields
+      setNewStaffName("");
+      setNewStaffPhone("");
+      setNewStaffEmail("");
+      setNewStaffCity("");
+      setNewStaffAddress("");
+      setNewStaffErrors({});
+    } catch (error) {
+      console.error("Error creating staff:", error);
+      setNewStaffErrors({ 
+        submit: error.message || "שגיאה ביצירת איש צוות. נסה שוב." 
+      });
+    }
   };
 
   return (
-    <div className="w-full bg-[#ffffff]" dir="rtl">
+    <div className="w-full bg-gray-50 dark:bg-customBlack" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
@@ -941,12 +1150,12 @@ export default function CalendarStaffPage() {
                 רשימת צוות
               </h1>
               {staff.length > 0 && (
-                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
+                <span className="text-sm text-gray-500 dark:text-white bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
                   {staff.length}
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-white">
               צפה, הוסף, ערוך ומחק את פרטי אנשי הצוות שלך.{" "}
               <a href="#" className="text-[#ff257c] hover:underline">למד עוד</a>
             </p>
@@ -954,6 +1163,10 @@ export default function CalendarStaffPage() {
           <div className="flex items-center gap-2">
               <button
               onClick={() => {
+                if (!hasActiveSubscription) {
+                  alert('נדרש מנוי פעיל כדי ליצור אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
                 setNewStaffName("");
                 setNewStaffPhone("");
                 setNewStaffEmail("");
@@ -962,7 +1175,13 @@ export default function CalendarStaffPage() {
                 setNewStaffErrors({});
                 setIsNewStaffModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-all duration-200 font-semibold text-sm flex items-center gap-2"
+              disabled={!hasActiveSubscription || subscriptionLoading}
+              className={`px-4 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
+                !hasActiveSubscription || subscriptionLoading
+                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-white cursor-not-allowed'
+                  : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
+              }`}
+              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי ליצור אנשי צוות' : ''}
             >
               חדש
               <FiPlus className="text-base" />
@@ -1445,7 +1664,7 @@ export default function CalendarStaffPage() {
                 >
                   <div className="py-2">
                     {/* קטגוריה: מיון */}
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">
                       מיון
                     </div>
                     {[
@@ -1489,7 +1708,7 @@ export default function CalendarStaffPage() {
 
                     {/* קטגוריה: פרטים */}
                     <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      <div className="text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">
                         פרטים
                       </div>
                       <button
@@ -1498,7 +1717,7 @@ export default function CalendarStaffPage() {
                           e.stopPropagation();
                           selectAllFieldsInCategory(["name", "status", "phone", "email", "city", "address"]);
                         }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
+                        className="text-xs text-gray-600 dark:text-white hover:text-[#ff257c] transition-colors"
                       >
                         סמן הכל
                       </button>
@@ -1580,7 +1799,7 @@ export default function CalendarStaffPage() {
               className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
                 selectedStaff.length === 0
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-gray-400 hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
+                  : "text-gray-600 dark:text-white hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
               }`}
               title="הורדת אנשי צוות נבחרים"
             >
@@ -1589,14 +1808,20 @@ export default function CalendarStaffPage() {
 
             {/* Delete Button */}
             <button
-              onClick={handleDeleteSelectedClients}
-              disabled={selectedStaff.length === 0}
+              onClick={() => {
+                if (!hasActiveSubscription) {
+                  alert('נדרש מנוי פעיל כדי למחוק אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
+                handleDeleteSelectedClients();
+              }}
+              disabled={selectedStaff.length === 0 || !hasActiveSubscription || subscriptionLoading}
               className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
-                selectedStaff.length === 0
+                selectedStaff.length === 0 || !hasActiveSubscription || subscriptionLoading
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
+                  : "text-gray-600 dark:text-white hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
               }`}
-              title="מחיקת אנשי צוות נבחרים"
+              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי למחוק אנשי צוות' : 'מחיקת אנשי צוות נבחרים'}
             >
               <FiTrash2 className="text-sm" />
             </button>
@@ -1607,17 +1832,24 @@ export default function CalendarStaffPage() {
         {!visibleFields.phone ? (
           <div className="p-12 text-center">
             <span className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4 block">📱</span>
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
+            <p className="text-gray-500 dark:text-white text-lg">
               יש לבחור את "מספר נייד" בתצוגה כדי לראות את רשימת אנשי הצוות
             </p>
             <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
               אנא סמן את "מספר נייד" בכפתור הסינון כדי להציג את אנשי הצוות
             </p>
           </div>
+        ) : isLoadingStaff ? (
+          <div className="p-12 text-center">
+            <div className="mx-auto w-8 h-8 border-4 border-gray-200 dark:border-gray-700 border-t-[#ff257c] rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-500 dark:text-white text-lg">
+              טוען אנשי צוות...
+            </p>
+          </div>
         ) : filteredAndSortedStaff.length === 0 ? (
           <div className="p-12 text-center">
             <span className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4 block">☺</span>
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
+            <p className="text-gray-500 dark:text-white text-lg">
               {searchQuery ? "לא נמצאו אנשי צוות התואמים לחיפוש" : "אין אנשי צוות עדיין"}
             </p>
             {!searchQuery && (
@@ -1637,21 +1869,21 @@ export default function CalendarStaffPage() {
               {visibleFields.name && (
                 <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
                   <div className="w-8 h-8 flex-shrink-0"></div>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                 שם איש צוות
                 </span>
               </div>
               )}
               {visibleFields.status && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.statusToPhone}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     סטטוס
                   </span>
                 </div>
               )}
               {visibleFields.phone && (
                 <div className="w-40 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.phoneToRating}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                 מספר נייד
                   </span>
                   <div className="w-[52px] flex-shrink-0"></div>
@@ -1659,21 +1891,21 @@ export default function CalendarStaffPage() {
               )}
               {visibleFields.email && (
                 <div className="w-40 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     אימייל
                   </span>
                 </div>
               )}
               {visibleFields.city && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     עיר
                   </span>
                 </div>
               )}
               {visibleFields.address && (
                 <div className="w-40 flex items-center justify-start flex-shrink-0" style={{ marginRight: `16px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">
                     כתובת
                   </span>
                 </div>
@@ -1727,7 +1959,7 @@ export default function CalendarStaffPage() {
                   {/* שם איש צוות עם אייקון */}
                   {visibleFields.name && (
                     <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
-                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-gray-300 flex-shrink-0 overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-white flex-shrink-0 overflow-hidden">
                         {staffMember.profileImage ? (
                           <img 
                             src={staffMember.profileImage} 
@@ -1756,9 +1988,17 @@ export default function CalendarStaffPage() {
                         />
                       ) : (
                         <div 
-                          className="flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate cursor-pointer hover:text-[#ff257c]"
+                          className={`flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate ${
+                            !hasActiveSubscription || subscriptionLoading
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'cursor-pointer hover:text-[#ff257c]'
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!hasActiveSubscription) {
+                              alert('נדרש מנוי פעיל כדי לערוך אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                              return;
+                            }
                             setEditingFieldInList(`name-${staffMember.id}`);
                           }}
                         >
@@ -1916,9 +2156,17 @@ export default function CalendarStaffPage() {
                       ) : (
                         <>
                           <div 
-                            className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer hover:text-[#ff257c]"
+                            className={`text-sm text-gray-700 dark:text-white whitespace-nowrap ${
+                              !hasActiveSubscription || subscriptionLoading
+                                ? 'cursor-not-allowed opacity-50'
+                                : 'cursor-pointer hover:text-[#ff257c]'
+                            }`}
                             onClick={(e) => {
                               e.stopPropagation();
+                              if (!hasActiveSubscription) {
+                                alert('נדרש מנוי פעיל כדי לערוך אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                                return;
+                              }
                               setEditingFieldInList(`phone-${staffMember.id}`);
                             }}
                           >
@@ -1935,7 +2183,7 @@ export default function CalendarStaffPage() {
                                   window.location.href = `tel:${staffMember.phone}`;
                                 }}
                               >
-                                <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                                <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
                               </button>
                               <button
                                 type="button"
@@ -1982,9 +2230,17 @@ export default function CalendarStaffPage() {
                         />
                       ) : (
                         <div 
-                          className="text-sm text-gray-700 dark:text-gray-300 truncate cursor-pointer hover:text-[#ff257c]"
+                          className={`text-sm text-gray-700 dark:text-white truncate ${
+                            !hasActiveSubscription || subscriptionLoading
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'cursor-pointer hover:text-[#ff257c]'
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!hasActiveSubscription) {
+                              alert('נדרש מנוי פעיל כדי לערוך אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                              return;
+                            }
                             setEditingFieldInList(`email-${staffMember.id}`);
                           }}
                         >
@@ -1997,7 +2253,7 @@ export default function CalendarStaffPage() {
                   {/* עיר */}
                   {visibleFields.city && (
                     <div className="w-32 flex-shrink-0" style={{ marginRight: `16px` }}>
-                      <div className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                      <div className="text-sm text-gray-700 dark:text-white truncate">
                         {staffMember.city || "-"}
                     </div>
                   </div>
@@ -2006,7 +2262,7 @@ export default function CalendarStaffPage() {
                   {/* כתובת */}
                   {visibleFields.address && (
                     <div className="w-40 flex-shrink-0" style={{ marginRight: `16px` }}>
-                      <div className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                      <div className="text-sm text-gray-700 dark:text-white truncate">
                         {staffMember.address || "-"}
                       </div>
                     </div>
@@ -2029,23 +2285,41 @@ export default function CalendarStaffPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!hasActiveSubscription) {
+                          alert('נדרש מנוי פעיל כדי לערוך אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                          return;
+                        }
                         setSelectedStaffForView(staffMember);
                         setShowStaffSummary(true);
                         setStaffViewTab("details");
                         setEditingField("name");
                       }}
-                      className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
-                      title="ערוך"
+                      disabled={!hasActiveSubscription || subscriptionLoading}
+                      className={`p-2 rounded-lg transition ${
+                        !hasActiveSubscription || subscriptionLoading
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                          : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                      }`}
+                      title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי לערוך אנשי צוות' : 'ערוך'}
                     >
                       <FiEdit className="text-base" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!hasActiveSubscription) {
+                          alert('נדרש מנוי פעיל כדי למחוק אנשי צוות. אנא הירשם למנוי כדי להמשיך.');
+                          return;
+                        }
                         handleDeleteStaff(staffMember.id);
                       }}
-                      className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition"
-                      title="מחק"
+                      disabled={!hasActiveSubscription || subscriptionLoading}
+                      className={`p-2 rounded-lg transition ${
+                        !hasActiveSubscription || subscriptionLoading
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                          : 'text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                      }`}
+                      title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי למחוק אנשי צוות' : 'מחק'}
                     >
                       <FiTrash2 className="text-base" />
                     </button>
@@ -2172,7 +2446,7 @@ export default function CalendarStaffPage() {
                       </div>
                       {selectedStaffForView?.phone && (
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-sm text-gray-600 dark:text-white">
                             {formatPhoneForDisplay(selectedStaffForView.phone)}
                           </span>
                           <button
@@ -2184,7 +2458,7 @@ export default function CalendarStaffPage() {
                               window.location.href = `tel:${selectedStaffForView.phone}`;
                             }}
                           >
-                            <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
                           </button>
                           <button
                             type="button"
@@ -2226,7 +2500,7 @@ export default function CalendarStaffPage() {
                           className={`relative pb-3 pt-1 font-medium transition-colors ${
                             staffViewTab === key
                               ? "text-gray-900 dark:text-white"
-                              : "text-gray-500 dark:text-gray-400"
+                              : "text-gray-500 dark:text-white"
                           }`}
                         >
                           {label}
@@ -2255,10 +2529,10 @@ export default function CalendarStaffPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiUser className="text-gray-600 dark:text-gray-400" />
+                        <FiUser className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">שם מלא</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">שם מלא</div>
                         {editingField === "name" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2290,7 +2564,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("name");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2305,7 +2579,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 setEditingField("name");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2325,10 +2599,10 @@ export default function CalendarStaffPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiPhone className="text-gray-600 dark:text-gray-400" />
+                        <FiPhone className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">טלפון</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">טלפון</div>
                         {editingField === "phone" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2361,7 +2635,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("phone");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2376,7 +2650,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 setEditingField("phone");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2396,10 +2670,10 @@ export default function CalendarStaffPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiMail className="text-gray-600 dark:text-gray-400" />
+                        <FiMail className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">אימייל</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">אימייל</div>
                         {editingField === "email" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2432,7 +2706,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("email");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2447,7 +2721,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 setEditingField("email");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2467,10 +2741,10 @@ export default function CalendarStaffPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiMapPin className="text-gray-600 dark:text-gray-400" />
+                        <FiMapPin className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">עיר</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">עיר</div>
                         {editingField === "city" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2503,7 +2777,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("city");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2518,7 +2792,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 setEditingField("city");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2538,10 +2812,10 @@ export default function CalendarStaffPage() {
                       }}
                     >
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiHome className="text-gray-600 dark:text-gray-400" />
+                        <FiHome className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">כתובת</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">כתובת</div>
                         {editingField === "address" ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -2574,7 +2848,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 handleCancelEditField("address");
                               }}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center p-0"
                             >
                               <FiX className="text-sm" />
                             </button>
@@ -2589,7 +2863,7 @@ export default function CalendarStaffPage() {
                                 e.stopPropagation();
                                 setEditingField("address");
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full bg-gray-100 dark:bg-[#2a2a2a] text-gray-600 dark:text-white hover:bg-gray-200 dark:hover:bg-[#333333] transition-all"
                             >
                               <FiEdit className="text-xs" />
                             </button>
@@ -2601,10 +2875,10 @@ export default function CalendarStaffPage() {
                     {/* סטטוס */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FiCheckCircle className="text-gray-600 dark:text-gray-400" />
+                        <FiCheckCircle className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1 relative">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">סטטוס</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">סטטוס</div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2710,10 +2984,10 @@ export default function CalendarStaffPage() {
                     {/* דירוג */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                        <FaStar className="text-gray-600 dark:text-gray-400" />
+                        <FaStar className="text-gray-600 dark:text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">דירוג</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">דירוג</div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {selectedStaffForView?.rating || "-"}
                         </div>
@@ -2723,10 +2997,10 @@ export default function CalendarStaffPage() {
                     {/* תאריך יצירה */}
                               <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-[#2a2a2a] flex items-center justify-center">
-                                  <FiCalendar className="text-gray-600 dark:text-gray-400" />
+                                  <FiCalendar className="text-gray-600 dark:text-white" />
                                 </div>
                                 <div className="flex-1">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">תאריך יצירה</div>
+                        <div className="text-xs text-gray-500 dark:text-white mb-1">תאריך יצירה</div>
                                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {selectedStaffForView?.createdAt 
                             ? formatDate(new Date(selectedStaffForView.createdAt))
@@ -2743,16 +3017,16 @@ export default function CalendarStaffPage() {
                       {/* Headers */}
                       <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-[#2b2b2b] mb-2">
                         <div className="flex-1 grid grid-cols-4 gap-4">
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white">
                             שם שירות
                           </div>
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white">
                             משך שירות
                           </div>
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white">
                             מחיר
                           </div>
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300 text-center">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white text-center">
                             פעיל / לא פעיל
                           </div>
                         </div>
@@ -2795,7 +3069,7 @@ export default function CalendarStaffPage() {
                                               [service.id]: !prev[service.id]
                                             }));
                                           }}
-                                          className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                          className="flex items-center gap-1 text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
                                         >
                                           <FiClock className="text-[14px]" />
                                           <span>{currentDuration}</span>
@@ -2866,7 +3140,7 @@ export default function CalendarStaffPage() {
                                             [service.id]: true
                                           }));
                                         }}
-                                        className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                        className="flex items-center gap-1 text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
                                       >
                                         <FiClock className="text-[12px]" />
                                         <span>{currentDuration}</span>
@@ -3026,16 +3300,16 @@ export default function CalendarStaffPage() {
                       {/* Headers */}
                       <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-[#2b2b2b] mb-2">
                         <div className="flex-1 grid grid-cols-4 gap-4">
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white">
                             יום
                           </div>
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white">
                             התחלה
                           </div>
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white">
                             סיום
                           </div>
-                          <div className="text-[15px] font-semibold text-gray-700 dark:text-gray-300 text-center">
+                          <div className="text-[15px] font-semibold text-gray-700 dark:text-white text-center">
                             פעיל / לא פעיל
                           </div>
                         </div>
@@ -3074,7 +3348,7 @@ export default function CalendarStaffPage() {
                                           [`start-${dayIndex}`]: !prev[`start-${dayIndex}`]
                                         }));
                                       }}
-                                      className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                      className="flex items-center gap-1 text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
                                     >
                                       <FiClock className="text-[14px]" />
                                       <span>{startTime}</span>
@@ -3148,7 +3422,7 @@ export default function CalendarStaffPage() {
                                           [`end-${dayIndex}`]: !prev[`end-${dayIndex}`]
                                         }));
                                       }}
-                                      className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                      className="flex items-center gap-1 text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
                                     >
                                       <FiClock className="text-[14px]" />
                                       <span>{endTime}</span>
@@ -3247,7 +3521,7 @@ export default function CalendarStaffPage() {
                   {/* Advanced Data Tab */}
                   {staffViewTab === "advanced" && (
                     <div className="space-y-4 mt-6">
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <div className="text-sm text-gray-600 dark:text-white">
                         נתונים מתקדמים
                       </div>
                     </div>

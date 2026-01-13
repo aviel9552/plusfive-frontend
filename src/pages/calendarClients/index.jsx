@@ -26,9 +26,16 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 import { BRAND_COLOR, CALENDAR_EVENTS_STORAGE_KEY } from "../../utils/calendar/constants";
 import { ClientSummaryCard } from "../../components/calendar/Panels/ClientSummaryCard";
-import { getAllClients, createClient } from "../../services/clients/clientService";
 import gradientImage from "../../assets/gradientteam.jpg";
 import whatsappIcon from "../../assets/whatsappicon.png";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getMyCustomersAction,
+  addCustomerAction,
+  updateCustomerAction,
+  removeCustomerAction,
+} from "../../redux/actions/customerActions";
+import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
 
 const CALENDAR_CLIENTS_STORAGE_KEY = "calendar_clients";
 const COLUMN_SPACING_STORAGE_KEY = "calendar_clients_column_spacing";
@@ -36,6 +43,10 @@ const VISIBLE_FIELDS_STORAGE_KEY = "calendar_clients_visible_fields";
 
 export default function CalendarClientsPage() {
   const { isDarkMode } = useTheme();
+  const dispatch = useDispatch();
+  const { customers: customersFromStore, loading: isLoadingCustomers, error: customersError } = useSelector(
+    (state) => state.customer
+  );
 
   const [clients, setClients] = useState([]);
   const [isLoadingClients, setIsLoadingClients] = useState(true);
@@ -71,6 +82,12 @@ export default function CalendarClientsPage() {
   const [csvFile, setCsvFile] = useState(null);
   const [csvImportProgress, setCsvImportProgress] = useState(null);
   const fileInputRef = useRef(null);
+
+  // Check subscription status using custom hook
+  const { hasActiveSubscription, subscriptionLoading } = useSubscriptionCheck({
+    pageName: 'CALENDAR CLIENTS PAGE',
+    enableLogging: false
+  });
 
   // New client modal state (inline modal implemented here)
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
@@ -187,33 +204,37 @@ export default function CalendarClientsPage() {
     }
   }, [visibleFields]);
 
-  // Load clients from backend on mount
+  // Load clients from Redux store on mount
   useEffect(() => {
     const loadClients = async () => {
       setIsLoadingClients(true);
       setClientsError(null);
       setIsAuthError(false);
-      
-      try {
-        const result = await getAllClients();
-        
-        if (result?.error) {
-          setClientsError(result.error);
-          setIsAuthError(!!result.isAuthError);
-        }
 
-        if (Array.isArray(result?.clients)) {
-          setClients(result.clients);
-        } else {
-          // fallback: try localStorage
-          const stored = localStorage.getItem(CALENDAR_CLIENTS_STORAGE_KEY);
-          setClients(stored ? JSON.parse(stored) : []);
+      try {
+        const result = await dispatch(getMyCustomersAction());
+
+        if (!result.success) {
+          setClientsError(result.error || "Failed to load customers");
+          setIsAuthError(false);
+
+          // Fallback to localStorage if API fails
+          try {
+            const storedClients = localStorage.getItem(CALENDAR_CLIENTS_STORAGE_KEY);
+            if (storedClients) {
+              const parsedClients = JSON.parse(storedClients);
+              setClients(parsedClients);
+            }
+          } catch (parseError) {
+            console.error("Error loading clients from localStorage:", parseError);
+          }
         }
       } catch (error) {
         console.error("Error loading clients:", error);
         setClientsError(error?.message || "Failed to load customers");
         setIsAuthError(false);
 
+        // Fallback to localStorage
         try {
           const storedClients = localStorage.getItem(CALENDAR_CLIENTS_STORAGE_KEY);
           if (storedClients) setClients(JSON.parse(storedClients));
@@ -224,9 +245,61 @@ export default function CalendarClientsPage() {
         setIsLoadingClients(false);
       }
     };
-    
+
     loadClients();
-  }, []);
+  }, [dispatch]);
+
+  // Sync customers from Redux store to local state
+  useEffect(() => {
+    if (customersFromStore.length > 0) {
+      // Transform customers from API format to frontend format
+      // Backend returns CustomerMaster objects with nested 'customer' (User) object
+      const transformedClients = customersFromStore.map((c) => {
+        // Handle nested customer object from CustomerMaster
+        const customer = c.customer || c; // Fallback to c if customer doesn't exist
+        const firstName = customer.firstName || c.firstName || "";
+        const lastName = customer.lastName || c.lastName || "";
+        const fullName = c.customerFullName || customer.customerFullName || `${firstName} ${lastName}`.trim() || "ללא שם";
+        const initials =
+          fullName
+            .trim()
+            .split(" ")
+            .filter(Boolean)
+            .map((part) => part[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase() || "ל";
+
+        // Map backend status to frontend status
+        let frontendStatus = "פעיל";
+        if (c.status === "inactive" || c.status === "לא פעיל") {
+          frontendStatus = "לא פעיל";
+        } else if (c.status === "active" || c.status === "פעיל") {
+          frontendStatus = "פעיל";
+        } else if (c.status) {
+          frontendStatus = c.status;
+        }
+
+        return {
+          id: c.id, // CustomerMaster id
+          customerId: customer.id || c.customerId, // User id (customer)
+          name: fullName,
+          firstName: firstName,
+          lastName: lastName,
+          phone: c.customerPhone || customer.phoneNumber || customer.customerPhone || "",
+          email: customer.email || c.email || "",
+          city: "", // City and address might need separate fields in backend
+          address: customer.address || c.address || "",
+          initials: initials,
+          status: frontendStatus,
+          rating: c.rating || "-",
+          totalRevenue: c.totalPaid || 0,
+          createdAt: c.createdAt || customer.createdAt || new Date().toISOString(),
+        };
+      });
+      setClients(transformedClients);
+    }
+  }, [customersFromStore]);
 
   // Helpers
   const toggleFieldVisibility = (fieldName) => {
@@ -560,59 +633,169 @@ export default function CalendarClientsPage() {
   }, [clients, searchQuery, sortBy, selectedStatus, selectedRating]);
 
   // Client updates
-  const handleClientUpdate = (updatedClient) => {
-    const updatedClients = clients.map((c) => (c.id === updatedClient.id ? updatedClient : c));
-    setClients(updatedClients);
-    setSelectedClientForView(updatedClient);
+  const handleClientUpdate = async (updatedClient) => {
+    // Update via API
+    const updateData = {};
+    if (updatedClient.name) {
+      const nameParts = updatedClient.name.trim().split(" ").filter(Boolean);
+      updateData.firstName = nameParts[0] || "";
+      updateData.lastName = nameParts.slice(1).join(" ") || updateData.firstName;
+    }
+    if (updatedClient.phone) {
+      updateData.phoneNumber = formatPhoneForBackend(updatedClient.phone.replace(/\D/g, ""));
+    }
+    if (updatedClient.email !== undefined) {
+      updateData.email = updatedClient.email.trim();
+    }
+    if (updatedClient.address !== undefined) {
+      updateData.address = updatedClient.address.trim() || null;
+    }
+    if (updatedClient.status) {
+      const backendStatus = updatedClient.status === "פעיל" ? "active" : updatedClient.status === "לא פעיל" ? "inactive" : updatedClient.status;
+      updateData.status = backendStatus;
+    }
+
     try {
-      localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
-    } catch (e) {
-      console.error("Error saving clients:", e);
-    }
-  };
+      const result = await dispatch(updateCustomerAction(updatedClient.id, updateData));
 
-  const handleUpdateClientFieldInList = (clientId, field, value) => {
-    const updatedClients = clients.map((client) => (client.id === clientId ? { ...client, [field]: value } : client));
-    setClients(updatedClients);
-    try {
-      localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
-    } catch (e) {
-      console.error("Error saving clients:", e);
-    }
+      if (result.success) {
+        // Refresh customers list
+        await dispatch(getMyCustomersAction());
 
-    if (selectedClientForView?.id === clientId) {
-      const updatedClient = updatedClients.find((c) => c.id === clientId);
-      setSelectedClientForView(updatedClient || null);
-    }
-  };
-
-  const handleUpdateClientStatus = (clientId, newStatus) => {
-    const updatedClients = clients.map((client) => (client.id === clientId ? { ...client, status: newStatus } : client));
-    setClients(updatedClients);
-    try {
-      localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
-    } catch (e) {
-      console.error("Error saving clients:", e);
-    }
-
-    if (selectedClientForView?.id === clientId) {
-      const updatedClient = updatedClients.find((c) => c.id === clientId);
-      setSelectedClientForView(updatedClient || null);
-    }
-
-    setOpenStatusDropdowns((prev) => ({ ...prev, [clientId]: false }));
-  };
-
-  const handleDeleteClient = (clientId) => {
-    if (window.confirm("האם אתה בטוח שאתה רוצה למחוק את הלקוח הזה?")) {
-      const updatedClients = clients.filter((c) => c.id !== clientId);
-      setClients(updatedClients);
-      try {
-        localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
-      } catch (e) {
-        console.error("Error saving clients:", e);
+        // Update local state
+        const updatedClients = clients.map((c) => (c.id === updatedClient.id ? updatedClient : c));
+        setClients(updatedClients);
+        setSelectedClientForView(updatedClient);
+      } else {
+        console.error("Error updating client:", result.error);
+        alert("שגיאה בעדכון הלקוח: " + (result.error || "נסה שוב"));
       }
-      setSelectedClients((prev) => prev.filter((id) => id !== clientId));
+    } catch (error) {
+      console.error("Error updating client:", error);
+      alert("שגיאה בעדכון הלקוח: " + error.message);
+    }
+  };
+
+  const handleUpdateClientFieldInList = async (clientId, field, value) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך לקוחות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+    // Find the client to get current data
+    const client = clients.find((c) => c.id === clientId);
+    if (!client) return;
+
+    // Map frontend field names to backend field names
+    let updateData = {};
+    if (field === "name") {
+      // Split name into firstName and lastName
+      const nameParts = value.trim().split(" ").filter(Boolean);
+      updateData.firstName = nameParts[0] || "";
+      updateData.lastName = nameParts.slice(1).join(" ") || updateData.firstName;
+    } else if (field === "phone") {
+      updateData.phoneNumber = formatPhoneForBackend(value.replace(/\D/g, ""));
+    } else if (field === "email") {
+      updateData.email = value.trim();
+    } else if (field === "address") {
+      updateData.address = value.trim() || null;
+    } else if (field === "city") {
+      // City is part of address in backend, so combine with existing address
+      const existingAddress = client.address || "";
+      updateData.address = value.trim() ? `${value.trim()}, ${existingAddress}`.replace(/^,\s*/, "") : existingAddress;
+    }
+
+    try {
+      const result = await dispatch(updateCustomerAction(clientId, updateData));
+
+      if (result.success) {
+        // Refresh customers list
+        await dispatch(getMyCustomersAction());
+
+        // Update local state immediately for better UX
+        const updatedClients = clients.map((c) => (c.id === clientId ? { ...c, [field]: value } : c));
+        setClients(updatedClients);
+
+        if (selectedClientForView?.id === clientId) {
+          const updatedClient = updatedClients.find((c) => c.id === clientId);
+          setSelectedClientForView(updatedClient || null);
+        }
+      } else {
+        console.error("Error updating client:", result.error);
+        alert("שגיאה בעדכון הלקוח: " + (result.error || "נסה שוב"));
+      }
+    } catch (error) {
+      console.error("Error updating client:", error);
+      alert("שגיאה בעדכון הלקוח: " + error.message);
+    }
+  };
+
+  const handleUpdateClientStatus = async (clientId, newStatus) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+    // Map frontend status to backend status
+    const backendStatus = newStatus === "פעיל" ? "active" : newStatus === "לא פעיל" ? "inactive" : newStatus;
+
+    try {
+      const result = await dispatch(updateCustomerAction(clientId, { status: backendStatus }));
+
+      if (result.success) {
+        // Refresh customers list
+        await dispatch(getMyCustomersAction());
+
+        // Update local state immediately for better UX
+        const updatedClients = clients.map((client) => (client.id === clientId ? { ...client, status: newStatus } : client));
+        setClients(updatedClients);
+
+        if (selectedClientForView?.id === clientId) {
+          const updatedClient = updatedClients.find((c) => c.id === clientId);
+          setSelectedClientForView(updatedClient || null);
+        }
+
+        setOpenStatusDropdowns((prev) => ({ ...prev, [clientId]: false }));
+      } else {
+        console.error("Error updating client status:", result.error);
+        alert("שגיאה בעדכון סטטוס הלקוח: " + (result.error || "נסה שוב"));
+      }
+    } catch (error) {
+      console.error("Error updating client status:", error);
+      alert("שגיאה בעדכון סטטוס הלקוח: " + error.message);
+    }
+  };
+
+  const handleDeleteClient = async (clientId) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
+    if (window.confirm("האם אתה בטוח שאתה רוצה למחוק את הלקוח הזה?")) {
+      try {
+        const result = await dispatch(removeCustomerAction(clientId));
+
+        if (result.success) {
+          // Refresh customers list
+          await dispatch(getMyCustomersAction());
+
+          // Update local state immediately for better UX
+          const updatedClients = clients.filter((c) => c.id !== clientId);
+          setClients(updatedClients);
+          setSelectedClients((prev) => prev.filter((id) => id !== clientId));
+
+          // Close client summary if viewing deleted client
+          if (selectedClientForView?.id === clientId) {
+            setShowClientSummary(false);
+            setSelectedClientForView(null);
+          }
+        } else {
+          console.error("Error deleting client:", result.error);
+          alert("שגיאה במחיקת הלקוח: " + (result.error || "נסה שוב"));
+        }
+      } catch (error) {
+        console.error("Error deleting client:", error);
+        alert("שגיאה במחיקת הלקוח: " + error.message);
+      }
     }
   };
 
@@ -651,21 +834,42 @@ export default function CalendarClientsPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteSelectedClients = () => {
+  const handleDeleteSelectedClients = async () => {
     if (selectedClients.length === 0) {
       alert("אנא בחר לפחות לקוח אחד למחיקה");
       return;
     }
 
     if (window.confirm(`האם אתה בטוח שאתה רוצה למחוק ${selectedClients.length} לקוח/ים?`)) {
-      const updatedClients = clients.filter((c) => !selectedClients.includes(c.id));
-      setClients(updatedClients);
       try {
-        localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
-      } catch (e) {
-        console.error("Error saving clients:", e);
+        // Delete all selected clients
+        const deletePromises = selectedClients.map((clientId) => dispatch(removeCustomerAction(clientId)));
+        const results = await Promise.all(deletePromises);
+
+        // Check if all deletions were successful
+        const allSuccessful = results.every((result) => result.success);
+        if (allSuccessful) {
+          // Refresh customers list
+          await dispatch(getMyCustomersAction());
+
+          // Update local state
+          const updatedClients = clients.filter((c) => !selectedClients.includes(c.id));
+          setClients(updatedClients);
+          setSelectedClients([]);
+
+          // Close client summary if viewing deleted client
+          if (selectedClientForView && selectedClients.includes(selectedClientForView.id)) {
+            setShowClientSummary(false);
+            setSelectedClientForView(null);
+          }
+        } else {
+          const failedCount = results.filter((r) => !r.success).length;
+          alert(`נכשל במחיקת ${failedCount} מתוך ${selectedClients.length} לקוחות`);
+        }
+      } catch (error) {
+        console.error("Error deleting clients:", error);
+        alert("שגיאה במחיקת הלקוחות: " + error.message);
       }
-      setSelectedClients([]);
     }
   };
 
@@ -680,6 +884,11 @@ export default function CalendarClientsPage() {
 
   // Create new client
   const handleCreateNewClient = async () => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי ליצור לקוחות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+
     const errors = {};
     if (!newClientName.trim()) errors.name = "שם הוא שדה חובה";
 
@@ -687,50 +896,63 @@ export default function CalendarClientsPage() {
     if (!newClientPhone.trim()) errors.phone = "טלפון הוא שדה חובה";
     else if (phoneDigits.length !== 10) errors.phone = "מספר טלפון חייב להכיל בדיוק 10 ספרות";
 
+    // Email validation (required by backend)
+    if (!newClientEmail.trim()) {
+      errors.email = "אימייל הוא שדה חובה";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newClientEmail.trim())) {
+      errors.email = "אימייל לא תקין";
+    }
+
     setNewClientErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
-    const initials =
-      newClientName
-      .trim()
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-        .toUpperCase() || "ל";
+    // Split full name into firstName and lastName
+    const nameParts = newClientName.trim().split(" ").filter(Boolean);
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
 
-    const newClientData = {
-      name: newClientName.trim(),
-      phone: formatPhoneForBackend(phoneDigits),
-      email: newClientEmail.trim() || null,
-      city: newClientCity.trim() || "",
-      address: newClientAddress.trim() || "",
-      initials,
-      totalRevenue: 0,
-      rating: "-",
-      status: "פעיל",
+    // Combine city and address
+    const fullAddress = [newClientCity.trim(), newClientAddress.trim()].filter(Boolean).join(", ");
+
+    // Generate a temporary password (backend requires it)
+    const tempPassword = `Temp${Date.now()}${Math.random().toString(36).slice(2)}`;
+
+    // Prepare customer data according to backend API
+    const customerData = {
+      email: newClientEmail.trim(),
+      password: tempPassword,
+      firstName: firstName,
+      lastName: lastName || firstName,
+      phoneNumber: formatPhoneForBackend(phoneDigits),
+      address: fullAddress || null,
     };
 
     try {
-      // Save to backend (which also saves to localStorage as backup)
-      const createdClient = await createClient(newClientData);
-      
-      // Update state with the created client
-      const updatedClients = [createdClient, ...clients];
-      setClients(updatedClients);
-      
-      setIsNewClientModalOpen(false);
-      setNewClientName("");
-      setNewClientPhone("");
-      setNewClientEmail("");
-      setNewClientCity("");
-      setNewClientAddress("");
-      setNewClientErrors({});
+      // Call API to create customer
+      const result = await dispatch(addCustomerAction(customerData));
+
+      if (result.success) {
+        // Customer created successfully, refresh the customers list
+        await dispatch(getMyCustomersAction());
+
+        // Reset form
+        setIsNewClientModalOpen(false);
+        setNewClientName("");
+        setNewClientPhone("");
+        setNewClientEmail("");
+        setNewClientCity("");
+        setNewClientAddress("");
+        setNewClientErrors({});
+      } else {
+        // API error
+        setNewClientErrors({
+          general: result.error || "שגיאה ביצירת הלקוח. נסה שוב.",
+        });
+      }
     } catch (error) {
       console.error("Error creating client:", error);
-      setNewClientErrors({ 
-        general: "שגיאה ביצירת לקוח. נסה שוב." 
+      setNewClientErrors({
+        general: error.message || "שגיאה ביצירת הלקוח. נסה שוב.",
       });
     }
   };
@@ -776,7 +998,7 @@ export default function CalendarClientsPage() {
         return result;
       };
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const text = e.target?.result || "";
       const lines = String(text)
         .split(/\r?\n/)
@@ -861,23 +1083,71 @@ export default function CalendarClientsPage() {
         });
       }
 
-      setCsvImportProgress({
+      // Set initial progress
+      const initialProgress = {
         total: lines.length - 1,
-        imported: importedClients.length,
+        imported: 0,
         errors: errors.length,
         skipped: skipped.length,
         errorMessages: errors,
         skippedMessages: skipped,
-      });
+      };
+      setCsvImportProgress(initialProgress);
 
+      // Import clients via API
       if (importedClients.length > 0) {
-        const updatedClients = [...importedClients, ...clients];
-      setClients(updatedClients);
-        try {
-      localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
-        } catch (e2) {
-          console.error("Error saving clients:", e2);
+        let successCount = 0;
+        let failCount = 0;
+        const apiErrors = [...errors];
+
+        for (const importedClient of importedClients) {
+          try {
+            // Split name into firstName and lastName
+            const nameParts = importedClient.name.trim().split(" ").filter(Boolean);
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+
+            // Combine city and address
+            const fullAddress = [importedClient.city, importedClient.address].filter(Boolean).join(", ");
+
+            // Generate temporary password
+            const tempPassword = `Temp${Date.now()}${Math.random().toString(36).slice(2)}`;
+
+            // Prepare customer data
+            const customerData = {
+              email: importedClient.email || `temp${Date.now()}${Math.random().toString(36).slice(2)}@imported.com`,
+              password: tempPassword,
+              firstName: firstName,
+              lastName: lastName || firstName,
+              phoneNumber: importedClient.phone,
+              address: fullAddress || null,
+            };
+
+            const result = await dispatch(addCustomerAction(customerData));
+            if (result.success) {
+              successCount++;
+            } else {
+              failCount++;
+              apiErrors.push(`שגיאה ביצירת ${importedClient.name}: ${result.error}`);
+            }
+          } catch (error) {
+            failCount++;
+            apiErrors.push(`שגיאה ביצירת ${importedClient.name}: ${error.message}`);
+          }
         }
+
+        // Refresh customers list
+        await dispatch(getMyCustomersAction());
+
+        // Update progress
+        setCsvImportProgress({
+          total: lines.length - 1,
+          imported: successCount,
+          errors: apiErrors.length,
+          skipped: skipped.length,
+          errorMessages: apiErrors,
+          skippedMessages: skipped,
+        });
       }
     };
 
@@ -900,7 +1170,7 @@ export default function CalendarClientsPage() {
   };
 
   return (
-    <div className="w-full bg-[#ffffff]" dir="rtl">
+    <div className="w-full bg-gray-50 dark:bg-customBlack" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
@@ -908,12 +1178,12 @@ export default function CalendarClientsPage() {
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">רשימת לקוחות</h1>
               {clients.length > 0 && (
-                <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
+                <span className="text-sm text-gray-500 dark:text-white bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
                   {clients.length}
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-white">
               צפה, הוסף, ערוך ומחק את פרטי הלקוחות שלך.{" "}
               <a href="#" className="text-[#ff257c] hover:underline">
                 למד עוד
@@ -924,6 +1194,10 @@ export default function CalendarClientsPage() {
           <div className="flex items-center gap-2">
               <button
               onClick={() => {
+                if (!hasActiveSubscription) {
+                  alert('נדרש מנוי פעיל כדי ליצור לקוחות. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
                 setNewClientName("");
                 setNewClientPhone("");
                 setNewClientEmail("");
@@ -932,7 +1206,13 @@ export default function CalendarClientsPage() {
                 setNewClientErrors({});
                 setIsNewClientModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-all duration-200 font-semibold text-sm flex items-center gap-2"
+              disabled={!hasActiveSubscription || subscriptionLoading}
+              className={`px-4 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all duration-200 ${
+                !hasActiveSubscription || subscriptionLoading
+                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
+              }`}
+              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי ליצור לקוחות' : ''}
             >
               חדש
               <FiPlus className="text-base" />
@@ -1546,7 +1826,7 @@ export default function CalendarClientsPage() {
               className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
                 selectedClients.length === 0
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-gray-400 hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
+                  : "text-gray-900 dark:text-white hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
               }`}
               title="הורדת לקוחות נבחרים"
             >
@@ -1554,14 +1834,20 @@ export default function CalendarClientsPage() {
             </button>
 
             <button
-              onClick={handleDeleteSelectedClients}
-              disabled={selectedClients.length === 0}
+              onClick={() => {
+                if (!hasActiveSubscription) {
+                  alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
+                handleDeleteSelectedClients();
+              }}
+              disabled={selectedClients.length === 0 || !hasActiveSubscription || subscriptionLoading}
               className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
-                selectedClients.length === 0
+                selectedClients.length === 0 || !hasActiveSubscription || subscriptionLoading
                   ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
+                  : "text-gray-600 dark:text-white hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
               }`}
-              title="מחיקת לקוחות נבחרים"
+              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי למחוק לקוחות' : 'מחיקת לקוחות נבחרים'}
             >
               <FiTrash2 className="text-sm" />
             </button>
@@ -1627,7 +1913,7 @@ export default function CalendarClientsPage() {
 
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-700 dark:text-gray-300">סה"כ שורות:</span>
+                        <span className="text-gray-700 dark:text-white">סה"כ שורות:</span>
                         <span className="font-semibold">{csvImportProgress.total}</span>
                       </div>
 
@@ -1744,7 +2030,7 @@ export default function CalendarClientsPage() {
                   {/* שם לקוח */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                      <label className="text-medium font-medium text-gray-600 dark:text-white">
                         שם לקוח <span className="text-red-500">*</span>
                       </label>
                     </div>
@@ -1770,7 +2056,7 @@ export default function CalendarClientsPage() {
                   {/* מס נייד */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                      <label className="text-medium font-medium text-gray-600 dark:text-white">
                         מס נייד <span className="text-red-500">*</span>
                       </label>
                     </div>
@@ -1796,7 +2082,7 @@ export default function CalendarClientsPage() {
                   {/* מייל */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                      <label className="text-medium font-medium text-gray-600 dark:text-white">
                         מייל
                       </label>
                     </div>
@@ -1822,7 +2108,7 @@ export default function CalendarClientsPage() {
                   {/* עיר */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                      <label className="text-medium font-medium text-gray-600 dark:text-white">
                         עיר
                       </label>
                     </div>
@@ -1839,7 +2125,7 @@ export default function CalendarClientsPage() {
                   {/* כתובת */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-medium font-medium text-gray-600 dark:text-gray-300">
+                      <label className="text-medium font-medium text-gray-600 dark:text-white">
                         כתובת
                       </label>
                     </div>
@@ -1913,217 +2199,217 @@ export default function CalendarClientsPage() {
               {visibleFields.name && (
                 <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
                   <div className="w-8 h-8 flex-shrink-0"></div>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">שם לקוח</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם לקוח</span>
               </div>
               )}
 
               {visibleFields.status && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.statusToPhone}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">סטטוס</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">סטטוס</span>
                 </div>
               )}
 
               {visibleFields.phone && (
                 <div className="w-40 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.phoneToRating}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">מספר נייד</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">מספר נייד</span>
                   <div className="w-[52px] flex-shrink-0"></div>
                 </div>
               )}
 
               {visibleFields.email && (
                 <div className="w-40 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">אימייל</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">אימייל</span>
                 </div>
               )}
 
               {visibleFields.city && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">עיר</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">עיר</span>
                 </div>
               )}
 
               {visibleFields.address && (
                 <div className="w-40 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">כתובת</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">כתובת</span>
                 </div>
               )}
 
               {visibleFields.firstAppointmentDate && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">תאריך פגישה ראשונה</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">תאריך פגישה ראשונה</span>
                 </div>
               )}
 
               {/* הכנסות */}
               {visibleFields.totalRevenue && (
                 <div className="w-24 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.revenueToActions}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">סך הכנסות</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">סך הכנסות</span>
               </div>
               )}
 
               {visibleFields.avgRevenuePerVisit && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">ממוצע הכנסה לתור</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ממוצע הכנסה לתור</span>
                 </div>
               )}
 
               {visibleFields.avgTransaction && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">עסקה ממוצעת</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">עסקה ממוצעת</span>
                 </div>
               )}
 
               {visibleFields.lostRevenue && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">הכנסות שאבדו</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">הכנסות שאבדו</span>
                 </div>
               )}
 
               {visibleFields.recoveredRevenue && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">הכנסות שחזרו</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">הכנסות שחזרו</span>
                 </div>
               )}
 
               {/* פעילות לקוח */}
               {visibleFields.appointmentsCount && (
                 <div className="w-24 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">מספר תורים</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">מספר תורים</span>
                 </div>
               )}
 
               {visibleFields.avgVisitsPerYear && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">ביקור ממוצע בשנה</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ביקור ממוצע בשנה</span>
                 </div>
               )}
 
               {visibleFields.daysSinceLastAppointment && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">ימים מהתור האחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ימים מהתור האחרון</span>
                 </div>
               )}
 
               {visibleFields.avgTimeBetweenVisits && (
                 <div className="w-36 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">זמן ממוצע בין תורים</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן ממוצע בין תורים</span>
                 </div>
               )}
 
               {visibleFields.avgTimeFromBookingToAppointment && (
                 <div className="w-40 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">זמן בין קביעת תור לתור</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן בין קביעת תור לתור</span>
                 </div>
               )}
 
               {/* שביעות רצון */}
               {visibleFields.rating && (
                 <div className="w-20 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.ratingToRevenue}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">דירוג אחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">דירוג אחרון</span>
             </div>
               )}
 
               {visibleFields.avgRating && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">ממוצע דירוג</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ממוצע דירוג</span>
                 </div>
               )}
 
               {/* ביקור אחרון */}
               {visibleFields.lastAppointmentDate && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">תאריך תור אחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">תאריך תור אחרון</span>
                 </div>
               )}
 
               {visibleFields.lastAppointmentTime && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">זמן תור אחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן תור אחרון</span>
                 </div>
               )}
 
               {visibleFields.lastService && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">שירות אחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שירות אחרון</span>
                 </div>
               )}
 
               {visibleFields.lastRating && (
                 <div className="w-24 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">דירוג אחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">דירוג אחרון</span>
                 </div>
               )}
 
               {visibleFields.lastStaff && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">איש צוות אחרון</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">איש צוות אחרון</span>
                 </div>
               )}
 
               {/* שיווק */}
               {visibleFields.source && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">מקור הגעה</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">מקור הגעה</span>
                 </div>
               )}
 
               {visibleFields.leadDate && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">תאריך כניסת הליד</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">תאריך כניסת הליד</span>
                 </div>
               )}
 
               {visibleFields.timeToConversion && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">זמן להמרה</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן להמרה</span>
                 </div>
               )}
 
               {visibleFields.campaignName && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">שם קמפיין</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם קמפיין</span>
                 </div>
               )}
 
               {visibleFields.adSetName && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">שם אד-סט</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם אד-סט</span>
                 </div>
               )}
 
               {visibleFields.adName && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">שם מודעה</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם מודעה</span>
                 </div>
               )}
 
               {visibleFields.utmSource && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">UTM Source</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Source</span>
                 </div>
               )}
 
               {visibleFields.utmMedium && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">UTM Medium</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Medium</span>
                 </div>
               )}
 
               {visibleFields.utmCampaign && (
                 <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">UTM Campaign</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Campaign</span>
                 </div>
               )}
 
               {visibleFields.utmContent && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">UTM Content</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Content</span>
                 </div>
               )}
 
               {visibleFields.utmTerm && (
                 <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">UTM Term</span>
+                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Term</span>
                 </div>
               )}
 
@@ -2171,7 +2457,7 @@ export default function CalendarClientsPage() {
                   {/* Name */}
                   {visibleFields.name && (
                     <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
-                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-gray-300 flex-shrink-0 overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-white flex-shrink-0 overflow-hidden">
                         {client.profileImage ? (
                           <img src={client.profileImage} alt={client.name || "לקוח"} className="w-full h-full object-cover" />
                         ) : (
@@ -2211,6 +2497,10 @@ export default function CalendarClientsPage() {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (!hasActiveSubscription) {
+                            alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
+                            return;
+                          }
                           const rect = e.currentTarget.getBoundingClientRect();
                           setStatusDropdownPositions((prev) => ({
                             ...prev,
@@ -2221,7 +2511,12 @@ export default function CalendarClientsPage() {
                           }));
                           setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: !prev[client.id] }));
                         }}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium hover:opacity-90 transition text-white ${
+                        disabled={!hasActiveSubscription || subscriptionLoading}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition text-white ${
+                          !hasActiveSubscription || subscriptionLoading
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:opacity-90'
+                        } ${
                           (client.status || "פעיל") === "חסום" || (client.status || "פעיל") === "לא פעיל"
                             ? "bg-black dark:bg-white dark:text-black"
                             : ""
@@ -2291,12 +2586,21 @@ export default function CalendarClientsPage() {
 
                               <button
                                 type="button"
-                                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-red-600 dark:text-red-400"
+                                className={`w-full flex items-center justify-between px-3 py-2 text-red-600 dark:text-red-400 ${
+                                  !hasActiveSubscription || subscriptionLoading
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                                }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  if (!hasActiveSubscription) {
+                                    alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
+                                    return;
+                                  }
                                   setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
                                   handleDeleteClient(client.id);
                                 }}
+                                disabled={!hasActiveSubscription || subscriptionLoading}
                               >
                                 מחק לקוח
                                 <FiTrash2 />
@@ -2330,7 +2634,7 @@ export default function CalendarClientsPage() {
                       ) : (
                         <>
                           <div 
-                            className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer hover:text-[#ff257c]"
+                            className="text-sm text-gray-700 dark:text-white whitespace-nowrap cursor-pointer hover:text-[#ff257c]"
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditingField(`phone-${client.id}`);
@@ -2350,7 +2654,7 @@ export default function CalendarClientsPage() {
                               window.location.href = `tel:${client.phone}`;
                             }}
                           >
-                            <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
                           </button>
 
                           <button
@@ -2380,28 +2684,28 @@ export default function CalendarClientsPage() {
                   {/* Email - פרטים */}
                   {visibleFields.email && (
                     <div className="w-40 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.email || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.email || "-"}</div>
                   </div>
                   )}
 
                   {/* City - פרטים */}
                   {visibleFields.city && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.city || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.city || "-"}</div>
                   </div>
                   )}
 
                   {/* Address - פרטים */}
                   {visibleFields.address && (
                     <div className="w-40 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.address || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.address || "-"}</div>
                     </div>
                   )}
 
                   {/* First Appointment Date - פרטים */}
                   {visibleFields.firstAppointmentDate && (
                     <div className="w-32 flex-shrink-0">
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                    <div className="text-sm text-gray-700 dark:text-white">
                         {client.firstAppointmentDate ? formatDate(new Date(client.firstAppointmentDate)) : "-"}
                     </div>
                   </div>
@@ -2410,91 +2714,91 @@ export default function CalendarClientsPage() {
                   {/* Total Revenue - הכנסות */}
                   {visibleFields.totalRevenue && (
                     <div className="w-24 flex-shrink-0" style={{ marginRight: `${columnSpacing.revenueToActions}px` }}>
-                      <div className="text-sm text-gray-700 dark:text-gray-300">₪{(client.totalRevenue || 0).toLocaleString()}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">₪{(client.totalRevenue || 0).toLocaleString()}</div>
                     </div>
                   )}
 
                   {/* Avg Revenue Per Visit - הכנסות */}
                   {visibleFields.avgRevenuePerVisit && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.avgRevenuePerVisit || 0).toLocaleString()}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.avgRevenuePerVisit || 0).toLocaleString()}</div>
                   </div>
                   )}
 
                   {/* Avg Transaction - הכנסות */}
                   {visibleFields.avgTransaction && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.avgTransaction || 0).toLocaleString()}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.avgTransaction || 0).toLocaleString()}</div>
                         </div>
                   )}
 
                   {/* Lost Revenue - הכנסות */}
                   {visibleFields.lostRevenue && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.lostRevenue || 0).toLocaleString()}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.lostRevenue || 0).toLocaleString()}</div>
                       </div>
                   )}
 
                   {/* Recovered Revenue - הכנסות */}
                   {visibleFields.recoveredRevenue && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.recoveredRevenue || 0).toLocaleString()}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.recoveredRevenue || 0).toLocaleString()}</div>
                         </div>
                   )}
 
                   {/* Appointments Count - פעילות לקוח */}
                   {visibleFields.appointmentsCount && (
                     <div className="w-24 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.count || 0}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.count || 0}</div>
                       </div>
                   )}
 
                   {/* Avg Visits Per Year - פעילות לקוח */}
                   {visibleFields.avgVisitsPerYear && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgVisitsPerYear || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgVisitsPerYear || "-"}</div>
                         </div>
                   )}
 
                   {/* Days Since Last Appointment - פעילות לקוח */}
                   {visibleFields.daysSinceLastAppointment && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.daysSinceLastAppointment || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.daysSinceLastAppointment || "-"}</div>
                       </div>
                   )}
 
                   {/* Avg Time Between Visits - פעילות לקוח */}
                   {visibleFields.avgTimeBetweenVisits && (
                     <div className="w-36 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgTimeBetweenVisits || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgTimeBetweenVisits || "-"}</div>
                         </div>
                   )}
 
                   {/* Avg Time From Booking To Appointment - פעילות לקוח */}
                   {visibleFields.avgTimeFromBookingToAppointment && (
                     <div className="w-40 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgTimeFromBookingToAppointment || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgTimeFromBookingToAppointment || "-"}</div>
                       </div>
                   )}
 
                   {/* Rating - שביעות רצון */}
                   {visibleFields.rating && (
                     <div className="w-20 flex-shrink-0" style={{ marginRight: `${columnSpacing.ratingToRevenue}px` }}>
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.rating || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.rating || "-"}</div>
                     </div>
                   )}
 
                   {/* Avg Rating - שביעות רצון */}
                   {visibleFields.avgRating && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgRating || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgRating || "-"}</div>
                   </div>
                   )}
 
                   {/* Last Appointment Date - ביקור אחרון */}
                   {visibleFields.lastAppointmentDate && (
                     <div className="w-32 flex-shrink-0">
-                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                        <div className="text-sm text-gray-700 dark:text-white">
                         {clientAppointmentsInfo.lastAppointmentDate ? formatDate(clientAppointmentsInfo.lastAppointmentDate) : "-"}
                         </div>
                       </div>
@@ -2503,42 +2807,42 @@ export default function CalendarClientsPage() {
                   {/* Last Appointment Time - ביקור אחרון */}
                   {visibleFields.lastAppointmentTime && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastAppointmentTime || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastAppointmentTime || "-"}</div>
                         </div>
                   )}
 
                   {/* Last Service - ביקור אחרון */}
                   {visibleFields.lastService && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastService || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastService || "-"}</div>
                       </div>
                   )}
 
                   {/* Last Rating - ביקור אחרון */}
                   {visibleFields.lastRating && (
                     <div className="w-24 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastRating || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastRating || "-"}</div>
                         </div>
                   )}
 
                   {/* Last Staff - ביקור אחרון */}
                   {visibleFields.lastStaff && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastStaff || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastStaff || "-"}</div>
                       </div>
                   )}
 
                   {/* Source */}
                   {visibleFields.source && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.source || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.source || "-"}</div>
                   </div>
                   )}
 
                   {/* Lead Date */}
                   {visibleFields.leadDate && (
                     <div className="w-32 flex-shrink-0">
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                    <div className="text-sm text-gray-700 dark:text-white">
                         {client.leadDate ? formatDate(new Date(client.leadDate)) : "-"}
                     </div>
                   </div>
@@ -2547,63 +2851,63 @@ export default function CalendarClientsPage() {
                   {/* Time To Conversion */}
                   {visibleFields.timeToConversion && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.timeToConversion || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.timeToConversion || "-"}</div>
                                 </div>
                   )}
 
                   {/* Campaign Name */}
                   {visibleFields.campaignName && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.campaignName || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.campaignName || "-"}</div>
                     </div>
                   )}
 
                   {/* Ad Set Name */}
                   {visibleFields.adSetName && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.adSetName || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.adSetName || "-"}</div>
                     </div>
                   )}
 
                   {/* Ad Name */}
                   {visibleFields.adName && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.adName || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.adName || "-"}</div>
                     </div>
                   )}
 
                   {/* UTM Source */}
                   {visibleFields.utmSource && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmSource || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.utmSource || "-"}</div>
                     </div>
                   )}
 
                   {/* UTM Medium */}
                   {visibleFields.utmMedium && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmMedium || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.utmMedium || "-"}</div>
                     </div>
                   )}
 
                   {/* UTM Campaign */}
                   {visibleFields.utmCampaign && (
                     <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmCampaign || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.utmCampaign || "-"}</div>
                     </div>
                   )}
 
                   {/* UTM Content */}
                   {visibleFields.utmContent && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmContent || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.utmContent || "-"}</div>
                     </div>
                   )}
 
                   {/* UTM Term */}
                   {visibleFields.utmTerm && (
                     <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmTerm || "-"}</div>
+                      <div className="text-sm text-gray-700 dark:text-white">{client.utmTerm || "-"}</div>
                     </div>
                   )}
                   </div>

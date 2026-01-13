@@ -86,7 +86,7 @@ const Layout = ({ children }) => {
         <main
           className={`flex-1 overflow-y-auto p-6 pt-[96px] lg:pt-[88px] ${
             isMobile && !hideBottomNav ? 'pb-24' : ''
-          } ${isCalendarPage ? 'bg-[#ffffff]' : ''}`}
+          } ${isCalendarPage ? 'bg-gray-50 dark:bg-customBlack' : ''}`}
         >
           {children}
         </main>
