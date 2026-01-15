@@ -497,7 +497,7 @@ export default function CatalogPage() {
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">
                 מוצרים
-              </h1>
+            </h1>
               {products.length > 0 && (
                 <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
                   {products.length}
@@ -530,7 +530,7 @@ export default function CatalogPage() {
             >
               חדש
               <FiPlus className="text-base" />
-            </button>
+          </button>
           </div>
         </div>
 
@@ -660,7 +660,7 @@ export default function CatalogPage() {
                 </div>
               </>
             )}
-          </div>
+        </div>
 
           {/* 3. סינון */}
           <div className="relative">
@@ -860,16 +860,16 @@ export default function CatalogPage() {
         {/* Products List */}
         {filteredAndSortedProducts.length === 0 ? (
           <div className="p-12 text-center">
-              <FiPackage className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4" />
-              <p className="text-gray-500 dark:text-gray-400 text-lg">
+            <FiPackage className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4" />
+            <p className="text-gray-500 dark:text-gray-400 text-lg">
                 {searchQuery ? "לא נמצאו מוצרים התואמים לחיפוש" : "אין מוצרים עדיין"}
-              </p>
+            </p>
               {!searchQuery && (
-                <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
                   מוצרים חדשים שנוצרים יופיעו כאן
-                </p>
+            </p>
               )}
-            </div>
+          </div>
         ) : (
           <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
             {/* Table Headers */}
@@ -883,7 +883,7 @@ export default function CatalogPage() {
                   <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
                     שם מוצר
                   </span>
-                </div>
+        </div>
               )}
               
               {visibleFields.status && (
@@ -891,7 +891,7 @@ export default function CatalogPage() {
                   <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
                     סטטוס
                   </span>
-                </div>
+      </div>
               )}
               
               {visibleFields.category && (
@@ -899,7 +899,7 @@ export default function CatalogPage() {
                   <span className="text-[14.5px] font-semibold text-gray-700 dark:text-gray-300">
                     קטגוריה
                   </span>
-                </div>
+    </div>
               )}
               
               {visibleFields.supplier && (

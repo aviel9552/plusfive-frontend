@@ -482,19 +482,19 @@ export default function CalendarClientsPage() {
       };
     }
   };
-  
+
   // Filter and sort clients
   const filteredAndSortedClients = useMemo(() => {
     let filtered = clients;
-
+    
     if (searchQuery.trim()) {
       const query = searchQuery.trim();
       const queryLower = query.toLowerCase();
-
+      
       filtered = clients.filter((client) => {
         const nameMatch = client.name?.toLowerCase().includes(queryLower);
         const emailMatch = client.email?.toLowerCase().includes(queryLower);
-
+        
         let phoneMatch = false;
         if (client.phone) {
           let phoneDigits = String(client.phone).replace(/\D/g, "");
@@ -505,7 +505,7 @@ export default function CalendarClientsPage() {
 
           if (phoneDigits && queryDigits) phoneMatch = phoneDigits.startsWith(queryDigits);
         }
-
+        
         return nameMatch || emailMatch || phoneMatch;
       });
     }
@@ -608,7 +608,7 @@ export default function CalendarClientsPage() {
       const updatedClients = clients.filter((c) => c.id !== clientId);
       setClients(updatedClients);
       try {
-        localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
+      localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
       } catch (e) {
         console.error("Error saving clients:", e);
       }
@@ -624,7 +624,7 @@ export default function CalendarClientsPage() {
     }
 
     const selectedClientsData = clients.filter((client) => selectedClients.includes(client.id));
-
+    
     const headers = ["שם", "טלפון", "אימייל", "עיר", "כתובת", "סטטוס", "דירוג אחרון", "סך הכנסות"];
     const rows = selectedClientsData.map((client) => [
       client.name || "",
@@ -661,7 +661,7 @@ export default function CalendarClientsPage() {
       const updatedClients = clients.filter((c) => !selectedClients.includes(c.id));
       setClients(updatedClients);
       try {
-        localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
+      localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
       } catch (e) {
         console.error("Error saving clients:", e);
       }
@@ -718,15 +718,15 @@ export default function CalendarClientsPage() {
       
       // Update state with the created client
       const updatedClients = [createdClient, ...clients];
-      setClients(updatedClients);
-      
-      setIsNewClientModalOpen(false);
-      setNewClientName("");
-      setNewClientPhone("");
-      setNewClientEmail("");
-      setNewClientCity("");
-      setNewClientAddress("");
-      setNewClientErrors({});
+    setClients(updatedClients);
+    
+    setIsNewClientModalOpen(false);
+    setNewClientName("");
+    setNewClientPhone("");
+    setNewClientEmail("");
+    setNewClientCity("");
+    setNewClientAddress("");
+    setNewClientErrors({});
     } catch (error) {
       console.error("Error creating client:", error);
       setNewClientErrors({ 
@@ -2180,13 +2180,13 @@ export default function CalendarClientsPage() {
                       </div>
 
                       {editingField === `name-${client.id}` ? (
-                        <input
+                      <input
                           type="text"
                           value={client.name || ""}
                           onChange={(e) => handleUpdateClientFieldInList(client.id, "name", e.target.value)}
                           onBlur={() => setEditingField(null)}
                           onKeyDown={(e) => e.key === "Enter" && setEditingField(null)}
-                          onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                           className="flex-1 text-sm font-semibold rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right"
                           dir="rtl"
                           autoFocus
@@ -2194,23 +2194,23 @@ export default function CalendarClientsPage() {
                       ) : (
                         <div 
                           className="flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate cursor-pointer hover:text-[#ff257c]"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                        onClick={(e) => {
+                          e.stopPropagation();
                             setEditingField(`name-${client.id}`);
                           }}
                         >
                       {client.name || "ללא שם"}
-                    </div>
+                        </div>
                       )}
-                  </div>
+                    </div>
                   )}
 
                   {/* Status */}
                   {visibleFields.status && (
                     <div className="w-28 flex items-center justify-center flex-shrink-0 relative" style={{ marginRight: `${columnSpacing.statusToPhone}px` }}>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
                           const rect = e.currentTarget.getBoundingClientRect();
                           setStatusDropdownPositions((prev) => ({
                             ...prev,
@@ -2228,21 +2228,21 @@ export default function CalendarClientsPage() {
                         }`}
                         style={(client.status || "פעיל") === "פעיל" ? { backgroundColor: BRAND_COLOR } : {}}
                       >
-                        <span
+                            <span
                           className={`w-1.5 h-1.5 rounded-full ${
                             (client.status || "פעיל") === "פעיל" ? "bg-white animate-pulse" : "bg-white dark:bg-black"
                           }`}
-                        />
+                            />
                         <span>{client.status || "פעיל"}</span>
                         <FiChevronDown className="text-[10px]" />
-                      </button>
+                        </button>
                       
                       {openStatusDropdowns[client.id] && (
                         <>
                           <div
                             className="fixed inset-0 z-20"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                      onClick={(e) => {
+                          e.stopPropagation();
                               setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
                             }}
                           />
@@ -2256,12 +2256,12 @@ export default function CalendarClientsPage() {
                           >
                             <div className="py-2">
                               {["פעיל", "חסום"].map((s) => (
-                              <button
+                            <button
                                   key={s}
                                 type="button"
                                 className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                              onClick={(e) => {
+                                e.stopPropagation();
                                     handleUpdateClientStatus(client.id, s);
                                 }}
                               >
@@ -2284,36 +2284,36 @@ export default function CalendarClientsPage() {
                                   </span>
                                     <span>{s}</span>
                                 </span>
-                              </button>
+                            </button>
                               ))}
 
                               <div className="border-t border-gray-200 dark:border-[#262626] my-2" />
 
-                              <button
+                            <button
                                 type="button"
                                 className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] text-red-600 dark:text-red-400"
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                              onClick={(e) => {
+                                e.stopPropagation();
                                   setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
                                   handleDeleteClient(client.id);
                                 }}
                               >
                                 מחק לקוח
                                 <FiTrash2 />
-                      </button>
-                            </div>
+                            </button>
                           </div>
+                            </div>
                         </>
-                      )}
-                    </div>
+                        )}
+                      </div>
                   )}
 
                   {/* Phone */}
                   {visibleFields.phone && (
                     <div className="w-40 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.phoneToRating}px` }}>
                       {editingField === `phone-${client.id}` ? (
-                        <input
-                          type="text"
+                            <input
+                              type="text"
                           value={client.phone || ""}
                           onChange={(e) => {
                             const value = e.target.value.replace(/[^\d]/g, "");
@@ -2321,44 +2321,44 @@ export default function CalendarClientsPage() {
                           }}
                           onBlur={() => setEditingField(null)}
                           onKeyDown={(e) => e.key === "Enter" && setEditingField(null)}
-                          onClick={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()}
                           className="flex-1 text-sm rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right"
                           dir="rtl"
-                          autoFocus
+                              autoFocus
                           placeholder="0501234567"
                         />
                       ) : (
                         <>
                           <div 
                             className="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer hover:text-[#ff257c]"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                      onClick={(e) => {
+                          e.stopPropagation();
                               setEditingField(`phone-${client.id}`);
-                            }}
-                          >
+                      }}
+                    >
                       {client.phone ? formatPhoneForDisplay(client.phone) : "-"}
-                    </div>
+                      </div>
 
                       {client.phone && (
                         <>
-                          <button
+                            <button
                             type="button"
                             className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
                             title="התקשר"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                              onClick={(e) => {
+                                e.stopPropagation();
                               window.location.href = `tel:${client.phone}`;
-                            }}
-                          >
+                              }}
+                            >
                             <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                          </button>
+                            </button>
 
-                          <button
+                            <button
                             type="button"
                             className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
                             title="פתח שיחה ב-WhatsApp"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                              onClick={(e) => {
+                                e.stopPropagation();
                               const whatsappUrl = formatPhoneToWhatsapp(client.phone);
                                   window.open(whatsappUrl, "_blank", "noopener,noreferrer");
                             }}
@@ -2369,33 +2369,33 @@ export default function CalendarClientsPage() {
                               className="w-7 h-7"
                                   style={{ filter: isDarkMode ? "brightness(1)" : "brightness(0)" }}
                             />
-                          </button>
+                            </button>
                             </>
                           )}
                         </>
-                      )}
-                  </div>
+                        )}
+                      </div>
                   )}
 
                   {/* Email - פרטים */}
                   {visibleFields.email && (
                     <div className="w-40 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.email || "-"}</div>
-                  </div>
+                      </div>
                   )}
 
                   {/* City - פרטים */}
                   {visibleFields.city && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.city || "-"}</div>
-                  </div>
+                      </div>
                   )}
 
                   {/* Address - פרטים */}
                   {visibleFields.address && (
                     <div className="w-40 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.address || "-"}</div>
-                    </div>
+                      </div>
                   )}
 
                   {/* First Appointment Date - פרטים */}
@@ -2404,91 +2404,91 @@ export default function CalendarClientsPage() {
                     <div className="text-sm text-gray-700 dark:text-gray-300">
                         {client.firstAppointmentDate ? formatDate(new Date(client.firstAppointmentDate)) : "-"}
                     </div>
-                  </div>
-                  )}
+          </div>
+        )}
 
                   {/* Total Revenue - הכנסות */}
                   {visibleFields.totalRevenue && (
                     <div className="w-24 flex-shrink-0" style={{ marginRight: `${columnSpacing.revenueToActions}px` }}>
                       <div className="text-sm text-gray-700 dark:text-gray-300">₪{(client.totalRevenue || 0).toLocaleString()}</div>
-                    </div>
+                          </div>
                   )}
 
                   {/* Avg Revenue Per Visit - הכנסות */}
                   {visibleFields.avgRevenuePerVisit && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.avgRevenuePerVisit || 0).toLocaleString()}</div>
-                  </div>
-                  )}
+                                    </div>
+                                  )}
 
                   {/* Avg Transaction - הכנסות */}
                   {visibleFields.avgTransaction && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.avgTransaction || 0).toLocaleString()}</div>
-                        </div>
-                  )}
+                                    </div>
+                                  )}
 
                   {/* Lost Revenue - הכנסות */}
                   {visibleFields.lostRevenue && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.lostRevenue || 0).toLocaleString()}</div>
-                      </div>
-                  )}
+                                    </div>
+                                  )}
 
                   {/* Recovered Revenue - הכנסות */}
                   {visibleFields.recoveredRevenue && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">₪{(clientAppointmentsInfo.recoveredRevenue || 0).toLocaleString()}</div>
-                        </div>
+                            </div>
                   )}
 
                   {/* Appointments Count - פעילות לקוח */}
                   {visibleFields.appointmentsCount && (
                     <div className="w-24 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.count || 0}</div>
-                      </div>
+                                </div>
                   )}
 
                   {/* Avg Visits Per Year - פעילות לקוח */}
                   {visibleFields.avgVisitsPerYear && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgVisitsPerYear || "-"}</div>
-                        </div>
+                                </div>
                   )}
 
                   {/* Days Since Last Appointment - פעילות לקוח */}
                   {visibleFields.daysSinceLastAppointment && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.daysSinceLastAppointment || "-"}</div>
-                      </div>
+                                </div>
                   )}
 
                   {/* Avg Time Between Visits - פעילות לקוח */}
                   {visibleFields.avgTimeBetweenVisits && (
                     <div className="w-36 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgTimeBetweenVisits || "-"}</div>
-                        </div>
+                                </div>
                   )}
 
                   {/* Avg Time From Booking To Appointment - פעילות לקוח */}
                   {visibleFields.avgTimeFromBookingToAppointment && (
                     <div className="w-40 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgTimeFromBookingToAppointment || "-"}</div>
-                      </div>
-                  )}
+                          </div>
+                          )}
 
                   {/* Rating - שביעות רצון */}
                   {visibleFields.rating && (
                     <div className="w-20 flex-shrink-0" style={{ marginRight: `${columnSpacing.ratingToRevenue}px` }}>
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.rating || "-"}</div>
-                    </div>
+                                </div>
                   )}
 
                   {/* Avg Rating - שביעות רצון */}
                   {visibleFields.avgRating && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.avgRating || "-"}</div>
-                  </div>
+                                </div>
                   )}
 
                   {/* Last Appointment Date - ביקור אחרון */}
@@ -2496,52 +2496,52 @@ export default function CalendarClientsPage() {
                     <div className="w-32 flex-shrink-0">
                         <div className="text-sm text-gray-700 dark:text-gray-300">
                         {clientAppointmentsInfo.lastAppointmentDate ? formatDate(clientAppointmentsInfo.lastAppointmentDate) : "-"}
-                        </div>
-                      </div>
+                                </div>
+                                  </div>
                   )}
 
                   {/* Last Appointment Time - ביקור אחרון */}
                   {visibleFields.lastAppointmentTime && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastAppointmentTime || "-"}</div>
-                        </div>
-                  )}
+                                    </div>
+                                  )}
 
                   {/* Last Service - ביקור אחרון */}
                   {visibleFields.lastService && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastService || "-"}</div>
-                      </div>
-                  )}
+                                    </div>
+                                  )}
 
                   {/* Last Rating - ביקור אחרון */}
                   {visibleFields.lastRating && (
                     <div className="w-24 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastRating || "-"}</div>
-                        </div>
-                  )}
+                          </div>
+                          )}
 
                   {/* Last Staff - ביקור אחרון */}
                   {visibleFields.lastStaff && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{clientAppointmentsInfo.lastStaff || "-"}</div>
-                      </div>
-                  )}
+                                    </div>
+                                  )}
 
                   {/* Source */}
                   {visibleFields.source && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.source || "-"}</div>
-                  </div>
-                  )}
+                          </div>
+                          )}
 
                   {/* Lead Date */}
                   {visibleFields.leadDate && (
                     <div className="w-32 flex-shrink-0">
                     <div className="text-sm text-gray-700 dark:text-gray-300">
                         {client.leadDate ? formatDate(new Date(client.leadDate)) : "-"}
-                    </div>
-                  </div>
+                                </div>
+                                  </div>
                   )}
 
                   {/* Time To Conversion */}
@@ -2555,63 +2555,63 @@ export default function CalendarClientsPage() {
                   {visibleFields.campaignName && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.campaignName || "-"}</div>
-                    </div>
+                                </div>
                   )}
 
                   {/* Ad Set Name */}
                   {visibleFields.adSetName && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.adSetName || "-"}</div>
-                    </div>
-                  )}
+                          </div>
+                          )}
 
                   {/* Ad Name */}
                   {visibleFields.adName && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.adName || "-"}</div>
-                    </div>
+                                  </div>
                   )}
 
                   {/* UTM Source */}
                   {visibleFields.utmSource && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmSource || "-"}</div>
-                    </div>
+                                  </div>
                   )}
 
                   {/* UTM Medium */}
                   {visibleFields.utmMedium && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmMedium || "-"}</div>
-                    </div>
+                                  </div>
                   )}
 
                   {/* UTM Campaign */}
                   {visibleFields.utmCampaign && (
                     <div className="w-32 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmCampaign || "-"}</div>
-                    </div>
+                                  </div>
                   )}
 
                   {/* UTM Content */}
                   {visibleFields.utmContent && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmContent || "-"}</div>
-                    </div>
+                                  </div>
                   )}
 
                   {/* UTM Term */}
                   {visibleFields.utmTerm && (
                     <div className="w-28 flex-shrink-0">
                       <div className="text-sm text-gray-700 dark:text-gray-300">{client.utmTerm || "-"}</div>
-                    </div>
-                  )}
-                  </div>
+                          </div>
+                          )}
+                        </div>
               );
               })}
-              </div>
           </div>
-        )}
+        </div>
+      )}
       </div>
     </div>
   );
