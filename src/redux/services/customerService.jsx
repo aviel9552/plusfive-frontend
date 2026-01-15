@@ -89,7 +89,6 @@ export const updateCustomer = async (customerId, customerData) => {
     const response = await apiClient.put(`/customers/${customerId}`, customerData);
     return response.data;
   } catch (error) {
-    console.error('Error in updateCustomer:', error);
     if (error.response) {
       throw new Error(error.response.data.message || 'Failed to update customer');
     } else if (error.request) {
@@ -143,6 +142,25 @@ export const getCustomersStatusCount = async () => {
     console.error('Error in getMyCustomers:', error);
     if (error.response) {
       throw new Error(error.response.data.message || 'Failed to get customers');
+    } else if (error.request) {
+      throw new Error('No response received from server. Please check your network connection.');
+    } else {
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
+
+// POST /api/customers/bulk-import - Bulk import customers from CSV data
+export const bulkImportCustomers = async (customersArray) => {
+  try {
+    const response = await apiClient.post('/customers/bulk-import', {
+      customers: customersArray
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error in bulkImportCustomers:', error);
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Failed to import customers');
     } else if (error.request) {
       throw new Error('No response received from server. Please check your network connection.');
     } else {

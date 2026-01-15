@@ -4,7 +4,8 @@ import {
   getCustomerById, 
   updateCustomer, 
   removeCustomer, 
-  recordCustomerVisit 
+  recordCustomerVisit,
+  bulkImportCustomers
 } from '../services/customerService';
 
 // Action Types
@@ -31,6 +32,10 @@ export const REMOVE_CUSTOMER_FAILURE = 'REMOVE_CUSTOMER_FAILURE';
 export const RECORD_CUSTOMER_VISIT_REQUEST = 'RECORD_CUSTOMER_VISIT_REQUEST';
 export const RECORD_CUSTOMER_VISIT_SUCCESS = 'RECORD_CUSTOMER_VISIT_SUCCESS';
 export const RECORD_CUSTOMER_VISIT_FAILURE = 'RECORD_CUSTOMER_VISIT_FAILURE';
+
+export const BULK_IMPORT_CUSTOMERS_REQUEST = 'BULK_IMPORT_CUSTOMERS_REQUEST';
+export const BULK_IMPORT_CUSTOMERS_SUCCESS = 'BULK_IMPORT_CUSTOMERS_SUCCESS';
+export const BULK_IMPORT_CUSTOMERS_FAILURE = 'BULK_IMPORT_CUSTOMERS_FAILURE';
 
 // Action Creators
 
@@ -98,6 +103,8 @@ export const updateCustomerAction = (customerId, customerData) => async (dispatc
   dispatch({ type: UPDATE_CUSTOMER_REQUEST });
   try {
     const response = await updateCustomer(customerId, customerData);
+    // Backend returns: { success: true, message: '...', data: customerData }
+    // Extract the actual customer data (same pattern as addCustomerAction)
     const updatedCustomer = response.data || response;
     dispatch({
       type: UPDATE_CUSTOMER_SUCCESS,
@@ -146,6 +153,26 @@ export const recordCustomerVisitAction = (customerId, visitData) => async (dispa
   } catch (error) {
     dispatch({
       type: RECORD_CUSTOMER_VISIT_FAILURE,
+      payload: error.message
+    });
+    return { success: false, error: error.message };
+  }
+};
+
+// Bulk import customers
+export const bulkImportCustomersAction = (customersArray) => async (dispatch) => {
+  dispatch({ type: BULK_IMPORT_CUSTOMERS_REQUEST });
+  try {
+    const response = await bulkImportCustomers(customersArray);
+    const importResult = response.data || response;
+    dispatch({
+      type: BULK_IMPORT_CUSTOMERS_SUCCESS,
+      payload: importResult
+    });
+    return { success: true, data: importResult };
+  } catch (error) {
+    dispatch({
+      type: BULK_IMPORT_CUSTOMERS_FAILURE,
       payload: error.message
     });
     return { success: false, error: error.message };

@@ -34,8 +34,12 @@ import {
   addCustomerAction,
   updateCustomerAction,
   removeCustomerAction,
+  bulkImportCustomersAction,
 } from "../../redux/actions/customerActions";
 import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
+import { CalendarCommonTable } from "../../components/commonComponent/CalendarCommonTable";
+import CommonConfirmModel from "../../components/commonComponent/CommonConfirmModel";
+import { toast } from 'react-toastify';
 
 const CALENDAR_CLIENTS_STORAGE_KEY = "calendar_clients";
 const COLUMN_SPACING_STORAGE_KEY = "calendar_clients_column_spacing";
@@ -69,6 +73,7 @@ export default function CalendarClientsPage() {
   const [isColumnFilterDropdownOpen, setIsColumnFilterDropdownOpen] = useState(false);
 
   const [editingField, setEditingField] = useState(null);
+  const [editingValue, setEditingValue] = useState("");
 
   const [openStatusDropdowns, setOpenStatusDropdowns] = useState({});
   const [statusDropdownPositions, setStatusDropdownPositions] = useState({});
@@ -76,6 +81,14 @@ export default function CalendarClientsPage() {
   const [selectedClientForView, setSelectedClientForView] = useState(null);
   const [showClientSummary, setShowClientSummary] = useState(false);
   const [clientViewTab, setClientViewTab] = useState("details");
+  
+  // Prevent duplicate API calls
+  const [isUpdatingClient, setIsUpdatingClient] = useState(false);
+
+  // Delete confirmation modal state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [clientsToDelete, setClientsToDelete] = useState([]);
 
   // CSV import modal state
   const [showCsvImportModal, setShowCsvImportModal] = useState(false);
@@ -110,7 +123,6 @@ export default function CalendarClientsPage() {
       createdAt: false,
       firstAppointmentDate: false,
       // ביצועים
-      rating: true,
       totalRevenue: false,
       appointmentsCount: false,
       lastVisit: true,
@@ -124,8 +136,8 @@ export default function CalendarClientsPage() {
       avgTimeFromBookingToAppointment: false,
       lastService: false,
       lastStaff: false,
-      avgRating: false,
-      lastRating: false,
+      avgRating: true,
+      lastRating: true,
       // ביקור אחרון
       lastAppointmentDate: false,
       lastAppointmentTime: false,
@@ -249,6 +261,14 @@ export default function CalendarClientsPage() {
     loadClients();
   }, [dispatch]);
 
+  // Exit edit mode and close dropdowns when subscription is loading
+  useEffect(() => {
+    if (subscriptionLoading) {
+      setEditingField(null);
+      setOpenStatusDropdowns({});
+    }
+  }, [subscriptionLoading]);
+
   // Sync customers from Redux store to local state
   useEffect(() => {
     if (customersFromStore.length > 0) {
@@ -270,15 +290,23 @@ export default function CalendarClientsPage() {
             .slice(0, 2)
             .toUpperCase() || "ל";
 
-        // Map backend status to frontend status
+        // Map backend isActive to frontend status
+        // Check isActive first, then fallback to status for backward compatibility
         let frontendStatus = "פעיל";
-        if (c.status === "inactive" || c.status === "לא פעיל") {
-          frontendStatus = "לא פעיל";
+        if (c.isActive !== undefined) {
+          frontendStatus = c.isActive ? "פעיל" : "חסום";
+        } else if (c.status === "inactive" || c.status === "לא פעיל" || c.status === "חסום" || c.status === "blocked") {
+          frontendStatus = "חסום";
         } else if (c.status === "active" || c.status === "פעיל") {
           frontendStatus = "פעיל";
         } else if (c.status) {
           frontendStatus = c.status;
         }
+
+        // Get rating data from API response
+        const reviewStats = c.reviewStatistics || {};
+        const avgRating = reviewStats.averageRating || c.averageRating || null;
+        const lastRating = reviewStats.lastRating || c.lastRating || null;
 
         return {
           id: c.id, // CustomerMaster id
@@ -288,13 +316,16 @@ export default function CalendarClientsPage() {
           lastName: lastName,
           phone: c.customerPhone || customer.phoneNumber || customer.customerPhone || "",
           email: customer.email || c.email || "",
-          city: "", // City and address might need separate fields in backend
-          address: customer.address || c.address || "",
+          city: c.city || customer.city || "",
+          address: c.address || customer.address || "",
+          isActive: c.isActive !== undefined ? c.isActive : (customer.isActive !== undefined ? customer.isActive : true),
           initials: initials,
           status: frontendStatus,
-          rating: c.rating || "-",
           totalRevenue: c.totalPaid || 0,
           createdAt: c.createdAt || customer.createdAt || new Date().toISOString(),
+          // Rating data from API
+          avgRating: avgRating && avgRating > 0 ? avgRating : null,
+          lastRating: lastRating && lastRating > 0 ? lastRating : null,
         };
       });
       setClients(transformedClients);
@@ -305,7 +336,6 @@ export default function CalendarClientsPage() {
   const toggleFieldVisibility = (fieldName) => {
     setVisibleFields((prev) => {
       const updated = { ...prev, [fieldName]: !prev[fieldName] };
-      console.log('Toggling field:', fieldName, 'New value:', updated[fieldName]);
       return updated;
     });
   };
@@ -356,6 +386,16 @@ export default function CalendarClientsPage() {
         );
       });
 
+      // Use API ratings if available, even when there are no appointments
+      let apiAvgRating = "-";
+      let apiLastRating = "-";
+      if (client.avgRating && client.avgRating > 0) {
+        apiAvgRating = parseFloat(client.avgRating).toFixed(1);
+      }
+      if (client.lastRating && client.lastRating > 0) {
+        apiLastRating = parseFloat(client.lastRating).toFixed(1);
+      }
+
       if (clientAppointments.length === 0) {
         return { 
           count: 0, 
@@ -364,7 +404,7 @@ export default function CalendarClientsPage() {
           lastAppointmentTime: null,
           lastService: "-",
           lastStaff: "-",
-          lastRating: "-",
+          lastRating: apiLastRating,
           totalRevenue: 0,
           avgRevenuePerVisit: 0,
           lostRevenue: 0,
@@ -373,7 +413,7 @@ export default function CalendarClientsPage() {
           daysSinceLastAppointment: null,
           avgTimeBetweenVisits: null,
           avgTimeFromBookingToAppointment: null,
-          avgRating: "-",
+          avgRating: apiAvgRating,
         };
       }
 
@@ -415,10 +455,17 @@ export default function CalendarClientsPage() {
       if (lastAppointment?.staffName) lastStaff = lastAppointment.staffName;
       else if (lastAppointment?.staff) lastStaff = lastAppointment.staff;
 
-      let lastRating = "-";
-      const rating = lastAppointment?.rating || lastAppointment?.clientRating;
-      if (rating && rating !== "-" && !isNaN(parseFloat(rating))) lastRating = rating;
-      if (lastRating === "-") lastRating = client.rating || "-";
+      // Use API lastRating if available (already calculated above as apiLastRating), otherwise use from last appointment
+      let lastRating = apiLastRating !== "-" ? apiLastRating : "-";
+      if (lastRating === "-") {
+        // Fallback to last appointment rating if API rating not available
+        const rating = lastAppointment?.rating || lastAppointment?.clientRating;
+        if (rating && rating !== "-" && !isNaN(parseFloat(rating))) {
+          lastRating = parseFloat(rating).toFixed(1);
+        } else {
+          lastRating = "-";
+        }
+      }
 
       const sortedByDate = [...clientAppointments].sort((a, b) => {
         const dateA = new Date(a.date || a.start || 0);
@@ -504,15 +551,19 @@ export default function CalendarClientsPage() {
         });
       if (bta.length) avgTimeFromBookingToAppointment = Math.round(bta.reduce((a, b) => a + b, 0) / bta.length);
 
-      let avgRating = "-";
-      const ratings = sortedByDate
-        .map((apt) => apt.rating || apt.clientRating)
-        .filter((r) => r && r !== "-" && !isNaN(parseFloat(r)));
-      if (ratings.length) {
-        const sum = ratings.reduce((acc, r) => acc + parseFloat(r), 0);
-        avgRating = (sum / ratings.length).toFixed(1);
-      } else {
-        avgRating = client.rating || "-";
+      // Use API rating data if available (already calculated above as apiAvgRating), otherwise calculate from appointments
+      let avgRating = apiAvgRating !== "-" ? apiAvgRating : "-";
+      if (avgRating === "-") {
+        // Calculate from appointments if API rating not available
+        const ratings = sortedByDate
+          .map((apt) => apt.rating || apt.clientRating)
+          .filter((r) => r && r !== "-" && !isNaN(parseFloat(r)));
+        if (ratings.length) {
+          const sum = ratings.reduce((acc, r) => acc + parseFloat(r), 0);
+          avgRating = (sum / ratings.length).toFixed(1);
+        } else {
+          avgRating = "-";
+        }
       }
 
       return { 
@@ -612,19 +663,37 @@ export default function CalendarClientsPage() {
       });
     }
 
-    // Filter by rating
+    // Filter by rating (using lastRating from appointments info)
     if (selectedRating !== null) {
       filtered = filtered.filter((client) => {
-        const r = client.rating || "-";
+        const appointmentsInfo = getClientAppointmentsInfo(client);
+        const r = appointmentsInfo.lastRating || "-";
         if (selectedRating === "-") return r === "-" || !r;
-        return String(r) === String(selectedRating);
+        // Compare rating values - if selectedRating is an integer, match ratings that round to that integer
+        if (r === "-" || r === null || r === undefined) return false;
+        const ratingNum = parseFloat(r);
+        if (isNaN(ratingNum)) return false;
+        const selectedNum = parseFloat(selectedRating);
+        if (isNaN(selectedNum)) return false;
+        // Match if the rating rounds to the selected rating (e.g., 2.0-2.9 matches "2")
+        return Math.round(ratingNum) === selectedNum;
       });
     }
 
     // Sort
     const sorted = [...filtered].sort((a, b) => {
-      if (sortBy === "newest") return (b.id || 0) - (a.id || 0);
-      if (sortBy === "oldest") return (a.id || 0) - (b.id || 0);
+      if (sortBy === "newest") {
+        // Show newest first (descending by createdAt)
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bDate - aDate;
+      }
+      if (sortBy === "oldest") {
+        // Show oldest first (ascending by createdAt)
+        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return aDate - bDate;
+      }
       if (sortBy === "name") return (a.name || "").localeCompare(b.name || "");
       return 0;
     });
@@ -634,6 +703,18 @@ export default function CalendarClientsPage() {
 
   // Client updates
   const handleClientUpdate = async (updatedClient) => {
+    if (!hasActiveSubscription) {
+      alert('נדרש מנוי פעיל כדי לערוך לקוחות. אנא הירשם למנוי כדי להמשיך.');
+      return;
+    }
+    
+    // Prevent duplicate calls
+    if (isUpdatingClient) {
+      return;
+    }
+    
+    setIsUpdatingClient(true);
+    
     // Update via API
     const updateData = {};
     if (updatedClient.name) {
@@ -650,11 +731,20 @@ export default function CalendarClientsPage() {
     if (updatedClient.address !== undefined) {
       updateData.address = updatedClient.address.trim() || null;
     }
-    if (updatedClient.status) {
-      const backendStatus = updatedClient.status === "פעיל" ? "active" : updatedClient.status === "לא פעיל" ? "inactive" : updatedClient.status;
-      updateData.status = backendStatus;
+    if (updatedClient.city !== undefined) {
+      updateData.city = updatedClient.city.trim() || null;
+    }
+    if (updatedClient.status !== undefined) {
+      // Map status to isActive: "פעיל" = true, everything else (including "חסום") = false
+      updateData.isActive = updatedClient.status === "פעיל";
     }
 
+    // Check if there's any data to update
+    if (Object.keys(updateData).length === 0) {
+      setIsUpdatingClient(false);
+      return;
+    }
+    
     try {
       const result = await dispatch(updateCustomerAction(updatedClient.id, updateData));
 
@@ -666,13 +756,19 @@ export default function CalendarClientsPage() {
         const updatedClients = clients.map((c) => (c.id === updatedClient.id ? updatedClient : c));
         setClients(updatedClients);
         setSelectedClientForView(updatedClient);
+        
+        // Show success toast
+        toast.success(result.data?.message || "לקוח עודכן בהצלחה");
       } else {
         console.error("Error updating client:", result.error);
-        alert("שגיאה בעדכון הלקוח: " + (result.error || "נסה שוב"));
+        const errorMessage = result.error || "נסה שוב";
+        toast.error("שגיאה בעדכון הלקוח: " + errorMessage);
       }
     } catch (error) {
       console.error("Error updating client:", error);
-      alert("שגיאה בעדכון הלקוח: " + error.message);
+      toast.error("שגיאה בעדכון הלקוח: " + error.message);
+    } finally {
+      setIsUpdatingClient(false);
     }
   };
 
@@ -681,9 +777,20 @@ export default function CalendarClientsPage() {
       alert('נדרש מנוי פעיל כדי לערוך לקוחות. אנא הירשם למנוי כדי להמשיך.');
       return;
     }
+    
+    // Prevent duplicate calls
+    if (isUpdatingClient) {
+      return;
+    }
+    
+    setIsUpdatingClient(true);
+    
     // Find the client to get current data
     const client = clients.find((c) => c.id === clientId);
-    if (!client) return;
+    if (!client) {
+      setIsUpdatingClient(false);
+      return;
+    }
 
     // Map frontend field names to backend field names
     let updateData = {};
@@ -699,9 +806,7 @@ export default function CalendarClientsPage() {
     } else if (field === "address") {
       updateData.address = value.trim() || null;
     } else if (field === "city") {
-      // City is part of address in backend, so combine with existing address
-      const existingAddress = client.address || "";
-      updateData.address = value.trim() ? `${value.trim()}, ${existingAddress}`.replace(/^,\s*/, "") : existingAddress;
+      updateData.city = value.trim() || null;
     }
 
     try {
@@ -719,13 +824,19 @@ export default function CalendarClientsPage() {
           const updatedClient = updatedClients.find((c) => c.id === clientId);
           setSelectedClientForView(updatedClient || null);
         }
+        
+        // Show success toast
+        toast.success(result.data?.message || "לקוח עודכן בהצלחה");
       } else {
         console.error("Error updating client:", result.error);
-        alert("שגיאה בעדכון הלקוח: " + (result.error || "נסה שוב"));
+        const errorMessage = result.error || "נסה שוב";
+        toast.error("שגיאה בעדכון הלקוח: " + errorMessage);
       }
     } catch (error) {
       console.error("Error updating client:", error);
-      alert("שגיאה בעדכון הלקוח: " + error.message);
+      toast.error("שגיאה בעדכון הלקוח: " + error.message);
+    } finally {
+      setIsUpdatingClient(false);
     }
   };
 
@@ -734,11 +845,19 @@ export default function CalendarClientsPage() {
       alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
       return;
     }
-    // Map frontend status to backend status
-    const backendStatus = newStatus === "פעיל" ? "active" : newStatus === "לא פעיל" ? "inactive" : newStatus;
+    
+    // Prevent duplicate calls
+    if (isUpdatingClient) {
+      return;
+    }
+    
+    setIsUpdatingClient(true);
+    
+    // Map frontend status to isActive: "פעיל" = true, everything else (including "חסום") = false
+    const isActive = newStatus === "פעיל";
 
     try {
-      const result = await dispatch(updateCustomerAction(clientId, { status: backendStatus }));
+      const result = await dispatch(updateCustomerAction(clientId, { isActive }));
 
       if (result.success) {
         // Refresh customers list
@@ -754,48 +873,68 @@ export default function CalendarClientsPage() {
         }
 
         setOpenStatusDropdowns((prev) => ({ ...prev, [clientId]: false }));
+        
+        // Show success toast
+        toast.success(result.data?.message || "סטטוס הלקוח עודכן בהצלחה");
       } else {
         console.error("Error updating client status:", result.error);
-        alert("שגיאה בעדכון סטטוס הלקוח: " + (result.error || "נסה שוב"));
+        const errorMessage = result.error || "נסה שוב";
+        toast.error("שגיאה בעדכון סטטוס הלקוח: " + errorMessage);
       }
     } catch (error) {
       console.error("Error updating client status:", error);
-      alert("שגיאה בעדכון סטטוס הלקוח: " + error.message);
+      toast.error("שגיאה בעדכון סטטוס הלקוח: " + error.message);
+    } finally {
+      setIsUpdatingClient(false);
     }
   };
 
-  const handleDeleteClient = async (clientId) => {
+  const handleDeleteClient = (clientId) => {
     if (!hasActiveSubscription) {
       alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
       return;
     }
 
-    if (window.confirm("האם אתה בטוח שאתה רוצה למחוק את הלקוח הזה?")) {
-      try {
-        const result = await dispatch(removeCustomerAction(clientId));
+    const client = clients.find((c) => c.id === clientId);
+    setClientToDelete(clientId);
+    setClientsToDelete([]);
+    setShowDeleteConfirm(true);
+  };
 
-        if (result.success) {
-          // Refresh customers list
-          await dispatch(getMyCustomersAction());
+  const confirmDeleteClient = async () => {
+    if (!clientToDelete) return;
 
-          // Update local state immediately for better UX
-          const updatedClients = clients.filter((c) => c.id !== clientId);
-          setClients(updatedClients);
-          setSelectedClients((prev) => prev.filter((id) => id !== clientId));
+    try {
+      const result = await dispatch(removeCustomerAction(clientToDelete));
 
-          // Close client summary if viewing deleted client
-          if (selectedClientForView?.id === clientId) {
-            setShowClientSummary(false);
-            setSelectedClientForView(null);
-          }
-        } else {
-          console.error("Error deleting client:", result.error);
-          alert("שגיאה במחיקת הלקוח: " + (result.error || "נסה שוב"));
+      if (result.success) {
+        // Refresh customers list
+        await dispatch(getMyCustomersAction());
+
+        // Update local state immediately for better UX
+        const updatedClients = clients.filter((c) => c.id !== clientToDelete);
+        setClients(updatedClients);
+        setSelectedClients((prev) => prev.filter((id) => id !== clientToDelete));
+
+        // Close client summary if viewing deleted client
+        if (selectedClientForView?.id === clientToDelete) {
+          setShowClientSummary(false);
+          setSelectedClientForView(null);
         }
-      } catch (error) {
-        console.error("Error deleting client:", error);
-        alert("שגיאה במחיקת הלקוח: " + error.message);
+        
+        // Show success toast
+        toast.success(result.data?.message || "לקוח נמחק בהצלחה");
+      } else {
+        console.error("Error deleting client:", result.error);
+        const errorMessage = result.error || "נסה שוב";
+        toast.error("שגיאה במחיקת הלקוח: " + errorMessage);
       }
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      toast.error("שגיאה במחיקת הלקוח: " + error.message);
+    } finally {
+      setClientToDelete(null);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -816,7 +955,7 @@ export default function CalendarClientsPage() {
       client.city || "",
       client.address || "",
       client.status || "פעיל",
-      client.rating || "-",
+      client.le || "-",
       client.totalRevenue || 0,
     ]);
 
@@ -834,42 +973,54 @@ export default function CalendarClientsPage() {
     document.body.removeChild(link);
   };
 
-  const handleDeleteSelectedClients = async () => {
+  const handleDeleteSelectedClients = () => {
     if (selectedClients.length === 0) {
       alert("אנא בחר לפחות לקוח אחד למחיקה");
       return;
     }
 
-    if (window.confirm(`האם אתה בטוח שאתה רוצה למחוק ${selectedClients.length} לקוח/ים?`)) {
-      try {
-        // Delete all selected clients
-        const deletePromises = selectedClients.map((clientId) => dispatch(removeCustomerAction(clientId)));
-        const results = await Promise.all(deletePromises);
+    setClientToDelete(null);
+    setClientsToDelete([...selectedClients]);
+    setShowDeleteConfirm(true);
+  };
 
-        // Check if all deletions were successful
-        const allSuccessful = results.every((result) => result.success);
-        if (allSuccessful) {
-          // Refresh customers list
-          await dispatch(getMyCustomersAction());
+  const confirmDeleteSelectedClients = async () => {
+    if (clientsToDelete.length === 0) return;
 
-          // Update local state
-          const updatedClients = clients.filter((c) => !selectedClients.includes(c.id));
-          setClients(updatedClients);
-          setSelectedClients([]);
+    try {
+      // Delete all selected clients
+      const deletePromises = clientsToDelete.map((clientId) => dispatch(removeCustomerAction(clientId)));
+      const results = await Promise.all(deletePromises);
 
-          // Close client summary if viewing deleted client
-          if (selectedClientForView && selectedClients.includes(selectedClientForView.id)) {
-            setShowClientSummary(false);
-            setSelectedClientForView(null);
-          }
-        } else {
-          const failedCount = results.filter((r) => !r.success).length;
-          alert(`נכשל במחיקת ${failedCount} מתוך ${selectedClients.length} לקוחות`);
+      // Check if all deletions were successful
+      const allSuccessful = results.every((result) => result.success);
+      if (allSuccessful) {
+        // Refresh customers list
+        await dispatch(getMyCustomersAction());
+
+        // Update local state
+        const updatedClients = clients.filter((c) => !clientsToDelete.includes(c.id));
+        setClients(updatedClients);
+        setSelectedClients([]);
+
+        // Close client summary if viewing deleted client
+        if (selectedClientForView && clientsToDelete.includes(selectedClientForView.id)) {
+          setShowClientSummary(false);
+          setSelectedClientForView(null);
         }
-      } catch (error) {
-        console.error("Error deleting clients:", error);
-        alert("שגיאה במחיקת הלקוחות: " + error.message);
+        
+        // Show success toast
+        toast.success(`${clientsToDelete.length} לקוח/ים נמחקו בהצלחה`);
+      } else {
+        const failedCount = results.filter((r) => !r.success).length;
+        toast.error(`נכשל במחיקת ${failedCount} מתוך ${clientsToDelete.length} לקוחות`);
       }
+    } catch (error) {
+      console.error("Error deleting clients:", error);
+      toast.error("שגיאה במחיקת הלקוחות: " + error.message);
+    } finally {
+      setClientsToDelete([]);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -911,9 +1062,6 @@ export default function CalendarClientsPage() {
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
 
-    // Combine city and address
-    const fullAddress = [newClientCity.trim(), newClientAddress.trim()].filter(Boolean).join(", ");
-
     // Generate a temporary password (backend requires it)
     const tempPassword = `Temp${Date.now()}${Math.random().toString(36).slice(2)}`;
 
@@ -924,7 +1072,8 @@ export default function CalendarClientsPage() {
       firstName: firstName,
       lastName: lastName || firstName,
       phoneNumber: formatPhoneForBackend(phoneDigits),
-      address: fullAddress || null,
+      address: newClientAddress.trim() || null,
+      city: newClientCity.trim() || null,
     };
 
     try {
@@ -934,6 +1083,9 @@ export default function CalendarClientsPage() {
       if (result.success) {
         // Customer created successfully, refresh the customers list
         await dispatch(getMyCustomersAction());
+
+        // Show success toast
+        toast.success(result.data?.message || "לקוח נוצר בהצלחה");
 
         // Reset form
         setIsNewClientModalOpen(false);
@@ -945,14 +1097,18 @@ export default function CalendarClientsPage() {
         setNewClientErrors({});
       } else {
         // API error
+        const errorMessage = result.error || "שגיאה ביצירת הלקוח. נסה שוב.";
+        toast.error(errorMessage);
         setNewClientErrors({
-          general: result.error || "שגיאה ביצירת הלקוח. נסה שוב.",
+          general: errorMessage,
         });
       }
     } catch (error) {
       console.error("Error creating client:", error);
+      const errorMessage = error.message || "שגיאה ביצירת הלקוח. נסה שוב.";
+      toast.error(errorMessage);
       setNewClientErrors({
-        general: error.message || "שגיאה ביצירת הלקוח. נסה שוב.",
+        general: errorMessage,
       });
     }
   };
@@ -1010,18 +1166,102 @@ export default function CalendarClientsPage() {
         return;
       }
 
-      const headers = parseCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
+      const headers = parseCsvLine(lines[0]).map((h) => h.trim()).filter((h) => h.length > 0);
+      
+      // Debug: Log headers to console
+      console.log('CSV Headers found:', headers);
+      
+      if (headers.length === 0) {
+        alert("קובץ CSV לא מכיל שורת כותרת תקינה. אנא ודא שהקובץ מתחיל בשורת כותרת עם שמות העמודות.");
+        return;
+      }
+      
+      const headersLower = headers.map((h) => h.toLowerCase());
 
-      const nameIndex = headers.findIndex((h) => h.includes("שם") || h.includes("name") || h.includes("שם מלא"));
-      const phoneIndex = headers.findIndex(
-        (h) => h.includes("טלפון") || h.includes("phone") || h.includes("מספר טלפון") || h.includes("mobile")
+      // More flexible matching for name column (case-insensitive, handles variations)
+      // Matches: שם, name, ClientName, clientname, client_name, etc.
+      const nameIndex = headersLower.findIndex((h) => 
+        h.includes("שם") || 
+        h.includes("name") || 
+        h.includes("שם מלא") ||
+        h === "שם" ||
+        h === "name" ||
+        h === "שם לקוח" ||
+        h === "customer name" ||
+        h === "full name" ||
+        h === "clientname" ||
+        h === "client_name" ||
+        h.includes("clientname") ||
+        h.includes("client_name")
       );
-      const emailIndex = headers.findIndex((h) => h.includes("אימייל") || h.includes("email") || h.includes("מייל"));
-      const cityIndex = headers.findIndex((h) => h.includes("עיר") || h.includes("city"));
-      const addressIndex = headers.findIndex((h) => h.includes("כתובת") || h.includes("address"));
+      
+      // More flexible matching for phone column
+      // Matches: טלפון, phone, ClientPhone, clientphone, client_phone, etc.
+      const phoneIndex = headersLower.findIndex((h) => 
+        h.includes("טלפון") || 
+        h.includes("phone") || 
+        h.includes("מספר טלפון") || 
+        h.includes("mobile") ||
+        h === "טלפון" ||
+        h === "phone" ||
+        h === "מספר נייד" ||
+        h === "mobile number" ||
+        h === "tel" ||
+        h.includes("מספר") ||
+        h === "clientphone" ||
+        h === "client_phone" ||
+        h.includes("clientphone") ||
+        h.includes("client_phone")
+      );
+      
+      // More flexible matching for email column
+      // Matches: אימייל, email, ClientEmail, clientemail, client_email, etc.
+      const emailIndex = headersLower.findIndex((h) => 
+        h.includes("אימייל") || 
+        h.includes("email") || 
+        h.includes("מייל") ||
+        h === "email" ||
+        h === "אימייל" ||
+        h === "clientemail" ||
+        h === "client_email" ||
+        h.includes("clientemail") ||
+        h.includes("client_email")
+      );
+      
+      // More flexible matching for city column
+      // Matches: עיר, city, ClientCity, clientcity, client_city, etc.
+      const cityIndex = headersLower.findIndex((h) => 
+        h.includes("עיר") || 
+        h.includes("city") ||
+        h === "city" ||
+        h === "עיר" ||
+        h === "clientcity" ||
+        h === "client_city" ||
+        h.includes("clientcity") ||
+        h.includes("client_city")
+      );
+      
+      // More flexible matching for address column
+      // Matches: כתובת, address, ClientAddress, clientaddress, client_address, etc.
+      const addressIndex = headersLower.findIndex((h) => 
+        h.includes("כתובת") || 
+        h.includes("address") ||
+        h === "address" ||
+        h === "כתובת" ||
+        h === "clientaddress" ||
+        h === "client_address" ||
+        h.includes("clientaddress") ||
+        h.includes("client_address")
+      );
 
       if (nameIndex === -1 || phoneIndex === -1) {
-        alert('קובץ CSV חייב להכיל עמודות "שם" ו"טלפון"');
+        // Show more helpful error message with found headers
+        const foundHeaders = headers.length > 0 ? headers.join(", ") : "לא נמצאו עמודות";
+        const missingColumns = [];
+        if (nameIndex === -1) missingColumns.push('"שם" או "name"');
+        if (phoneIndex === -1) missingColumns.push('"טלפון" או "phone"');
+        
+        alert(`קובץ CSV חייב להכיל עמודות "שם" ו"טלפון".\n\nעמודות שנמצאו בקובץ: ${foundHeaders}\n\nחסרות העמודות: ${missingColumns.join(", ")}\n\nאנא ודא שהקובץ מכיל שורת כותרת עם העמודות הנדרשות.`);
         return;
       }
 
@@ -1078,7 +1318,6 @@ export default function CalendarClientsPage() {
           address,
           initials,
           totalRevenue: 0,
-          rating: "-",
           status: "פעיל",
         });
       }
@@ -1094,60 +1333,112 @@ export default function CalendarClientsPage() {
       };
       setCsvImportProgress(initialProgress);
 
-      // Import clients via API
+      // Import clients via API using bulk import
       if (importedClients.length > 0) {
-        let successCount = 0;
-        let failCount = 0;
-        const apiErrors = [...errors];
-
-        for (const importedClient of importedClients) {
-          try {
+        try {
+          // Prepare customer data array for bulk import
+          const customersArray = importedClients.map((importedClient) => {
             // Split name into firstName and lastName
             const nameParts = importedClient.name.trim().split(" ").filter(Boolean);
             const firstName = nameParts[0] || "";
             const lastName = nameParts.slice(1).join(" ") || "";
 
-            // Combine city and address
-            const fullAddress = [importedClient.city, importedClient.address].filter(Boolean).join(", ");
-
-            // Generate temporary password
-            const tempPassword = `Temp${Date.now()}${Math.random().toString(36).slice(2)}`;
-
+            // Keep city and address separate (don't combine them)
             // Prepare customer data
-            const customerData = {
-              email: importedClient.email || `temp${Date.now()}${Math.random().toString(36).slice(2)}@imported.com`,
-              password: tempPassword,
+            return {
               firstName: firstName,
               lastName: lastName || firstName,
               phoneNumber: importedClient.phone,
-              address: fullAddress || null,
+              email: importedClient.email || null,
+              address: importedClient.address || null,
+              city: importedClient.city || null,
+              customerFullName: importedClient.name || `${firstName} ${lastName}`.trim(),
+              status: 'new',
+              isActive: true,
             };
+          });
 
-            const result = await dispatch(addCustomerAction(customerData));
-            if (result.success) {
-              successCount++;
+          // Call bulk import API
+          const result = await dispatch(bulkImportCustomersAction(customersArray));
+          
+          if (result.success && result.data) {
+            const importData = result.data;
+            
+            // Format error messages from backend
+            const apiErrors = [
+              ...errors,
+              ...(importData.errors || []).map((err) => 
+                `שורה ${err.index}: ${err.error}`
+              )
+            ];
+
+            // Format skipped messages from backend
+            const skippedMessages = [
+              ...skipped,
+              ...(importData.skipped || []).map((skip) => 
+                `שורה ${skip.index}: ${skip.reason}`
+              )
+            ];
+
+            // Refresh customers list
+            await dispatch(getMyCustomersAction());
+
+            // Update progress
+            setCsvImportProgress({
+              total: importData.total || lines.length - 1,
+              imported: importData.imported || 0,
+              errors: apiErrors.length,
+              skipped: skippedMessages.length,
+              errorMessages: apiErrors,
+              skippedMessages: skippedMessages,
+            });
+            
+            // Show success toast with summary
+            if (importData.imported > 0) {
+              toast.success(
+                `יובאו ${importData.imported} מתוך ${importData.total} לקוחות בהצלחה${importData.errors > 0 || importData.skipped > 0 ? ` (${importData.errors} שגיאות, ${importData.skipped} דולגו)` : ''}`
+              );
             } else {
-              failCount++;
-              apiErrors.push(`שגיאה ביצירת ${importedClient.name}: ${result.error}`);
+              toast.warning("לא יובאו לקוחות. בדוק את השגיאות והדילוגים.");
             }
-          } catch (error) {
-            failCount++;
-            apiErrors.push(`שגיאה ביצירת ${importedClient.name}: ${error.message}`);
+          } else {
+            // Handle bulk import failure
+            const apiErrors = [
+              ...errors,
+              `שגיאה ביבוא: ${result.error || 'Unknown error'}`
+            ];
+
+            setCsvImportProgress({
+              total: lines.length - 1,
+              imported: 0,
+              errors: apiErrors.length,
+              skipped: skipped.length,
+              errorMessages: apiErrors,
+              skippedMessages: skipped,
+            });
+            
+            // Show error toast
+            toast.error(result.error || "שגיאה ביבוא הלקוחות. נסה שוב.");
           }
+        } catch (error) {
+          // Handle unexpected errors
+          const apiErrors = [
+            ...errors,
+            `שגיאה ביבוא: ${error.message || 'Unknown error'}`
+          ];
+
+          setCsvImportProgress({
+            total: lines.length - 1,
+            imported: 0,
+            errors: apiErrors.length,
+            skipped: skipped.length,
+            errorMessages: apiErrors,
+            skippedMessages: skipped,
+          });
+          
+          // Show error toast
+          toast.error("שגיאה ביבוא הלקוחות: " + (error.message || "נסה שוב"));
         }
-
-        // Refresh customers list
-        await dispatch(getMyCustomersAction());
-
-        // Update progress
-        setCsvImportProgress({
-          total: lines.length - 1,
-          imported: successCount,
-          errors: apiErrors.length,
-          skipped: skipped.length,
-          errorMessages: apiErrors,
-          skippedMessages: skipped,
-        });
       }
     };
 
@@ -1159,7 +1450,7 @@ export default function CalendarClientsPage() {
     setShowCsvImportModal(true);
     setCsvFile(null);
     setCsvImportProgress(null);
-    setTimeout(() => fileInputRef.current?.click(), 100);
+    // Modal will show first, user can click inside modal to select file
   };
 
   const handleCloseCsvImport = () => {
@@ -1169,9 +1460,478 @@ export default function CalendarClientsPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // Column definitions for CalendarCommonTable
+  const columns = useMemo(() => {
+    const cols = [];
+    
+    if (visibleFields.name) {
+      cols.push({ key: "name", label: "שם לקוח", width: "w-32", marginRight: columnSpacing.nameToStatus });
+    }
+    if (visibleFields.status) {
+      cols.push({ key: "status", label: "סטטוס", width: "w-28", marginRight: columnSpacing.statusToPhone });
+    }
+    if (visibleFields.phone) {
+      cols.push({ key: "phone", label: "מספר נייד", width: "w-40", marginRight: columnSpacing.phoneToRating });
+    }
+    if (visibleFields.email) {
+      cols.push({ key: "email", label: "אימייל", width: "w-40" });
+    }
+    if (visibleFields.city) {
+      cols.push({ key: "city", label: "עיר", width: "w-28" });
+    }
+    if (visibleFields.address) {
+      cols.push({ key: "address", label: "כתובת", width: "w-40" });
+    }
+    if (visibleFields.firstAppointmentDate) {
+      cols.push({ key: "firstAppointmentDate", label: "תאריך פגישה ראשונה", width: "w-32", type: "date" });
+    }
+    if (visibleFields.totalRevenue) {
+      cols.push({ key: "totalRevenue", label: "סך הכנסות", width: "w-24", marginRight: columnSpacing.revenueToActions, type: "currency" });
+    }
+    if (visibleFields.avgRevenuePerVisit) {
+      cols.push({ key: "avgRevenuePerVisit", label: "ממוצע הכנסה לתור", width: "w-32", type: "currency" });
+    }
+    if (visibleFields.avgTransaction) {
+      cols.push({ key: "avgTransaction", label: "עסקה ממוצעת", width: "w-28", type: "currency" });
+    }
+    if (visibleFields.lostRevenue) {
+      cols.push({ key: "lostRevenue", label: "הכנסות שאבדו", width: "w-28", type: "currency" });
+    }
+    if (visibleFields.recoveredRevenue) {
+      cols.push({ key: "recoveredRevenue", label: "הכנסות שחזרו", width: "w-28", type: "currency" });
+    }
+    if (visibleFields.appointmentsCount) {
+      cols.push({ key: "appointmentsCount", label: "מספר תורים", width: "w-24" });
+    }
+    if (visibleFields.avgVisitsPerYear) {
+      cols.push({ key: "avgVisitsPerYear", label: "ביקור ממוצע בשנה", width: "w-32" });
+    }
+    if (visibleFields.daysSinceLastAppointment) {
+      cols.push({ key: "daysSinceLastAppointment", label: "ימים מהתור האחרון", width: "w-32" });
+    }
+    if (visibleFields.avgTimeBetweenVisits) {
+      cols.push({ key: "avgTimeBetweenVisits", label: "זמן ממוצע בין תורים", width: "w-36" });
+    }
+    if (visibleFields.avgTimeFromBookingToAppointment) {
+      cols.push({ key: "avgTimeFromBookingToAppointment", label: "זמן בין קביעת תור לתור", width: "w-40" });
+    }
+    if (visibleFields.avgRating) {
+      cols.push({ key: "avgRating", label: "ממוצע דירוג", width: "w-28" });
+    }
+    if (visibleFields.lastAppointmentDate) {
+      cols.push({ key: "lastAppointmentDate", label: "תאריך תור אחרון", width: "w-32", type: "date" });
+    }
+    if (visibleFields.lastAppointmentTime) {
+      cols.push({ key: "lastAppointmentTime", label: "זמן תור אחרון", width: "w-28" });
+    }
+    if (visibleFields.lastService) {
+      cols.push({ key: "lastService", label: "שירות אחרון", width: "w-32" });
+    }
+    if (visibleFields.lastRating) {
+      cols.push({ key: "lastRating", label: "דירוג אחרון", width: "w-28" });
+    }
+    if (visibleFields.lastStaff) {
+      cols.push({ key: "lastStaff", label: "איש צוות אחרון", width: "w-28" });
+    }
+    if (visibleFields.source) {
+      cols.push({ key: "source", label: "מקור הגעה", width: "w-32" });
+    }
+    if (visibleFields.leadDate) {
+      cols.push({ key: "leadDate", label: "תאריך כניסת הליד", width: "w-32", type: "date" });
+    }
+    if (visibleFields.timeToConversion) {
+      cols.push({ key: "timeToConversion", label: "זמן להמרה", width: "w-32" });
+    }
+    if (visibleFields.campaignName) {
+      cols.push({ key: "campaignName", label: "שם קמפיין", width: "w-32" });
+    }
+    if (visibleFields.adSetName) {
+      cols.push({ key: "adSetName", label: "שם אד-סט", width: "w-32" });
+    }
+    if (visibleFields.adName) {
+      cols.push({ key: "adName", label: "שם מודעה", width: "w-32" });
+    }
+    if (visibleFields.utmSource) {
+      cols.push({ key: "utmSource", label: "UTM Source", width: "w-28" });
+    }
+    if (visibleFields.utmMedium) {
+      cols.push({ key: "utmMedium", label: "UTM Medium", width: "w-28" });
+    }
+    if (visibleFields.utmCampaign) {
+      cols.push({ key: "utmCampaign", label: "UTM Campaign", width: "w-32" });
+    }
+    if (visibleFields.utmContent) {
+      cols.push({ key: "utmContent", label: "UTM Content", width: "w-28" });
+    }
+    if (visibleFields.utmTerm) {
+      cols.push({ key: "utmTerm", label: "UTM Term", width: "w-28" });
+    }
+    
+    return cols;
+  }, [visibleFields, columnSpacing]);
+
+  // Custom cell renderer for complex cells
+  const renderCell = (column, row, rowIndex, rowData) => {
+    const client = row;
+    const clientAppointmentsInfo = rowData || getClientAppointmentsInfo(client);
+
+    // Name cell with avatar and inline editing
+    if (column.key === "name") {
+      return (
+        <>
+          <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-white flex-shrink-0 overflow-hidden">
+            {client.profileImage ? (
+              <img src={client.profileImage} alt={client.name || "לקוח"} className="w-full h-full object-cover" />
+            ) : (
+              client.initials || (client.name ? client.name.charAt(0).toUpperCase() : "ל")
+            )}
+          </div>
+          {editingField === `name-${client.id}` ? (
+            <input
+              type="text"
+              value={editingValue}
+              onChange={(e) => setEditingValue(e.target.value)}
+              onBlur={() => {
+                if (!hasActiveSubscription || subscriptionLoading) {
+                  setEditingField(null);
+                  return;
+                }
+                if (editingValue !== (client.name || "")) {
+                  handleUpdateClientFieldInList(client.id, "name", editingValue);
+                }
+                setEditingField(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (!hasActiveSubscription || subscriptionLoading) {
+                    setEditingField(null);
+                    return;
+                  }
+                  if (editingValue !== (client.name || "")) {
+                    handleUpdateClientFieldInList(client.id, "name", editingValue);
+                  }
+                  setEditingField(null);
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+              disabled={!hasActiveSubscription || subscriptionLoading}
+              className={`flex-1 text-sm font-semibold rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right ${
+                !hasActiveSubscription || subscriptionLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              dir="rtl"
+              autoFocus
+            />
+          ) : (
+            <div 
+              className={`flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate ${
+                !hasActiveSubscription || subscriptionLoading
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer hover:text-[#ff257c]'
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!hasActiveSubscription || subscriptionLoading) {
+                  alert('נדרש מנוי פעיל כדי לערוך שדות. אנא הירשם למנוי כדי להמשיך.');
+                  return;
+                }
+                setEditingValue(client.name || "");
+                setEditingField(`name-${client.id}`);
+              }}
+            >
+              {client.name || "ללא שם"}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    // Status cell with dropdown
+    if (column.key === "status") {
+      return (
+        <div className="relative">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!hasActiveSubscription) {
+                alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
+                return;
+              }
+              const rect = e.currentTarget.getBoundingClientRect();
+              setStatusDropdownPositions((prev) => ({
+                ...prev,
+                [client.id]: {
+                  top: rect.bottom + window.scrollY + 8,
+                  right: window.innerWidth - rect.right,
+                },
+              }));
+              setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: !prev[client.id] }));
+            }}
+            disabled={!hasActiveSubscription || subscriptionLoading}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition text-white ${
+              !hasActiveSubscription || subscriptionLoading
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:opacity-90'
+            } ${
+              (client.status || "פעיל") === "חסום" || (client.status || "פעיל") === "לא פעיל"
+                ? "bg-black dark:bg-white dark:text-black"
+                : ""
+            }`}
+            style={(client.status || "פעיל") === "פעיל" ? { backgroundColor: BRAND_COLOR } : {}}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                (client.status || "פעיל") === "פעיל" ? "bg-white animate-pulse" : "bg-white dark:bg-black"
+              }`}
+            />
+            <span>{client.status || "פעיל"}</span>
+            <FiChevronDown className="text-[10px]" />
+          </button>
+          
+          {openStatusDropdowns[client.id] && (
+            <>
+              <div
+                className="fixed inset-0 z-20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
+                }}
+              />
+              <div
+                dir="rtl"
+                className="fixed w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
+                style={{
+                  top: statusDropdownPositions[client.id]?.top ? `${statusDropdownPositions[client.id].top}px` : "auto",
+                  right: statusDropdownPositions[client.id]?.right ? `${statusDropdownPositions[client.id].right}px` : "auto",
+                }}
+              >
+                <div className="py-2">
+                  {["פעיל", "חסום"].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={!hasActiveSubscription || subscriptionLoading}
+                      className={`w-full flex items-center justify-between px-3 py-2 ${
+                        !hasActiveSubscription || subscriptionLoading
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!hasActiveSubscription || subscriptionLoading) {
+                          return;
+                        }
+                        handleUpdateClientStatus(client.id, s);
+                      }}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span
+                          className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                            (client.status || "פעיל") === s
+                              ? s === "חסום"
+                                ? "border-gray-500"
+                                : "border-[rgba(255,37,124,1)]"
+                              : "border-gray-300 dark:border-gray-500"
+                          }`}
+                        >
+                          {(client.status || "פעיל") === s &&
+                            (s === "חסום" ? (
+                              <span className="w-2 h-2 rounded-full bg-gray-500" />
+                            ) : (
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
+                            ))}
+                        </span>
+                        <span>{s}</span>
+                      </span>
+                    </button>
+                  ))}
+
+                  <div className="border-t border-gray-200 dark:border-[#262626] my-2" />
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between px-3 py-2 text-red-600 dark:text-red-400 ${
+                      !hasActiveSubscription || subscriptionLoading
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!hasActiveSubscription) {
+                        alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
+                        return;
+                      }
+                      setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
+                      handleDeleteClient(client.id);
+                    }}
+                    disabled={!hasActiveSubscription || subscriptionLoading}
+                  >
+                    מחק לקוח
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      );
+    }
+
+    // Phone cell with edit and WhatsApp
+    if (column.key === "phone") {
+      return (
+        <>
+          {editingField === `phone-${client.id}` ? (
+            <input
+              type="text"
+              value={editingValue}
+              onChange={(e) => {
+                if (!hasActiveSubscription || subscriptionLoading) return;
+                const value = e.target.value.replace(/[^\d]/g, "");
+                setEditingValue(value);
+              }}
+              onBlur={() => {
+                if (!hasActiveSubscription || subscriptionLoading) {
+                  setEditingField(null);
+                  return;
+                }
+                if (editingValue !== (client.phone || "")) {
+                  handleUpdateClientFieldInList(client.id, "phone", editingValue);
+                }
+                setEditingField(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (!hasActiveSubscription || subscriptionLoading) {
+                    setEditingField(null);
+                    return;
+                  }
+                  if (editingValue !== (client.phone || "")) {
+                    handleUpdateClientFieldInList(client.id, "phone", editingValue);
+                  }
+                  setEditingField(null);
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+              disabled={!hasActiveSubscription || subscriptionLoading}
+              className={`flex-1 text-sm rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right ${
+                !hasActiveSubscription || subscriptionLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              dir="rtl"
+              autoFocus
+              placeholder="0501234567"
+            />
+          ) : (
+            <>
+              <div 
+                className={`text-sm text-gray-700 dark:text-white whitespace-nowrap ${
+                  !hasActiveSubscription || subscriptionLoading
+                    ? 'cursor-not-allowed opacity-50'
+                    : 'cursor-pointer hover:text-[#ff257c]'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!hasActiveSubscription || subscriptionLoading) {
+                    alert('נדרש מנוי פעיל כדי לערוך שדות. אנא הירשם למנוי כדי להמשיך.');
+                    return;
+                  }
+                  setEditingValue(client.phone || "");
+                  setEditingField(`phone-${client.id}`);
+                }}
+              >
+                {client.phone ? formatPhoneForDisplay(client.phone) : "-"}
+              </div>
+
+              {client.phone && (
+                <>
+                  <button
+                    type="button"
+                    className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
+                    title="התקשר"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = `tel:${client.phone}`;
+                    }}
+                  >
+                    <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
+                    title="פתח שיחה ב-WhatsApp"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const whatsappUrl = formatPhoneToWhatsapp(client.phone);
+                      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    <img 
+                      src={whatsappIcon} 
+                      alt="WhatsApp" 
+                      className="w-7 h-7"
+                      style={{ filter: isDarkMode ? "brightness(1)" : "brightness(0)" }}
+                    />
+                  </button>
+                </>
+              )}
+            </>
+          )}
+        </>
+      );
+    }
+
+    // Default rendering for other cells
+    const fieldValue = client[column.key];
+    
+    // Handle appointment info fields
+    if (column.key === "avgRevenuePerVisit" || column.key === "avgTransaction" || 
+        column.key === "lostRevenue" || column.key === "recoveredRevenue" ||
+        column.key === "appointmentsCount" || column.key === "avgVisitsPerYear" ||
+        column.key === "daysSinceLastAppointment" || column.key === "avgTimeBetweenVisits" ||
+        column.key === "avgTimeFromBookingToAppointment" || column.key === "avgRating" ||
+        column.key === "lastAppointmentDate" || column.key === "lastAppointmentTime" ||
+        column.key === "lastService" || column.key === "lastRating" || column.key === "lastStaff") {
+      const value = clientAppointmentsInfo[column.key];
+      if (column.type === "currency") {
+        return <div className="text-sm text-gray-700 dark:text-white">₪{(value || 0).toLocaleString()}</div>;
+      }
+      if (column.type === "date" && value) {
+        return <div className="text-sm text-gray-700 dark:text-white">{formatDate(value)}</div>;
+      }
+      // Handle rating fields - show as number with star icon
+      if (column.key === "avgRating" || column.key === "lastRating") {
+        // Check if value is a valid number (including 0, but not null/undefined/empty string)
+        const ratingValue = value !== null && value !== undefined && value !== "" && value !== "-" ? parseFloat(value) : null;
+        if (ratingValue !== null && !isNaN(ratingValue) && ratingValue > 0) {
+          return (
+            <div className="flex items-center gap-1 text-sm text-gray-700 dark:text-white">
+              <FaStar className="text-ratingStar" style={{ fontSize: "12px" }} />
+              <span>{ratingValue.toFixed(1)}</span>
+            </div>
+          );
+        }
+        return <div className="text-sm text-gray-700 dark:text-white">-</div>;
+      }
+      return <div className="text-sm text-gray-700 dark:text-white">{value || "-"}</div>;
+    }
+
+    // Handle regular fields
+    if (column.type === "currency") {
+      return <div className="text-sm text-gray-700 dark:text-white">₪{(fieldValue || 0).toLocaleString()}</div>;
+    }
+    if (column.type === "date" && fieldValue) {
+      return <div className="text-sm text-gray-700 dark:text-white">{formatDate(new Date(fieldValue))}</div>;
+    }
+    if (column.key === "phone") {
+      return <div className="text-sm text-gray-700 dark:text-white">{fieldValue ? formatPhoneForDisplay(fieldValue) : "-"}</div>;
+    }
+    
+    return <div className="text-sm text-gray-700 dark:text-white">{fieldValue || "-"}</div>;
+  };
+
   return (
     <div className="w-full bg-gray-50 dark:bg-customBlack" dir="rtl">
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         {/* Header Section */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -1224,12 +1984,12 @@ export default function CalendarClientsPage() {
         {showImportBanner && (
           <div className="mb-6 relative w-3/4">
             <div className="relative rounded-2xl shadow-xl py-[141px] px-32 flex items-center justify-between overflow-hidden">
-            <button
+            {/* <button
               onClick={() => setShowImportBanner(false)}
                 className="absolute top-3 left-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 z-20"
             >
               <FiX className="text-lg" />
-            </button>
+            </button> */}
 
               <div
                 className="absolute inset-0 rounded-2xl"
@@ -1259,7 +2019,8 @@ export default function CalendarClientsPage() {
 
                 <button 
                   onClick={handleStartCsvImport}
-                  className="absolute -right-20 top-[60px] px-4 py-2.5 rounded-full border-2 border-white bg-transparent text-sm font-semibold text-white hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+                  disabled={!hasActiveSubscription || subscriptionLoading}
+                  className="absolute -right-20 top-[60px] px-4 py-2.5 rounded-full border-2 border-white bg-transparent text-sm font-semibold text-white hover:shadow-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   התחל עכשיו
                   <FiUpload className="text-xs text-white" />
@@ -1269,590 +2030,129 @@ export default function CalendarClientsPage() {
           </div>
         )}
 
-        {/* Search and Filters Bar */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          {/* Search Input */}
-          <div className="flex-1 min-w-[200px] relative">
-            <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="חפש לקוח..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pr-10 pl-4 py-2 rounded-full border border-gray-200 dark:border-commonBorder bg-white dark:bg-[#181818] text-gray-800 dark:text-gray-100 focus:outline-none focus:border-[#ff257c] text-right"
-              dir="rtl"
-            />
-          </div>
-          
-          {/* Status Filter Button */}
-          <div className="relative">
-          <button
-              type="button"
-              className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c] transition-colors ${
-                isStatusDropdownOpen || selectedStatus !== null
-                  ? "border-[#ff257c] focus:ring-2 focus:ring-[#ff257c]"
-                  : "border-gray-200 dark:border-commonBorder"
-              }`}
-              onClick={() => {
-                setIsRatingDropdownOpen(false);
-                setIsStatusDropdownOpen((prev) => !prev);
-              }}
-            >
-              <span className="whitespace-nowrap">{selectedStatus === null ? "סטטוס" : selectedStatus}</span>
-              <FiChevronDown className="text-[14px] text-gray-400" />
-          </button>
-
-            {isStatusDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-20" onClick={() => setIsStatusDropdownOpen(false)} />
-                <div
-                  dir="rtl"
-                  className="absolute right-0 mt-2 w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
-                >
-                <div className="py-2">
-                    {[
-                      { key: null, label: "כל הסטטוסים" },
-                      { key: "פעיל", label: "פעיל" },
-                      { key: "חסום", label: "חסום" },
-                    ].map((opt) => (
-                  <button
-                        key={String(opt.key)}
-                    type="button"
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                    onClick={() => {
-                          setSelectedStatus(opt.key);
-                      setIsStatusDropdownOpen(false);
-                    }}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              selectedStatus === opt.key ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {selectedStatus === opt.key && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                        )}
-                      </span>
-                          <span>{opt.label}</span>
-                    </span>
-                  </button>
-                    ))}
-          </div>
-        </div>
-              </>
-            )}
-          </div>
-
-          {/* Rating Filter Button */}
-          <div className="relative">
-              <button
-              type="button"
-              className={`flex items-center gap-2 px-3 py-2 rounded-full border text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c] transition-colors ${
-                isRatingDropdownOpen || selectedRating !== null
-                  ? "border-[#ff257c] focus:ring-2 focus:ring-[#ff257c]"
-                  : "border-gray-200 dark:border-commonBorder"
-              }`}
-              onClick={() => {
-                setIsStatusDropdownOpen(false);
-                setIsRatingDropdownOpen((prev) => !prev);
-              }}
-            >
-              <span className="whitespace-nowrap">{selectedRating === null ? "דירוג אחרון" : selectedRating === "-" ? "ללא דירוג" : `⭐ ${selectedRating}`}</span>
-              <FiChevronDown className="text-[14px] text-gray-400" />
-            </button>
-
-            {isRatingDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-20" onClick={() => setIsRatingDropdownOpen(false)} />
-                <div
-                  dir="rtl"
-                  className="absolute right-0 mt-2 w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
-                >
-                <div className="py-2">
-                    {/* all */}
-                  <button
-                    type="button"
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                    onClick={() => {
-                      setSelectedRating(null);
-                      setIsRatingDropdownOpen(false);
-                    }}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                            selectedRating === null ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                  }`}
-                      >
-                        {selectedRating === null && (
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                        )}
-                    </span>
-                      <span>כל הדירוגים</span>
-                    </span>
-                  </button>
-
-                    {[5, 4, 3, 2, 1].map((n) => (
-                  <button
-                        key={n}
-                    type="button"
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                    onClick={() => {
-                          setSelectedRating(String(n));
-                      setIsRatingDropdownOpen(false);
-                    }}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              selectedRating === String(n) ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {selectedRating === String(n) && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                        )}
-                      </span>
-                      <div className="flex items-center gap-0.5">
-                            {[...Array(n)].map((_, i) => (
-                              <FaStar key={i} className="text-ratingStar" style={{ fontSize: "12px" }} />
-                            ))}
-                            {[...Array(5 - n)].map((_, i) => (
-                              <FaStar key={`g-${i}`} className="text-gray-300 dark:text-gray-500" style={{ fontSize: "12px" }} />
-                        ))}
-          </div>
-                    </span>
-              </button>
-                    ))}
-
-                  <button
-                    type="button"
-                    className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                    onClick={() => {
-                      setSelectedRating("-");
-                      setIsRatingDropdownOpen(false);
-                    }}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                            selectedRating === "-" ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                        }`}
-                      >
-                        {selectedRating === "-" && (
-                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                        )}
-                      </span>
-                      <span>ללא דירוג</span>
-                    </span>
-              </button>
-                </div>
-              </div>
-              </>
-            )}
-          </div>
-
-          {/* Column Filter Button */}
-          <div className="relative">
-            <button
-              type="button"
-              className="flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 dark:border-commonBorder text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c] transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsColumnFilterDropdownOpen((prev) => !prev);
-              }}
-            >
-              <span className="whitespace-nowrap">סינון</span>
-              <FiFilter className="text-[14px] text-gray-400" />
-              </button>
-
-            {isColumnFilterDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-20" onClick={() => setIsColumnFilterDropdownOpen(false)} />
-                <div
-                  dir="rtl"
-                  className="absolute right-0 mt-2 w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right max-h-[80vh] overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="py-2">
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">מיון</div>
-                    {[
-                      { key: "newest", label: "חדש ביותר" },
-                      { key: "oldest", label: "ישן ביותר" },
-                      { key: "name", label: "א-ב" },
-                    ].map((option) => (
-                      <button
-                        key={option.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => {
-                          setSortBy(option.key);
-                          setIsColumnFilterDropdownOpen(false);
-                        }}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              sortBy === option.key ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                  }`}
-                          >
-                            {sortBy === option.key && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                    </span>
-                          <span>{option.label}</span>
-                        </span>
-              </button>
-                    ))}
-
-                    <div className="border-b border-gray-200 dark:border-[#262626] my-2"></div>
-
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">פרטים</div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          selectAllFieldsInCategory(["name", "status", "phone", "email", "city", "address", "firstAppointmentDate"]);
-                        }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
-                      >
-                        סמן הכל
-                      </button>
-                    </div>
-
-                    {[
-                      { key: "name", label: "שם לקוח" },
-                      { key: "status", label: "סטטוס" },
-                      { key: "phone", label: "מספר נייד" },
-                      { key: "email", label: "אימייל" },
-                      { key: "city", label: "עיר" },
-                      { key: "address", label: "כתובת" },
-                      { key: "firstAppointmentDate", label: "תאריך פגישה ראשונה" },
-                    ].map((field) => (
-                      <button
-                        key={field.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => toggleFieldVisibility(field.key)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              visibleFields[field.key] ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {visibleFields[field.key] && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                          </span>
-                          <span>{field.label}</span>
-                        </span>
-              </button>
-                    ))}
-
-                    <div className="border-b border-gray-200 dark:border-[#262626] my-2"></div>
-
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">הכנסות</div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          selectAllFieldsInCategory(["totalRevenue", "avgRevenuePerVisit", "avgTransaction", "lostRevenue", "recoveredRevenue"]);
-                        }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
-                      >
-                        סמן הכל
-              </button>
-            </div>
-
-                    {[
-                      { key: "totalRevenue", label: "סך הכנסות" },
-                      { key: "avgRevenuePerVisit", label: "ממוצע הכנסה לתור" },
-                      { key: "avgTransaction", label: "עסקה ממוצעת" },
-                      { key: "lostRevenue", label: "הכנסות שאבדו" },
-                      { key: "recoveredRevenue", label: "הכנסות שחזרו" },
-                    ].map((field) => (
-                      <button
-                        key={field.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => toggleFieldVisibility(field.key)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              visibleFields[field.key] ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {visibleFields[field.key] && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                          </span>
-                          <span>{field.label}</span>
-                        </span>
-              </button>
-                    ))}
-
-                    <div className="border-b border-gray-200 dark:border-[#262626] my-2"></div>
-
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">פעילות לקוח</div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          selectAllFieldsInCategory(["appointmentsCount", "avgVisitsPerYear", "daysSinceLastAppointment", "avgTimeBetweenVisits", "avgTimeFromBookingToAppointment"]);
-                        }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
-                      >
-                        סמן הכל
-              </button>
-                    </div>
-
-                    {[
-                      { key: "appointmentsCount", label: "מספר תורים" },
-                      { key: "avgVisitsPerYear", label: "ביקור ממוצע בשנה" },
-                      { key: "daysSinceLastAppointment", label: "ימים מהתור האחרון" },
-                      { key: "avgTimeBetweenVisits", label: "זמן ממוצע בין תורים" },
-                      { key: "avgTimeFromBookingToAppointment", label: "זמן בין קביעת תור לתור" },
-                    ].map((field) => (
-                      <button
-                        key={field.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => toggleFieldVisibility(field.key)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              visibleFields[field.key] ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {visibleFields[field.key] && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                          </span>
-                          <span>{field.label}</span>
-                        </span>
-              </button>
-                    ))}
-
-                    <div className="border-b border-gray-200 dark:border-[#262626] my-2"></div>
-
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">שביעות רצון</div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          selectAllFieldsInCategory(["rating", "avgRating"]);
-                        }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
-                      >
-                        סמן הכל
-              </button>
-                    </div>
-
-                    {[
-                      { key: "rating", label: "דירוג אחרון" },
-                      { key: "avgRating", label: "ממוצע דירוג" },
-                    ].map((field) => (
-                      <button
-                        key={field.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => toggleFieldVisibility(field.key)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              visibleFields[field.key] ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {visibleFields[field.key] && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                          </span>
-                          <span>{field.label}</span>
-                        </span>
-              </button>
-                    ))}
-
-                    <div className="border-b border-gray-200 dark:border-[#262626] my-2"></div>
-
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">ביקור אחרון</div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          selectAllFieldsInCategory(["lastAppointmentDate", "lastAppointmentTime", "lastService", "lastRating", "lastStaff"]);
-                        }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
-                      >
-                        סמן הכל
-              </button>
-                    </div>
-
-                    {[
-                      { key: "lastAppointmentDate", label: "תור אחרון" },
-                      { key: "lastAppointmentTime", label: "זמן תור אחרון" },
-                      { key: "lastService", label: "שירות אחרון" },
-                      { key: "lastRating", label: "דירוג אחרון" },
-                      { key: "lastStaff", label: "איש צוות אחרון" },
-                    ].map((field) => (
-                      <button
-                        key={field.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => toggleFieldVisibility(field.key)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              visibleFields[field.key] ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {visibleFields[field.key] && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                          </span>
-                          <span>{field.label}</span>
-                        </span>
-              </button>
-                    ))}
-
-                    <div className="border-b border-gray-200 dark:border-[#262626] my-2"></div>
-
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">שיווק</div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          selectAllFieldsInCategory([
-                            "source",
-                            "leadDate",
-                            "timeToConversion",
-                            "campaignName",
-                            "adSetName",
-                            "adName",
-                            "utmSource",
-                            "utmMedium",
-                            "utmCampaign",
-                            "utmContent",
-                            "utmTerm",
-                          ]);
-                        }}
-                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#ff257c] transition-colors"
-                      >
-                        סמן הכל
-                      </button>
-                    </div>
-
-                    {[
-                      { key: "source", label: "מקור הגעה" },
-                      { key: "leadDate", label: "תאריך כניסת הליד" },
-                      { key: "timeToConversion", label: "זמן להמרה" },
-                      { key: "campaignName", label: "שם קמפיין" },
-                      { key: "adSetName", label: "שם אד-סט" },
-                      { key: "adName", label: "שם מודעה" },
-                      { key: "utmSource", label: "UTM Source" },
-                      { key: "utmMedium", label: "UTM Medium" },
-                      { key: "utmCampaign", label: "UTM Campaign" },
-                      { key: "utmContent", label: "UTM Content" },
-                      { key: "utmTerm", label: "UTM Term" },
-                    ].map((field) => (
-                      <button
-                        key={field.key}
-                        type="button"
-                        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                        onClick={() => toggleFieldVisibility(field.key)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span
-                            className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                              visibleFields[field.key] ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                            }`}
-                          >
-                            {visibleFields[field.key] && (
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                            )}
-                          </span>
-                          <span>{field.label}</span>
-                        </span>
-              </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-            </div>
-
-          {/* Bulk actions */}
-          <div className="relative flex items-center gap-3">
-            <button
-              onClick={handleSelectAll}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity px-3 py-2 rounded-full border border-gray-200 dark:border-commonBorder text-xs sm:text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#181818] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] hover:border-[#ff257c] transition-colors"
-            >
-              <span
-                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                  selectedClients.length === filteredAndSortedClients.length && filteredAndSortedClients.length > 0
-                    ? "border-[rgba(255,37,124,1)]"
-                    : "border-gray-300 dark:border-gray-500"
-                }`}
-              >
-                {selectedClients.length === filteredAndSortedClients.length && filteredAndSortedClients.length > 0 && (
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                )}
-              </span>
-              <span className="whitespace-nowrap text-xs sm:text-sm">
-                  בחר הכל ({selectedClients.length}/{filteredAndSortedClients.length})
-                </span>
-            </button>
-
-            <button
-              onClick={handleDownloadSelectedClients}
-              disabled={selectedClients.length === 0}
-              className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
-                selectedClients.length === 0
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-900 dark:text-white hover:text-[#ff257c] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
-              }`}
-              title="הורדת לקוחות נבחרים"
-            >
-              <FiDownload className="text-sm" />
-            </button>
-
-            <button
-              onClick={() => {
-                if (!hasActiveSubscription) {
-                  alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
-                  return;
-                }
-                handleDeleteSelectedClients();
-              }}
-              disabled={selectedClients.length === 0 || !hasActiveSubscription || subscriptionLoading}
-              className={`p-2 rounded-full border border-gray-200 dark:border-commonBorder transition-colors ${
-                selectedClients.length === 0 || !hasActiveSubscription || subscriptionLoading
-                  ? "text-gray-300 dark:text-gray-600 cursor-not-allowed bg-gray-50 dark:bg-[#1a1a1a]"
-                  : "text-gray-600 dark:text-white hover:text-red-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] bg-white dark:bg-[#181818]"
-              }`}
-              title={!hasActiveSubscription ? 'נדרש מנוי פעיל כדי למחוק לקוחות' : 'מחיקת לקוחות נבחרים'}
-            >
-              <FiTrash2 className="text-sm" />
-            </button>
-              </div>
-        </div>
+        {/* CalendarCommonTable Component */}
+        <CalendarCommonTable
+          data={clients}
+          filteredData={filteredAndSortedClients}
+          isLoading={isLoadingClients}
+          error={clientsError}
+          isAuthError={isAuthError}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="חפש לקוח..."
+          selectedStatus={selectedStatus}
+          onStatusChange={setSelectedStatus}
+          statusOptions={[
+            { key: null, label: "כל הסטטוסים" },
+            { key: "פעיל", label: "פעיל" },
+            { key: "חסום", label: "חסום" },
+          ]}
+          selectedRating={selectedRating}
+          onRatingChange={setSelectedRating}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          sortOptions={[
+            { key: "newest", label: "חדש ביותר" },
+            { key: "oldest", label: "ישן ביותר" },
+            { key: "name", label: "א-ב" },
+          ]}
+          visibleFields={visibleFields}
+          onToggleFieldVisibility={toggleFieldVisibility}
+          onSelectAllFieldsInCategory={selectAllFieldsInCategory}
+          columnFilterCategories={[
+            {
+              title: "פרטים",
+              fields: [
+                { key: "name", label: "שם לקוח" },
+                { key: "status", label: "סטטוס" },
+                { key: "phone", label: "מספר נייד" },
+                { key: "email", label: "אימייל" },
+                { key: "city", label: "עיר" },
+                { key: "address", label: "כתובת" },
+                { key: "firstAppointmentDate", label: "תאריך פגישה ראשונה" },
+              ],
+            },
+            {
+              title: "הכנסות",
+              fields: [
+                { key: "totalRevenue", label: "סך הכנסות" },
+                { key: "avgRevenuePerVisit", label: "ממוצע הכנסה לתור" },
+                { key: "avgTransaction", label: "עסקה ממוצעת" },
+                { key: "lostRevenue", label: "הכנסות שאבדו" },
+                { key: "recoveredRevenue", label: "הכנסות שחזרו" },
+              ],
+            },
+            {
+              title: "פעילות לקוח",
+              fields: [
+                { key: "appointmentsCount", label: "מספר תורים" },
+                { key: "avgVisitsPerYear", label: "ביקור ממוצע בשנה" },
+                { key: "daysSinceLastAppointment", label: "ימים מהתור האחרון" },
+                { key: "avgTimeBetweenVisits", label: "זמן ממוצע בין תורים" },
+                { key: "avgTimeFromBookingToAppointment", label: "זמן בין קביעת תור לתור" },
+              ],
+            },
+            {
+              title: "שביעות רצון",
+              fields: [
+                { key: "avgRating", label: "ממוצע דירוג" },
+                { key: "lastRating", label: "דירוג אחרון" },
+              ],
+            },
+            {
+              title: "ביקור אחרון",
+              fields: [
+                { key: "lastAppointmentDate", label: "תור אחרון" },
+                { key: "lastAppointmentTime", label: "זמן תור אחרון" },
+                { key: "lastService", label: "שירות אחרון" },
+                // { key: "lastRating", label: "דירוג אחרון" },
+                { key: "lastStaff", label: "איש צוות אחרון" },
+              ],
+            },
+            {
+              title: "שיווק",
+              fields: [
+                { key: "source", label: "מקור הגעה" },
+                { key: "leadDate", label: "תאריך כניסת הליד" },
+                { key: "timeToConversion", label: "זמן להמרה" },
+                { key: "campaignName", label: "שם קמפיין" },
+                { key: "adSetName", label: "שם אד-סט" },
+                { key: "adName", label: "שם מודעה" },
+                { key: "utmSource", label: "UTM Source" },
+                { key: "utmMedium", label: "UTM Medium" },
+                { key: "utmCampaign", label: "UTM Campaign" },
+                { key: "utmContent", label: "UTM Content" },
+                { key: "utmTerm", label: "UTM Term" },
+              ],
+            },
+          ]}
+          selectedItems={selectedClients}
+          onSelectItem={handleSelectClient}
+          onSelectAll={handleSelectAll}
+          onDownloadSelected={handleDownloadSelectedClients}
+          onDeleteSelected={handleDeleteSelectedClients}
+          hasActiveSubscription={hasActiveSubscription}
+          subscriptionLoading={subscriptionLoading}
+          onRowClick={(client) => {
+            setSelectedClientForView(client);
+            setShowClientSummary(true);
+            setClientViewTab("details");
+          }}
+          onUpdateField={handleUpdateClientFieldInList}
+          onUpdateStatus={handleUpdateClientStatus}
+          onDeleteItem={handleDeleteClient}
+          renderCell={renderCell}
+          getRowData={(client) => getClientAppointmentsInfo(client)}
+          columns={columns}
+          emptyStateMessage="אין לקוחות עדיין"
+          emptySearchMessage="לא נמצאו לקוחות התואמים לחיפוש"
+          loadingMessage="טוען לקוחות..."
+          requiredFieldMessage='יש לבחור את "מספר נייד" בתצוגה כדי לראות את רשימת הלקוחות'
+          requiredFieldKey="phone"
+          formatDate={formatDate}
+          enablePagination={true}
+          // defaultPageSize={1}
+        />
 
         {/* Client Summary Popup */}
         <ClientSummaryCard
@@ -1882,11 +2182,34 @@ export default function CalendarClientsPage() {
 
               {!csvImportProgress ? (
                 <div className="space-y-4">
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                  {/* Demo CSV Download Section */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-blue-800 dark:text-blue-300 font-semibold mb-1">רוצה לראות דוגמה?</p>
+                        <p className="text-xs text-blue-600 dark:text-blue-400">הורד קובץ CSV לדוגמה כדי לראות את הפורמט הנדרש</p>
+                      </div>
+                      <a
+                        href="/demo/לקוחות_Demo.csv"
+                        download="לקוחות_Demo.csv"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/50 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-all duration-200"
+                      >
+                        <FiDownload className="text-base" />
+                        הורד קובץ CSV לדוגמה
+                      </a>
+                    </div>
+                  </div>
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200"
+                  >
                     <FiUpload className="text-4xl text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 dark:text-gray-400 mb-2">לחץ על הכפתור כדי לבחור קובץ CSV</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">לחץ כאן כדי לבחור קובץ CSV</p>
                     <button
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
                       className="px-6 py-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-all duration-200 font-semibold text-sm"
                     >
                       בחר קובץ CSV
@@ -1981,6 +2304,32 @@ export default function CalendarClientsPage() {
             </div>
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <CommonConfirmModel
+          isOpen={showDeleteConfirm}
+          onClose={() => {
+            setShowDeleteConfirm(false);
+            setClientToDelete(null);
+            setClientsToDelete([]);
+          }}
+          onConfirm={() => {
+            if (clientToDelete) {
+              confirmDeleteClient();
+            } else if (clientsToDelete.length > 0) {
+              confirmDeleteSelectedClients();
+            }
+          }}
+          title="מחיקת לקוח"
+          message={
+            clientToDelete
+              ? "האם אתה בטוח שאתה רוצה למחוק את הלקוח הזה? פעולה זו לא ניתנת לביטול."
+              : `האם אתה בטוח שאתה רוצה למחוק ${clientsToDelete.length} לקוח/ים? פעולה זו לא ניתנת לביטול.`
+          }
+          confirmText="מחק"
+          cancelText="ביטול"
+          confirmButtonColor="bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500"
+        />
 
         {/* New Client Modal (Inline) */}
         {isNewClientModalOpen && (
@@ -2155,767 +2504,6 @@ export default function CalendarClientsPage() {
           </div>
         )}
 
-        {/* Clients Table */}
-        {!visibleFields.phone ? (
-          <div className="p-12 text-center">
-            <span className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4 block">📱</span>
-            <p className="text-gray-500 dark:text-gray-400 text-lg">יש לבחור את "מספר נייד" בתצוגה כדי לראות את רשימת הלקוחות</p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">אנא סמן את "מספר נייד" בכפתור הסינון כדי להציג את הלקוחות</p>
-          </div>
-        ) : isLoadingClients ? (
-          <div className="p-12 text-center">
-            <FiRefreshCw className="mx-auto text-4xl text-gray-300 dark:text-gray-600 mb-4 animate-spin" />
-            <p className="text-gray-500 dark:text-gray-400 text-lg">טוען לקוחות...</p>
-          </div>
-        ) : isAuthError ? (
-          <div className="p-12 text-center">
-            <FiAlertCircle className="mx-auto text-4xl text-orange-500 dark:text-orange-400 mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
-              {clientsError || "Please login to load customers"}
-            </p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">אנא התחבר כדי לטעון לקוחות מהשרת</p>
-            {clients.length > 0 && (
-              <p className="text-gray-400 dark:text-gray-500 text-xs mt-2">מציג לקוחות מקומיים ({clients.length})</p>
-            )}
-          </div>
-        ) : filteredAndSortedClients.length === 0 ? (
-          <div className="p-12 text-center">
-            <span className="mx-auto text-6xl text-gray-300 dark:text-gray-600 mb-4 block">☺</span>
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              {searchQuery ? "לא נמצאו לקוחות התואמים לחיפוש" : "אין לקוחות עדיין"}
-            </p>
-            {!searchQuery && (
-              <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">לקוחות חדשים שנוצרים דרך קביעת תורים יופיעו כאן</p>
-            )}
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-[#181818] rounded-lg overflow-hidden" key={JSON.stringify(visibleFields)}>
-            <div className="overflow-x-auto" style={{ scrollbarWidth: "thin" }}>
-            {/* Table Headers */}
-            <div className="flex items-center gap-6 px-4 py-3 border-b border-gray-200 dark:border-[#2b2b2b] relative min-w-max">
-              <div className="w-3.5 flex-shrink-0"></div>
-              
-              {/* פרטים */}
-              {visibleFields.name && (
-                <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
-                  <div className="w-8 h-8 flex-shrink-0"></div>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם לקוח</span>
-              </div>
-              )}
-
-              {visibleFields.status && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.statusToPhone}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">סטטוס</span>
-                </div>
-              )}
-
-              {visibleFields.phone && (
-                <div className="w-40 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.phoneToRating}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">מספר נייד</span>
-                  <div className="w-[52px] flex-shrink-0"></div>
-                </div>
-              )}
-
-              {visibleFields.email && (
-                <div className="w-40 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">אימייל</span>
-                </div>
-              )}
-
-              {visibleFields.city && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">עיר</span>
-                </div>
-              )}
-
-              {visibleFields.address && (
-                <div className="w-40 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">כתובת</span>
-                </div>
-              )}
-
-              {visibleFields.firstAppointmentDate && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">תאריך פגישה ראשונה</span>
-                </div>
-              )}
-
-              {/* הכנסות */}
-              {visibleFields.totalRevenue && (
-                <div className="w-24 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.revenueToActions}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">סך הכנסות</span>
-              </div>
-              )}
-
-              {visibleFields.avgRevenuePerVisit && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ממוצע הכנסה לתור</span>
-                </div>
-              )}
-
-              {visibleFields.avgTransaction && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">עסקה ממוצעת</span>
-                </div>
-              )}
-
-              {visibleFields.lostRevenue && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">הכנסות שאבדו</span>
-                </div>
-              )}
-
-              {visibleFields.recoveredRevenue && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">הכנסות שחזרו</span>
-                </div>
-              )}
-
-              {/* פעילות לקוח */}
-              {visibleFields.appointmentsCount && (
-                <div className="w-24 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">מספר תורים</span>
-                </div>
-              )}
-
-              {visibleFields.avgVisitsPerYear && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ביקור ממוצע בשנה</span>
-                </div>
-              )}
-
-              {visibleFields.daysSinceLastAppointment && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ימים מהתור האחרון</span>
-                </div>
-              )}
-
-              {visibleFields.avgTimeBetweenVisits && (
-                <div className="w-36 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן ממוצע בין תורים</span>
-                </div>
-              )}
-
-              {visibleFields.avgTimeFromBookingToAppointment && (
-                <div className="w-40 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן בין קביעת תור לתור</span>
-                </div>
-              )}
-
-              {/* שביעות רצון */}
-              {visibleFields.rating && (
-                <div className="w-20 flex items-center justify-start flex-shrink-0" style={{ marginRight: `${columnSpacing.ratingToRevenue}px` }}>
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">דירוג אחרון</span>
-            </div>
-              )}
-
-              {visibleFields.avgRating && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">ממוצע דירוג</span>
-                </div>
-              )}
-
-              {/* ביקור אחרון */}
-              {visibleFields.lastAppointmentDate && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">תאריך תור אחרון</span>
-                </div>
-              )}
-
-              {visibleFields.lastAppointmentTime && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן תור אחרון</span>
-                </div>
-              )}
-
-              {visibleFields.lastService && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שירות אחרון</span>
-                </div>
-              )}
-
-              {visibleFields.lastRating && (
-                <div className="w-24 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">דירוג אחרון</span>
-                </div>
-              )}
-
-              {visibleFields.lastStaff && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">איש צוות אחרון</span>
-                </div>
-              )}
-
-              {/* שיווק */}
-              {visibleFields.source && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">מקור הגעה</span>
-                </div>
-              )}
-
-              {visibleFields.leadDate && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">תאריך כניסת הליד</span>
-                </div>
-              )}
-
-              {visibleFields.timeToConversion && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">זמן להמרה</span>
-                </div>
-              )}
-
-              {visibleFields.campaignName && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם קמפיין</span>
-                </div>
-              )}
-
-              {visibleFields.adSetName && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם אד-סט</span>
-                </div>
-              )}
-
-              {visibleFields.adName && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">שם מודעה</span>
-                </div>
-              )}
-
-              {visibleFields.utmSource && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Source</span>
-                </div>
-              )}
-
-              {visibleFields.utmMedium && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Medium</span>
-                </div>
-              )}
-
-              {visibleFields.utmCampaign && (
-                <div className="w-32 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Campaign</span>
-                </div>
-              )}
-
-              {visibleFields.utmContent && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Content</span>
-                </div>
-              )}
-
-              {visibleFields.utmTerm && (
-                <div className="w-28 flex items-center justify-start flex-shrink-0">
-                  <span className="text-[14.5px] font-semibold text-gray-700 dark:text-white">UTM Term</span>
-                </div>
-              )}
-
-              <div className="w-24 flex items-center justify-start flex-shrink-0">
-                <p className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
-                מציג {filteredAndSortedClients.length} מתוך {clients.length} תוצאות
-              </p>
-              </div>
-            </div>
-
-            {/* Client Rows */}
-              {filteredAndSortedClients.map((client, index) => {
-                const clientAppointmentsInfo = getClientAppointmentsInfo(client);
-                return (
-              <div
-                key={client.id}
-                onClick={() => {
-                  setSelectedClientForView(client);
-                  setShowClientSummary(true);
-                  setClientViewTab("details");
-                }}
-                className={`px-4 py-3 flex items-center gap-6 transition-colors cursor-pointer min-w-max ${
-                    index % 2 === 0 ? "bg-white dark:bg-[#181818]" : "bg-gray-50/50 dark:bg-[#1a1a1a]"
-                } hover:bg-gray-100 dark:hover:bg-[#222]`}
-              >
-                  {/* Checkbox */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectClient(client.id);
-                    }}
-                    className="flex-shrink-0"
-                  >
-                    <span
-                      className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                        selectedClients.includes(client.id) ? "border-[rgba(255,37,124,1)]" : "border-gray-300 dark:border-gray-500"
-                      }`}
-                    >
-                      {selectedClients.includes(client.id) && (
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                      )}
-                    </span>
-                  </button>
-                  
-                  {/* Name */}
-                  {visibleFields.name && (
-                    <div className="w-32 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.nameToStatus}px` }}>
-                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2b2b2b] flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-white flex-shrink-0 overflow-hidden">
-                        {client.profileImage ? (
-                          <img src={client.profileImage} alt={client.name || "לקוח"} className="w-full h-full object-cover" />
-                        ) : (
-                          client.initials || (client.name ? client.name.charAt(0).toUpperCase() : "ל")
-                        )}
-                      </div>
-
-                      {editingField === `name-${client.id}` ? (
-                        <input
-                          type="text"
-                          value={client.name || ""}
-                          onChange={(e) => handleUpdateClientFieldInList(client.id, "name", e.target.value)}
-                          onBlur={() => setEditingField(null)}
-                          onKeyDown={(e) => e.key === "Enter" && setEditingField(null)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex-1 text-sm font-semibold rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right"
-                          dir="rtl"
-                          autoFocus
-                        />
-                      ) : (
-                        <div 
-                          className="flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate cursor-pointer hover:text-[#ff257c]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingField(`name-${client.id}`);
-                          }}
-                        >
-                      {client.name || "ללא שם"}
-                    </div>
-                      )}
-                  </div>
-                  )}
-
-                  {/* Status */}
-                  {visibleFields.status && (
-                    <div className="w-28 flex items-center justify-center flex-shrink-0 relative" style={{ marginRight: `${columnSpacing.statusToPhone}px` }}>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!hasActiveSubscription) {
-                            alert('נדרש מנוי פעיל כדי לערוך סטטוס. אנא הירשם למנוי כדי להמשיך.');
-                            return;
-                          }
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setStatusDropdownPositions((prev) => ({
-                            ...prev,
-                            [client.id]: {
-                              top: rect.bottom + window.scrollY + 8,
-                              right: window.innerWidth - rect.right,
-                            },
-                          }));
-                          setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: !prev[client.id] }));
-                        }}
-                        disabled={!hasActiveSubscription || subscriptionLoading}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition text-white ${
-                          !hasActiveSubscription || subscriptionLoading
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:opacity-90'
-                        } ${
-                          (client.status || "פעיל") === "חסום" || (client.status || "פעיל") === "לא פעיל"
-                            ? "bg-black dark:bg-white dark:text-black"
-                            : ""
-                        }`}
-                        style={(client.status || "פעיל") === "פעיל" ? { backgroundColor: BRAND_COLOR } : {}}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            (client.status || "פעיל") === "פעיל" ? "bg-white animate-pulse" : "bg-white dark:bg-black"
-                          }`}
-                        />
-                        <span>{client.status || "פעיל"}</span>
-                        <FiChevronDown className="text-[10px]" />
-                      </button>
-                      
-                      {openStatusDropdowns[client.id] && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-20"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
-                            }}
-                          />
-                          <div
-                            dir="rtl"
-                            className="fixed w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
-                            style={{
-                              top: statusDropdownPositions[client.id]?.top ? `${statusDropdownPositions[client.id].top}px` : "auto",
-                              right: statusDropdownPositions[client.id]?.right ? `${statusDropdownPositions[client.id].right}px` : "auto",
-                            }}
-                          >
-                            <div className="py-2">
-                              {["פעיל", "חסום"].map((s) => (
-                              <button
-                                  key={s}
-                                type="button"
-                                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                    handleUpdateClientStatus(client.id, s);
-                                }}
-                              >
-                                <span className="flex items-center gap-2">
-                                  <span
-                                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                                        (client.status || "פעיל") === s
-                                          ? s === "חסום"
-                                            ? "border-gray-500"
-                                            : "border-[rgba(255,37,124,1)]"
-                                        : "border-gray-300 dark:border-gray-500"
-                                    }`}
-                                  >
-                                      {(client.status || "פעיל") === s &&
-                                        (s === "חסום" ? (
-                                          <span className="w-2 h-2 rounded-full bg-gray-500" />
-                                        ) : (
-                                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: BRAND_COLOR }} />
-                                        ))}
-                                  </span>
-                                    <span>{s}</span>
-                                </span>
-                              </button>
-                              ))}
-
-                              <div className="border-t border-gray-200 dark:border-[#262626] my-2" />
-
-                              <button
-                                type="button"
-                                className={`w-full flex items-center justify-between px-3 py-2 text-red-600 dark:text-red-400 ${
-                                  !hasActiveSubscription || subscriptionLoading
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : 'hover:bg-gray-50 dark:hover:bg-[#2a2a2a]'
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!hasActiveSubscription) {
-                                    alert('נדרש מנוי פעיל כדי למחוק לקוחות. אנא הירשם למנוי כדי להמשיך.');
-                                    return;
-                                  }
-                                  setOpenStatusDropdowns((prev) => ({ ...prev, [client.id]: false }));
-                                  handleDeleteClient(client.id);
-                                }}
-                                disabled={!hasActiveSubscription || subscriptionLoading}
-                              >
-                                מחק לקוח
-                                <FiTrash2 />
-                      </button>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Phone */}
-                  {visibleFields.phone && (
-                    <div className="w-40 flex items-center gap-2 flex-shrink-0" style={{ marginRight: `${columnSpacing.phoneToRating}px` }}>
-                      {editingField === `phone-${client.id}` ? (
-                        <input
-                          type="text"
-                          value={client.phone || ""}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^\d]/g, "");
-                            handleUpdateClientFieldInList(client.id, "phone", value);
-                          }}
-                          onBlur={() => setEditingField(null)}
-                          onKeyDown={(e) => e.key === "Enter" && setEditingField(null)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex-1 text-sm rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right"
-                          dir="rtl"
-                          autoFocus
-                          placeholder="0501234567"
-                        />
-                      ) : (
-                        <>
-                          <div 
-                            className="text-sm text-gray-700 dark:text-white whitespace-nowrap cursor-pointer hover:text-[#ff257c]"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingField(`phone-${client.id}`);
-                            }}
-                          >
-                      {client.phone ? formatPhoneForDisplay(client.phone) : "-"}
-                    </div>
-
-                      {client.phone && (
-                        <>
-                          <button
-                            type="button"
-                            className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
-                            title="התקשר"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.location.href = `tel:${client.phone}`;
-                            }}
-                          >
-                            <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
-                          </button>
-
-                          <button
-                            type="button"
-                            className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
-                            title="פתח שיחה ב-WhatsApp"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const whatsappUrl = formatPhoneToWhatsapp(client.phone);
-                                  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-                            }}
-                          >
-                            <img 
-                              src={whatsappIcon} 
-                              alt="WhatsApp" 
-                              className="w-7 h-7"
-                                  style={{ filter: isDarkMode ? "brightness(1)" : "brightness(0)" }}
-                            />
-                          </button>
-                            </>
-                          )}
-                        </>
-                      )}
-                  </div>
-                  )}
-
-                  {/* Email - פרטים */}
-                  {visibleFields.email && (
-                    <div className="w-40 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.email || "-"}</div>
-                  </div>
-                  )}
-
-                  {/* City - פרטים */}
-                  {visibleFields.city && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.city || "-"}</div>
-                  </div>
-                  )}
-
-                  {/* Address - פרטים */}
-                  {visibleFields.address && (
-                    <div className="w-40 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.address || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* First Appointment Date - פרטים */}
-                  {visibleFields.firstAppointmentDate && (
-                    <div className="w-32 flex-shrink-0">
-                    <div className="text-sm text-gray-700 dark:text-white">
-                        {client.firstAppointmentDate ? formatDate(new Date(client.firstAppointmentDate)) : "-"}
-                    </div>
-                  </div>
-                  )}
-
-                  {/* Total Revenue - הכנסות */}
-                  {visibleFields.totalRevenue && (
-                    <div className="w-24 flex-shrink-0" style={{ marginRight: `${columnSpacing.revenueToActions}px` }}>
-                      <div className="text-sm text-gray-700 dark:text-white">₪{(client.totalRevenue || 0).toLocaleString()}</div>
-                    </div>
-                  )}
-
-                  {/* Avg Revenue Per Visit - הכנסות */}
-                  {visibleFields.avgRevenuePerVisit && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.avgRevenuePerVisit || 0).toLocaleString()}</div>
-                  </div>
-                  )}
-
-                  {/* Avg Transaction - הכנסות */}
-                  {visibleFields.avgTransaction && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.avgTransaction || 0).toLocaleString()}</div>
-                        </div>
-                  )}
-
-                  {/* Lost Revenue - הכנסות */}
-                  {visibleFields.lostRevenue && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.lostRevenue || 0).toLocaleString()}</div>
-                      </div>
-                  )}
-
-                  {/* Recovered Revenue - הכנסות */}
-                  {visibleFields.recoveredRevenue && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">₪{(clientAppointmentsInfo.recoveredRevenue || 0).toLocaleString()}</div>
-                        </div>
-                  )}
-
-                  {/* Appointments Count - פעילות לקוח */}
-                  {visibleFields.appointmentsCount && (
-                    <div className="w-24 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.count || 0}</div>
-                      </div>
-                  )}
-
-                  {/* Avg Visits Per Year - פעילות לקוח */}
-                  {visibleFields.avgVisitsPerYear && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgVisitsPerYear || "-"}</div>
-                        </div>
-                  )}
-
-                  {/* Days Since Last Appointment - פעילות לקוח */}
-                  {visibleFields.daysSinceLastAppointment && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.daysSinceLastAppointment || "-"}</div>
-                      </div>
-                  )}
-
-                  {/* Avg Time Between Visits - פעילות לקוח */}
-                  {visibleFields.avgTimeBetweenVisits && (
-                    <div className="w-36 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgTimeBetweenVisits || "-"}</div>
-                        </div>
-                  )}
-
-                  {/* Avg Time From Booking To Appointment - פעילות לקוח */}
-                  {visibleFields.avgTimeFromBookingToAppointment && (
-                    <div className="w-40 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgTimeFromBookingToAppointment || "-"}</div>
-                      </div>
-                  )}
-
-                  {/* Rating - שביעות רצון */}
-                  {visibleFields.rating && (
-                    <div className="w-20 flex-shrink-0" style={{ marginRight: `${columnSpacing.ratingToRevenue}px` }}>
-                      <div className="text-sm text-gray-700 dark:text-white">{client.rating || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* Avg Rating - שביעות רצון */}
-                  {visibleFields.avgRating && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.avgRating || "-"}</div>
-                  </div>
-                  )}
-
-                  {/* Last Appointment Date - ביקור אחרון */}
-                  {visibleFields.lastAppointmentDate && (
-                    <div className="w-32 flex-shrink-0">
-                        <div className="text-sm text-gray-700 dark:text-white">
-                        {clientAppointmentsInfo.lastAppointmentDate ? formatDate(clientAppointmentsInfo.lastAppointmentDate) : "-"}
-                        </div>
-                      </div>
-                  )}
-
-                  {/* Last Appointment Time - ביקור אחרון */}
-                  {visibleFields.lastAppointmentTime && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastAppointmentTime || "-"}</div>
-                        </div>
-                  )}
-
-                  {/* Last Service - ביקור אחרון */}
-                  {visibleFields.lastService && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastService || "-"}</div>
-                      </div>
-                  )}
-
-                  {/* Last Rating - ביקור אחרון */}
-                  {visibleFields.lastRating && (
-                    <div className="w-24 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastRating || "-"}</div>
-                        </div>
-                  )}
-
-                  {/* Last Staff - ביקור אחרון */}
-                  {visibleFields.lastStaff && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{clientAppointmentsInfo.lastStaff || "-"}</div>
-                      </div>
-                  )}
-
-                  {/* Source */}
-                  {visibleFields.source && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.source || "-"}</div>
-                  </div>
-                  )}
-
-                  {/* Lead Date */}
-                  {visibleFields.leadDate && (
-                    <div className="w-32 flex-shrink-0">
-                    <div className="text-sm text-gray-700 dark:text-white">
-                        {client.leadDate ? formatDate(new Date(client.leadDate)) : "-"}
-                    </div>
-                  </div>
-                  )}
-
-                  {/* Time To Conversion */}
-                  {visibleFields.timeToConversion && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.timeToConversion || "-"}</div>
-                                </div>
-                  )}
-
-                  {/* Campaign Name */}
-                  {visibleFields.campaignName && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.campaignName || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* Ad Set Name */}
-                  {visibleFields.adSetName && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.adSetName || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* Ad Name */}
-                  {visibleFields.adName && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.adName || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* UTM Source */}
-                  {visibleFields.utmSource && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.utmSource || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* UTM Medium */}
-                  {visibleFields.utmMedium && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.utmMedium || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* UTM Campaign */}
-                  {visibleFields.utmCampaign && (
-                    <div className="w-32 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.utmCampaign || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* UTM Content */}
-                  {visibleFields.utmContent && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.utmContent || "-"}</div>
-                    </div>
-                  )}
-
-                  {/* UTM Term */}
-                  {visibleFields.utmTerm && (
-                    <div className="w-28 flex-shrink-0">
-                      <div className="text-sm text-gray-700 dark:text-white">{client.utmTerm || "-"}</div>
-                    </div>
-                  )}
-                  </div>
-              );
-              })}
-              </div>
-          </div>
-        )}
       </div>
     </div>
   );

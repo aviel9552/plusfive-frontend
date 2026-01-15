@@ -173,15 +173,22 @@ export const ClientSummaryCard = ({
   };
 
   // Save edited field
-  const handleSaveField = (fieldName) => {
+  const handleSaveField = (fieldName, fieldValue = null) => {
     if (!client) return;
 
     // Load clients from localStorage
     const storedClients = localStorage.getItem(CALENDAR_CLIENTS_STORAGE_KEY);
     const clients = storedClients ? JSON.parse(storedClients) : [];
 
+    // Find the client in localStorage - try multiple matching strategies
+    let clientFound = false;
     const updatedClients = clients.map(c => {
-      if (c.id === client.id) {
+      // Try to match by id first, then by name as fallback
+      const matchesById = c.id === client.id;
+      const matchesByName = c.name && client.name && c.name.toLowerCase().trim() === client.name.toLowerCase().trim();
+      
+      if (matchesById || matchesByName) {
+        clientFound = true;
         // Start with all existing client data to preserve all fields (especially profileImage)
         const updates = {
           ...c,
@@ -189,18 +196,19 @@ export const ClientSummaryCard = ({
         };
         
         // Only update the specific field that was edited
+        // Use fieldValue if provided (for immediate updates), otherwise use editedClientData
         if (fieldName === "name") {
-          updates.name = editedClientData.name;
+          updates.name = fieldValue !== null ? fieldValue : editedClientData.name;
         } else if (fieldName === "phone") {
-          updates.phone = formatPhoneForBackend(editedClientData.phone);
+          updates.phone = formatPhoneForBackend(fieldValue !== null ? fieldValue : editedClientData.phone);
         } else if (fieldName === "email") {
-          updates.email = editedClientData.email;
+          updates.email = fieldValue !== null ? fieldValue : editedClientData.email;
         } else if (fieldName === "city") {
-          updates.city = editedClientData.city;
+          updates.city = fieldValue !== null ? fieldValue : editedClientData.city;
         } else if (fieldName === "address") {
-          updates.address = editedClientData.address;
+          updates.address = fieldValue !== null ? fieldValue : editedClientData.address;
         } else if (fieldName === "status") {
-          updates.status = editedClientData.status;
+          updates.status = fieldValue !== null ? fieldValue : editedClientData.status;
         }
         
         // Ensure profileImage is always preserved (from localStorage client or prop)
@@ -208,24 +216,84 @@ export const ClientSummaryCard = ({
           updates.profileImage = c.profileImage || client.profileImage || null;
         }
         
+        // Ensure id is preserved
+        if (!updates.id) {
+          updates.id = c.id || client.id;
+        }
+        
         return updates;
       }
       return c;
     });
 
+    // If client not found in localStorage, create a new entry based on client prop
+    let updatedClient;
+    if (!clientFound) {
+      const newClient = {
+        ...client,
+        id: client.id,
+      };
+      
+      // Update the specific field
+      // Use fieldValue if provided (for immediate updates), otherwise use editedClientData
+      if (fieldName === "name") {
+        newClient.name = fieldValue !== null ? fieldValue : editedClientData.name;
+      } else if (fieldName === "phone") {
+        newClient.phone = formatPhoneForBackend(fieldValue !== null ? fieldValue : editedClientData.phone);
+      } else if (fieldName === "email") {
+        newClient.email = fieldValue !== null ? fieldValue : editedClientData.email;
+      } else if (fieldName === "city") {
+        newClient.city = fieldValue !== null ? fieldValue : editedClientData.city;
+      } else if (fieldName === "address") {
+        newClient.address = fieldValue !== null ? fieldValue : editedClientData.address;
+      } else if (fieldName === "status") {
+        newClient.status = fieldValue !== null ? fieldValue : editedClientData.status;
+      }
+      
+      updatedClients.push(newClient);
+      updatedClient = newClient;
+    } else {
+      // Find the updated client
+      updatedClient = updatedClients.find(c => c.id === client.id || (c.name && client.name && c.name.toLowerCase().trim() === client.name.toLowerCase().trim()));
+    }
+
     localStorage.setItem(CALENDAR_CLIENTS_STORAGE_KEY, JSON.stringify(updatedClients));
     
-    // Update client via callback
-    const updatedClient = updatedClients.find(c => c.id === client.id);
+    // If client still not found, create updated client from client prop directly
+    if (!updatedClient) {
+      updatedClient = {
+        ...client,
+      };
+      
+      // Update the specific field
+      // Use fieldValue if provided (for immediate updates), otherwise use editedClientData
+      if (fieldName === "name") {
+        updatedClient.name = fieldValue !== null ? fieldValue : editedClientData.name;
+      } else if (fieldName === "phone") {
+        updatedClient.phone = formatPhoneForBackend(fieldValue !== null ? fieldValue : editedClientData.phone);
+      } else if (fieldName === "email") {
+        updatedClient.email = fieldValue !== null ? fieldValue : editedClientData.email;
+      } else if (fieldName === "city") {
+        updatedClient.city = fieldValue !== null ? fieldValue : editedClientData.city;
+      } else if (fieldName === "address") {
+        updatedClient.address = fieldValue !== null ? fieldValue : editedClientData.address;
+      } else if (fieldName === "status") {
+        updatedClient.status = fieldValue !== null ? fieldValue : editedClientData.status;
+      }
+    }
+    
+    // Call onClientUpdate for all field updates (including status)
+    // The parent component has duplicate call prevention
     if (onClientUpdate && updatedClient) {
       onClientUpdate(updatedClient);
     }
     
     // For status, ensure local state is immediately updated
     if (fieldName === "status" && updatedClient) {
+      const newStatus = fieldValue !== null ? fieldValue : updatedClient.status;
       setEditedClientData(prev => ({
         ...prev,
-        status: updatedClient.status
+        status: newStatus
       }));
     }
     
@@ -1461,7 +1529,7 @@ export const ClientSummaryCard = ({
                                           ...editedClientData,
                                           status: "חסום"
                                         });
-                                        handleSaveField("status");
+                                        handleSaveField("status", "חסום");
                                         setIsStatusDropdownOpen(false);
                                       }}
                                       className="w-full px-4 py-3 text-sm text-right flex items-center justify-between transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
@@ -1478,7 +1546,7 @@ export const ClientSummaryCard = ({
                                           ...editedClientData,
                                           status: "פעיל"
                                         });
-                                        handleSaveField("status");
+                                        handleSaveField("status", "פעיל");
                                         setIsStatusDropdownOpen(false);
                                       }}
                                       className="w-full px-4 py-3 text-sm text-right flex items-center justify-between transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
