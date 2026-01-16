@@ -9,6 +9,7 @@ import customerReducer from '../src/redux/reducers/customerReducer';
 import adminReducer from '../src/redux/reducers/adminReducer';
 import serviceReducer from '../src/redux/reducers/serviceReducer';
 import staffReducer from '../src/redux/reducers/staffReducer';
+import categoryReducer from '../src/redux/reducers/categoryReducer';
 
 // Root Reducer
 const rootReducer = combineReducers({
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   admin: adminReducer,
   service: serviceReducer,
   staff: staffReducer,
+  category: categoryReducer,
 });
 
 // Persist Config

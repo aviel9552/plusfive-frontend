@@ -343,7 +343,8 @@
     "createCustomer": "Create Customer",
     "editCustomer": "Edit Customer",
     "newFeature": "New Feature",
-    "settings": "Settings"
+    "settings": "Settings",
+    "categoryManagement": "Category Management"
   },
   "admin": {
     "monthlyPerformance": "Monthly Performance",
@@ -1160,6 +1161,57 @@
     "Lost": "Lost",
     "Recovered": "Recovered",
     "Lead": "Lead"
+  },
+  "adminCategory": {
+    "categoryManagement": "Category Management",
+    "createNewCategory": "Create New Category",
+    "editCategory": "Edit Category",
+    "addCategory": "Add Category",
+    "categoryTitle": "Category Title",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enterCategoryTitle": "Enter category title",
+    "createCategory": "Create Category",
+    "updateCategory": "Update Category",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "cancel": "Cancel",
+    "title": "Title",
+    "createdAt": "Created At",
+    "action": "Action",
+    "edit": "Edit",
+    "delete": "Delete",
+    "searchCategories": "Search categories...",
+    "allStatus": "All Status",
+    "deleteSelected": "Delete Selected",
+    "noCategoriesFound": "No categories found",
+    "categoryCreatedSuccessfully": "Category created successfully",
+    "categoryUpdatedSuccessfully": "Category updated successfully",
+    "categoryDeletedSuccessfully": "Category deleted successfully",
+    "categoriesDeletedSuccessfully": "category/categories deleted successfully",
+    "failedToCreateCategory": "Failed to create category",
+    "failedToUpdateCategory": "Failed to update category",
+    "failedToDeleteCategory": "Failed to delete category",
+    "failedToDeleteCategories": "Failed to delete categories",
+    "invalidCategoryData": "Invalid category data",
+    "pleaseSelectCategoriesToDelete": "Please select categories to delete",
+    "deleteCategory": "Delete Category",
+    "deleteCategories": "Delete Categories",
+    "areYouSureToDeleteCategory": "Are you sure you want to delete the category",
+    "areYouSureToDeleteCategories": "Are you sure you want to delete",
+    "selectedCategory": "selected category/categories",
+    "categoryTitleRequired": "Category title is required",
+    "titleMustBeAtLeast2Characters": "Title must be at least 2 characters",
+    "titleMustBeLessThan100Characters": "Title must be less than 100 characters",
+    "statusRequired": "Status is required"
+  },
+  "commonTable": {
+    "search": "Search...",
+    "filter": "Filter",
+    "action": "Action",
+    "loading": "Loading...",
+    "noDataFound": "No data found"
   }
 }
 

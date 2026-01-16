@@ -81,13 +81,16 @@ const StatSingleBarChart = ({ title, dataMap, filters }) => {
       return new Intl.NumberFormat().format(value);
     };
 
+    // Use dynamic year from entry, fallback to current year if not provided
+    const displayYear = entry.year || new Date().getFullYear();
+
     return (
       <div className="bg-gray-100 dark:bg-[#43474E] px-4 py-2 rounded-[16px] shadow-lg transition-colors duration-200">
         <div className="text-gray-900 dark:text-white text-16 font-medium">
         ₪{formatTooltipValue(entry.value)}
         </div>
         <div className="text-gray-600 dark:text-white text-12">
-          {entry.month || 'Month'} 2025
+          {entry.month || 'Month'} {displayYear}
         </div>
       </div>
     );

@@ -195,7 +195,7 @@ const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
             className="w-10 h-10 flex items-center justify-center"
             onClick={toggleProfileMenu}
           >
-            <div className="w-10 h-10 rounded-full bg-black dark:bg-black flex items-center justify-center text-white font-bold text-base">
+            <div className="w-10 h-10 rounded-full bg-black dark:bg-black flex items-center justify-center text-white font-bold text-base border border-gray-200 dark:border-customBorderColor">
               {userName.charAt(0).toUpperCase()}
             </div>
           </button>

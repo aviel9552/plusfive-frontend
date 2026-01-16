@@ -58,15 +58,15 @@ const COLOR_PALETTE = [
   { name: "אפור בהיר", value: "#F0F0F0" },
 ];
 
-// Category options
-const CATEGORY_OPTIONS = [
-  "כללי",
-  "טיפול פנים",
-  "טיפול שיער",
-  "טיפול גוף",
-  "עיסוי",
-  "אחר"
-];
+// Category options - Commented out, now using dynamic categories from props
+// const CATEGORY_OPTIONS = [
+//   "כללי",
+//   "טיפול פנים",
+//   "טיפול שיער",
+//   "טיפול גוף",
+//   "עיסוי",
+//   "אחר"
+// ];
 
 export const NewServiceModal = ({
   isOpen,
@@ -87,6 +87,7 @@ export const NewServiceModal = ({
   onColorChange,
   onHideFromClientsChange,
   onSubmit,
+  categories = [], // Dynamic categories from props
 }) => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isDurationDropdownOpen, setIsDurationDropdownOpen] = useState(false);
@@ -206,35 +207,49 @@ export const NewServiceModal = ({
                       className="absolute right-0 mt-2 w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
                     >
                       <div className="py-2">
-                        {CATEGORY_OPTIONS.map((category) => (
-                          <button
-                            key={category}
-                            type="button"
-                            onClick={() => {
-                              onCategoryChange(category);
-                              setIsCategoryDropdownOpen(false);
-                            }}
-                            className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
-                          >
-                            <span className="flex items-center gap-2">
-                              <span
-                                className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                                  newServiceCategory === category
-                                    ? "border-[rgba(255,37,124,1)]"
-                                    : "border-gray-300 dark:border-gray-500"
-                                }`}
+                        {categories && categories.length > 0 ? (
+                          categories.map((category) => {
+                            // Handle both object format {id, title} and string format
+                            const categoryTitle = typeof category === 'string' ? category : (category.title || category.name || '');
+                            const categoryId = typeof category === 'object' ? category.id : null;
+                            const categoryKey = categoryId || categoryTitle;
+                            
+                            return (
+                              <button
+                                key={categoryKey}
+                                type="button"
+                                onClick={() => {
+                                  // Pass the title/name to onCategoryChange
+                                  onCategoryChange(categoryTitle);
+                                  setIsCategoryDropdownOpen(false);
+                                }}
+                                className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
                               >
-                                {newServiceCategory === category && (
+                                <span className="flex items-center gap-2">
                                   <span
-                                    className="w-2 h-2 rounded-full"
-                                    style={{ backgroundColor: BRAND_COLOR }}
-                                  />
-                                )}
-                              </span>
-                              <span>{category}</span>
-                            </span>
-                          </button>
-                        ))}
+                                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                                      newServiceCategory === categoryTitle
+                                        ? "border-[rgba(255,37,124,1)]"
+                                        : "border-gray-300 dark:border-gray-500"
+                                    }`}
+                                  >
+                                    {newServiceCategory === categoryTitle && (
+                                      <span
+                                        className="w-2 h-2 rounded-full"
+                                        style={{ backgroundColor: BRAND_COLOR }}
+                                      />
+                                    )}
+                                  </span>
+                                  <span>{categoryTitle}</span>
+                                </span>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="px-3 py-2 text-gray-500 dark:text-gray-400 text-center">
+                            אין קטגוריות זמינות
+                          </div>
+                        )}
                       </div>
                     </div>
                   </>

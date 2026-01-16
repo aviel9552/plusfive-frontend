@@ -27,7 +27,9 @@ import { useTheme } from "../../context/ThemeContext";
 import { BRAND_COLOR, CALENDAR_EVENTS_STORAGE_KEY } from "../../utils/calendar/constants";
 import { ClientSummaryCard } from "../../components/calendar/Panels/ClientSummaryCard";
 import gradientImage from "../../assets/gradientteam.jpg";
-import whatsappIcon from "../../assets/whatsappicon.png";
+// import whatsappIcon from "../../assets/whatsappicon.png";
+import whatsappDarkIcon from "../../assets/whatsappDark.svg";
+import whatsappLightIcon from "../../assets/whatsappLight.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getMyCustomersAction,
@@ -1575,7 +1577,7 @@ export default function CalendarClientsPage() {
     const client = row;
     const clientAppointmentsInfo = rowData || getClientAppointmentsInfo(client);
 
-    // Name cell with avatar and inline editing
+    // Name cell with avatar (no inline editing)
     if (column.key === "name") {
       return (
         <>
@@ -1586,61 +1588,9 @@ export default function CalendarClientsPage() {
               client.initials || (client.name ? client.name.charAt(0).toUpperCase() : "ל")
             )}
           </div>
-          {editingField === `name-${client.id}` ? (
-            <input
-              type="text"
-              value={editingValue}
-              onChange={(e) => setEditingValue(e.target.value)}
-              onBlur={() => {
-                if (!hasActiveSubscription || subscriptionLoading) {
-                  setEditingField(null);
-                  return;
-                }
-                if (editingValue !== (client.name || "")) {
-                  handleUpdateClientFieldInList(client.id, "name", editingValue);
-                }
-                setEditingField(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (!hasActiveSubscription || subscriptionLoading) {
-                    setEditingField(null);
-                    return;
-                  }
-                  if (editingValue !== (client.name || "")) {
-                    handleUpdateClientFieldInList(client.id, "name", editingValue);
-                  }
-                  setEditingField(null);
-                }
-              }}
-              onClick={(e) => e.stopPropagation()}
-              disabled={!hasActiveSubscription || subscriptionLoading}
-              className={`flex-1 text-sm font-semibold rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right ${
-                !hasActiveSubscription || subscriptionLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              dir="rtl"
-              autoFocus
-            />
-          ) : (
-            <div 
-              className={`flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate ${
-                !hasActiveSubscription || subscriptionLoading
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'cursor-pointer hover:text-[#ff257c]'
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!hasActiveSubscription || subscriptionLoading) {
-                  alert('נדרש מנוי פעיל כדי לערוך שדות. אנא הירשם למנוי כדי להמשיך.');
-                  return;
-                }
-                setEditingValue(client.name || "");
-                setEditingField(`name-${client.id}`);
-              }}
-            >
-              {client.name || "ללא שם"}
-            </div>
-          )}
+          <div className="flex-1 text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {client.name || "ללא שם"}
+          </div>
         </>
       );
     }
@@ -1698,7 +1648,7 @@ export default function CalendarClientsPage() {
               />
               <div
                 dir="rtl"
-                className="fixed w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-[#181818] shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
+                className="fixed w-56 rounded-2xl border border-gray-200 dark:border-[#282828] bg-white dark:bg-customBrown shadow-lg z-30 text-xs sm:text-sm text-gray-800 dark:text-gray-100 text-right"
                 style={{
                   top: statusDropdownPositions[client.id]?.top ? `${statusDropdownPositions[client.id].top}px` : "auto",
                   right: statusDropdownPositions[client.id]?.right ? `${statusDropdownPositions[client.id].right}px` : "auto",
@@ -1776,104 +1726,64 @@ export default function CalendarClientsPage() {
       );
     }
 
-    // Phone cell with edit and WhatsApp
+    // Phone cell with WhatsApp (no inline editing)
     if (column.key === "phone") {
       return (
         <>
-          {editingField === `phone-${client.id}` ? (
-            <input
-              type="text"
-              value={editingValue}
-              onChange={(e) => {
-                if (!hasActiveSubscription || subscriptionLoading) return;
-                const value = e.target.value.replace(/[^\d]/g, "");
-                setEditingValue(value);
-              }}
-              onBlur={() => {
-                if (!hasActiveSubscription || subscriptionLoading) {
-                  setEditingField(null);
-                  return;
-                }
-                if (editingValue !== (client.phone || "")) {
-                  handleUpdateClientFieldInList(client.id, "phone", editingValue);
-                }
-                setEditingField(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (!hasActiveSubscription || subscriptionLoading) {
-                    setEditingField(null);
-                    return;
-                  }
-                  if (editingValue !== (client.phone || "")) {
-                    handleUpdateClientFieldInList(client.id, "phone", editingValue);
-                  }
-                  setEditingField(null);
-                }
-              }}
-              onClick={(e) => e.stopPropagation()}
-              disabled={!hasActiveSubscription || subscriptionLoading}
-              className={`flex-1 text-sm rounded-full px-2 py-1 bg-white dark:bg-[#181818] border border-[#ff257c] text-gray-900 dark:text-gray-100 focus:outline-none text-right ${
-                !hasActiveSubscription || subscriptionLoading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              dir="rtl"
-              autoFocus
-              placeholder="0501234567"
-            />
-          ) : (
+          <div className="text-sm text-gray-700 dark:text-white whitespace-nowrap">
+            {client.phone ? formatPhoneForDisplay(client.phone) : "-"}
+          </div>
+
+          {client.phone && (
             <>
-              <div 
-                className={`text-sm text-gray-700 dark:text-white whitespace-nowrap ${
+              <button
+                type="button"
+                className={`flex-shrink-0 transition-transform duration-200 ease-in-out ${
                   !hasActiveSubscription || subscriptionLoading
-                    ? 'cursor-not-allowed opacity-50'
-                    : 'cursor-pointer hover:text-[#ff257c]'
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-110 cursor-pointer"
                 }`}
+                title={!hasActiveSubscription || subscriptionLoading ? "נדרש מנוי פעיל כדי להתקשר" : "התקשר"}
+                disabled={!hasActiveSubscription || subscriptionLoading}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!hasActiveSubscription || subscriptionLoading) {
-                    alert('נדרש מנוי פעיל כדי לערוך שדות. אנא הירשם למנוי כדי להמשיך.');
+                    toast.error('נדרש מנוי פעיל כדי להתקשר. אנא הירשם למנוי כדי להמשיך.');
                     return;
                   }
-                  setEditingValue(client.phone || "");
-                  setEditingField(`phone-${client.id}`);
+                  window.location.href = `tel:${client.phone}`;
                 }}
               >
-                {client.phone ? formatPhoneForDisplay(client.phone) : "-"}
-              </div>
+                <FaPhoneAlt className="w-5 h-5 text-black dark:text-white" />
+              </button>
 
-              {client.phone && (
-                <>
-                  <button
-                    type="button"
-                    className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
-                    title="התקשר"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.location.href = `tel:${client.phone}`;
-                    }}
-                  >
-                    <FaPhoneAlt className="w-5 h-5 text-gray-600 dark:text-white" />
-                  </button>
-
-                  <button
-                    type="button"
-                    className="flex-shrink-0 hover:scale-110 transition-transform duration-200 ease-in-out cursor-pointer"
-                    title="פתח שיחה ב-WhatsApp"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const whatsappUrl = formatPhoneToWhatsapp(client.phone);
-                      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-                    }}
-                  >
-                    <img 
-                      src={whatsappIcon} 
-                      alt="WhatsApp" 
-                      className="w-7 h-7"
-                      style={{ filter: isDarkMode ? "brightness(1)" : "brightness(0)" }}
-                    />
-                  </button>
-                </>
-              )}
+              <button
+                type="button"
+                className={`flex-shrink-0 transition-transform duration-200 ease-in-out ${
+                  !hasActiveSubscription || subscriptionLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-110 cursor-pointer"
+                }`}
+                title={!hasActiveSubscription || subscriptionLoading ? "נדרש מנוי פעיל כדי לפתוח שיחה ב-WhatsApp" : "פתח שיחה ב-WhatsApp"}
+                disabled={!hasActiveSubscription || subscriptionLoading}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!hasActiveSubscription || subscriptionLoading) {
+                    toast.error('נדרש מנוי פעיל כדי לפתוח שיחה ב-WhatsApp. אנא הירשם למנוי כדי להמשיך.');
+                    return;
+                  }
+                  const whatsappUrl = formatPhoneToWhatsapp(client.phone);
+                  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+                }}
+              >
+                <img 
+                  // src={whatsappIcon} 
+                  src={isDarkMode ? whatsappLightIcon : whatsappDarkIcon}
+                  alt="WhatsApp" 
+                  className="w-6 h-6"
+                  style={{ filter: isDarkMode ? "brightness(1)" : "brightness(0)" }}
+                />
+              </button>
             </>
           )}
         </>
@@ -1938,7 +1848,7 @@ export default function CalendarClientsPage() {
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">רשימת לקוחות</h1>
               {clients.length > 0 && (
-                <span className="text-sm text-gray-500 dark:text-white bg-gray-100 dark:bg-[#181818] px-2 py-0.5 rounded">
+                <span className="text-sm text-gray-500 dark:text-white bg-gray-100 dark:bg-customBrown px-2 py-0.5 rounded">
                   {clients.length}
                 </span>
               )}
@@ -2389,7 +2299,7 @@ export default function CalendarClientsPage() {
                       onChange={(e) => setNewClientName(e.target.value)}
                       placeholder="שם הלקוח"
                       dir="rtl"
-                      className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border ${
+                      className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-customBrown border ${
                         newClientErrors.name
                           ? "border-red-400 dark:border-red-500"
                           : "border-gray-200 dark:border-[#262626]"
@@ -2415,7 +2325,7 @@ export default function CalendarClientsPage() {
                       onChange={(e) => setNewClientPhone(e.target.value)}
                       placeholder="מספר נייד"
                       dir="rtl"
-                      className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border ${
+                      className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-customBrown border ${
                         newClientErrors.phone
                           ? "border-red-400 dark:border-red-500"
                           : "border-gray-200 dark:border-[#262626]"
@@ -2441,7 +2351,7 @@ export default function CalendarClientsPage() {
                       onChange={(e) => setNewClientEmail(e.target.value)}
                       placeholder="כתובת מייל"
                       dir="rtl"
-                      className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border ${
+                      className={`w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-customBrown border ${
                         newClientErrors.email
                           ? "border-red-400 dark:border-red-500"
                           : "border-gray-200 dark:border-[#262626]"
@@ -2467,7 +2377,7 @@ export default function CalendarClientsPage() {
                       onChange={(e) => setNewClientCity(e.target.value)}
                       placeholder="עיר"
                       dir="rtl"
-                      className="w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border border-gray-200 dark:border-[#262626] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(255,37,124,0.45)] focus:border-transparent text-right"
+                      className="w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-customBrown border border-gray-200 dark:border-[#262626] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(255,37,124,0.45)] focus:border-transparent text-right"
                     />
                   </div>
 
@@ -2484,7 +2394,7 @@ export default function CalendarClientsPage() {
                       onChange={(e) => setNewClientAddress(e.target.value)}
                       placeholder="כתובת"
                       dir="rtl"
-                      className="w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-[#181818] border border-gray-200 dark:border-[#262626] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(255,37,124,0.45)] focus:border-transparent text-right"
+                      className="w-full h-10 rounded-full px-3 text-xs sm:text-sm bg-white dark:bg-customBrown border border-gray-200 dark:border-[#262626] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(255,37,124,0.45)] focus:border-transparent text-right"
                     />
                   </div>
                 </div>

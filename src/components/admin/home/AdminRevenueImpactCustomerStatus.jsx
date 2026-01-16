@@ -62,6 +62,7 @@ function AdminRevenueImpactCustomerStatus() {
     return data.map((item) => ({
       month: isMonthly ? translateMonth(item.label, language) : item.label,
       value: item.revenue,
+      year: item.year || new Date().getFullYear(), // Include year from API or use current year as fallback
     }));
   };
 

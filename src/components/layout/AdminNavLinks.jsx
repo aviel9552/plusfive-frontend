@@ -1,6 +1,7 @@
 import {
   MdQrCode2, MdShare, MdPeople,
-  MdCreditCard, MdSettings, MdHelp
+  MdCreditCard, MdSettings, MdHelp,
+  MdCategory
 } from 'react-icons/md';
 import { FiBarChart2 } from 'react-icons/fi';
 import { IoHomeOutline } from 'react-icons/io5';
@@ -65,6 +66,11 @@ const adminNavLinks = (language = 'en') => {
         light: userBlackIcon,
         dark: userWhiteIcon
       }
+    },
+    { 
+      to: '/admin/category', 
+      icon: MdCategory, 
+      label: t.categoryManagement || 'Category Management'
     },
     // { to: '/admin/customer-management', icon: MdPeople, label: t.customerManagement, specialPaths: ['/admin/customer-management/create', '/admin/customer-management/edit', '/admin/customer-management/edit/:customerId']  },
     { 

@@ -18,6 +18,7 @@ import SubscriptionAndBilling from '../pages/subscriptionAndBilling';
 import UpdatePaymentPage from '../pages/updatePayment';
 import AddCard from '../pages/addCard';
 import SupportAndHelp from '../pages/supportAndHelp';
+import CategoryManagement from '../pages/admin/category';
 
 function AdminRoutes() {
   return (
@@ -39,6 +40,7 @@ function AdminRoutes() {
         {/* <Route path="/referral-management" element={<AdminReferralManagement />} /> */}
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/category" element={<CategoryManagement />} />
         {/* <Route path="/subscription-and-billing" element={<SubscriptionAndBilling />} /> */}
         {/* <Route path="/update-payment" element={<UpdatePaymentPage />} /> */}
         {/* <Route path="/add-card" element={<AddCard />} /> */}

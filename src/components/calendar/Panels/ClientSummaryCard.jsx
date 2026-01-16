@@ -12,8 +12,11 @@ import { FaStar, FaPhoneAlt } from "react-icons/fa";
 import { formatPhoneForDisplay, formatPhoneForBackend, formatPhoneToWhatsapp } from "../../../utils/phoneHelpers";
 import { BRAND_COLOR, CALENDAR_EVENTS_STORAGE_KEY } from "../../../utils/calendar/constants";
 import gradientImage from "../../../assets/gradientteam.jpg";
-import whatsappIcon from "../../../assets/whatsappicon.png";
+// import whatsappIcon from "../../../assets/whatsappicon.png";
+import whatsappDarkIcon from "../../../assets/whatsappDark.svg";
+import whatsappLightIcon from "../../../assets/whatsappLight.svg";
 import { Area, AreaChart, Tooltip, ResponsiveContainer } from 'recharts';
+import { useTheme } from "../../../context/ThemeContext";
 
 const CALENDAR_CLIENTS_STORAGE_KEY = "calendar_clients";
 
@@ -24,6 +27,7 @@ export const ClientSummaryCard = ({
   zIndex = 50,
   onClientUpdate, // Callback when client data is updated
 }) => {
+  const { isDarkMode } = useTheme();
   const [clientViewTab, setClientViewTab] = useState("details"); // "details", "appointments", or "data"
   const [dataCategoryTab, setDataCategoryTab] = useState("revenue"); // "revenue", "activity", "satisfaction", "lastVisit", "marketing"
   const [editingField, setEditingField] = useState(null); // "name", "phone", "email", "city", "address", or null
@@ -1049,10 +1053,11 @@ export const ClientSummaryCard = ({
                         }}
                       >
                         <img 
-                          src={whatsappIcon} 
+                          // src={whatsappIcon} 
+                          src={isDarkMode ? whatsappLightIcon : whatsappDarkIcon}
                           alt="WhatsApp" 
-                          className="w-7 h-7"
-                          style={{ filter: 'brightness(0)' }}
+                          className="w-6 h-6"
+                          // style={{ filter: 'brightness(0)' }}
                         />
                       </button>
                     </div>

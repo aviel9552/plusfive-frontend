@@ -75,4 +75,12 @@ export const getDaysTranslations = (language) => {
 
 export const getStatusTranslations = (language) => {
   return getTranslationSection(language, 'statusTranslations');
+};
+
+export const getAdminCategoryTranslations = (language) => {
+  return getTranslationSection(language, 'adminCategory');
+};
+
+export const getCommonTableTranslations = (language) => {
+  return getTranslationSection(language, 'commonTable');
 }; 
