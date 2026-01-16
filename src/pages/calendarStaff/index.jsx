@@ -212,7 +212,7 @@ export default function CalendarStaffPage() {
       // Only reset to "details" tab when opening a NEW staff popup (different staff member)
       // Don't change tab if we're already viewing a staff member and just updating data
       if (!prevSelectedStaffIdRef.current || selectedStaffForView.id !== prevSelectedStaffIdRef.current) {
-        setStaffViewTab("details");
+      setStaffViewTab("details");
       }
       prevSelectedStaffIdRef.current = selectedStaffForView.id;
     } else {
@@ -2002,8 +2002,8 @@ export default function CalendarStaffPage() {
                             setEditingFieldInList(`name-${staffMember.id}`);
                           }}
                         >
-                          {staffMember.name || "ללא שם"}
-                        </div>
+                      {staffMember.name || "ללא שם"}
+                    </div>
                       )}
                   </div>
                   )}
@@ -2122,7 +2122,7 @@ export default function CalendarStaffPage() {
                                   </span>
                                   <span>לא פעיל</span>
                                 </span>
-                              </button>
+                      </button>
                             </div>
                           </div>
                         </>
@@ -2244,8 +2244,8 @@ export default function CalendarStaffPage() {
                             setEditingFieldInList(`email-${staffMember.id}`);
                           }}
                         >
-                          {staffMember.email || "-"}
-                        </div>
+                      {staffMember.email || "-"}
+                    </div>
                       )}
                   </div>
                   )}
@@ -2973,7 +2973,7 @@ export default function CalendarStaffPage() {
                                     </span>
                                     <span>לא פעיל</span>
                                   </span>
-                                </button>
+                        </button>
                               </div>
                             </div>
                           </>
@@ -3523,9 +3523,9 @@ export default function CalendarStaffPage() {
                     <div className="space-y-4 mt-6">
                       <div className="text-sm text-gray-600 dark:text-white">
                         נתונים מתקדמים
-                      </div>
-                    </div>
-                  )}
+                              </div>
+                          </div>
+                          )}
 
                   {/* Removed Appointments and Data tabs - not needed for staff management */}
 

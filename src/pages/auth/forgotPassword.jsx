@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CommonInput, CommonButton, SquaresAnim } from '../../components/index';
+import FloatingInput from '../../components/commonComponent/FloatingInput';
 import { toast } from 'react-toastify';
-import LoginBG from '../../assets/LoginBG.png';
+import grassBg from '../../assets/grass.png';
+import darkLogo from '../../assets/DarkLogo.png';
 import { forgotPassword } from '../../redux/services/authService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
@@ -13,55 +14,56 @@ function ForgotPassword() {
     const t = getAuthTranslations(language);
     const v = getValidationTranslations(language);
     
-    const [email, setEmail] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [savedEmails, setSavedEmails] = useState([]);
 
-    // Email validation function (same as login)
+  // Load saved emails from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('savedEmails');
+      if (saved) {
+        const emails = JSON.parse(saved);
+        setSavedEmails(emails);
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }, []);
+
+  useEffect(() => {
+    // Close any toast that might appear during flow
+    toast.dismiss();
+  }, []);
+
+  // Email validation function
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
         if (!email) return v.emailRequired;
         if (!emailRegex.test(email)) return v.validEmailAddress;
         if (email.length > 50) return v.emailTooLong;
-        return "";
+    return '';
     };
 
     const handleChange = (e) => {
-        const { value } = e.target;
+    const { name, value } = e.target;
         setEmail(value);
-        
-        // Real-time validation for email
-        if (value) {
-            const emailError = validateEmail(value);
-            setError(emailError);
-        } else {
-            setError("");
-        }
     };
 
     const handleFocus = (e) => {
-        // Show validation error immediately when user focuses on field
-        if (!email) {
-            setError(v.emailRequired);
-        } else {
-            const emailError = validateEmail(email);
-            if (emailError) {
-                setError(emailError);
-            }
-        }
+    // No real-time validation on focus
     };
 
     const handleBlur = (e) => {
-        const { value } = e.target;
-        // Validate on blur
-        const emailError = validateEmail(value);
-        setError(emailError);
+    // No real-time validation on blur
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+    setHasAttemptedSubmit(true);
 
-        // Use proper validation function
         const emailError = validateEmail(email);
         
         if (emailError) {
@@ -69,63 +71,45 @@ function ForgotPassword() {
             return;
         }
 
-        // Force state update
         setIsLoading(true);
         setError('');
 
-        // Add a small delay to ensure state updates
-        await new Promise(resolve => setTimeout(resolve, 100));
-
         try {
-            // Call the actual API
             await forgotPassword(email);
-
             toast.success(t.passwordResetLinkSent);
             setEmail('');
+      setHasAttemptedSubmit(false);
         } catch (error) {
             toast.error(error.message || t.failedToSendResetLink);
+      setError(error.message || t.failedToSendResetLink);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="relative min-h-screen flex flex-col items-center justify-center dark:bg-customBlack bg-white px-4 py-8">
-            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-                <SquaresAnim speed={0.5} squareSize={50} direction='down' />
-                {/* Left-bottom focused bubble/gradient */}
-                <div className="
-          absolute inset-0
-          bg-[radial-gradient(ellipse_at_left_bottom,_var(--tw-gradient-stops))]
-          from-pink-200/60 via-white/60 to-purple-200/80
-          dark:from-[#232136]/80 dark:via-[#232136]/60 dark:to-[#232136]/0
-          pointer-events-none"
-                />
-            </div>
-
-            <div
-                className="w-full max-w-md rounded-3xl shadow-2xl border border-gray-200/20 dark:border-customBorderColor/50 backdrop-blur-xl p-8 bg-cover bg-center bg-white/10 dark:bg-black/20"
-                style={{
-                    backgroundImage: `url(${LoginBG})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                }}
-            >
-                <div className="text-center mb-6">
-                    <div className="text-6xl mb-4 text-blue-500">🔐</div>
-                    <h2 className="text-28 font-black text-center text-white mb-2">
+    <div className="relative min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+      <div className="w-full h-screen flex">
+        {/* Left Panel - Forgot Password Form (35%) */}
+        <div className="w-full lg:w-[35%] flex flex-col p-8 lg:p-12 bg-white dark:bg-gray-800 relative">
+          {/* Logo - Top Left */}
+          <div className="absolute top-8 left-8 lg:left-12">
+            <img src={darkLogo} alt="Logo" className="h-8 w-auto" />
+          </div>
+          
+          <div className="w-full max-w-md mx-auto flex-1 flex items-center justify-center">
+            <div className="w-full">
+            <h2 className="text-3xl lg:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-3">
                         {t.forgotPasswordTitle}
                     </h2>
-                    <p className="text-16 text-center text-white/90 font-medium">
+            <p className="text-base text-gray-600 dark:text-gray-400 mb-8 font-sans">
                         {t.forgotPasswordSubtitle}
                     </p>
-                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <CommonInput
+            <form onSubmit={handleSubmit} className="space-y-8" autoComplete="off">
+              <div>
+                <FloatingInput
                         label={t.emailAddress}
-                        labelFontSize="text-16"
                         id="email"
                         name="email"
                         type="email"
@@ -134,50 +118,66 @@ function ForgotPassword() {
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         placeholder={t.enterEmailAddress}
-                        error={error}
-                        textColor="text-white"
-                        labelColor="text-white"
-                        inputBg="bg-white/10 backdrop-blur-sm"
-                        showErrorOnFocus={true}
-                    />
+                  error={hasAttemptedSubmit ? error : ''}
+                  suggestions={savedEmails.map(email => ({
+                    email,
+                    name: email.split('@')[0],
+                    avatar: email.charAt(0).toUpperCase()
+                  }))}
+                  onSuggestionSelect={(suggestion) => {
+                    const selectedEmail = suggestion.email || suggestion;
+                    setEmail(selectedEmail);
+                    setError('');
+                  }}
+                  autoComplete="email"
+                />
+              </div>
 
                     <button
                         type="submit"
+                className="w-full h-[48px] rounded-full text-md font-semibold flex items-center justify-center bg-black text-white hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isLoading}
-                        className={`w-full rounded-xl py-4 text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] ${isLoading
-                            ? 'bg-gray-500 cursor-not-allowed opacity-70'
-                            : 'bg-gradient-to-r from-pink-500 to-red-500 '
-                            } text-white`}
-                    >
-                        {isLoading === true ? (
-                            t.sendingResetLink
-                        ) : (
-                            t.sendResetLink
-                        )}
+              >
+                {isLoading ? t.sendingResetLink : t.sendResetLink.toUpperCase()}
                     </button>
                 </form>
 
-                <div className="mt-8 text-center">
-                    <p className={`text-white/70 text-14 mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium">
+                  OR
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
                         {t.rememberPassword}{' '}
                         <Link
                             to="/login"
-                            className="font-bold text-[#675DFF] hover:text-[#8B7FFF] hover:underline transition-all duration-200"
+                  className="font-semibold text-gray-900 dark:text-white hover:underline transition-all duration-200"
                         >
                             {t.backToLogin}
                         </Link>
                     </p>
+            </div>
+            </div>
+          </div>
+        </div>
 
-                    <p className={`text-white/50 text-12 ${isRTL ? 'text-right' : 'text-left'}`}>
-                        {t.dontHaveAccountSignUp}{' '}
-                        <Link
-                            to="/register"
-                            className="font-semibold text-[#675DFF] hover:text-[#8B7FFF] hover:underline transition-all duration-200"
-                        >
-                            {t.signUpHere}
-                        </Link>
-                    </p>
-                </div>
+        {/* Right Panel - Image Section (65%) */}
+        <div className="hidden lg:flex lg:w-[65%] relative overflow-hidden">
+          {/* Static Image - Only first image */}
+          <img
+            src={grassBg}
+            alt="Background"
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+        </div>
             </div>
         </div>
     );

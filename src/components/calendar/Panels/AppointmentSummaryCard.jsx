@@ -501,13 +501,13 @@ export const AppointmentSummaryCard = ({
              flex flex-col calendar-slide-in text-right"
         onClick={(e) => e.stopPropagation()}
       >
-            {/* X מחוץ לפופ בצד שמאל למעלה */}
-            <button
-              className="absolute -left-10 top-7 w-8 h-8 rounded-full bg-white dark:bg-[#111] border border-gray-200 dark:border-commonBorder shadow-md flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
+        {/* X מחוץ לפופ בצד שמאל למעלה */}
+        <button
+          className="absolute -left-10 top-7 w-8 h-8 rounded-full bg-white dark:bg-[#111] border border-gray-200 dark:border-commonBorder shadow-md flex items-center justify-center text-gray-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a]"
               onClick={handleClose}
-            >
-              <FiX className="text-[16px]" />
-            </button>
+        >
+          <FiX className="text-[16px]" />
+        </button>
 
         {/* HEADER - כמו Fresha */}
         <div className="px-5 py-7 min-h-[125px] relative overflow-visible">
