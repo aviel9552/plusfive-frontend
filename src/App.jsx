@@ -10,6 +10,7 @@ import { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from './redux/actions/authActions';
 import { Layout, PageLoader } from './components';
+import { ROLES, SUBSCRIPTION_STATUS } from './config/constants';
 // import './App.css'
 
 
@@ -74,7 +75,7 @@ function App() {
   // Helper function to check if user has active subscription
   const hasActiveSubscription = useCallback(() => {
     // Admin users don't need subscription
-    if (user?.role === 'admin') {
+    if (user?.role === ROLES.ADMIN) {
       return true;
     }
 
@@ -103,7 +104,7 @@ function App() {
       const subscriptionStatus = user?.subscriptionStatus?.toLowerCase();
       const expirationDate = user?.subscriptionExpirationDate;
       
-      if (subscriptionStatus === 'active') {
+      if (subscriptionStatus === SUBSCRIPTION_STATUS.ACTIVE) {
         if (expirationDate) {
           const expiryDate = new Date(expirationDate);
           const now = new Date();
@@ -140,7 +141,7 @@ function App() {
 
   useEffect(() => {
   if (isAuthenticated && user && location.pathname === '/') {
-    if (user.role === 'admin') {
+    if (user.role === ROLES.ADMIN) {
       navigate('/admin', { replace: true });
     } else {
       navigate('/app', { replace: true });

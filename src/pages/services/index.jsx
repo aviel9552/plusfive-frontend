@@ -28,6 +28,7 @@ import {
 } from "../../redux/actions/serviceActions";
 import { fetchCategories } from "../../redux/actions/categoryActions";
 import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
+import { STATUS, CUSTOMER_STATUS } from "../../config/constants";
 import { CalendarCommonTable } from "../../components/commonComponent/CalendarCommonTable";
 import CommonConfirmModel from "../../components/commonComponent/CommonConfirmModel";
 import { toast } from "react-toastify";
@@ -836,22 +837,22 @@ export default function ServicesPage() {
         // Support both Hebrew and English status values
         const statusMap = {
           "פעיל": "פעיל",
-          "active": "פעיל",
+          [STATUS.ACTIVE]: "פעיל",
           "Active": "פעיל",
           "לא פעיל": "לא פעיל",
-          "inactive": "לא פעיל",
+          [STATUS.INACTIVE]: "לא פעיל",
           "Inactive": "לא פעיל",
           "בסיכון": "בסיכון",
-          "at risk": "בסיכון",
+          [CUSTOMER_STATUS.AT_RISK]: "בסיכון",
           "At Risk": "בסיכון",
           "אבוד": "אבוד",
-          "lost": "אבוד",
+          [CUSTOMER_STATUS.LOST]: "אבוד",
           "Lost": "אבוד",
           "התאושש": "התאושש",
-          "recovered": "התאושש",
+          [CUSTOMER_STATUS.RECOVERED]: "התאושש",
           "Recovered": "התאושש",
           "חדש": "חדש",
-          "new": "חדש",
+          [CUSTOMER_STATUS.NEW]: "חדש",
           "New": "חדש"
         };
         const normalizedServiceStatus = statusMap[serviceStatus] || serviceStatus;
@@ -2024,7 +2025,7 @@ export default function ServicesPage() {
                               >
                                 <option value="">בחר קטגוריה</option>
                                 {categories
-                                  .filter(cat => cat.status === 'active' || !cat.status)
+                                  .filter(cat => cat.status === STATUS.ACTIVE || !cat.status)
                                   .map((category) => {
                                     // Handle both object format {id, title} and string format
                                     const categoryTitle = typeof category === 'string' ? category : (category.title || category.name || '');
@@ -2532,7 +2533,7 @@ export default function ServicesPage() {
         onColorChange={setNewServiceColor}
         onHideFromClientsChange={setNewServiceHideFromClients}
         onSubmit={handleCreateNewService}
-        categories={categories.filter(cat => cat.status === 'active' || !cat.status)} // Only show active categories or categories without status
+        categories={categories.filter(cat => cat.status === STATUS.ACTIVE || !cat.status)} // Only show active categories or categories without status
       />
     </div>
   );

@@ -25,6 +25,7 @@ import {
 } from "../../utils/phoneHelpers";
 import { useTheme } from "../../context/ThemeContext";
 import { BRAND_COLOR, CALENDAR_EVENTS_STORAGE_KEY } from "../../utils/calendar/constants";
+import { STATUS, CUSTOMER_STATUS } from "../../config/constants";
 import { ClientSummaryCard } from "../../components/calendar/Panels/ClientSummaryCard";
 import gradientImage from "../../assets/gradientteam.jpg";
 // import whatsappIcon from "../../assets/whatsappicon.png";
@@ -297,9 +298,9 @@ export default function CalendarClientsPage() {
         let frontendStatus = "פעיל";
         if (c.isActive !== undefined) {
           frontendStatus = c.isActive ? "פעיל" : "חסום";
-        } else if (c.status === "inactive" || c.status === "לא פעיל" || c.status === "חסום" || c.status === "blocked") {
+        } else if (c.status === STATUS.INACTIVE || c.status === "לא פעיל" || c.status === "חסום" || c.status === "blocked") {
           frontendStatus = "חסום";
-        } else if (c.status === "active" || c.status === "פעיל") {
+        } else if (c.status === STATUS.ACTIVE || c.status === "פעיל") {
           frontendStatus = "פעיל";
         } else if (c.status) {
           frontendStatus = c.status;
@@ -495,14 +496,14 @@ export default function CalendarClientsPage() {
       const lostRevenue = sortedByDate
         .filter((apt) => {
           const s = apt.status || "";
-          return s === "אבוד" || s === "lost" || s === "Lost";
+          return s === "אבוד" || s === CUSTOMER_STATUS.LOST || s === "Lost";
         })
         .reduce((sum, apt) => sum + parsePrice(apt.price || apt.servicePrice || 0), 0);
 
       const recoveredRevenue = sortedByDate
         .filter((apt) => {
           const s = apt.status || "";
-          return s === "התאושש" || s === "recovered" || s === "Recovered";
+          return s === "התאושש" || s === CUSTOMER_STATUS.RECOVERED || s === "Recovered";
         })
         .reduce((sum, apt) => sum + parsePrice(apt.price || apt.servicePrice || 0), 0);
 
@@ -1355,7 +1356,7 @@ export default function CalendarClientsPage() {
               address: importedClient.address || null,
               city: importedClient.city || null,
               customerFullName: importedClient.name || `${firstName} ${lastName}`.trim(),
-              status: 'new',
+              status: CUSTOMER_STATUS.NEW,
               isActive: true,
             };
           });

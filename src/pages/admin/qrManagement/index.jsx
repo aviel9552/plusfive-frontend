@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import BlackQRIcon from '../../../assets/qr-large-black-icon.svg';
 import WhiteQRIcon from '../../../assets/qr-large-white-icon.svg';
 import { useTheme } from '../../../context/ThemeContext';
+import { useSubscriptionCheck } from '../../../hooks/useSubscriptionCheck';
 
 function AdminQRManagement() {
   const { language } = useLanguage();
@@ -23,10 +24,11 @@ function AdminQRManagement() {
   const { user } = useSelector(state => state.auth);
   const businessName = user?.businessName || 'Your Business';
   
-  // Check if user has active subscription
-  const subscriptionStatus = user?.subscriptionStatus?.toLowerCase();
-  const hasActiveSubscription = subscriptionStatus === 'active' && 
-    (!user?.subscriptionExpirationDate || new Date(user.subscriptionExpirationDate) > new Date());
+  // Check subscription status using custom hook
+  const { hasActiveSubscription, subscriptionLoading } = useSubscriptionCheck({
+    pageName: 'QR MANAGEMENT PAGE',
+    enableLogging: false
+  });
 
   const [formData, setFormData] = useState({
    customerMessage: `היי אח הסתפרתי הרגע ב ${businessName},
@@ -296,7 +298,7 @@ function AdminQRManagement() {
                     placeholder={t.messageForCustomerPlaceholder}
                     error={errors.customerMessage}
                     labelFontSize="text-14"
-                    disabled={hasExistingQR || generatedQR}
+                    disabled={hasExistingQR || generatedQR || subscriptionLoading}
                     required={true}
                   />
 
@@ -312,7 +314,7 @@ function AdminQRManagement() {
                     placeholder={t.directMessagePlaceholder}
                     error={errors.directMessage}
                     labelFontSize="text-14"
-                    disabled={hasExistingQR || generatedQR}
+                    disabled={hasExistingQR || generatedQR || subscriptionLoading}
                     required={true}
                   />
 
@@ -337,10 +339,10 @@ function AdminQRManagement() {
               <div>
 
                 <CommonButton
-                  text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading ? <div className="flex items-center justify-center gap-2"><CommonLoader /> {t.generating}</div> : t.generateQRCode)}
+                  text={hasExistingQR || generatedQR ? t.qrCodeAlreadyExists : (loading || subscriptionLoading ? <div className="flex items-center justify-center gap-2"><CommonLoader /> {t.generating}</div> : t.generateQRCode)}
                   onClick={handleGenerateQR}
                   className="rounded-[8px] w-full py-[14px] text-14"
-                  disabled={loading || hasExistingQR || generatedQR || !hasActiveSubscription}
+                  disabled={loading || hasExistingQR || generatedQR || !hasActiveSubscription || subscriptionLoading}
                 />
               </div>
             </div>

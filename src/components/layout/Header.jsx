@@ -7,7 +7,6 @@ import {
   FiEdit2,
   FiSettings,
   FiHelpCircle,
-  FiLogOut,
 } from 'react-icons/fi';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -19,9 +18,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../../redux/actions/authActions';
 import CommonConfirmModel from '../commonComponent/CommonConfirmModel';
 import { getLayoutTranslations } from '../../utils/translations';
+import { ROLES } from '../../config/constants';
 
 import DarkLogo from '../../assets/DarkLogo.png';
 import LightLogo from '../../assets/LightLogo.jpeg';
+import LogOutWhite from '../../assets/log-out-white.svg';
+import LogOutBlack from '../../assets/log-out-black.svg';
 
 const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
   const user = useSelector((state) => state.auth?.user);
@@ -56,7 +58,7 @@ const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
   };
 
   const handleLogoClick = () => {
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === ROLES.ADMIN;
     navigate(isAdmin ? '/admin/dashboard' : '/app/dashboard');
   };
 
@@ -77,8 +79,8 @@ const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
   }, [showProfileMenu]);
 
   const userRole = useSelector((state) => state.auth?.user?.role);
-  const navLinks = userRole === 'admin' ? adminNavLinks(language) : userNavLinks(language);
-  const specialTitles = userRole === 'admin' ? adminSpecialTitles : userSpecialTitles;
+  const navLinks = userRole === ROLES.ADMIN ? adminNavLinks(language) : userNavLinks(language);
+  const specialTitles = userRole === ROLES.ADMIN ? adminSpecialTitles : userSpecialTitles;
 
   const currentNav = navLinks.find(
     (link) =>
@@ -100,7 +102,7 @@ const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
   else if (currentNav) pageTitle = currentNav.label;
   else pageTitle = 'Page';
 
-  const isAdmin = userRole === 'admin';
+  const isAdmin = userRole === ROLES.ADMIN;
   const accountSettingsLink = isAdmin ? '/admin/account-settings' : '/app/account-settings';
   const supportLink = isAdmin ? '/admin/support-and-help' : '/app/support-and-help';
 
@@ -254,7 +256,7 @@ const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
           `}
         >
           <div className="flex flex-col items-center py-5 px-6 bg-white dark:bg-customBlack">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-black dark:bg-black text-white mb-2 shadow">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-black dark:bg-black text-white mb-2 shadow border border-gray-200 dark:border-customBorderColor">
               {userName.charAt(0).toUpperCase()}
             </div>
             <div className="font-semibold text-gray-900 dark:text-white text-lg">{userName}</div>
@@ -301,10 +303,14 @@ const Header = ({ onMobileMenuToggle, onOpenBusinessProfile }) => {
           <hr className="border-gray-200 dark:border-customBorderColor my-0" />
 
           <button
-            className="flex items-center gap-3 px-6 py-3 w-full hover:bg-red-50 dark:hover:bg-[#3a2323] transition-colors text-red-600 dark:text-red-400 font-semibold text-base"
+            className="flex items-center gap-3 px-6 py-3 w-full hover:bg-red-50 dark:hover:bg-[#3a2323] transition-colors text-black   dark:text-white font-semibold text-base"
             onClick={() => setShowLogoutModal(true)}
           >
-            <FiLogOut className="text-lg" />
+            <img 
+              src={isDarkMode ? LogOutWhite : LogOutBlack} 
+              alt="Logout" 
+              className="w-5 h-5"
+            />
             {t.logout}
           </button>
         </div>

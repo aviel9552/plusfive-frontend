@@ -9,6 +9,7 @@ import CommonConfirmModel from '../../commonComponent/CommonConfirmModel';
 import CreateAndEditCategory from './CreateAndEditCategory';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminCategoryTranslations } from '../../../utils/translations';
+import { STATUS } from '../../../config/constants';
 
 function ListCategory({ categories, loading, error }) {
     const dispatch = useDispatch();
@@ -216,8 +217,8 @@ function ListCategory({ categories, loading, error }) {
 
     const statusFilterOptions = [
         { value: '', label: t.allStatus },
-        { value: 'active', label: t.active },
-        { value: 'inactive', label: t.inactive }
+        { value: STATUS.ACTIVE, label: t.active },
+        { value: STATUS.INACTIVE, label: t.inactive }
     ];
 
     const handleSort = (key, direction) => {

@@ -10,6 +10,7 @@ import ReviewsTab from './ReviewsTab';
 import AppointmentsTab from './AppointmentsTab';
 import PaymentHistoryTab from './PaymentHistoryTab';
 import { formatPhoneForDisplay } from '../../utils/phoneHelpers';
+import { CUSTOMER_STATUS, STATUS, REVIEW_STATUS } from '../../config/constants';
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-3 p-1 text-xs font-semibold rounded-full inline-block text-center";
@@ -18,19 +19,21 @@ const StatusBadge = ({ status }) => {
     const statusLower = status?.toLowerCase();
 
     switch (statusLower) {
-        case 'active':
+        case STATUS.ACTIVE:
+        case CUSTOMER_STATUS.ACTIVE:
         case 'פעיל':
             colorClasses = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
             break;
         case 'at risk':
+        case CUSTOMER_STATUS.AT_RISK:
         case 'בסיכון':
             colorClasses = 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
             break;
-        case 'lost':
+        case CUSTOMER_STATUS.LOST:
         case 'אבוד':
             colorClasses = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
             break;
-        case 'recovered':
+        case CUSTOMER_STATUS.RECOVERED:
         case 'התאושש':
             colorClasses = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
             break;
@@ -193,7 +196,7 @@ function ViewCustomer() {
                                 : 'border-transparent text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
-                            {t.reviews || 'Reviews'} ({customer.reviews?.filter(review => review.status !== 'sent').length || 0})
+                            {t.reviews || 'Reviews'} ({customer.reviews?.filter(review => review.status !== REVIEW_STATUS.SENT).length || 0})
                         </button>
                         <button
                             onClick={() => setActiveTab('appointments')}

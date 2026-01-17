@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { createCategory, updateCategory } from '../../../redux/actions/categoryActions';
 import { useLanguage } from '../../../context/LanguageContext';
 import { getAdminCategoryTranslations } from '../../../utils/translations';
+import { STATUS } from '../../../config/constants';
 
 function CreateAndEditCategory({ isOpen, onClose, categoryId, categoryData, onSuccess }) {
   const dispatch = useDispatch();
@@ -15,7 +16,7 @@ function CreateAndEditCategory({ isOpen, onClose, categoryId, categoryData, onSu
 
   const [formData, setFormData] = useState({
     title: '',
-    status: 'active'
+    status: STATUS.ACTIVE
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -29,16 +30,16 @@ function CreateAndEditCategory({ isOpen, onClose, categoryId, categoryData, onSu
         // Edit mode: populate form with category data
         setFormData({
           title: categoryData.title || '',
-          status: categoryData.status || 'active',
+          status: categoryData.status || STATUS.ACTIVE,
         });
       } else {
         // Create mode: reset form
-        setFormData({ title: '', status: 'active' });
+        setFormData({ title: '', status: STATUS.ACTIVE });
       }
       setErrors({});
     } else {
       // Reset form when modal closes
-      setFormData({ title: '', status: 'active' });
+      setFormData({ title: '', status: STATUS.ACTIVE });
       setErrors({});
     }
   }, [isOpen, isEditMode, categoryData]);
@@ -111,7 +112,7 @@ function CreateAndEditCategory({ isOpen, onClose, categoryId, categoryData, onSu
 
       if (result.success) {
         toast.success(isEditMode ? t.categoryUpdatedSuccessfully : t.categoryCreatedSuccessfully);
-        setFormData({ title: '', status: 'active' });
+        setFormData({ title: '', status: STATUS.ACTIVE });
         setErrors({});
         if (onSuccess) onSuccess();
         onClose();
@@ -175,8 +176,8 @@ function CreateAndEditCategory({ isOpen, onClose, categoryId, categoryData, onSu
                     <input
                       type="radio"
                       name="status"
-                      value="active"
-                      checked={formData.status === 'active'}
+                      value={STATUS.ACTIVE}
+                      checked={formData.status === STATUS.ACTIVE}
                       onChange={handleStatusChange}
                       className="w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 focus:ring-pink-500 dark:focus:ring-pink-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                     />
@@ -186,8 +187,8 @@ function CreateAndEditCategory({ isOpen, onClose, categoryId, categoryData, onSu
                     <input
                       type="radio"
                       name="status"
-                      value="inactive"
-                      checked={formData.status === 'inactive'}
+                      value={STATUS.INACTIVE}
+                      checked={formData.status === STATUS.INACTIVE}
                       onChange={handleStatusChange}
                       className="w-4 h-4 text-pink-600 bg-gray-100 border-gray-300 focus:ring-pink-500 dark:focus:ring-pink-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                     />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCurrentSubscription } from '../services/stripeService';
+import { SUBSCRIPTION_STATUS } from '../config/constants';
 
 /**
  * Custom hook to check user's subscription status
@@ -59,7 +60,7 @@ export const useSubscriptionCheck = (options = {}) => {
           
           if (activeSubscription) {
             const status = activeSubscription.status?.toLowerCase();
-            const isActive = status === 'active' || status === 'trialing';
+            const isActive = status === SUBSCRIPTION_STATUS.ACTIVE || status === 'trialing';
             const isNotCanceled = !activeSubscription.cancel_at_period_end;
             
             // Check expiration

@@ -14,6 +14,7 @@ import { resendVerificationEmail } from '../../redux/services/authService';
 import { getCurrentSubscription } from '../../services/stripeService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAuthTranslations, getValidationTranslations } from '../../utils/translations';
+import { ROLES, SUBSCRIPTION_STATUS } from '../../config/constants';
 
 function Login() {
   const { language } = useLanguage();
@@ -250,7 +251,7 @@ function Login() {
       const userData = JSON.parse(localStorage.getItem('userData'));
 
       // אם זה אדמין – שולחים אותו לפאנל אדמין
-      if (userData && userData.role === 'admin') {
+      if (userData && userData.role === ROLES.ADMIN) {
         navigate('/admin');
         return;
       }
@@ -290,7 +291,7 @@ function Login() {
 
           const subscriptions = stripeSubscriptionData?.data?.stripe?.subscriptions || [];
           const activeSubscription = subscriptions.find(
-            (sub) => sub.status === 'active' && !sub.cancel_at_period_end
+            (sub) => sub.status === SUBSCRIPTION_STATUS.ACTIVE && !sub.cancel_at_period_end
           );
 
           if (activeSubscription) {

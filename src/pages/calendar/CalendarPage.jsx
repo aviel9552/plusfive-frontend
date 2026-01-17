@@ -40,6 +40,7 @@ import { NewClientModal } from "../../components/calendar/Modals/NewClientModal"
 
 // Utils & Constants
 import { BRAND_COLOR, HOURS, START_HOUR, END_HOUR, SLOT_HEIGHT_MIN, uuid, CALENDAR_EVENTS_STORAGE_KEY } from "../../utils/calendar/constants";
+import { CUSTOMER_STATUS } from "../../config/constants";
 import gradientImage from "../../assets/gradientteam.jpg";
 import whatsappIcon from "../../assets/whatsappicon.png";
 import { Area, AreaChart, Tooltip, ResponsiveContainer } from 'recharts';
@@ -312,7 +313,7 @@ export default function CalendarPage() {
       const lostRevenue = sortedByDate
         .filter(apt => {
           const status = apt.status || "";
-          return status === "אבוד" || status === "lost" || status === "Lost";
+          return status === "אבוד" || status === CUSTOMER_STATUS.LOST || status === "Lost";
         })
         .reduce((sum, apt) => {
           const price = apt.price || apt.servicePrice || 0;
@@ -322,7 +323,7 @@ export default function CalendarPage() {
       const recoveredRevenue = sortedByDate
         .filter(apt => {
           const status = apt.status || "";
-          return status === "התאושש" || status === "recovered" || status === "Recovered";
+          return status === "התאושש" || status === CUSTOMER_STATUS.RECOVERED || status === "Recovered";
         })
         .reduce((sum, apt) => {
           const price = apt.price || apt.servicePrice || 0;
@@ -846,7 +847,7 @@ export default function CalendarPage() {
       const lostRevenue = sortedAppointments
         .filter(apt => {
           const status = apt.status || "";
-          return status === "אבוד" || status === "lost" || status === "Lost";
+          return status === "אבוד" || status === CUSTOMER_STATUS.LOST || status === "Lost";
         })
         .reduce((sum, apt) => {
           const price = apt.price || apt.servicePrice || 0;
@@ -857,7 +858,7 @@ export default function CalendarPage() {
       const recoveredRevenue = sortedAppointments
         .filter(apt => {
           const status = apt.status || "";
-          return status === "התאושש" || status === "recovered" || status === "Recovered";
+          return status === "התאושש" || status === CUSTOMER_STATUS.RECOVERED || status === "Recovered";
         })
         .reduce((sum, apt) => {
           const price = apt.price || apt.servicePrice || 0;

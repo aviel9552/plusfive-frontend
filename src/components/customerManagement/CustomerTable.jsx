@@ -15,6 +15,7 @@ import CommonNormalDropDown from '../commonComponent/CommonNormalDropDown';
 import CommonLoader from '../commonComponent/CommonLoader';
 import { formatDate } from '../../utils/dateFormatter';
 import { formatPhoneForDisplay, formatPhoneForWhatsApp } from '../../utils/phoneHelpers';
+import { CUSTOMER_STATUS, STATUS } from '../../config/constants';
 
 // Function to translate status based on language
 const translateStatus = (status, language) => {
@@ -30,25 +31,26 @@ const StatusBadge = ({ status, language }) => {
     const statusLower = status?.toLowerCase();
 
     switch (statusLower) {
-        case 'active':
+        case STATUS.ACTIVE:
+        case CUSTOMER_STATUS.ACTIVE:
         case 'פעיל':
             colorClasses = 'text-statusActiveText bg-statusActiveBg';
             break;
         case 'at risk':
-        case 'risk':
-        case 'at_risk':
+        case CUSTOMER_STATUS.RISK:
+        case CUSTOMER_STATUS.AT_RISK:
         case 'בסיכון':
             colorClasses = 'text-statusRiskText bg-statusRiskBg';
             break;
-        case 'lost':
+        case CUSTOMER_STATUS.LOST:
         case 'אבוד':
             colorClasses = 'text-statusLostText bg-statusLostBg';
             break;
-        case 'recovered':
+        case CUSTOMER_STATUS.RECOVERED:
         case 'התאושש':
             colorClasses = 'text-statusRecoveredText bg-statusRecoveredBg';
             break;
-        case 'new':
+        case CUSTOMER_STATUS.NEW:
         case 'חדש':
             colorClasses = 'text-statusRecoveredText bg-statusRecoveredBg';
             break;
@@ -66,11 +68,11 @@ const StatusBadge = ({ status, language }) => {
         const statusLower = statusText.toLowerCase();
         
         // Map Hebrew/English to English keys
-        if (statusLower === 'active' || statusLower === 'פעיל') return 'Active';
-        if (statusLower === 'new' || statusLower === 'חדש') return 'New';
-        if (statusLower === 'at risk' || statusLower === 'risk' || statusLower === 'at_risk' || statusLower === 'בסיכון') return 'At Risk';
-        if (statusLower === 'lost' || statusLower === 'נוטש') return 'Lost';
-        if (statusLower === 'recovered' || statusLower === 'חוזר') return 'Recovered';
+        if (statusLower === STATUS.ACTIVE || statusLower === CUSTOMER_STATUS.ACTIVE || statusLower === 'פעיל') return 'Active';
+        if (statusLower === CUSTOMER_STATUS.NEW || statusLower === 'חדש') return 'New';
+        if (statusLower === 'at risk' || statusLower === CUSTOMER_STATUS.RISK || statusLower === CUSTOMER_STATUS.AT_RISK || statusLower === 'בסיכון') return 'At Risk';
+        if (statusLower === CUSTOMER_STATUS.LOST || statusLower === 'נוטש') return 'Lost';
+        if (statusLower === CUSTOMER_STATUS.RECOVERED || statusLower === 'חוזר') return 'Recovered';
         if (statusLower === 'lead' || statusLower === 'ליד') return 'Lead';
         
         // If already in English format, return as is
@@ -153,17 +155,17 @@ function CustomerTable({ customers = [], loading = false, showFilter = true, sho
 
                 switch (filterValue) {
                     case 'Active':
-                        return itemStatusLower === 'active' || itemStatusLower === 'פעיל';
+                        return itemStatusLower === STATUS.ACTIVE || itemStatusLower === CUSTOMER_STATUS.ACTIVE || itemStatusLower === 'פעיל';
                     case 'New':
-                        return itemStatusLower === 'new' || itemStatusLower === 'חדש';
+                        return itemStatusLower === CUSTOMER_STATUS.NEW || itemStatusLower === 'חדש';
                     case 'Lead':
                         return itemStatusLower === 'lead' || itemStatusLower === 'ליד';
                     case 'At Risk':
-                        return itemStatusLower === 'at risk' || itemStatusLower === 'risk' || itemStatusLower === 'at_risk' || itemStatusLower === 'בסיכון';
+                        return itemStatusLower === 'at risk' || itemStatusLower === CUSTOMER_STATUS.RISK || itemStatusLower === CUSTOMER_STATUS.AT_RISK || itemStatusLower === 'בסיכון';
                     case 'Lost':
-                        return itemStatusLower === 'lost' || itemStatusLower === 'נוטש';
+                        return itemStatusLower === CUSTOMER_STATUS.LOST || itemStatusLower === 'נוטש';
                     case 'Recovered':
-                        return itemStatusLower === 'recovered' || itemStatusLower === 'חוזר';
+                        return itemStatusLower === CUSTOMER_STATUS.RECOVERED || itemStatusLower === 'חוזר';
                     default:
                         return true;
                 }

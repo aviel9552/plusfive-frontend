@@ -3,15 +3,16 @@ import { CustomerTable, ManageAndTrackCustomers } from '../../components'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMyCustomersAction } from '../../redux/actions/customerActions'
 import { getCustomersStatusCount } from '../../redux/services/customerService'
+import { CUSTOMER_STATUS, STATUS } from '../../config/constants'
 
 function customerManagement() {
   const dispatch = useDispatch();
   const [statusCounts, setStatusCounts] = React.useState({
-    active: 0,
-    at_risk: 0,
-    lost: 0,
-    recovered: 0,
-    new: 0,
+    [CUSTOMER_STATUS.ACTIVE]: 0,
+    [CUSTOMER_STATUS.AT_RISK]: 0,
+    [CUSTOMER_STATUS.LOST]: 0,
+    [CUSTOMER_STATUS.RECOVERED]: 0,
+    [CUSTOMER_STATUS.NEW]: 0,
     lead: 0
   });
   const [statusLoading, setStatusLoading] = React.useState(true);
